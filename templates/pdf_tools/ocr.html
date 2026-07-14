@@ -221,6 +221,12 @@
 
 {% block content %}
 
+<!-- Error banner (shown when OCR/upload fails) -->
+<div id="ocrErr" style="display:none;background:#fee2e2;border:1px solid #fca5a5;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;display:none;align-items:center;gap:.8rem;color:#991b1b;font-size:.875rem">
+  <i class="fa-solid fa-circle-exclamation" style="font-size:1.1rem;flex-shrink:0"></i>
+  <span id="ocrErrMsg"></span>
+</div>
+
 <!-- Drop zone -->
 <div class="ocr-drop" id="uploadZone">
   <input type="file" id="fileInput" accept=".pdf">
@@ -332,6 +338,16 @@
 {% endblock %}
 
 {% block extra_js %}<script>
+// Override global showError — ocr page has no .result-card, show inline banner instead
+function showError(msg) {
+  const errDiv = document.getElementById('ocrErr');
+  const errMsg = document.getElementById('ocrErrMsg');
+  if (!errDiv) return;
+  errMsg.textContent = msg;
+  errDiv.style.display = 'flex';
+  errDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
 let _imgs      = [];
 let _texts     = {};   // cache: page_index → extracted text
 let _imgPaths  = {};   // cache: page_index → server path for extraction
@@ -724,16 +740,25 @@ document.addEventListener('keydown', e => {
 });
 
 // ── File Upload + OCR ──
-function setProgress(pct, page, total) {
-  document.getElementById('loaderPct').textContent = pct + '%';
-  document.getElementById('loaderBar').style.width = pct + '%';
-  document.getElementById('loaderSub').textContent =
-    (page && total) ? 'Page ' + page + ' of ' + total : 'Starting…';
-}
+// ── Drag & drop on upload zone ──
+const _zone = document.getElementById('uploadZone');
+_zone.addEventListener('dragover',  e => { e.preventDefault(); _zone.classList.add('dragging'); });
+_zone.addEventListener('dragleave', ()  => _zone.classList.remove('dragging'));
+_zone.addEventListener('drop', e => {
+  e.preventDefault(); _zone.classList.remove('dragging');
+  const f = e.dataTransfer.files[0];
+  if (f) {
+    const dt = new DataTransfer(); dt.items.add(f);
+    document.getElementById('fileInput').files = dt.files;
+    document.getElementById('fileInput').dispatchEvent(new Event('change'));
+  }
+});
 
 document.getElementById('fileInput').addEventListener('change', async function () {
   if (!this.files.length) return;
   const file = this.files[0];
+  // Clear any previous error
+  document.getElementById('ocrErr').style.display = 'none';
 
   _imgs = []; _texts = {}; _imgPaths = {}; _stem = '';
   document.getElementById('pdfViewer').style.display = 'none';
@@ -782,7 +807,7 @@ document.getElementById('fileInput').addEventListener('change', async function (
             document.getElementById('pdfViewer').scrollIntoView({ behavior:'smooth', block:'start' });
           }, 400);
         }
-      } catch(e) {}
+      } catch(e) { showError('Polling error: ' + e.message); stopLoader(); }
     }, 1000);
 
   } catch(err) {
