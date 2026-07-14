@@ -131,27 +131,26 @@ import time as _time
 # Each job is a JSON file: <OUTPUT_DIR>/_ocr_jobs/<job_id>.json
 _JOB_TTL = 600  # seconds — delete completed/errored jobs after 10 minutes
 
-def _jobs_dir() -> Path:
-    d = Path(settings.OUTPUT_DIR) / ‘_ocr_jobs’
+def _jobs_dir():
+    d = Path(settings.OUTPUT_DIR) / “_ocr_jobs”
     d.mkdir(parents=True, exist_ok=True)
     return d
 
-def _job_path(job_id: str) -> Path:
-    return _jobs_dir() / f’{job_id}.json’
+def _job_path(job_id):
+    return _jobs_dir() / (job_id + “.json”)
 
-def _write_job(job_id: str, data: dict):
-    “””Merge `data` into the job file atomically.”””
+def _write_job(job_id, data):
     p = _job_path(job_id)
     try:
         existing = json.loads(p.read_text()) if p.exists() else {}
     except Exception:
         existing = {}
     existing.update(data)
-    tmp = p.with_suffix(‘.tmp’)
+    tmp = p.with_suffix(“.tmp”)
     tmp.write_text(json.dumps(existing))
     tmp.replace(p)
 
-def _read_job(job_id: str):
+def _read_job(job_id):
     p = _job_path(job_id)
     if not p.exists():
         return None
@@ -161,14 +160,13 @@ def _read_job(job_id: str):
         return None
 
 def _prune_jobs():
-    “””Delete job files older than _JOB_TTL seconds after completion.”””
     try:
         now = _time.time()
-        for f in _jobs_dir().glob(‘*.json’):
+        for f in _jobs_dir().glob(“*.json”):
             try:
                 data = json.loads(f.read_text())
-                ts = data.get(‘_ts’, now)
-                if (data.get(‘done’) or data.get(‘error’)) and now - ts > _JOB_TTL:
+                ts = data.get(“_ts”, now)
+                if (data.get(“done”) or data.get(“error”)) and now - ts > _JOB_TTL:
                     f.unlink(missing_ok=True)
             except Exception:
                 pass
