@@ -1,0 +1,524 @@
+﻿{% extends 'base.html' %}
+{% block title %}PDF Viewer & Extractor — ZayroDocX{% endblock %}
+{% block active_pdf_viewer %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">PDF Viewer & Extractor</span>{% endblock %}
+{% block content %}
+<style>
+.thumb-item { cursor:pointer;margin-bottom:8px;border-radius:6px;overflow:hidden;border:2px solid transparent;transition:border-color .15s,box-shadow .15s }
+.thumb-item:hover { border-color:var(--brand);box-shadow:0 2px 8px rgba(0,0,0,.15) }
+.thumb-item.active { border-color:var(--brand) }
+.thumb-num { display:block;text-align:center;padding:3px 0;font-size:.72rem;color:var(--text-muted) }
+.search-highlight { background:#fde68a;color:#1e293b;border-radius:2px;padding:0 1px }
+.search-match { background:#fbbf24 }
+#pageImgModal { display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:9999;align-items:center;justify-content:center;flex-direction:column }
+#pageImgModal.open { display:flex }
+#pageImgModal img { max-width:90vw;max-height:85vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.6) }
+.modal-close-btn { position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:1.6rem;cursor:pointer;line-height:1 }
+.modal-dl-btn { margin-top:14px;background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:8px 22px;font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:6px }
+.toolbar-btn { background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:.78rem;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap }
+.toolbar-btn:hover { background:var(--border) }
+.stat-badge { font-size:.72rem;color:var(--text-muted);background:var(--surface-alt);border:1px solid var(--border);border-radius:20px;padding:2px 10px;display:inline-block }
+</style>
+
+<!-- Upload zone -->
+<div id="uploadSection">
+  <div class="upload-zone" id="uploadZone">
+    <input type="file" id="fileInput" accept=".pdf">
+    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+    <h3>Drop your PDF here</h3><p>or click to browse</p>
+    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select PDF File</span>
+  </div>
+  <div class="action-bar" style="margin-top:12px">
+    <button id="loadBtn" class="btn btn-primary btn-lg" disabled>
+      <i class="fa-solid fa-eye"></i> Load &amp; Preview
+    </button>
+  </div>
+</div>
+
+<div class="progress-wrap" id="previewProgress" style="display:none">
+  <div class="progress-header"><span class="progress-label">Loading page previews…</span></div>
+  <div class="progress-track"><div class="progress-fill" id="previewBar" style="width:0%"></div></div>
+</div>
+
+<!-- Viewer section -->
+<div id="viewerSection" style="display:none">
+
+  <!-- Info bar -->
+  <div id="infoBar" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;flex-wrap:wrap">
+    <i class="fa-solid fa-file-pdf" style="color:#e53935;font-size:1.2rem"></i>
+    <span id="infoFilename" style="font-weight:600;font-size:.92rem;color:var(--text)"></span>
+    <span id="infoPages" class="pill pill-info" style="font-size:.75rem"></span>
+    <span id="infoType" class="pill" style="font-size:.75rem"></span>
+    <button id="resetBtn" class="btn btn-secondary" style="margin-left:auto;padding:5px 12px;font-size:.78rem">
+      <i class="fa-solid fa-rotate-left"></i> Start Over
+    </button>
+  </div>
+
+  <!-- Toolbar: search + nav + actions -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+    <!-- Search -->
+    <div style="display:flex;align-items:center;gap:4px;flex:1;min-width:200px">
+      <div style="position:relative;flex:1">
+        <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.8rem;pointer-events:none"></i>
+        <input id="searchInput" type="text" placeholder="Search text in PDF…"
+          style="width:100%;padding:6px 34px 6px 28px;border:1px solid var(--border);border-radius:6px;font-size:.82rem;background:var(--surface);color:var(--text);box-sizing:border-box">
+        <button id="clearSearch" onclick="clearSearch()" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.9rem">×</button>
+      </div>
+      <button class="toolbar-btn" onclick="searchPrev()"><i class="fa-solid fa-chevron-up"></i></button>
+      <button class="toolbar-btn" onclick="searchNext()"><i class="fa-solid fa-chevron-down"></i></button>
+      <span id="searchCount" style="font-size:.75rem;color:var(--text-muted);white-space:nowrap"></span>
+    </div>
+
+    <!-- Page jump -->
+    <div style="display:flex;align-items:center;gap:4px">
+      <span style="font-size:.78rem;color:var(--text-muted)">Page</span>
+      <input id="pageJump" type="number" min="1" style="width:56px;padding:5px 6px;border:1px solid var(--border);border-radius:6px;font-size:.82rem;text-align:center;background:var(--surface);color:var(--text)">
+      <button class="toolbar-btn" onclick="jumpToPage()"><i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+
+    <!-- Nav buttons -->
+    <button class="toolbar-btn" id="prevBtn" onclick="stepPage(-1)"><i class="fa-solid fa-chevron-left"></i> Prev</button>
+    <button class="toolbar-btn" id="nextBtn" onclick="stepPage(1)">Next <i class="fa-solid fa-chevron-right"></i></button>
+
+    <!-- Copy text -->
+    <button class="toolbar-btn" onclick="copyText()"><i class="fa-solid fa-copy"></i> Copy</button>
+
+    <!-- View image -->
+    <button class="toolbar-btn" onclick="viewFullImage()" style="color:#7c3aed;border-color:#7c3aed"><i class="fa-solid fa-expand"></i> Full View</button>
+  </div>
+
+  <!-- Two-panel layout -->
+  <div style="display:grid;grid-template-columns:180px 1fr;gap:14px;min-height:480px">
+
+    <!-- Left: thumbnail strip -->
+    <div style="border:1px solid var(--border);border-radius:var(--radius);overflow-y:auto;max-height:520px;padding:8px;background:var(--surface-alt)">
+      <div style="font-size:.7rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;padding:0 4px">Pages</div>
+      <div id="thumbStrip"></div>
+    </div>
+
+    <!-- Right: text preview -->
+    <div style="border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column;max-height:520px;background:var(--surface)">
+      <div style="padding:8px 14px;border-bottom:1px solid var(--border);background:var(--surface-alt);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-size:.78rem;font-weight:600;color:var(--text-muted)" id="previewLabel">Page 1 — Text Content</span>
+        <span id="wordCount" class="stat-badge"></span>
+        <span id="charCount" class="stat-badge"></span>
+      </div>
+      <pre id="pageText" style="margin:0;padding:14px 16px;font-size:.8rem;line-height:1.7;color:var(--text);white-space:pre-wrap;word-break:break-word;font-family:inherit;overflow-y:auto;flex:1"></pre>
+    </div>
+  </div>
+
+  <!-- Extract options -->
+  <div class="options-panel" style="margin-top:14px">
+    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Extract Options</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="form-group">
+        <div class="form-label">Output Format</div>
+        <div class="toggle-group">
+          <label class="toggle-option"><input type="radio" name="format" value="excel" checked><span><i class="fa-solid fa-file-excel"></i> Excel</span></label>
+          <label class="toggle-option"><input type="radio" name="format" value="csv"><span><i class="fa-solid fa-table"></i> CSV</span></label>
+          <label class="toggle-option"><input type="radio" name="format" value="text"><span><i class="fa-solid fa-align-left"></i> Text</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Extraction Mode <span class="form-hint">(use OCR for scanned PDFs)</span></div>
+        <div class="toggle-group">
+          <label class="toggle-option"><input type="radio" name="mode" value="normal" checked><span><i class="fa-solid fa-file-lines"></i> Normal</span></label>
+          <label class="toggle-option"><input type="radio" name="mode" value="ocr"><span><i class="fa-solid fa-microchip"></i> OCR</span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page range -->
+    <div class="form-group" style="margin-top:8px">
+      <div class="form-label">Page Range <span class="form-hint">(leave blank to extract all pages)</span></div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:.82rem;color:var(--text-muted)">From page</span>
+        <input id="pageFrom" type="number" min="1" value="1" style="width:64px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:.82rem;background:var(--surface);color:var(--text)">
+        <span style="font-size:.82rem;color:var(--text-muted)">to page</span>
+        <input id="pageTo" type="number" min="1" placeholder="last" style="width:72px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:.82rem;background:var(--surface);color:var(--text)">
+        <button class="toolbar-btn" onclick="setRangeCurrent()" title="Set range to current page only"><i class="fa-solid fa-file"></i> Current page only</button>
+        <button class="toolbar-btn" onclick="resetRange()" title="Reset to all pages"><i class="fa-solid fa-list"></i> All pages</button>
+      </div>
+    </div>
+
+    <div class="form-group" id="langRow" style="display:none">
+      <div class="form-label">OCR Language</div>
+      <select name="lang" id="langSelect" class="form-control" style="max-width:260px">
+        <option value="eng">English</option>
+        <option value="hin">Hindi</option>
+        <option value="tam">Tamil</option>
+        <option value="tel">Telugu</option>
+        <option value="kan">Kannada</option>
+        <option value="mal">Malayalam</option>
+        <option value="ben">Bengali</option>
+        <option value="mar">Marathi</option>
+        <option value="guj">Gujarati</option>
+        <option value="fra">French</option>
+        <option value="deu">German</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button id="extractBtn" class="btn btn-primary btn-lg">
+      <i class="fa-solid fa-download"></i> Extract &amp; Download
+    </button>
+  </div>
+</div>
+
+<!-- Extract progress + result -->
+<div class="progress-wrap" id="extractProgress" style="display:none">
+  <div class="progress-header"><span class="progress-label">Extracting data…</span></div>
+  <div class="progress-track"><div class="progress-fill" id="extractBar" style="width:0%"></div></div>
+</div>
+<div class="result-card"></div>
+
+<!-- Full-size image modal -->
+<div id="pageImgModal">
+  <button class="modal-close-btn" onclick="closeImgModal()"><i class="fa-solid fa-xmark"></i></button>
+  <img id="modalImg" src="" alt="Page">
+  <button class="modal-dl-btn" onclick="downloadCurrentPageImage()">
+    <i class="fa-solid fa-download"></i> Download as PNG
+  </button>
+</div>
+
+{% endblock %}
+{% block extra_js %}<script>
+let uploadedFile = null;
+let pagesData    = [];
+let currentIdx   = 0;
+let totalPages   = 0;
+let searchMatches = [];
+let searchMatchIdx = 0;
+
+const fileInput     = document.getElementById('fileInput');
+const loadBtn       = document.getElementById('loadBtn');
+const uploadSection = document.getElementById('uploadSection');
+const viewerSection = document.getElementById('viewerSection');
+
+// File select
+fileInput.addEventListener('change', function() {
+  uploadedFile = this.files[0] || null;
+  loadBtn.disabled = !uploadedFile;
+  if (uploadedFile) {
+    document.querySelector('#uploadZone h3').textContent = uploadedFile.name;
+    document.querySelector('#uploadZone p').textContent  = (uploadedFile.size/1024/1024).toFixed(2) + ' MB';
+  }
+});
+
+// Drag & drop
+const uploadZone = document.getElementById('uploadZone');
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault(); uploadZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type === 'application/pdf') {
+    fileInput.files = e.dataTransfer.files;
+    uploadedFile = f;
+    loadBtn.disabled = false;
+    document.querySelector('#uploadZone h3').textContent = f.name;
+    document.querySelector('#uploadZone p').textContent  = (f.size/1024/1024).toFixed(2) + ' MB';
+  }
+});
+
+// OCR mode toggle
+document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener('change', function() {
+  document.getElementById('langRow').style.display = this.value === 'ocr' ? 'block' : 'none';
+}));
+
+// Load & Preview
+loadBtn.addEventListener('click', async () => {
+  if (!uploadedFile) return;
+  loadBtn.disabled = true;
+  document.getElementById('previewProgress').style.display = 'block';
+  animateBar('previewBar', 10, 80, 2000);
+
+  const fd = new FormData();
+  fd.append('file', uploadedFile);
+
+  try {
+    const resp = await fetch('{% url "api_pdf_preview" %}', {method:'POST', body:fd, headers:{'X-CSRFToken': getCsrfToken()}});
+    const data = await resp.json();
+    document.getElementById('previewProgress').style.display = 'none';
+    if (data.error) { showError(data.error); loadBtn.disabled = false; return; }
+    pagesData  = data.pages;
+    totalPages = data.total;
+    renderViewer(data);
+  } catch(e) {
+    document.getElementById('previewProgress').style.display = 'none';
+    showError(e.message);
+    loadBtn.disabled = false;
+  }
+});
+
+function renderViewer(data) {
+  uploadSection.style.display = 'none';
+  viewerSection.style.display = 'block';
+
+  document.getElementById('infoFilename').textContent = data.filename;
+  document.getElementById('infoPages').textContent    = data.total + ' pages';
+  document.getElementById('pageJump').max             = data.total;
+  document.getElementById('pageFrom').max             = data.total;
+  document.getElementById('pageTo').max               = data.total;
+  document.getElementById('pageTo').placeholder       = data.total;
+
+  const typeEl = document.getElementById('infoType');
+  if (data.scanned_hint) {
+    typeEl.textContent = '🔍 Likely Scanned — use OCR mode';
+    typeEl.style.cssText = 'font-size:.75rem;background:#fef3c7;color:#92400e;border-radius:20px;padding:2px 10px';
+    document.querySelector('input[name="mode"][value="ocr"]').checked = true;
+    document.getElementById('langRow').style.display = 'block';
+  } else {
+    typeEl.textContent = '📄 Native Digital PDF';
+    typeEl.style.cssText = 'font-size:.75rem;background:#d1fae5;color:#065f46;border-radius:20px;padding:2px 10px';
+  }
+
+  const strip = document.getElementById('thumbStrip');
+  strip.innerHTML = '';
+  data.pages.forEach((p, idx) => {
+    const item = document.createElement('div');
+    item.className = 'thumb-item';
+    item.dataset.idx = idx;
+    const src = p.thumb_url || (p.thumb_b64 ? 'data:image/jpeg;base64,' + p.thumb_b64 : '');
+    item.innerHTML = `<img src="${src}" alt="Page ${p.page}" style="width:100%;display:block"><span class="thumb-num">Page ${p.page}</span>`;
+    item.addEventListener('click', () => selectPage(idx));
+    strip.appendChild(item);
+  });
+
+  selectPage(0);
+}
+
+function selectPage(idx) {
+  if (idx < 0 || idx >= pagesData.length) return;
+  currentIdx = idx;
+  const p = pagesData[idx];
+
+  document.querySelectorAll('#thumbStrip .thumb-item').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('#thumbStrip .thumb-item')[idx]?.scrollIntoView({block:'nearest'});
+
+  document.getElementById('previewLabel').textContent = `Page ${p.page} of ${totalPages} — Text Content`;
+  document.getElementById('pageJump').value = p.page;
+
+  const text = p.text || '';
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  document.getElementById('wordCount').textContent = words + ' words';
+  document.getElementById('charCount').textContent = text.length + ' chars';
+
+  // Render with search highlights if active
+  const q = document.getElementById('searchInput').value.trim();
+  if (q) {
+    renderHighlighted(text, q);
+  } else {
+    document.getElementById('pageText').textContent = text || '(No selectable text — this page may be a scanned image)';
+  }
+
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').disabled = idx === pagesData.length - 1;
+}
+
+function stepPage(dir) { selectPage(currentIdx + dir); }
+
+function jumpToPage() {
+  const n = parseInt(document.getElementById('pageJump').value);
+  if (!isNaN(n)) selectPage(Math.max(0, Math.min(n - 1, pagesData.length - 1)));
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') stepPage(1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   stepPage(-1);
+});
+
+// Search
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.trim();
+  document.getElementById('clearSearch').style.display = q ? 'block' : 'none';
+  if (q) runSearch(q);
+  else   clearSearch();
+});
+
+function runSearch(q) {
+  const ql = q.toLowerCase();
+  searchMatches = [];
+  pagesData.forEach((p, idx) => {
+    if ((p.text || '').toLowerCase().includes(ql)) searchMatches.push(idx);
+  });
+  searchMatchIdx = 0;
+  const count = searchMatches.length;
+  document.getElementById('searchCount').textContent = count ? `${count} page${count>1?'s':''} matched` : 'No match';
+  if (count) { selectPage(searchMatches[0]); renderHighlighted(pagesData[searchMatches[0]].text, q); }
+}
+
+function searchNext() {
+  if (!searchMatches.length) return;
+  searchMatchIdx = (searchMatchIdx + 1) % searchMatches.length;
+  const idx = searchMatches[searchMatchIdx];
+  selectPage(idx);
+  renderHighlighted(pagesData[idx].text, document.getElementById('searchInput').value.trim());
+}
+
+function searchPrev() {
+  if (!searchMatches.length) return;
+  searchMatchIdx = (searchMatchIdx - 1 + searchMatches.length) % searchMatches.length;
+  const idx = searchMatches[searchMatchIdx];
+  selectPage(idx);
+  renderHighlighted(pagesData[idx].text, document.getElementById('searchInput').value.trim());
+}
+
+function renderHighlighted(text, q) {
+  const pre = document.getElementById('pageText');
+  pre.innerHTML = '';
+  if (!q) { pre.textContent = text; return; }
+  const ql = q.toLowerCase();
+  let last = 0;
+  const tl = text.toLowerCase();
+  let pos;
+  while ((pos = tl.indexOf(ql, last)) !== -1) {
+    pre.appendChild(document.createTextNode(text.slice(last, pos)));
+    const mark = document.createElement('mark');
+    mark.className = 'search-highlight';
+    mark.textContent = text.slice(pos, pos + q.length);
+    pre.appendChild(mark);
+    last = pos + q.length;
+  }
+  pre.appendChild(document.createTextNode(text.slice(last)));
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('clearSearch').style.display = 'none';
+  document.getElementById('searchCount').textContent = '';
+  searchMatches = [];
+  if (pagesData[currentIdx]) document.getElementById('pageText').textContent = pagesData[currentIdx].text || '';
+}
+
+// Copy text
+function copyText() {
+  const text = pagesData[currentIdx]?.text || '';
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.currentTarget;
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+    setTimeout(() => btn.innerHTML = orig, 1500);
+  });
+}
+
+// Full image modal
+function viewFullImage() {
+  const p = pagesData[currentIdx];
+  if (!p) return;
+  const src = p.thumb_url || (p.thumb_b64 ? 'data:image/jpeg;base64,' + p.thumb_b64 : '');
+  document.getElementById('modalImg').src = src;
+  document.getElementById('pageImgModal').classList.add('open');
+}
+
+function closeImgModal() {
+  document.getElementById('pageImgModal').classList.remove('open');
+}
+
+document.getElementById('pageImgModal').addEventListener('click', function(e) {
+  if (e.target === this) closeImgModal();
+});
+
+// Download page as PNG (high res via backend)
+async function downloadCurrentPageImage() {
+  if (!uploadedFile) return;
+  const pageNum = (pagesData[currentIdx]?.page) || (currentIdx + 1);
+  const fd = new FormData();
+  fd.append('file', uploadedFile);
+  fd.append('page', pageNum);
+  try {
+    const resp = await fetch('{% url "api_download_page_image" %}', {method:'POST', body:fd, headers:{'X-CSRFToken': getCsrfToken()}});
+    if (!resp.ok) { alert('Download failed.'); return; }
+    const blob = await resp.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `page_${pageNum}.png`;
+    a.click();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+// Page range helpers
+function setRangeCurrent() {
+  const p = (pagesData[currentIdx]?.page) || (currentIdx + 1);
+  document.getElementById('pageFrom').value = p;
+  document.getElementById('pageTo').value   = p;
+}
+
+function resetRange() {
+  document.getElementById('pageFrom').value = 1;
+  document.getElementById('pageTo').value   = '';
+}
+
+// Reset
+document.getElementById('resetBtn').addEventListener('click', () => {
+  uploadSection.style.display = 'block';
+  viewerSection.style.display = 'none';
+  fileInput.value  = '';
+  uploadedFile     = null;
+  pagesData        = [];
+  loadBtn.disabled = true;
+  document.querySelector('#uploadZone h3').textContent = 'Drop your PDF here';
+  document.querySelector('#uploadZone p').textContent  = 'or click to browse';
+  document.querySelector('.result-card').innerHTML     = '';
+  clearSearch();
+});
+
+// Extract & Download
+document.getElementById('extractBtn').addEventListener('click', async () => {
+  if (!uploadedFile) return;
+  const fmt      = document.querySelector('input[name="format"]:checked').value;
+  const mode     = document.querySelector('input[name="mode"]:checked').value;
+  const lang     = document.getElementById('langSelect').value;
+  const pageFrom = document.getElementById('pageFrom').value;
+  const pageTo   = document.getElementById('pageTo').value;
+  const btn      = document.getElementById('extractBtn');
+
+  btn.disabled = true;
+  document.getElementById('extractProgress').style.display = 'block';
+  animateBar('extractBar', 5, 90, mode === 'ocr' ? 8000 : 3000);
+  document.querySelector('.result-card').innerHTML = '';
+
+  const fd = new FormData();
+  fd.append('file', uploadedFile);
+  fd.append('format', fmt);
+  fd.append('mode', mode);
+  fd.append('lang', lang);
+  if (pageFrom) fd.append('page_from', pageFrom);
+  if (pageTo)   fd.append('page_to', pageTo);
+
+  try {
+    const resp = await fetch('{% url "api_extract_pdf_data" %}', {method:'POST', body:fd, headers:{'X-CSRFToken': getCsrfToken()}});
+    const data = await resp.json();
+    document.getElementById('extractProgress').style.display = 'none';
+    setBar('extractBar', 0);
+    btn.disabled = false;
+    if (data.error) { showError(data.error); return; }
+    showDownload(data);
+  } catch(e) {
+    document.getElementById('extractProgress').style.display = 'none';
+    btn.disabled = false;
+    showError(e.message);
+  }
+});
+
+// Helpers
+function getCsrfToken() {
+  const c = document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='));
+  return c ? c.trim().split('=')[1] : '';
+}
+function animateBar(id, from, to, ms) {
+  const el = document.getElementById(id);
+  const step = (to - from) / (ms / 60);
+  let cur = from;
+  const t = setInterval(() => { cur = Math.min(cur + step, to); el.style.width = cur + '%'; if (cur >= to) clearInterval(t); }, 60);
+}
+function setBar(id, val) { document.getElementById(id).style.width = val + '%'; }
+
+document.body.insertAdjacentHTML('afterbegin', '{% csrf_token %}');
+</script>{% endblock %}

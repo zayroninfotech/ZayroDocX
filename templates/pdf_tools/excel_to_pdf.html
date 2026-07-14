@@ -1,0 +1,27 @@
+﻿{% extends 'base.html' %}
+{% block title %}Excel to PDF — ZayroDocX{% endblock %}
+{% block active_excel2pdf %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Excel to PDF</span>{% endblock %}
+{% block content %}
+<form id="toolForm">{% csrf_token %}
+  <div class="upload-zone"><input type="file" id="fileInput" name="file" accept=".xls,.xlsx">
+    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+    <h3>Drop your file here</h3><p>or click to browse</p>
+    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select File</span>
+  </div>
+  <div class="file-list" id="fileList"></div>
+  
+  <div class="action-bar">
+    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-file-excel"></i> Excel to PDF</button>
+  </div>
+</form>
+<div class="progress-wrap">
+  <div class="progress-header"><span class="progress-label">Processing…</span></div>
+  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+</div>
+<div class="result-card"></div>
+{% endblock %}
+{% block extra_js %}<script>
+document.getElementById('fileInput').addEventListener('change',function(){renderFileList(this.files,'fileList');});
+submitToolForm({formId:'toolForm',apiUrl:'{% url "api_excel_to_pdf" %}',fileInputId:'fileInput'});
+</script>{% endblock %}

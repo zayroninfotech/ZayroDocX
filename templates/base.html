@@ -1,0 +1,237 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ZayroDocX — PDF Tools{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_head %}{% endblock %}
+  <script>
+    (function(){
+      var s = localStorage.getItem('theme');
+      document.documentElement.setAttribute('data-theme', s === 'light' ? 'light' : 'dark');
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-header">
+      <a href="{% url 'dashboard' %}" class="brand">
+        <div class="brand-logo"><img src="{% static 'img/logo.png' %}" alt="ZayroDocX" class="brand-logo-img"></div>
+        <div class="brand-text">
+          <span class="brand-name">ZayroDocX</span>
+          <span class="brand-tagline">PDF Toolkit</span>
+        </div>
+      </a>
+      <button class="sidebar-toggle" id="sidebarToggle" title="Collapse sidebar">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+    </div>
+
+    <!-- Dashboard quick link -->
+    <div class="sidebar-dashboard-link">
+      <a href="{% url 'dashboard' %}" class="nav-item nav-dashboard">
+        <span class="nav-icon-wrap ni-dash"><i class="fa-solid fa-gauge-high"></i></span>
+        <span class="nav-label">Dashboard</span>
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <!-- ── Organize ── -->
+      <div class="nav-section">
+        <div class="nav-cat-header nch-purple">
+          <i class="fa-solid fa-layer-group"></i>
+          <span class="nav-cat-label">Organize PDF</span>
+        </div>
+        <a href="{% url 'merge_pdf_page' %}"     class="nav-item {% block active_merge %}{% endblock %}">
+          <span class="nav-icon-wrap ni-purple"><i class="fa-solid fa-object-group"></i></span>
+          <span class="nav-label">Merge PDF</span>
+        </a>
+        <a href="{% url 'split_pdf_page' %}"     class="nav-item {% block active_split %}{% endblock %}">
+          <span class="nav-icon-wrap ni-purple"><i class="fa-solid fa-scissors"></i></span>
+          <span class="nav-label">Split PDF</span>
+        </a>
+        <a href="{% url 'remove_pages_page' %}"  class="nav-item {% block active_remove %}{% endblock %}">
+          <span class="nav-icon-wrap ni-purple"><i class="fa-solid fa-trash-can"></i></span>
+          <span class="nav-label">Remove Pages</span>
+        </a>
+        <a href="{% url 'extract_pages_page' %}" class="nav-item {% block active_extract %}{% endblock %}">
+          <span class="nav-icon-wrap ni-purple"><i class="fa-solid fa-file-export"></i></span>
+          <span class="nav-label">Extract Pages</span>
+        </a>
+        <a href="{% url 'scan_pdf_page' %}"      class="nav-item {% block active_scan %}{% endblock %}">
+          <span class="nav-icon-wrap ni-purple"><i class="fa-solid fa-scanner-image"></i></span>
+          <span class="nav-label">Scan to PDF</span>
+        </a>
+      </div>
+
+      <!-- ── Optimize / AI ── -->
+      <div class="nav-section">
+        <div class="nav-cat-header nch-pink">
+          <i class="fa-solid fa-microchip"></i>
+          <span class="nav-cat-label">Optimize &amp; AI</span>
+        </div>
+        <a href="{% url 'compress_pdf_page' %}"  class="nav-item {% block active_compress %}{% endblock %}">
+          <span class="nav-icon-wrap ni-pink"><i class="fa-solid fa-compress"></i></span>
+          <span class="nav-label">Compress PDF</span>
+        </a>
+        <a href="{% url 'ocr_pdf_page' %}"       class="nav-item {% block active_ocr %}{% endblock %}">
+          <span class="nav-icon-wrap ni-pink"><i class="fa-solid fa-eye"></i></span>
+          <span class="nav-label">OCR PDF</span>
+          <span class="nav-badge">AI</span>
+        </a>
+        <a href="{% url 'invoice_page' %}"        class="nav-item {% block active_invoice %}{% endblock %}">
+          <span class="nav-icon-wrap ni-pink"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+          <span class="nav-label">Invoice Extractor</span>
+          <span class="nav-badge">AI</span>
+        </a>
+        <a href="{% url 'pdf_viewer_page' %}"     class="nav-item {% block active_pdf_viewer %}{% endblock %}">
+          <span class="nav-icon-wrap ni-pink"><i class="fa-solid fa-magnifying-glass-chart"></i></span>
+          <span class="nav-label">PDF Viewer &amp; Extract</span>
+        </a>
+      </div>
+
+      <!-- ── Convert TO PDF ── -->
+      <div class="nav-section">
+        <div class="nav-cat-header nch-blue">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          <span class="nav-cat-label">Convert to PDF</span>
+        </div>
+        <a href="{% url 'jpg_to_pdf_page' %}"   class="nav-item {% block active_jpg2pdf %}{% endblock %}">
+          <span class="nav-icon-wrap ni-blue"><i class="fa-solid fa-image"></i></span>
+          <span class="nav-label">JPG to PDF</span>
+        </a>
+        <a href="{% url 'word_to_pdf_page' %}"  class="nav-item {% block active_word2pdf %}{% endblock %}">
+          <span class="nav-icon-wrap ni-blue"><i class="fa-solid fa-file-word"></i></span>
+          <span class="nav-label">Word to PDF</span>
+        </a>
+        <a href="{% url 'pptx_to_pdf_page' %}"  class="nav-item {% block active_pptx2pdf %}{% endblock %}">
+          <span class="nav-icon-wrap ni-blue"><i class="fa-solid fa-file-powerpoint"></i></span>
+          <span class="nav-label">PowerPoint to PDF</span>
+        </a>
+        <a href="{% url 'excel_to_pdf_page' %}" class="nav-item {% block active_excel2pdf %}{% endblock %}">
+          <span class="nav-icon-wrap ni-blue"><i class="fa-solid fa-file-excel"></i></span>
+          <span class="nav-label">Excel to PDF</span>
+        </a>
+        <a href="{% url 'html_to_pdf_page' %}"  class="nav-item {% block active_html2pdf %}{% endblock %}">
+          <span class="nav-icon-wrap ni-blue"><i class="fa-brands fa-html5"></i></span>
+          <span class="nav-label">HTML to PDF</span>
+        </a>
+      </div>
+
+      <!-- ── Convert FROM PDF ── -->
+      <div class="nav-section">
+        <div class="nav-cat-header nch-teal">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span class="nav-cat-label">Convert from PDF</span>
+        </div>
+        <a href="{% url 'pdf_to_jpg_page' %}"   class="nav-item {% block active_pdf2jpg %}{% endblock %}">
+          <span class="nav-icon-wrap ni-teal"><i class="fa-solid fa-images"></i></span>
+          <span class="nav-label">PDF to JPG</span>
+        </a>
+        <a href="{% url 'pdf_to_word_page' %}"  class="nav-item {% block active_pdf2word %}{% endblock %}">
+          <span class="nav-icon-wrap ni-teal"><i class="fa-solid fa-file-word"></i></span>
+          <span class="nav-label">PDF to Word</span>
+        </a>
+        <a href="{% url 'pdf_to_pptx_page' %}"  class="nav-item {% block active_pdf2pptx %}{% endblock %}">
+          <span class="nav-icon-wrap ni-teal"><i class="fa-solid fa-file-powerpoint"></i></span>
+          <span class="nav-label">PDF to PowerPoint</span>
+        </a>
+        <a href="{% url 'pdf_to_excel_page' %}" class="nav-item {% block active_pdf2excel %}{% endblock %}">
+          <span class="nav-icon-wrap ni-teal"><i class="fa-solid fa-file-excel"></i></span>
+          <span class="nav-label">PDF to Excel</span>
+        </a>
+      </div>
+
+      <!-- ── Edit PDF ── -->
+      <div class="nav-section">
+        <div class="nav-cat-header nch-orange">
+          <i class="fa-solid fa-pen-to-square"></i>
+          <span class="nav-cat-label">Edit PDF</span>
+        </div>
+        <a href="{% url 'rotate_pdf_page' %}"    class="nav-item {% block active_rotate %}{% endblock %}">
+          <span class="nav-icon-wrap ni-orange"><i class="fa-solid fa-rotate-right"></i></span>
+          <span class="nav-label">Rotate PDF</span>
+        </a>
+        <a href="{% url 'page_numbers_page' %}"  class="nav-item {% block active_pagenum %}{% endblock %}">
+          <span class="nav-icon-wrap ni-orange"><i class="fa-solid fa-list-ol"></i></span>
+          <span class="nav-label">Add Page Numbers</span>
+        </a>
+        <a href="{% url 'watermark_pdf_page' %}" class="nav-item {% block active_watermark %}{% endblock %}">
+          <span class="nav-icon-wrap ni-orange"><i class="fa-solid fa-droplet"></i></span>
+          <span class="nav-label">Add Watermark</span>
+        </a>
+        <a href="{% url 'sign_pdf_page' %}"      class="nav-item {% block active_sign %}{% endblock %}">
+          <span class="nav-icon-wrap ni-orange"><i class="fa-solid fa-signature"></i></span>
+          <span class="nav-label">Sign PDF</span>
+        </a>
+      </div>
+
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-inner">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="nav-label">100% Local Processing</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main wrapper ── -->
+  <div class="main-wrapper" id="mainWrapper">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-toggle" id="topbarToggle" title="Toggle sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <nav class="breadcrumb">
+          <a href="{% url 'dashboard' %}"><i class="fa-solid fa-house" style="font-size:.75rem"></i></a>
+          <span class="sep"><i class="fa-solid fa-chevron-right"></i></span>
+          {% block breadcrumb %}<span class="current">Dashboard</span>{% endblock %}
+        </nav>
+      </div>
+      <div class="topbar-right">
+        <a href="{% url 'dashboard' %}" class="topbar-btn">
+          <i class="fa-solid fa-gauge-high"></i> Dashboard
+        </a>
+        <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">
+          <i class="fa-solid fa-moon" id="darkIcon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">
+            <i class="fa-solid fa-circle-info"></i> {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+      <span>© 2024 <strong>ZayroDocX</strong> — Professional PDF Toolkit &nbsp;·&nbsp; All processing done locally &nbsp;·&nbsp; Your files stay private</span>
+    </footer>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

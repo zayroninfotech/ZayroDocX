@@ -1,0 +1,75 @@
+﻿{% extends 'base.html' %}
+{% block title %}Sign PDF — ZayroDocX{% endblock %}
+{% block active_sign %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Sign PDF</span>{% endblock %}
+{% block content %}
+<form id="toolForm" enctype="multipart/form-data">{% csrf_token %}
+  <div class="upload-zone"><input type="file" id="fileInput" name="file" accept=".pdf">
+    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+    <h3>Drop your PDF here</h3><p>or click to browse</p>
+    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select PDF File</span>
+  </div>
+  <div class="file-list" id="fileList"></div>
+  <div class="options-panel">
+    <div class="options-panel-title"><i class="fa-solid fa-signature"></i> Signature</div>
+    <div class="form-group">
+      <div class="toggle-group">
+        <div class="toggle-option"><input type="radio" name="sig_method" id="smDraw" value="draw" checked><label for="smDraw"><i class="fa-solid fa-pen"></i> Draw</label></div>
+        <div class="toggle-option"><input type="radio" name="sig_method" id="smUpload" value="upload"><label for="smUpload"><i class="fa-solid fa-image"></i> Upload Image</label></div>
+      </div>
+    </div>
+    <div id="drawSection">
+      <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:10px">Draw your signature below (mouse or touch):</p>
+      <div class="sig-wrap"><canvas id="signatureCanvas" width="600" height="160"></canvas></div>
+      <div class="sig-actions">
+        <button type="button" id="clearCanvas" class="btn btn-secondary btn-sm"><i class="fa-solid fa-eraser"></i> Clear</button>
+      </div>
+      <input type="hidden" name="signature_data" id="signatureData">
+    </div>
+    <div id="uploadSection" style="display:none">
+      <div class="form-group">
+        <div class="form-label">Signature Image <span class="form-hint">(PNG with transparent background recommended)</span></div>
+        <input type="file" name="signature" class="form-control" accept="image/*">
+      </div>
+    </div>
+    <div class="form-row" style="margin-top:18px">
+      <div class="form-group"><div class="form-label">Page</div><input type="number" name="page" class="form-control" value="1" min="1"></div>
+      <div class="form-group"><div class="form-label">X1 (left pt)</div><input type="number" name="x1" class="form-control" value="50"></div>
+      <div class="form-group"><div class="form-label">Y1 (top pt)</div><input type="number" name="y1" class="form-control" value="700"></div>
+      <div class="form-group"><div class="form-label">X2 (right pt)</div><input type="number" name="x2" class="form-control" value="250"></div>
+      <div class="form-group"><div class="form-label">Y2 (bottom pt)</div><input type="number" name="y2" class="form-control" value="760"></div>
+    </div>
+  </div>
+  <div class="action-bar">
+    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-signature"></i> Sign PDF</button>
+  </div>
+</form>
+<div class="progress-wrap">
+  <div class="progress-header"><span class="progress-label">Signing PDF…</span></div>
+  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+</div>
+<div class="result-card"></div>
+{% endblock %}
+{% block extra_js %}<script>
+document.getElementById('fileInput').addEventListener('change',function(){renderFileList(this.files,'fileList');});
+initSignatureCanvas('signatureCanvas');
+document.querySelectorAll('input[name="sig_method"]').forEach(r=>r.addEventListener('change',function(){
+  document.getElementById('drawSection').style.display=this.value==='draw'?'block':'none';
+  document.getElementById('uploadSection').style.display=this.value==='upload'?'block':'none';
+}));
+document.getElementById('toolForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  if(document.querySelector('input[name="sig_method"]:checked').value==='draw')
+    document.getElementById('signatureData').value=document.getElementById('signatureCanvas').toDataURL('image/png');
+  const fd=new FormData(e.target);
+  const btn=e.target.querySelector('.btn-submit');
+  btn.disabled=true; showProgress(true,'Signing PDF…',20);
+  try{
+    await fakeProgress(20,80,500);
+    const resp=await fetch('{% url "api_sign_pdf" %}',{method:'POST',body:fd});
+    const data=await resp.json();
+    showProgress(false); btn.disabled=false;
+    if(data.error) showError(data.error); else showDownload(data);
+  }catch(err){showProgress(false);btn.disabled=false;showError(err.message);}
+});
+</script>{% endblock %}

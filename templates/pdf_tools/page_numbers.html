@@ -1,0 +1,46 @@
+﻿{% extends 'base.html' %}
+{% block title %}Page Numbers — ZayroDocX{% endblock %}
+{% block active_pagenum %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Page Numbers</span>{% endblock %}
+{% block content %}
+<form id="toolForm">{% csrf_token %}
+  <div class="upload-zone"><input type="file" id="fileInput" name="file" accept=".pdf">
+    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+    <h3>Drop your file here</h3><p>or click to browse</p>
+    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select PDF</span>
+  </div>
+  <div class="file-list" id="fileList"></div>
+  <div class="options-panel">
+    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Options</div>
+    <div class="form-group">
+      <div class="form-label">Position</div>
+      <div class="toggle-group">
+        <label class="toggle-option"><input type="radio" name="position" value="bottom-center" checked><span>Bottom Centre</span></label>
+        <label class="toggle-option"><input type="radio" name="position" value="bottom-right"><span>Bottom Right</span></label>
+        <label class="toggle-option"><input type="radio" name="position" value="top-center"><span>Top Centre</span></label>
+        <label class="toggle-option"><input type="radio" name="position" value="top-right"><span>Top Right</span></label>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Starting Number</div>
+      <input type="number" name="start" class="form-control" value="1" min="0">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Font Size</div>
+      <input type="number" name="font_size" class="form-control" value="12" min="8" max="36">
+    </div>
+  </div>
+  <div class="action-bar">
+    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-list-ol"></i> Add Page Numbers</button>
+  </div>
+</form>
+<div class="progress-wrap">
+  <div class="progress-header"><span class="progress-label">Processing…</span></div>
+  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+</div>
+<div class="result-card"></div>
+{% endblock %}
+{% block extra_js %}<script>
+document.getElementById('fileInput').addEventListener('change',function(){renderFileList(this.files,'fileList');});
+submitToolForm({formId:'toolForm',apiUrl:'{% url "api_page_numbers" %}',fileInputId:'fileInput'});
+</script>{% endblock %}

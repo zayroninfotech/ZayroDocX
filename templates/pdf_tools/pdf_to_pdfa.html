@@ -1,0 +1,34 @@
+﻿{% extends 'base.html' %}
+{% block title %}PDF to PDF/A — ZayroDocX{% endblock %}
+{% block active_pdf2pdfa %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">PDF to PDF/A</span>{% endblock %}
+{% block content %}
+<div class="tool-hero">
+  <div class="tool-hero-icon" style="background:#dbeafe;color:#2563eb"><i class="fa-solid fa-file-shield"></i></div>
+  <div class="tool-hero-text">
+    <h1>PDF to PDF/A</h1>
+    <p>Convert your PDF to PDF/A archival format for long-term preservation.</p>
+  </div>
+</div>
+<form id="toolForm">{% csrf_token %}
+  <div class="upload-zone"><input type="file" id="fileInput" name="file" accept=".pdf">
+    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+    <h3>Drop your file here</h3><p>or click to browse</p>
+    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select File</span>
+  </div>
+  <div class="file-list" id="fileList"></div>
+  
+  <div class="action-bar">
+    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-file-shield"></i> PDF to PDF/A</button>
+  </div>
+</form>
+<div class="progress-wrap">
+  <div class="progress-header"><span class="progress-label">Processing…</span></div>
+  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+</div>
+<div class="result-card"></div>
+{% endblock %}
+{% block extra_js %}<script>
+document.getElementById('fileInput').addEventListener('change',function(){renderFileList(this.files,'fileList');});
+submitToolForm({formId:'toolForm',apiUrl:'{% url "api_pdf_to_pdfa" %}',fileInputId:'fileInput'});
+</script>{% endblock %}

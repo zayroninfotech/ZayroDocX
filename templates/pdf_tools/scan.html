@@ -1,0 +1,304 @@
+﻿{% extends 'base.html' %}
+{% block title %}Scan to PDF — ZayroDocX{% endblock %}
+{% block active_scan %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Scan to PDF</span>{% endblock %}
+{% block content %}
+
+<style>
+/* ── Upload zone ── */
+.sc-drop {
+  border: 2px dashed var(--border); border-radius: 14px;
+  padding: 2.5rem 1.5rem; text-align: center; position: relative;
+  cursor: pointer; transition: border-color .2s, background .2s;
+  background: var(--surface); margin-bottom: 1rem;
+}
+.sc-drop:hover, .sc-drop.dragging { border-color: #7c3aed; background: rgba(124,58,237,.05); }
+.sc-drop input[type=file] { position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer; }
+.sc-drop-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  background: rgba(124,58,237,.1); color: #7c3aed;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; margin: 0 auto .9rem;
+}
+.sc-drop h3 { font-size: 1rem; font-weight: 700; margin: 0 0 .3rem; }
+.sc-drop p  { font-size: .82rem; color: var(--text-muted); margin: 0 0 1rem; }
+.sc-drop-btn {
+  display: inline-flex; align-items: center; gap: .45rem;
+  background: #7c3aed; color: #fff; border: none; border-radius: 8px;
+  padding: .55rem 1.2rem; font-size: .88rem; font-weight: 600;
+  cursor: pointer; position: relative; z-index: 1; transition: opacity .2s;
+}
+.sc-drop-btn:hover { opacity: .88; }
+.sc-drop-hint { display: block; margin-top: .75rem; font-size: .74rem; color: var(--text-muted); }
+
+/* ── Format badges ── */
+.sc-formats { display: flex; justify-content: center; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.sc-fmt {
+  padding: .22rem .65rem; border-radius: 20px; font-size: .72rem; font-weight: 700;
+  border: 1px solid var(--border); color: var(--text-muted); background: var(--surface);
+}
+
+/* ── Image preview grid ── */
+.sc-preview-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: .65rem; margin-bottom: 1rem; display: none;
+}
+.sc-preview-grid.show { display: grid; }
+.sc-thumb {
+  position: relative; border-radius: 10px; overflow: hidden;
+  border: 1.5px solid var(--border); aspect-ratio: 3/4;
+  background: var(--bg);
+}
+.sc-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sc-thumb-overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,.55);
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  padding: .4rem; opacity: 0; transition: opacity .18s;
+}
+.sc-thumb:hover .sc-thumb-overlay { opacity: 1; }
+.sc-thumb-name { font-size: .6rem; color: #fff; text-align: center; word-break: break-all; margin-bottom: .2rem; }
+.sc-thumb-remove {
+  background: rgba(220,38,38,.85); border: none; border-radius: 6px;
+  color: #fff; font-size: .65rem; padding: .2rem .4rem; cursor: pointer;
+}
+.sc-thumb-num {
+  position: absolute; top: .35rem; left: .35rem;
+  background: #7c3aed; color: #fff; font-size: .6rem; font-weight: 700;
+  width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Stats bar ── */
+.sc-stats {
+  display: none; align-items: center; gap: 1rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: .65rem 1rem; margin-bottom: 1rem; flex-wrap: wrap;
+}
+.sc-stats.show { display: flex; }
+.sc-stat { display: flex; align-items: center; gap: .4rem; font-size: .82rem; color: var(--text-muted); }
+.sc-stat strong { color: var(--text); }
+.sc-stats-actions { margin-left: auto; display: flex; gap: .5rem; }
+.sc-btn-add {
+  background: none; border: 1.5px solid var(--border); border-radius: 8px;
+  padding: .35rem .75rem; font-size: .78rem; font-weight: 600;
+  color: var(--text-muted); cursor: pointer; transition: border-color .15s, color .15s;
+  display: flex; align-items: center; gap: .35rem;
+}
+.sc-btn-add:hover { border-color: #7c3aed; color: #7c3aed; }
+.sc-btn-clear {
+  background: none; border: 1.5px solid var(--border); border-radius: 8px;
+  padding: .35rem .75rem; font-size: .78rem; font-weight: 600;
+  color: var(--text-muted); cursor: pointer; transition: border-color .15s, color .15s;
+  display: flex; align-items: center; gap: .35rem;
+}
+.sc-btn-clear:hover { border-color: #dc2626; color: #dc2626; }
+
+/* ── Page size option ── */
+.sc-options {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1rem;
+}
+.sc-options-title { font-size: .82rem; font-weight: 700; margin-bottom: .75rem; display: flex; align-items: center; gap: .45rem; }
+.sc-option-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.sc-option-label { font-size: .82rem; font-weight: 600; }
+.sc-option-desc  { font-size: .72rem; color: var(--text-muted); }
+.sc-select {
+  padding: .4rem .75rem; border: 1.5px solid var(--border); border-radius: 8px;
+  background: var(--bg); color: var(--text); font-size: .82rem; cursor: pointer; outline: none;
+}
+.sc-select:focus { border-color: #7c3aed; }
+
+/* ── Submit button ── */
+.sc-submit {
+  width: 100%; padding: .85rem;
+  background: linear-gradient(135deg,#6d28d9,#7c3aed,#8b5cf6);
+  color: #fff; border: none; border-radius: 12px;
+  font-size: .97rem; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: .6rem;
+  transition: opacity .2s, transform .1s;
+  box-shadow: 0 4px 18px rgba(124,58,237,.3);
+}
+.sc-submit:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
+.sc-submit:disabled { opacity:.45; cursor:not-allowed; }
+</style>
+
+<form id="toolForm">{% csrf_token %}
+
+  <!-- Drop zone -->
+  <div class="sc-drop" id="dropZone">
+    <input type="file" id="fileInput" name="files" accept="image/*" multiple>
+    <div class="sc-drop-icon"><i class="fa-solid fa-images"></i></div>
+    <h3>Drop images here</h3>
+    <p>Select one or more images to convert into a single PDF</p>
+    <button type="button" class="sc-drop-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-plus"></i> Select Images
+    </button>
+    <span class="sc-drop-hint">Drag &amp; drop supported</span>
+  </div>
+
+  <!-- Supported formats -->
+  <div class="sc-formats">
+    <span class="sc-fmt">JPG</span>
+    <span class="sc-fmt">PNG</span>
+    <span class="sc-fmt">BMP</span>
+    <span class="sc-fmt">TIFF</span>
+    <span class="sc-fmt">WEBP</span>
+    <span class="sc-fmt">GIF</span>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="sc-stats" id="scStats">
+    <div class="sc-stat"><i class="fa-solid fa-image" style="color:#7c3aed"></i> <strong id="scCount">0</strong> images</div>
+    <div class="sc-stat"><i class="fa-solid fa-weight-hanging"></i> <strong id="scSize">0 KB</strong></div>
+    <div class="sc-stats-actions">
+      <button type="button" class="sc-btn-add" onclick="document.getElementById('fileInput').click()">
+        <i class="fa-solid fa-plus"></i> Add More
+      </button>
+      <button type="button" class="sc-btn-clear" id="clearBtn">
+        <i class="fa-solid fa-xmark"></i> Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Image preview grid -->
+  <div class="sc-preview-grid" id="previewGrid"></div>
+
+  <!-- Options -->
+  <div class="sc-options" id="scOptions" style="display:none">
+    <div class="sc-options-title"><i class="fa-solid fa-sliders" style="color:#7c3aed"></i> Output Options</div>
+    <div class="sc-option-row">
+      <div>
+        <div class="sc-option-label">Page Size</div>
+        <div class="sc-option-desc">Fit images to a standard page size</div>
+      </div>
+      <select name="page_size" class="sc-select">
+        <option value="fit">Fit to image</option>
+        <option value="a4" selected>A4</option>
+        <option value="letter">Letter</option>
+        <option value="a3">A3</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <button type="submit" class="sc-submit btn-submit" id="submitBtn" disabled>
+    <i class="fa-solid fa-file-pdf"></i> Convert to PDF
+  </button>
+
+</form>
+
+<div class="progress-wrap">
+  <div class="progress-header">
+    <span class="progress-label">Converting images…</span>
+    <span class="progress-pct"></span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+</div>
+<div class="result-card"></div>
+
+{% endblock %}
+{% block extra_js %}<script>
+let imageFiles = [];
+
+const fileInput   = document.getElementById('fileInput');
+const dropZone    = document.getElementById('dropZone');
+const previewGrid = document.getElementById('previewGrid');
+const scStats     = document.getElementById('scStats');
+const scOptions   = document.getElementById('scOptions');
+const submitBtn   = document.getElementById('submitBtn');
+const scCount     = document.getElementById('scCount');
+const scSize      = document.getElementById('scSize');
+
+function fmtBytes(b) {
+  if (!b) return '0 B';
+  const k=1024,s=['B','KB','MB','GB'],i=Math.floor(Math.log(b)/Math.log(k));
+  return +(b/Math.pow(k,i)).toFixed(1)+' '+s[i];
+}
+
+fileInput.addEventListener('change', function() {
+  addImages(Array.from(this.files));
+  this.value = '';
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  imageFiles = []; render();
+});
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragging'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragging'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('dragging');
+  addImages(Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')));
+});
+
+function addImages(files) {
+  files.filter(f => f.type.startsWith('image/')).forEach(f => imageFiles.push(f));
+  render();
+}
+
+function render() {
+  const has = imageFiles.length > 0;
+  dropZone.style.display  = has ? 'none' : '';
+  scStats.classList.toggle('show', has);
+  previewGrid.classList.toggle('show', has);
+  scOptions.style.display = has ? 'block' : 'none';
+  submitBtn.disabled = !has;
+
+  scCount.textContent = imageFiles.length;
+  scSize.textContent  = fmtBytes(imageFiles.reduce((s,f) => s+f.size, 0));
+
+  previewGrid.innerHTML = '';
+  imageFiles.forEach((f, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'sc-thumb';
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(f);
+    img.onload = () => URL.revokeObjectURL(img.src);
+
+    const num = document.createElement('div');
+    num.className = 'sc-thumb-num';
+    num.textContent = i + 1;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'sc-thumb-overlay';
+    overlay.innerHTML = `<div class="sc-thumb-name">${f.name}</div>
+      <button class="sc-thumb-remove" data-i="${i}"><i class="fa-solid fa-xmark"></i> Remove</button>`;
+    overlay.querySelector('.sc-thumb-remove').addEventListener('click', e => {
+      e.stopPropagation();
+      imageFiles.splice(i, 1); render();
+    });
+
+    wrap.appendChild(img); wrap.appendChild(num); wrap.appendChild(overlay);
+    previewGrid.appendChild(wrap);
+  });
+}
+
+/* Override form submit to send imageFiles in order */
+document.getElementById('toolForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  if (!imageFiles.length) return;
+  const resultCard = document.querySelector('.result-card');
+  if (resultCard) resultCard.className = 'result-card';
+
+  submitBtn.disabled = true;
+  showProgress(true, 'Converting images…', 10);
+
+  const fd = new FormData(this);
+  fd.delete('files');
+  imageFiles.forEach(f => fd.append('files', f));
+
+  try {
+    await fakeProgress(10, 80, 800);
+    const resp = await fetch('{% url "api_scan_pdf" %}', { method: 'POST', body: fd });
+    const data = await resp.json();
+    setProgress(100);
+    await new Promise(r => setTimeout(r, 200));
+    showProgress(false);
+    if (data.error) showError(data.error);
+    else showDownload(data);
+  } catch(err) {
+    showProgress(false); showError(err.message);
+  } finally {
+    submitBtn.disabled = false;
+  }
+});
+</script>{% endblock %}

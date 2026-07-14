@@ -1,0 +1,91 @@
+﻿{% extends 'base.html' %}
+{% block title %}HTML to PDF — ZayroDocX{% endblock %}
+{% block active_html2pdf %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">HTML to PDF</span>{% endblock %}
+{% block content %}
+<form id="toolForm">{% csrf_token %}
+  <div class="options-panel">
+    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Input Source</div>
+    <div class="form-group">
+      <div class="toggle-group">
+        <label class="toggle-option"><input type="radio" name="source" value="file" checked><span><i class="fa-solid fa-file-code"></i> Upload File</span></label>
+        <label class="toggle-option"><input type="radio" name="source" value="url"><span><i class="fa-solid fa-link"></i> URL</span></label>
+        <label class="toggle-option"><input type="radio" name="source" value="content"><span><i class="fa-solid fa-code"></i> Paste HTML</span></label>
+      </div>
+    </div>
+
+    <div id="fileSource">
+      <div class="upload-zone"><input type="file" id="fileInput" name="file" accept=".html,.htm">
+        <div class="upload-icon-wrap"><i class="fa-brands fa-html5"></i></div>
+        <h3>Drop HTML file here</h3><p>or click to browse</p>
+        <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select HTML File</span>
+      </div>
+      <div class="file-list" id="fileList"></div>
+    </div>
+
+    <div id="urlSource" style="display:none">
+      <div class="form-group">
+        <div class="form-label">Website URL</div>
+        <input type="url" name="url" class="form-control" placeholder="https://example.com">
+      </div>
+    </div>
+
+    <div id="contentSource" style="display:none">
+      <div class="form-group">
+        <div class="form-label">HTML Code</div>
+        <textarea name="content" class="form-control" rows="10" placeholder="<html><body><h1>Hello</h1></body></html>" style="font-family:monospace;font-size:.82rem"></textarea>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-top:16px">
+      <div class="form-label">Page Size</div>
+      <div class="toggle-group">
+        <label class="toggle-option"><input type="radio" name="page_size" value="A4" checked><span>A4</span></label>
+        <label class="toggle-option"><input type="radio" name="page_size" value="Letter"><span>Letter</span></label>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Orientation</div>
+      <div class="toggle-group">
+        <label class="toggle-option"><input type="radio" name="orientation" value="Portrait" checked><span>Portrait</span></label>
+        <label class="toggle-option"><input type="radio" name="orientation" value="Landscape"><span>Landscape</span></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-file-pdf"></i> Convert to PDF</button>
+  </div>
+</form>
+<div class="progress-wrap">
+  <div class="progress-header"><span class="progress-label">Converting…</span></div>
+  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+</div>
+<div class="result-card"></div>
+{% endblock %}
+{% block extra_js %}<script>
+document.getElementById('fileInput')?.addEventListener('change',function(){renderFileList(this.files,'fileList');});
+document.querySelectorAll('input[name="source"]').forEach(r => r.addEventListener('change', function() {
+  document.getElementById('fileSource').style.display  = this.value === 'file'    ? 'block' : 'none';
+  document.getElementById('urlSource').style.display   = this.value === 'url'     ? 'block' : 'none';
+  document.getElementById('contentSource').style.display = this.value === 'content' ? 'block' : 'none';
+}));
+submitToolForm({formId:'toolForm', apiUrl:'{% url "api_html_to_pdf" %}', fileInputId:'fileInput',
+  onSuccess(data){showDownload(data);}, onError(data){showError(data.error);}
+});
+document.getElementById('toolForm').addEventListener('submit', async function(e) {
+  const src = document.querySelector('input[name="source"]:checked').value;
+  if (src !== 'file') {
+    e.stopImmediatePropagation(); e.preventDefault();
+    const fd = new FormData(this);
+    const btn = document.querySelector('.btn-submit');
+    btn.disabled = true; showProgress(true, 'Converting…', 10);
+    try {
+      const resp = await fetch('{% url "api_html_to_pdf" %}', {method:'POST', body:fd});
+      const data = await resp.json();
+      showProgress(false); btn.disabled = false;
+      if (data.error) showError(data.error); else showDownload(data);
+    } catch(err) { showProgress(false); btn.disabled = false; showError(err.message); }
+  }
+}, true);
+</script>{% endblock %}

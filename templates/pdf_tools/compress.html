@@ -1,0 +1,350 @@
+﻿{% extends 'base.html' %}
+{% block title %}Compress PDF — ZayroDocX{% endblock %}
+{% block active_compress %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Compress PDF</span>{% endblock %}
+{% block content %}
+
+<style>
+/* ── Drop zone ── */
+.cp-drop {
+  border: 2px dashed var(--border); border-radius: 14px;
+  padding: 2.5rem 1.5rem; text-align: center; position: relative;
+  cursor: pointer; transition: border-color .2s, background .2s;
+  background: var(--surface); margin-bottom: 1rem;
+}
+.cp-drop:hover, .cp-drop.dragging { border-color: #2563eb; background: rgba(37,99,235,.05); }
+.cp-drop input[type=file] { position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer; }
+.cp-drop-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  background: rgba(37,99,235,.12); color: #2563eb;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; margin: 0 auto .9rem;
+}
+.cp-drop h3 { font-size: 1rem; font-weight: 700; margin: 0 0 .3rem; }
+.cp-drop p  { font-size: .82rem; color: var(--text-muted); margin: 0 0 1rem; }
+.cp-drop-btn {
+  display: inline-flex; align-items: center; gap: .45rem;
+  background: #2563eb; color: #fff; border: none; border-radius: 8px;
+  padding: .55rem 1.2rem; font-size: .88rem; font-weight: 600;
+  cursor: pointer; position: relative; z-index: 1; transition: opacity .2s;
+}
+.cp-drop-btn:hover { opacity: .88; }
+
+/* ── File info bar ── */
+.cp-file-bar {
+  display: none; align-items: center; gap: .75rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: .75rem 1rem; margin-bottom: 1rem;
+}
+.cp-file-bar.show { display: flex; }
+.cp-file-icon { color: #dc2626; font-size: 1.2rem; flex-shrink: 0; }
+.cp-file-name { font-size: .85rem; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp-file-size { font-size: .78rem; color: var(--text-muted); flex-shrink: 0; }
+.cp-file-remove {
+  background: none; border: none; color: var(--text-muted); cursor: pointer;
+  width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+  transition: background .15s, color .15s; flex-shrink: 0;
+}
+.cp-file-remove:hover { background: rgba(220,38,38,.12); color: #dc2626; }
+
+/* ── Compression Level ── */
+.cp-level-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.2rem; margin-bottom: 1rem;
+}
+.cp-level-title {
+  font-size: .82rem; font-weight: 700; margin-bottom: 1rem;
+  display: flex; align-items: center; gap: .45rem;
+}
+.cp-levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: .65rem; }
+.cp-level-btn {
+  position: relative; cursor: pointer; border-radius: 10px;
+  border: 2px solid var(--border); padding: .9rem .75rem;
+  background: var(--bg); transition: border-color .18s, background .18s;
+  text-align: center;
+}
+.cp-level-btn input { position: absolute; opacity: 0; pointer-events: none; }
+.cp-level-btn:has(input:checked) { border-color: #2563eb; background: rgba(37,99,235,.08); }
+.cp-level-icon {
+  font-size: 1.3rem; margin-bottom: .45rem;
+  display: block;
+}
+.cp-level-name { font-size: .88rem; font-weight: 700; display: block; margin-bottom: .2rem; }
+.cp-level-desc { font-size: .7rem; color: var(--text-muted); display: block; }
+.cp-level-bars {
+  display: flex; gap: 2px; justify-content: center; margin-top: .55rem;
+}
+.cp-bar {
+  width: 10px; height: 14px; border-radius: 3px;
+  background: var(--border); transition: background .18s;
+}
+.cp-level-btn:has(input:checked) .cp-bar-fill { background: #2563eb; }
+
+/* level-specific fill */
+.lvl-low   .cp-bar-fill { background: rgba(37,99,235,.25); }
+.lvl-med   .cp-bar-fill { background: rgba(37,99,235,.25); }
+.lvl-high  .cp-bar-fill { background: rgba(37,99,235,.25); }
+.cp-level-btn:has(input:checked).lvl-low  .cp-bar-2,
+.cp-level-btn:has(input:checked).lvl-low  .cp-bar-3 { background: var(--border) !important; }
+.cp-level-btn:has(input:checked).lvl-med  .cp-bar-3 { background: var(--border) !important; }
+
+/* ── Submit button ── */
+.cp-submit {
+  width: 100%; padding: .85rem;
+  background: linear-gradient(135deg,#1d4ed8,#2563eb,#3b82f6);
+  color: #fff; border: none; border-radius: 12px;
+  font-size: .97rem; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: .6rem;
+  transition: opacity .2s, transform .1s;
+  box-shadow: 0 4px 18px rgba(37,99,235,.4);
+  margin-bottom: 1rem;
+}
+.cp-submit:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
+.cp-submit:disabled { opacity:.45; cursor:not-allowed; }
+
+/* ── Result card ── */
+.cp-result {
+  display: none; border-radius: 14px; overflow: hidden;
+  border: 1px solid rgba(34,197,94,.25);
+  background: linear-gradient(135deg, rgba(5,46,22,.6) 0%, rgba(20,83,45,.4) 100%);
+}
+.cp-result.show { display: block; }
+.cp-result-top { padding: 1.2rem 1.4rem; display: flex; align-items: center; gap: 1rem; }
+.cp-result-ico {
+  width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
+  background: linear-gradient(135deg,#16a34a,#22c55e);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; color: #fff;
+  box-shadow: 0 4px 14px rgba(34,197,94,.4);
+}
+.cp-result-title { font-size: 1rem; font-weight: 700; color: #4ade80; }
+.cp-result-sub   { font-size: .8rem; color: rgba(134,239,172,.75); margin-top: .1rem; }
+.cp-result-stats {
+  display: flex; gap: 1.5rem; padding: .85rem 1.4rem;
+  border-top: 1px solid rgba(34,197,94,.15); flex-wrap: wrap;
+}
+.cp-stat { font-size: .8rem; color: rgba(134,239,172,.8); display: flex; align-items: center; gap: .4rem; }
+.cp-stat strong { color: #86efac; }
+.cp-result-footer { padding: .85rem 1.4rem; border-top: 1px solid rgba(34,197,94,.15); display: flex; gap: .75rem; }
+.cp-dl-btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: linear-gradient(135deg,#16a34a,#22c55e); color: #fff;
+  border: none; border-radius: 9px; padding: .65rem 1.4rem;
+  font-size: .88rem; font-weight: 700; cursor: pointer; text-decoration: none;
+  transition: opacity .2s;
+}
+.cp-dl-btn:hover { opacity:.88; text-decoration:none; color:#fff; }
+.cp-recompress-hint {
+  font-size: .75rem; color: rgba(134,239,172,.6);
+  display: flex; align-items: center; gap: .4rem; margin-left: auto;
+}
+</style>
+
+<form id="toolForm">{% csrf_token %}
+
+  <!-- Drop zone -->
+  <div class="cp-drop" id="cpDrop">
+    <input type="file" id="fileInput" name="file" accept=".pdf">
+    <div class="cp-drop-icon"><i class="fa-solid fa-compress"></i></div>
+    <h3>Drop your PDF here</h3>
+    <p>Select a PDF to reduce its file size</p>
+    <button type="button" class="cp-drop-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-folder-open"></i> Select PDF File
+    </button>
+  </div>
+
+  <!-- File info bar (shown after selection) -->
+  <div class="cp-file-bar" id="cpFileBar">
+    <i class="fa-solid fa-file-pdf cp-file-icon"></i>
+    <span class="cp-file-name" id="cpFileName">—</span>
+    <span class="cp-file-size" id="cpFileSize">—</span>
+    <button type="button" class="cp-file-remove" id="cpRemoveFile" title="Remove file">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+
+  <!-- Compression Level -->
+  <div class="cp-level-card">
+    <div class="cp-level-title"><i class="fa-solid fa-sliders" style="color:#3b82f6"></i> Compression Level</div>
+    <div class="cp-levels">
+
+      <label class="cp-level-btn lvl-low">
+        <input type="radio" name="level" value="low">
+        <span class="cp-level-icon">🟢</span>
+        <span class="cp-level-name">Low</span>
+        <span class="cp-level-desc">Best quality</span>
+        <div class="cp-level-bars">
+          <div class="cp-bar cp-bar-fill cp-bar-1"></div>
+          <div class="cp-bar cp-bar-2"></div>
+          <div class="cp-bar cp-bar-3"></div>
+        </div>
+      </label>
+
+      <label class="cp-level-btn lvl-med">
+        <input type="radio" name="level" value="medium" checked>
+        <span class="cp-level-icon">🟡</span>
+        <span class="cp-level-name">Medium</span>
+        <span class="cp-level-desc">Balanced</span>
+        <div class="cp-level-bars">
+          <div class="cp-bar cp-bar-fill cp-bar-1"></div>
+          <div class="cp-bar cp-bar-fill cp-bar-2"></div>
+          <div class="cp-bar cp-bar-3"></div>
+        </div>
+      </label>
+
+      <label class="cp-level-btn lvl-high">
+        <input type="radio" name="level" value="high">
+        <span class="cp-level-icon">🔴</span>
+        <span class="cp-level-name">High</span>
+        <span class="cp-level-desc">Smallest file</span>
+        <div class="cp-level-bars">
+          <div class="cp-bar cp-bar-fill cp-bar-1"></div>
+          <div class="cp-bar cp-bar-fill cp-bar-2"></div>
+          <div class="cp-bar cp-bar-fill cp-bar-3"></div>
+        </div>
+      </label>
+
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <button type="submit" class="cp-submit" id="cpSubmit" disabled>
+    <i class="fa-solid fa-compress"></i> Compress PDF
+  </button>
+
+</form>
+
+<!-- Progress -->
+<div class="progress-wrap">
+  <div class="progress-header">
+    <span class="progress-label">Compressing PDF…</span>
+    <span class="progress-pct"></span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+</div>
+
+<!-- Result -->
+<div class="cp-result" id="cpResult">
+  <div class="cp-result-top">
+    <div class="cp-result-ico"><i class="fa-solid fa-check"></i></div>
+    <div>
+      <div class="cp-result-title">Compressed Successfully</div>
+      <div class="cp-result-sub" id="cpResultSub">—</div>
+    </div>
+  </div>
+  <div class="cp-result-stats">
+    <div class="cp-stat"><i class="fa-solid fa-file"></i> Original: <strong id="cpOrigSize">—</strong></div>
+    <div class="cp-stat"><i class="fa-solid fa-compress"></i> Compressed: <strong id="cpNewSize">—</strong></div>
+    <div class="cp-stat"><i class="fa-solid fa-arrow-down"></i> Saved: <strong id="cpSaved">—</strong></div>
+  </div>
+  <div class="cp-result-footer">
+    <a id="cpDlBtn" href="#" class="cp-dl-btn" download>
+      <i class="fa-solid fa-download"></i> Download
+    </a>
+    <span class="cp-recompress-hint"><i class="fa-solid fa-rotate"></i> Change level above to re-compress</span>
+  </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}<script>
+const fileInput   = document.getElementById('fileInput');
+const cpDrop      = document.getElementById('cpDrop');
+const cpFileBar   = document.getElementById('cpFileBar');
+const cpFileName  = document.getElementById('cpFileName');
+const cpFileSize  = document.getElementById('cpFileSize');
+const cpSubmit    = document.getElementById('cpSubmit');
+const cpResult    = document.getElementById('cpResult');
+let currentFile   = null;
+let compressed    = false;
+
+function fmtBytes(b) {
+  if (!b) return '0 B';
+  const k=1024, s=['B','KB','MB','GB'], i=Math.floor(Math.log(b)/Math.log(k));
+  return +(b/Math.pow(k,i)).toFixed(1)+' '+s[i];
+}
+
+function setFile(file) {
+  if (!file || file.type !== 'application/pdf') return;
+  currentFile = file;
+  cpDrop.style.display = 'none';
+  cpFileBar.classList.add('show');
+  cpFileName.textContent = file.name;
+  cpFileSize.textContent = fmtBytes(file.size);
+  cpSubmit.disabled = false;
+  cpResult.classList.remove('show');
+  compressed = false;
+}
+
+fileInput.addEventListener('change', function() {
+  if (this.files[0]) setFile(this.files[0]);
+  this.value = '';
+});
+
+document.getElementById('cpRemoveFile').addEventListener('click', () => {
+  currentFile = null;
+  cpDrop.style.display = '';
+  cpFileBar.classList.remove('show');
+  cpSubmit.disabled = true;
+  cpResult.classList.remove('show');
+  compressed = false;
+});
+
+cpDrop.addEventListener('dragover', e => { e.preventDefault(); cpDrop.classList.add('dragging'); });
+cpDrop.addEventListener('dragleave', () => cpDrop.classList.remove('dragging'));
+cpDrop.addEventListener('drop', e => {
+  e.preventDefault(); cpDrop.classList.remove('dragging');
+  const f = Array.from(e.dataTransfer.files).find(f => f.type === 'application/pdf');
+  if (f) setFile(f);
+});
+
+/* Re-compress automatically when level changes after first compress */
+document.querySelectorAll('input[name="level"]').forEach(r => {
+  r.addEventListener('change', () => {
+    if (compressed && currentFile) doCompress();
+  });
+});
+
+async function doCompress() {
+  if (!currentFile) return;
+  cpResult.classList.remove('show');
+  cpSubmit.disabled = true;
+  showProgress(true, 'Compressing PDF…', 10);
+
+  const fd = new FormData();
+  fd.append('file', currentFile);
+  fd.append('level', document.querySelector('input[name="level"]:checked').value);
+  fd.append('csrfmiddlewaretoken', (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '');
+
+  try {
+    await fakeProgress(10, 80, 800);
+    const resp = await fetch('{% url "api_compress_pdf" %}', { method: 'POST', body: fd });
+    const data = await resp.json();
+    setProgress(100);
+    await new Promise(r => setTimeout(r, 200));
+    showProgress(false);
+
+    if (data.error) { showError(data.error); compressed = false; }
+    else {
+      document.getElementById('cpResultSub').textContent = data.reduction_pct + '% smaller';
+      document.getElementById('cpOrigSize').textContent  = fmtBytes(data.original_size);
+      document.getElementById('cpNewSize').textContent   = fmtBytes(data.compressed_size);
+      document.getElementById('cpSaved').textContent     = data.reduction_pct + '%';
+      const dlBtn = document.getElementById('cpDlBtn');
+      dlBtn.href = data.download_url;
+      dlBtn.download = data.filename;
+      cpResult.classList.add('show');
+      cpResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      compressed = true;
+    }
+  } catch(err) {
+    showProgress(false); showError(err.message); compressed = false;
+  } finally {
+    cpSubmit.disabled = !currentFile;
+  }
+}
+
+document.getElementById('toolForm').addEventListener('submit', e => {
+  e.preventDefault();
+  doCompress();
+});
+</script>{% endblock %}

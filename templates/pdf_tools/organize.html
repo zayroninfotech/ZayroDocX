@@ -1,0 +1,173 @@
+﻿{% extends 'base.html' %}
+{% block title %}Organize Pages — ZayroDocX{% endblock %}
+{% block active_organize %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Organize Pages</span>{% endblock %}
+{% block content %}
+
+<div class="upload-zone" id="uploadZone">
+  <input type="file" id="fileInput" accept=".pdf">
+  <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+  <h3>Drop your PDF here</h3><p>or click to browse</p>
+  <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select PDF</span>
+</div>
+
+<div id="thumbArea" style="display:none">
+  <div class="options-panel">
+    <div class="options-panel-title"><i class="fa-solid fa-arrows-up-down-left-right"></i> Drag pages to reorder — click <i class="fa-solid fa-xmark"></i> to remove</div>
+    <div class="thumb-grid" id="thumbGrid"></div>
+    <input type="hidden" id="pageOrder">
+  </div>
+  <!-- AI blank/duplicate detection panel -->
+  <div id="aiBlankPanel" style="display:none;margin-top:12px;background:#faf5ff;border:1px solid #c4b5fd;border-radius:10px;padding:14px 16px">
+    <div style="font-size:.8rem;font-weight:700;color:#7c3aed;margin-bottom:10px"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Page Analysis</div>
+    <div id="aiBlankResult"></div>
+  </div>
+  <div class="action-bar" style="gap:10px">
+    <button class="btn btn-primary btn-lg" id="saveBtn"><i class="fa-solid fa-floppy-disk"></i> Save Reordered PDF</button>
+    <button class="btn btn-lg" id="aiBlankBtn" onclick="runDetectBlank()"
+      style="background:#7c3aed;color:#fff;border:none;cursor:pointer">
+      <i class="fa-solid fa-wand-magic-sparkles"></i> AI Detect Blank/Duplicate Pages
+    </button>
+    <button class="btn btn-secondary" id="resetBtn"><i class="fa-solid fa-rotate-left"></i> Start Over</button>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-header"><span class="progress-label">Processing…</span></div>
+  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+</div>
+<div class="result-card"></div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+let uploadedFile = null;
+const fileInput = document.getElementById('fileInput');
+const thumbArea = document.getElementById('thumbArea');
+const uploadZone = document.getElementById('uploadZone');
+
+fileInput.addEventListener('change', async function() {
+  if (!this.files.length) return;
+  uploadedFile = this.files[0];
+  showProgress(true, 'Loading page thumbnails…', 10);
+  const fd = new FormData();
+  fd.append('file', uploadedFile);
+  fd.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+  try {
+    const resp = await fetch('{% url "api_pdf_info" %}', {method:'POST', body:fd});
+    const data = await resp.json();
+    showProgress(false);
+    if (data.error) { showError(data.error); return; }
+    renderThumbs(data.thumbnails);
+  } catch(e) { showProgress(false); showError(e.message); }
+});
+
+function renderThumbs(thumbs) {
+  const grid = document.getElementById('thumbGrid');
+  grid.innerHTML = '';
+  thumbs.forEach(t => {
+    const el = document.createElement('div');
+    el.className = 'thumb-item';
+    el.dataset.page = t.page;
+    el.innerHTML = `<button type="button" class="thumb-remove" onclick="this.closest('.thumb-item').remove();updateOrder()"><i class="fa-solid fa-xmark"></i></button><img src="${t.url}" alt="Page ${t.page}"><span class="thumb-num">${t.page}</span>`;
+    grid.appendChild(el);
+  });
+  thumbArea.style.display = 'block';
+  uploadZone.style.display = 'none';
+  Sortable.create(grid, {animation:150, onEnd: updateOrder});
+  updateOrder();
+}
+
+function updateOrder() {
+  const items = document.querySelectorAll('#thumbGrid .thumb-item');
+  items.forEach((el, i) => el.querySelector('.thumb-num').textContent = i + 1);
+  document.getElementById('pageOrder').value = Array.from(items).map(el => el.dataset.page).join(',');
+}
+
+document.getElementById('saveBtn').addEventListener('click', async () => {
+  const order = document.getElementById('pageOrder').value;
+  if (!uploadedFile || !order) { showToast('Upload a file first', 'error'); return; }
+  const fd = new FormData();
+  fd.append('file', uploadedFile);
+  fd.append('order', order);
+  fd.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+  showProgress(true, 'Reordering pages…', 20);
+  try {
+    const resp = await fetch('{% url "api_organize_pdf" %}', {method:'POST', body:fd});
+    const data = await resp.json();
+    showProgress(false);
+    if (data.error) showError(data.error); else showDownload(data);
+  } catch(e) { showProgress(false); showError(e.message); }
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  thumbArea.style.display = 'none';
+  uploadZone.style.display = 'block';
+  fileInput.value = '';
+  uploadedFile = null;
+  document.querySelector('.result-card').innerHTML = '';
+  document.getElementById('aiBlankPanel').style.display = 'none';
+});
+
+// ── AI Detect Blank / Duplicate Pages ──────────────────────────────────────
+async function runDetectBlank() {
+  if (!uploadedFile) return;
+  const btn = document.getElementById('aiBlankBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Scanning…';
+  try {
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', getCsrfToken());
+    fd.append('file', uploadedFile);
+    const res  = await fetch('{% url "api_detect_blank" %}', { method:'POST', body:fd });
+    const data = await res.json();
+    if (data.error) { alert('Error: ' + data.error); return; }
+
+    const panel = document.getElementById('aiBlankPanel');
+    const result = document.getElementById('aiBlankResult');
+    let html = '';
+
+    if (data.blank.length) {
+      html += `<div style="margin-bottom:8px"><span style="font-weight:700;color:#dc2626">Blank pages:</span> ${data.blank.map(p=>`<span style="display:inline-block;background:#fee2e2;color:#dc2626;border-radius:4px;padding:1px 8px;margin:2px;font-size:.78rem">Page ${p}</span>`).join('')}</div>`;
+    }
+    if (data.near_blank.length) {
+      html += `<div style="margin-bottom:8px"><span style="font-weight:700;color:#d97706">Near-blank pages:</span> ${data.near_blank.map(p=>`<span style="display:inline-block;background:#fef3c7;color:#92400e;border-radius:4px;padding:1px 8px;margin:2px;font-size:.78rem">Page ${p}</span>`).join('')}</div>`;
+    }
+    if (data.duplicates.length) {
+      html += `<div style="margin-bottom:8px"><span style="font-weight:700;color:#7c3aed">Duplicate pages:</span> ${data.duplicates.map(d=>`<span style="display:inline-block;background:#ede9fe;color:#5b21b6;border-radius:4px;padding:1px 8px;margin:2px;font-size:.78rem">Pages ${d[0]} & ${d[1]}</span>`).join('')}</div>`;
+    }
+    if (!data.blank.length && !data.near_blank.length && !data.duplicates.length) {
+      html = '<span style="color:#16a34a;font-size:.85rem"><i class="fa-solid fa-circle-check"></i> No blank or duplicate pages detected.</span>';
+    } else {
+      const allToRemove = [...new Set([...data.blank, ...data.duplicates.map(d=>d[1])])].sort((a,b)=>a-b);
+      if (allToRemove.length) {
+        html += `<button onclick="removeSuggestedPages([${allToRemove}])" style="margin-top:8px;padding:5px 14px;background:#dc2626;color:#fff;border:none;border-radius:6px;font-size:.78rem;cursor:pointer"><i class="fa-solid fa-trash"></i> Remove blank & duplicate pages (${allToRemove.join(', ')})</button>`;
+      }
+    }
+    result.innerHTML = html;
+    panel.style.display = '';
+  } catch(e) { alert('Error: ' + e.message); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> AI Detect Blank/Duplicate Pages';
+  }
+}
+
+function removeSuggestedPages(pagesToRemove) {
+  // Remove those page cards from the grid
+  pagesToRemove.forEach(p => {
+    const items = document.querySelectorAll('#thumbGrid .thumb-item');
+    items.forEach(item => {
+      if (parseInt(item.dataset.page) === p) item.remove();
+    });
+  });
+  document.getElementById('aiBlankPanel').style.display = 'none';
+  alert(`Removed pages: ${pagesToRemove.join(', ')}. Click "Save Reordered PDF" to apply.`);
+}
+
+function getCsrfToken() {
+  const c = document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='));
+  return c ? c.trim().split('=')[1] : '';
+}
+</script>
+{% endblock %}

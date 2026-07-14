@@ -1,0 +1,588 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}Dashboard — ZayroDocX{% endblock %}
+{% block breadcrumb %}<span class="current">Dashboard</span>{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ═══════════════════════════════════════
+   DASHBOARD REDESIGN
+═══════════════════════════════════════ */
+
+/* ── Hero ── */
+.db-hero {
+  position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #13131c 0%, #1a1030 60%, #0f1a2e 100%);
+  border: 1px solid #2d2d3d; border-radius: 20px;
+  padding: 2.2rem 2rem; margin-bottom: 1.5rem;
+}
+.db-hero::before {
+  content: ''; position: absolute; top: -80px; right: -80px;
+  width: 320px; height: 320px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(124,58,237,.35) 0%, transparent 70%);
+  pointer-events: none;
+}
+.db-hero::after {
+  content: ''; position: absolute; bottom: -60px; left: 20%;
+  width: 220px; height: 220px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(37,99,235,.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+.db-hero-inner { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; }
+.db-hero-left h1 {
+  font-size: 2rem; font-weight: 900; letter-spacing: -.04em; margin-bottom: .5rem;
+  background: linear-gradient(135deg, #fff 30%, #a78bfa 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.db-hero-left p { color: rgba(255,255,255,.55); font-size: .85rem; max-width: 460px; margin-bottom: 1.1rem; line-height: 1.6; }
+.db-badges { display: flex; flex-wrap: wrap; gap: .4rem; }
+.db-badge {
+  display: inline-flex; align-items: center; gap: .35rem;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 999px; padding: .28rem .75rem; font-size: .72rem; font-weight: 600; color: rgba(255,255,255,.75);
+}
+.db-badge i { font-size: .65rem; }
+.db-hero-stats { display: flex; gap: .75rem; flex-wrap: wrap; }
+.db-hstat {
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 14px; padding: .9rem 1.2rem; text-align: center; min-width: 80px;
+}
+.db-hstat .n { font-size: 1.7rem; font-weight: 900; color: #fff; line-height: 1; }
+.db-hstat .l { font-size: .64rem; color: rgba(255,255,255,.5); margin-top: .25rem; text-transform: uppercase; letter-spacing: .05em; }
+
+/* ── Metric strip ── */
+.metric-strip { display: grid; grid-template-columns: repeat(6, 1fr); gap: .65rem; margin-bottom: 1.5rem; }
+.metric-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 1rem 1rem .85rem; position: relative; overflow: hidden; transition: transform .2s, box-shadow .2s;
+}
+.metric-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+.metric-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+}
+.metric-card.c-red::after    { background: linear-gradient(90deg,#dc2626,#f97316); }
+.metric-card.c-blue::after   { background: linear-gradient(90deg,#7c3aed,#2563eb); }
+.metric-card.c-green::after  { background: linear-gradient(90deg,#16a34a,#0d9488); }
+.metric-card.c-purple::after { background: linear-gradient(90deg,#7c3aed,#a855f7); }
+.metric-card.c-orange::after { background: linear-gradient(90deg,#d97706,#ea580c); }
+.metric-card.c-teal::after   { background: linear-gradient(90deg,#0d9488,#7c3aed); }
+.metric-icon {
+  width: 32px; height: 32px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center; font-size: .8rem; margin-bottom: .65rem;
+}
+.metric-icon.c-red    { background: rgba(220,38,38,.15); color: #f87171; }
+.metric-icon.c-blue   { background: rgba(37,99,235,.15); color: #60a5fa; }
+.metric-icon.c-green  { background: rgba(22,163,74,.15); color: #4ade80; }
+.metric-icon.c-purple { background: rgba(124,58,237,.15); color: #a78bfa; }
+.metric-icon.c-orange { background: rgba(217,119,6,.15); color: #fbbf24; }
+.metric-icon.c-teal   { background: rgba(13,148,136,.15); color: #2dd4bf; }
+.metric-val { font-size: 1.5rem; font-weight: 800; color: var(--text); line-height: 1; }
+.metric-val sup { font-size: .7rem; font-weight: 600; color: var(--text-muted); vertical-align: super; }
+.metric-lbl { font-size: .68rem; color: var(--text-muted); margin-top: .3rem; }
+.metric-live { position: absolute; top: .65rem; right: .65rem; display: flex; align-items: center; gap: .3rem; font-size: .6rem; font-weight: 700; color: #4ade80; }
+.metric-live::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #4ade80; display: inline-block; animation: pulse-dot 1.5s infinite; }
+
+/* ── Quick Access ── */
+.qa-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: .6rem; margin-bottom: 1.75rem; }
+.qa-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: .9rem .5rem .75rem; text-align: center; text-decoration: none;
+  transition: transform .18s, border-color .18s, box-shadow .18s;
+  display: flex; flex-direction: column; align-items: center; gap: .5rem;
+}
+.qa-card:hover { transform: translateY(-3px); border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand), 0 8px 20px rgba(124,58,237,.2); text-decoration: none; }
+.qa-icon {
+  width: 40px; height: 40px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center; font-size: .9rem;
+  transition: transform .18s;
+}
+.qa-card:hover .qa-icon { transform: scale(1.12); }
+.qa-lbl { font-size: .68rem; font-weight: 600; color: var(--text); line-height: 1.3; }
+
+/* ── Controls ── */
+.db-controls {
+  display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; margin-bottom: 1rem;
+}
+.db-search-wrap {
+  flex: 1; min-width: 200px; position: relative;
+}
+.db-search-wrap i { position: absolute; left: .85rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: .82rem; }
+.db-search {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: .6rem .85rem .6rem 2.2rem;
+  color: var(--text); font-size: .82rem; outline: none; transition: border-color .2s;
+}
+.db-search:focus { border-color: var(--brand); }
+.db-search::placeholder { color: var(--text-muted); }
+.db-cats { display: flex; gap: .4rem; flex-wrap: wrap; }
+.db-cat {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: .42rem .85rem; font-size: .74rem; font-weight: 600;
+  color: var(--text-muted); cursor: pointer; transition: all .18s;
+}
+.db-cat:hover { border-color: var(--brand); color: var(--text); }
+.db-cat.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+/* ── Section headings ── */
+.db-section-head {
+  display: flex; align-items: center; gap: .6rem;
+  font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-muted); margin: 1.5rem 0 .75rem; padding-bottom: .55rem;
+  border-bottom: 1px solid var(--border);
+}
+.db-section-head .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.db-section-head .count {
+  margin-left: auto; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 999px; padding: .1rem .55rem; font-size: .65rem;
+}
+
+/* ── Tool cards (new) ── */
+.db-tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .7rem; }
+.db-tool-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 1rem 1rem .9rem; display: flex; align-items: flex-start; gap: .85rem;
+  text-decoration: none; transition: transform .18s, border-color .18s, box-shadow .18s;
+  position: relative; overflow: hidden;
+}
+.db-tool-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  opacity: 0; transition: opacity .2s;
+}
+.db-tool-card:hover { transform: translateY(-2px); text-decoration: none; }
+.db-tool-card:hover::before { opacity: 1; }
+.db-tool-card.tc-purple::before { background: linear-gradient(90deg,#7c3aed,#a855f7); }
+.db-tool-card.tc-purple:hover  { border-color: #7c3aed44; box-shadow: 0 6px 20px rgba(124,58,237,.15); }
+.db-tool-card.tc-blue::before  { background: linear-gradient(90deg,#2563eb,#7c3aed); }
+.db-tool-card.tc-blue:hover    { border-color: #2563eb44; box-shadow: 0 6px 20px rgba(37,99,235,.15); }
+.db-tool-card.tc-teal::before  { background: linear-gradient(90deg,#0d9488,#2563eb); }
+.db-tool-card.tc-teal:hover    { border-color: #0d948844; box-shadow: 0 6px 20px rgba(13,148,136,.15); }
+.db-tool-card.tc-red::before   { background: linear-gradient(90deg,#dc2626,#7c3aed); }
+.db-tool-card.tc-red:hover     { border-color: #dc262644; box-shadow: 0 6px 20px rgba(220,38,38,.15); }
+.db-tool-card.tc-orange::before{ background: linear-gradient(90deg,#ea580c,#d97706); }
+.db-tool-card.tc-orange:hover  { border-color: #ea580c44; box-shadow: 0 6px 20px rgba(234,88,12,.15); }
+.db-tool-card.tc-green::before { background: linear-gradient(90deg,#16a34a,#0d9488); }
+.db-tool-card.tc-green:hover   { border-color: #16a34a44; box-shadow: 0 6px 20px rgba(22,163,74,.15); }
+.db-tool-card.tc-pink::before  { background: linear-gradient(90deg,#db2777,#7c3aed); }
+.db-tool-card.tc-pink:hover    { border-color: #db277744; box-shadow: 0 6px 20px rgba(219,39,119,.15); }
+.db-tc-icon {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: .82rem;
+  transition: transform .18s;
+}
+.db-tool-card:hover .db-tc-icon { transform: scale(1.1); }
+.db-tc-body { min-width: 0; }
+.db-tc-name { font-size: .82rem; font-weight: 700; color: var(--text); margin-bottom: .2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.db-tc-desc { font-size: .7rem; color: var(--text-muted); line-height: 1.4; }
+
+/* ── Feature strip ── */
+.db-feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .7rem; }
+.db-feature-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 1.1rem; display: flex; align-items: flex-start; gap: .85rem;
+  transition: transform .18s, box-shadow .18s;
+}
+.db-feature-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+.db-feat-icon {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: .85rem;
+}
+.db-feat-title { font-size: .8rem; font-weight: 700; color: var(--text); margin-bottom: .25rem; }
+.db-feat-desc { font-size: .7rem; color: var(--text-muted); line-height: 1.5; }
+
+/* ── Activity ── */
+.db-activity { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+.db-activity-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .9rem 1.25rem; border-bottom: 1px solid var(--border);
+}
+.db-activity-title { font-size: .82rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: .5rem; }
+.db-activity-title i { color: var(--brand); }
+
+/* ── Empty state ── */
+.db-empty {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+  padding: 2.5rem; text-align: center; color: var(--text-muted);
+}
+.db-empty i { font-size: 2rem; margin-bottom: .75rem; display: block; opacity: .3; }
+.db-empty p { font-size: .83rem; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .metric-strip { grid-template-columns: repeat(3, 1fr); }
+  .qa-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 600px) {
+  .metric-strip { grid-template-columns: repeat(2, 1fr); }
+  .qa-grid { grid-template-columns: repeat(4, 1fr); }
+  .db-hero-left h1 { font-size: 1.5rem; }
+  .db-tools-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+
+<!-- ── Hero ── -->
+<div class="db-hero">
+  <div class="db-hero-inner">
+    <div class="db-hero-left">
+      <h1>ZayroDocX</h1>
+      <p>28+ professional PDF tools — all files processed locally. Nothing ever leaves your machine.</p>
+      <div class="db-badges">
+        <span class="db-badge"><i class="fa-solid fa-lock"></i> 100% Private</span>
+        <span class="db-badge"><i class="fa-solid fa-server"></i> Local Processing</span>
+        <span class="db-badge"><i class="fa-solid fa-shield-halved"></i> No Cloud Upload</span>
+        <span class="db-badge"><i class="fa-solid fa-eye"></i> OCR Support</span>
+        <span class="db-badge"><i class="fa-solid fa-file-invoice-dollar"></i> Invoice Extraction</span>
+      </div>
+    </div>
+    <div class="db-hero-stats">
+      <div class="db-hstat"><div class="n">28+</div><div class="l">PDF Tools</div></div>
+      <div class="db-hstat"><div class="n">11</div><div class="l">OCR Langs</div></div>
+      <div class="db-hstat"><div class="n">100%</div><div class="l">Private</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Metric Strip ── -->
+<div class="metric-strip">
+  <div class="metric-card c-red">
+    <div class="metric-live">Live</div>
+    <div class="metric-icon c-red"><i class="fa-solid fa-file-pdf"></i></div>
+    <div class="metric-val">{{ stats.total_jobs }}</div>
+    <div class="metric-lbl">Jobs Processed</div>
+  </div>
+  <div class="metric-card c-blue">
+    <div class="metric-icon c-blue"><i class="fa-solid fa-toolbox"></i></div>
+    <div class="metric-val">28<sup>+</sup></div>
+    <div class="metric-lbl">PDF Tools</div>
+  </div>
+  <div class="metric-card c-green">
+    <div class="metric-icon c-green"><i class="fa-solid fa-shield-halved"></i></div>
+    <div class="metric-val">100<sup>%</sup></div>
+    <div class="metric-lbl">Local Processing</div>
+  </div>
+  <div class="metric-card c-purple">
+    <div class="metric-icon c-purple"><i class="fa-solid fa-language"></i></div>
+    <div class="metric-val">11</div>
+    <div class="metric-lbl">OCR Languages</div>
+  </div>
+  <div class="metric-card c-orange">
+    <div class="metric-icon c-orange"><i class="fa-solid fa-file-export"></i></div>
+    <div class="metric-val">12<sup>+</sup></div>
+    <div class="metric-lbl">Output Formats</div>
+  </div>
+  <div class="metric-card c-teal">
+    <div class="metric-icon c-teal"><i class="fa-solid fa-upload"></i></div>
+    <div class="metric-val">100<sup>MB</sup></div>
+    <div class="metric-lbl">Max File Size</div>
+  </div>
+</div>
+
+<!-- ── Quick Access ── -->
+<div class="db-section-head">
+  <span class="dot" style="background:var(--brand)"></span>
+  Quick Access
+  <span class="count">8</span>
+</div>
+<div class="qa-grid">
+  <a href="{% url 'merge_pdf_page' %}" class="qa-card">
+    <div class="qa-icon" style="background:rgba(124,58,237,.15);color:#a78bfa"><i class="fa-solid fa-object-group"></i></div>
+    <div class="qa-lbl">Merge PDF</div>
+  </a>
+  <a href="{% url 'split_pdf_page' %}" class="qa-card">
+    <div class="qa-icon" style="background:rgba(124,58,237,.15);color:#a78bfa"><i class="fa-solid fa-scissors"></i></div>
+    <div class="qa-lbl">Split PDF</div>
+  </a>
+  <a href="{% url 'compress_pdf_page' %}" class="qa-card">
+    <div class="qa-icon" style="background:rgba(37,99,235,.15);color:#60a5fa"><i class="fa-solid fa-compress"></i></div>
+    <div class="qa-lbl">Compress PDF</div>
+  </a>
+  <a href="{% url 'ocr_pdf_page' %}" class="qa-card">
+    <div class="qa-icon" style="background:rgba(220,38,38,.15);color:#f87171"><i class="fa-solid fa-eye"></i></div>
+    <div class="qa-lbl">OCR PDF</div>
+  </a>
+  <a href="{% url 'pdf_to_word_page' %}" class="qa-card">
+    <div class="qa-icon" style="background:rgba(13,148,136,.15);color:#2dd4bf"><i class="fa-solid fa-file-word"></i></div>
+    <div class="qa-lbl">PDF to Word</div>
+  </a>
+  <a href="{% url 'word_to_pdf_page' %}" class="qa-card">
+    <div class="qa-icon" style="background:rgba(37,99,235,.15);color:#60a5fa"><i class="fa-solid fa-file-word"></i></div>
+    <div class="qa-lbl">Word to PDF</div>
+  </a>
+  <a href="{% url 'sign_pdf_page' %}" class="qa-card">
+    <div class="qa-icon" style="background:rgba(22,163,74,.15);color:#4ade80"><i class="fa-solid fa-signature"></i></div>
+    <div class="qa-lbl">Sign PDF</div>
+  </a>
+  <a href="{% url 'invoice_page' %}" class="qa-card">
+    <div class="qa-icon" style="background:rgba(220,38,38,.15);color:#f87171"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+    <div class="qa-lbl">Invoice Extractor</div>
+  </a>
+</div>
+
+<!-- ── Search & Filter ── -->
+<div class="db-controls">
+  <div class="db-search-wrap">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" class="db-search" id="toolSearch" placeholder="Search 28+ tools…" autocomplete="off">
+  </div>
+  <div class="db-cats" id="catTabs">
+    <button class="db-cat active" data-cat="all">All</button>
+    <button class="db-cat" data-cat="organize">Organize</button>
+    <button class="db-cat" data-cat="optimize">Optimize</button>
+    <button class="db-cat" data-cat="convert-to">To PDF</button>
+    <button class="db-cat" data-cat="convert-from">From PDF</button>
+    <button class="db-cat" data-cat="edit">Edit</button>
+  </div>
+</div>
+
+<p id="noResults" class="no-results" style="display:none">
+  <i class="fa-solid fa-magnifying-glass" style="font-size:1.6rem;display:block;margin-bottom:.4rem;opacity:.3"></i>
+  No tools match your search.
+</p>
+
+<!-- ── Organize PDF ── -->
+<div class="db-section-head tool-section" id="sec-organize" data-section="organize">
+  <span class="dot" style="background:#7c3aed"></span> Organize PDF <span class="count">5</span>
+</div>
+<div class="db-tools-grid" id="grid-organize">
+  <a href="{% url 'merge_pdf_page' %}" class="db-tool-card tc-purple" data-name="merge pdf combine" data-section="organize">
+    <div class="db-tc-icon" style="background:rgba(124,58,237,.15);color:#a78bfa"><i class="fa-solid fa-object-group"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">Merge PDF</div><div class="db-tc-desc">Combine multiple PDFs into one</div></div>
+  </a>
+  <a href="{% url 'split_pdf_page' %}" class="db-tool-card tc-purple" data-name="split pdf pages" data-section="organize">
+    <div class="db-tc-icon" style="background:rgba(124,58,237,.15);color:#a78bfa"><i class="fa-solid fa-scissors"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">Split PDF</div><div class="db-tc-desc">Split into pages or ranges</div></div>
+  </a>
+  <a href="{% url 'remove_pages_page' %}" class="db-tool-card tc-purple" data-name="remove pages delete" data-section="organize">
+    <div class="db-tc-icon" style="background:rgba(124,58,237,.15);color:#a78bfa"><i class="fa-solid fa-trash-can"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">Remove Pages</div><div class="db-tc-desc">Delete pages from a PDF</div></div>
+  </a>
+  <a href="{% url 'extract_pages_page' %}" class="db-tool-card tc-purple" data-name="extract pages save" data-section="organize">
+    <div class="db-tc-icon" style="background:rgba(124,58,237,.15);color:#a78bfa"><i class="fa-solid fa-file-export"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">Extract Pages</div><div class="db-tc-desc">Save selected pages as new PDF</div></div>
+  </a>
+  <a href="{% url 'scan_pdf_page' %}" class="db-tool-card tc-purple" data-name="scan to pdf image" data-section="organize">
+    <div class="db-tc-icon" style="background:rgba(124,58,237,.15);color:#a78bfa"><i class="fa-solid fa-scanner-image"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">Scan to PDF</div><div class="db-tc-desc">Convert scanned images to PDF</div></div>
+  </a>
+</div>
+
+<!-- ── Optimize & Analyse ── -->
+<div class="db-section-head tool-section" id="sec-optimize" data-section="optimize">
+  <span class="dot" style="background:#dc2626"></span> Optimize &amp; Analyse <span class="count">4</span>
+</div>
+<div class="db-tools-grid" id="grid-optimize">
+  <a href="{% url 'compress_pdf_page' %}" class="db-tool-card tc-blue" data-name="compress pdf size reduce" data-section="optimize">
+    <div class="db-tc-icon" style="background:rgba(37,99,235,.15);color:#60a5fa"><i class="fa-solid fa-compress"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">Compress PDF</div><div class="db-tc-desc">Reduce file size significantly</div></div>
+  </a>
+  <a href="{% url 'ocr_pdf_page' %}" class="db-tool-card tc-red" data-name="ocr pdf scan text" data-section="optimize">
+    <div class="db-tc-icon" style="background:rgba(220,38,38,.15);color:#f87171"><i class="fa-solid fa-eye"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">OCR PDF</div><div class="db-tc-desc">Make scanned PDFs searchable</div></div>
+  </a>
+  <a href="{% url 'invoice_page' %}" class="db-tool-card tc-red" data-name="invoice extractor data" data-section="optimize">
+    <div class="db-tc-icon" style="background:rgba(220,38,38,.15);color:#f87171"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">Invoice Extractor</div><div class="db-tc-desc">Extract structured data from invoices</div></div>
+  </a>
+  <a href="{% url 'pdf_viewer_page' %}" class="db-tool-card tc-red" data-name="pdf viewer extractor excel" data-section="optimize">
+    <div class="db-tc-icon" style="background:rgba(220,38,38,.15);color:#f87171"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">PDF Viewer &amp; Extractor</div><div class="db-tc-desc">Preview pages &amp; export data</div></div>
+  </a>
+</div>
+
+<!-- ── Convert to PDF ── -->
+<div class="db-section-head tool-section" id="sec-convert-to" data-section="convert-to">
+  <span class="dot" style="background:#2563eb"></span> Convert to PDF <span class="count">5</span>
+</div>
+<div class="db-tools-grid" id="grid-convert-to">
+  <a href="{% url 'jpg_to_pdf_page' %}" class="db-tool-card tc-blue" data-name="jpg image to pdf" data-section="convert-to">
+    <div class="db-tc-icon" style="background:rgba(37,99,235,.15);color:#60a5fa"><i class="fa-solid fa-image"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">JPG to PDF</div><div class="db-tc-desc">Images → PDF document</div></div>
+  </a>
+  <a href="{% url 'word_to_pdf_page' %}" class="db-tool-card tc-blue" data-name="word docx to pdf" data-section="convert-to">
+    <div class="db-tc-icon" style="background:rgba(37,99,235,.15);color:#60a5fa"><i class="fa-solid fa-file-word"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">Word to PDF</div><div class="db-tc-desc">DOC / DOCX → PDF</div></div>
+  </a>
+  <a href="{% url 'pptx_to_pdf_page' %}" class="db-tool-card tc-blue" data-name="powerpoint pptx to pdf" data-section="convert-to">
+    <div class="db-tc-icon" style="background:rgba(37,99,235,.15);color:#60a5fa"><i class="fa-solid fa-file-powerpoint"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">PowerPoint to PDF</div><div class="db-tc-desc">PPT / PPTX → PDF</div></div>
+  </a>
+  <a href="{% url 'excel_to_pdf_page' %}" class="db-tool-card tc-blue" data-name="excel xlsx to pdf" data-section="convert-to">
+    <div class="db-tc-icon" style="background:rgba(37,99,235,.15);color:#60a5fa"><i class="fa-solid fa-file-excel"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">Excel to PDF</div><div class="db-tc-desc">XLS / XLSX → PDF</div></div>
+  </a>
+  <a href="{% url 'html_to_pdf_page' %}" class="db-tool-card tc-blue" data-name="html webpage to pdf" data-section="convert-to">
+    <div class="db-tc-icon" style="background:rgba(37,99,235,.15);color:#60a5fa"><i class="fa-solid fa-code"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">HTML to PDF</div><div class="db-tc-desc">Webpage / HTML string → PDF</div></div>
+  </a>
+</div>
+
+<!-- ── Convert from PDF ── -->
+<div class="db-section-head tool-section" id="sec-convert-from" data-section="convert-from">
+  <span class="dot" style="background:#0d9488"></span> Convert from PDF <span class="count">4</span>
+</div>
+<div class="db-tools-grid" id="grid-convert-from">
+  <a href="{% url 'pdf_to_jpg_page' %}" class="db-tool-card tc-teal" data-name="pdf to jpg image" data-section="convert-from">
+    <div class="db-tc-icon" style="background:rgba(13,148,136,.15);color:#2dd4bf"><i class="fa-solid fa-images"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">PDF to JPG</div><div class="db-tc-desc">PDF pages → image files</div></div>
+  </a>
+  <a href="{% url 'pdf_to_word_page' %}" class="db-tool-card tc-teal" data-name="pdf to word docx" data-section="convert-from">
+    <div class="db-tc-icon" style="background:rgba(13,148,136,.15);color:#2dd4bf"><i class="fa-solid fa-file-word"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">PDF to Word</div><div class="db-tc-desc">PDF → editable DOCX</div></div>
+  </a>
+  <a href="{% url 'pdf_to_pptx_page' %}" class="db-tool-card tc-teal" data-name="pdf to powerpoint pptx" data-section="convert-from">
+    <div class="db-tc-icon" style="background:rgba(13,148,136,.15);color:#2dd4bf"><i class="fa-solid fa-file-powerpoint"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">PDF to PowerPoint</div><div class="db-tc-desc">PDF slides → PPTX</div></div>
+  </a>
+  <a href="{% url 'pdf_to_excel_page' %}" class="db-tool-card tc-teal" data-name="pdf to excel xlsx" data-section="convert-from">
+    <div class="db-tc-icon" style="background:rgba(13,148,136,.15);color:#2dd4bf"><i class="fa-solid fa-file-excel"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">PDF to Excel</div><div class="db-tc-desc">PDF tables → XLSX</div></div>
+  </a>
+</div>
+
+<!-- ── Edit PDF ── -->
+<div class="db-section-head tool-section" id="sec-edit" data-section="edit">
+  <span class="dot" style="background:#d97706"></span> Edit PDF <span class="count">4</span>
+</div>
+<div class="db-tools-grid" id="grid-edit">
+  <a href="{% url 'rotate_pdf_page' %}" class="db-tool-card tc-orange" data-name="rotate pdf pages" data-section="edit">
+    <div class="db-tc-icon" style="background:rgba(217,119,6,.15);color:#fbbf24"><i class="fa-solid fa-rotate-right"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">Rotate PDF</div><div class="db-tc-desc">Rotate pages 90° / 180° / 270°</div></div>
+  </a>
+  <a href="{% url 'page_numbers_page' %}" class="db-tool-card tc-orange" data-name="add page numbers stamp" data-section="edit">
+    <div class="db-tc-icon" style="background:rgba(217,119,6,.15);color:#fbbf24"><i class="fa-solid fa-list-ol"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">Add Page Numbers</div><div class="db-tc-desc">Number your PDF pages</div></div>
+  </a>
+  <a href="{% url 'watermark_pdf_page' %}" class="db-tool-card tc-orange" data-name="watermark add text image" data-section="edit">
+    <div class="db-tc-icon" style="background:rgba(234,88,12,.15);color:#fb923c"><i class="fa-solid fa-droplet"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">Add Watermark</div><div class="db-tc-desc">Text or image watermark overlay</div></div>
+  </a>
+  <a href="{% url 'sign_pdf_page' %}" class="db-tool-card tc-green" data-name="sign pdf signature draw" data-section="edit">
+    <div class="db-tc-icon" style="background:rgba(22,163,74,.15);color:#4ade80"><i class="fa-solid fa-signature"></i></div>
+    <div class="db-tc-body"><div class="db-tc-name">Sign PDF</div><div class="db-tc-desc">Draw or upload your signature</div></div>
+  </a>
+</div>
+
+<!-- ── Privacy & Security ── -->
+<div class="db-section-head" style="margin-top:2rem">
+  <span class="dot" style="background:#16a34a"></span> Privacy &amp; Security
+</div>
+<div class="db-feature-grid">
+  <div class="db-feature-card">
+    <div class="db-feat-icon" style="background:rgba(22,163,74,.15);color:#4ade80"><i class="fa-solid fa-server"></i></div>
+    <div><div class="db-feat-title">100% Local Processing</div><div class="db-feat-desc">All PDF operations run on your own server. Files never leave your infrastructure or touch any cloud.</div></div>
+  </div>
+  <div class="db-feature-card">
+    <div class="db-feat-icon" style="background:rgba(37,99,235,.15);color:#60a5fa"><i class="fa-solid fa-shield-halved"></i></div>
+    <div><div class="db-feat-title">Security Headers</div><div class="db-feat-desc">CSP, HSTS, X-Frame-Options, Referrer-Policy and Permissions-Policy enforced on every response.</div></div>
+  </div>
+  <div class="db-feature-card">
+    <div class="db-feat-icon" style="background:rgba(124,58,237,.15);color:#a78bfa"><i class="fa-solid fa-file-shield"></i></div>
+    <div><div class="db-feat-title">Magic-Byte Validation</div><div class="db-feat-desc">Every upload is validated against its real file signature — malicious files can't masquerade as PDFs.</div></div>
+  </div>
+  <div class="db-feature-card">
+    <div class="db-feat-icon" style="background:rgba(217,119,6,.15);color:#fbbf24"><i class="fa-solid fa-clock-rotate-left"></i></div>
+    <div><div class="db-feat-title">Full Audit Trail</div><div class="db-feat-desc">Every file operation is logged with timestamp, IP address, and tool used for compliance and review.</div></div>
+  </div>
+  <div class="db-feature-card">
+    <div class="db-feat-icon" style="background:rgba(13,148,136,.15);color:#2dd4bf"><i class="fa-solid fa-trash-can"></i></div>
+    <div><div class="db-feat-title">Auto File Cleanup</div><div class="db-feat-desc">Uploaded files are deleted immediately after processing. Output files are yours to download and remove.</div></div>
+  </div>
+  <div class="db-feature-card">
+    <div class="db-feat-icon" style="background:rgba(219,39,119,.15);color:#f472b6"><i class="fa-solid fa-lock"></i></div>
+    <div><div class="db-feat-title">SSRF Protection</div><div class="db-feat-desc">URL inputs are validated against private IP ranges and blocked internal hostnames before any fetch.</div></div>
+  </div>
+</div>
+
+<!-- ── Recent Activity ── -->
+<div class="db-section-head" style="margin-top:2rem">
+  <span class="dot" style="background:var(--brand)"></span>
+  Recent Activity
+  {% if recent_jobs %}<span class="count">{{ recent_jobs|length }}</span>{% endif %}
+</div>
+
+{% if recent_jobs %}
+<div class="db-activity">
+  <div class="db-activity-head">
+    <div class="db-activity-title"><i class="fa-solid fa-clock-rotate-left"></i> Last {{ recent_jobs|length }} Jobs</div>
+    <span class="pill pill-success"><i class="fa-solid fa-circle" style="font-size:.38rem"></i> Live</span>
+  </div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Tool</th>
+        <th>Input Files</th>
+        <th>Output</th>
+        <th>Status</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in recent_jobs %}
+      <tr>
+        <td><span class="tool-chip"><i class="fa-solid fa-gear"></i> {{ job.tool }}</span></td>
+        <td style="color:var(--text-muted);font-size:.78rem">{{ job.input_files|join:", " }}</td>
+        <td style="color:var(--text-muted);font-size:.78rem">{{ job.output_files|join:", " }}</td>
+        <td><span class="pill pill-success"><i class="fa-solid fa-check" style="font-size:.6rem"></i> {{ job.status }}</span></td>
+        <td style="color:var(--text-muted);font-size:.78rem">{{ job.created_at|date:"M d, H:i" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="db-empty">
+  <i class="fa-solid fa-clock-rotate-left"></i>
+  <p>No jobs yet — start using a tool above and your history will appear here.</p>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Search
+const searchInput = document.getElementById('toolSearch');
+const noResults   = document.getElementById('noResults');
+const allCards    = document.querySelectorAll('.db-tool-card');
+const allSections = document.querySelectorAll('.tool-section');
+
+function filterTools() {
+  const q   = searchInput.value.toLowerCase().trim();
+  const cat = document.querySelector('.db-cat.active')?.dataset.cat || 'all';
+  let anyVisible = false;
+
+  allCards.forEach(card => {
+    const name = (card.dataset.name || '').toLowerCase();
+    const sec  = card.dataset.section || '';
+    const matchQ   = !q || name.includes(q);
+    const matchCat = cat === 'all' || sec === cat;
+    const show = matchQ && matchCat;
+    card.classList.toggle('hidden', !show);
+    if (show) anyVisible = true;
+  });
+
+  // Hide section headings if all cards hidden
+  allSections.forEach(sec => {
+    const secId = sec.dataset.section;
+    const grid  = document.getElementById('grid-' + secId);
+    const visibleInGrid = grid && [...grid.querySelectorAll('.db-tool-card')].some(c => !c.classList.contains('hidden'));
+    sec.classList.toggle('hidden', !visibleInGrid);
+    if (grid) grid.classList.toggle('hidden', !visibleInGrid);
+  });
+
+  noResults.style.display = anyVisible ? 'none' : 'block';
+}
+
+searchInput.addEventListener('input', filterTools);
+
+document.querySelectorAll('.db-cat').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.db-cat').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterTools();
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,81 @@
+﻿{% extends 'base.html' %}
+{% block title %}Add Watermark — ZayroDocX{% endblock %}
+{% block active_watermark %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Add Watermark</span>{% endblock %}
+{% block content %}
+<form id="toolForm" enctype="multipart/form-data">{% csrf_token %}
+  <div class="upload-zone"><input type="file" id="fileInput" name="file" accept=".pdf">
+    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+    <h3>Drop your PDF here</h3><p>or click to browse</p>
+    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select PDF File</span>
+  </div>
+  <div class="file-list" id="fileList"></div>
+  <div class="options-panel">
+    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Watermark Options</div>
+    <div class="form-group">
+      <div class="form-label">Watermark Type</div>
+      <div class="toggle-group">
+        <div class="toggle-option"><input type="radio" name="type" id="wtText" value="text" checked><label for="wtText"><i class="fa-solid fa-font"></i> Text</label></div>
+        <div class="toggle-option"><input type="radio" name="type" id="wtImg" value="image"><label for="wtImg"><i class="fa-solid fa-image"></i> Image</label></div>
+      </div>
+    </div>
+    <div id="textOpts">
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label">Watermark Text</div>
+          <input type="text" name="text" class="form-control" value="CONFIDENTIAL">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Font Size</div>
+          <input type="number" name="font_size" class="form-control" value="60" min="10" max="200">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Rotation (°)</div>
+          <input type="number" name="angle" class="form-control" value="45" min="-180" max="180">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label">Opacity <span class="form-hint">(0.1 – 1.0)</span></div>
+          <input type="number" name="opacity" class="form-control" value="0.3" min="0.05" max="1" step="0.05">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Colour</div>
+          <div class="color-row">
+            <input type="color" id="colorPicker" value="#FF0000">
+            <input type="hidden" name="color" id="colorHex" value="FF0000">
+            <code id="colorLabel" style="font-size:.8rem;color:var(--text-muted)">#FF0000</code>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="imgOpts" style="display:none">
+      <div class="form-group">
+        <div class="form-label">Watermark Image <span class="form-hint">(PNG with transparency recommended)</span></div>
+        <input type="file" name="watermark_image" class="form-control" accept="image/*">
+      </div>
+    </div>
+  </div>
+  <div class="action-bar">
+    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-droplet"></i> Add Watermark</button>
+  </div>
+</form>
+<div class="progress-wrap">
+  <div class="progress-header"><span class="progress-label">Adding watermark…</span></div>
+  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+</div>
+<div class="result-card"></div>
+{% endblock %}
+{% block extra_js %}<script>
+document.getElementById('fileInput').addEventListener('change',function(){renderFileList(this.files,'fileList');});
+document.querySelectorAll('input[name="type"]').forEach(r=>r.addEventListener('change',function(){
+  document.getElementById('textOpts').style.display=this.value==='text'?'block':'none';
+  document.getElementById('imgOpts').style.display=this.value==='image'?'block':'none';
+}));
+document.getElementById('colorPicker').addEventListener('input',function(){
+  const h=this.value.replace('#','');
+  document.getElementById('colorHex').value=h;
+  document.getElementById('colorLabel').textContent='#'+h;
+});
+submitToolForm({formId:'toolForm',apiUrl:'{% url "api_watermark" %}',fileInputId:'fileInput'});
+</script>{% endblock %}

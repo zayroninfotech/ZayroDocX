@@ -1,0 +1,273 @@
+﻿{% extends 'base.html' %}
+{% block title %}Split PDF — ZayroDocX{% endblock %}
+{% block active_split %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Split PDF</span>{% endblock %}
+{% block content %}
+
+<style>
+/* ── Upload zone ── */
+.sp-upload {
+  border: 2px dashed var(--border);
+  border-radius: 14px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  transition: border-color .2s, background .2s;
+  background: var(--surface);
+  margin-bottom: 1rem;
+}
+.sp-upload:hover, .sp-upload.dragging { border-color: #7c3aed; background: rgba(124,58,237,.05); }
+.sp-upload input[type=file] { position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer; }
+.sp-upload-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: rgba(124,58,237,.12); color: #7c3aed;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; margin: 0 auto .9rem;
+}
+.sp-upload h3 { font-size: 1rem; font-weight: 700; margin: 0 0 .25rem; }
+.sp-upload p  { font-size: .82rem; color: var(--text-muted); margin: 0 0 1rem; }
+.sp-upload-btn {
+  display: inline-flex; align-items: center; gap: .45rem;
+  background: #7c3aed; color: #fff; border: none; border-radius: 8px;
+  padding: .55rem 1.2rem; font-size: .88rem; font-weight: 600;
+  cursor: pointer; transition: opacity .2s; position: relative; z-index: 1;
+}
+.sp-upload-btn:hover { opacity: .88; }
+.sp-upload-hint { display: block; margin-top: .75rem; font-size: .74rem; color: var(--text-muted); }
+
+/* ── File info bar (after selection) ── */
+.sp-file-bar {
+  display: none;
+  align-items: center; gap: .85rem;
+  background: var(--surface); border: 1.5px solid #7c3aed33;
+  border-radius: 12px; padding: .75rem 1rem;
+  margin-bottom: 1rem;
+}
+.sp-file-bar.show { display: flex; }
+.sp-file-bar-icon {
+  width: 40px; height: 48px; border-radius: 8px;
+  background: rgba(220,38,38,.1); display: flex; align-items: center;
+  justify-content: center; font-size: 1.3rem; color: #dc2626; flex-shrink: 0;
+}
+.sp-file-bar-info { flex: 1; min-width: 0; }
+.sp-file-bar-name { font-size: .88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sp-file-bar-meta { font-size: .74rem; color: var(--text-muted); margin-top: .15rem; }
+.sp-file-bar-change {
+  background: none; border: 1.5px solid var(--border); border-radius: 8px;
+  padding: .4rem .8rem; font-size: .78rem; font-weight: 600;
+  color: var(--text-muted); cursor: pointer; flex-shrink: 0;
+  transition: border-color .15s, color .15s;
+}
+.sp-file-bar-change:hover { border-color: #7c3aed; color: #7c3aed; }
+
+/* ── Mode cards ── */
+.sp-mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.sp-mode-card {
+  position: relative; border: 2px solid var(--border); border-radius: 12px;
+  padding: 1.1rem 1rem 1rem; cursor: pointer;
+  transition: border-color .18s, background .18s; background: var(--surface);
+  display: flex; flex-direction: column; gap: .5rem;
+}
+.sp-mode-card input[type=radio] { position:absolute;opacity:0;width:0;height:0; }
+.sp-mode-card:hover { border-color: #7c3aed66; }
+.sp-mode-card.selected { border-color: #7c3aed; background: rgba(124,58,237,.06); }
+
+.sp-mode-top { display: flex; align-items: flex-start; justify-content: space-between; }
+.sp-mode-icon {
+  width: 38px; height: 38px; border-radius: 9px;
+  background: rgba(124,58,237,.1); color: #7c3aed;
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.sp-mode-card.selected .sp-mode-icon { background: rgba(124,58,237,.2); }
+.sp-check {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .6rem; color: transparent; flex-shrink: 0;
+  transition: background .18s, border-color .18s;
+}
+.sp-mode-card.selected .sp-check { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+.sp-mode-title { font-size: .88rem; font-weight: 700; }
+.sp-mode-desc  { font-size: .74rem; color: var(--text-muted); line-height: 1.45; }
+.sp-mode-badge {
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-size: .68rem; font-weight: 700; padding: .18rem .5rem;
+  border-radius: 20px; margin-top: .1rem; width: fit-content;
+}
+.sp-mode-badge.zip { background: rgba(234,179,8,.12); color: #ca8a04; }
+.sp-mode-badge.pdf { background: rgba(22,163,74,.12); color: #16a34a; }
+
+/* ── Ranges input ── */
+.sp-ranges {
+  display: none; margin-top: .85rem;
+  border: 1.5px solid var(--border); border-radius: 12px;
+  padding: 1rem 1.1rem; background: var(--surface);
+  animation: fadeIn .18s ease;
+}
+.sp-ranges.show { display: block; }
+@keyframes fadeIn { from { opacity:0;transform:translateY(-5px) } to { opacity:1;transform:none } }
+.sp-ranges-label { font-size: .78rem; font-weight: 700; margin-bottom: .55rem; display: flex; align-items: center; gap: .45rem; }
+.sp-ranges-input {
+  width: 100%; padding: .6rem .9rem;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-size: .88rem; background: var(--bg); color: var(--text);
+  outline: none; transition: border-color .15s;
+  font-family: monospace;
+}
+.sp-ranges-input:focus { border-color: #7c3aed; }
+.sp-presets { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .65rem; }
+.sp-preset {
+  padding: .22rem .65rem; border-radius: 20px; font-size: .73rem; font-weight: 600;
+  background: rgba(124,58,237,.09); color: #7c3aed;
+  border: 1px solid rgba(124,58,237,.2); cursor: pointer; transition: background .15s;
+}
+.sp-preset:hover { background: rgba(124,58,237,.2); }
+.sp-ranges-hint { font-size: .71rem; color: var(--text-muted); margin-top: .5rem; }
+
+/* ── Submit ── */
+.sp-submit {
+  width: 100%; padding: .85rem;
+  background: linear-gradient(135deg,#6d28d9,#7c3aed,#8b5cf6);
+  color: #fff; border: none; border-radius: 12px;
+  font-size: .97rem; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: .6rem;
+  transition: opacity .2s, transform .1s;
+  box-shadow: 0 4px 18px rgba(124,58,237,.3);
+  margin-top: 1rem;
+}
+.sp-submit:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
+.sp-submit:disabled { opacity:.45; cursor:not-allowed; }
+</style>
+
+<form id="toolForm">{% csrf_token %}
+
+  <!-- Upload zone -->
+  <div class="sp-upload" id="uploadZone">
+    <input type="file" id="fileInput" name="file" accept=".pdf">
+    <div class="sp-upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+    <h3>Drop your PDF here</h3>
+    <p>Drag &amp; drop or click to browse your files</p>
+    <button type="button" class="sp-upload-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-folder-open"></i> Select PDF File
+    </button>
+    <span class="sp-upload-hint">PDF only &nbsp;·&nbsp; All sizes supported &nbsp;·&nbsp; Processed locally</span>
+  </div>
+
+  <!-- File info bar -->
+  <div class="sp-file-bar" id="fileBar">
+    <div class="sp-file-bar-icon"><i class="fa-solid fa-file-pdf"></i></div>
+    <div class="sp-file-bar-info">
+      <div class="sp-file-bar-name" id="fileBarName">—</div>
+      <div class="sp-file-bar-meta" id="fileBarMeta">—</div>
+    </div>
+    <button type="button" class="sp-file-bar-change" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-arrow-rotate-left"></i> Change
+    </button>
+  </div>
+
+  <!-- Options -->
+  <div class="options-panel">
+    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Split Options</div>
+
+    <div class="sp-mode-grid">
+      <!-- Extract All -->
+      <label class="sp-mode-card selected" id="cardAll">
+        <input type="radio" name="mode" id="modeAll" value="all" checked>
+        <div class="sp-mode-top">
+          <div class="sp-mode-icon"><i class="fa-solid fa-copy"></i></div>
+          <div class="sp-check"><i class="fa-solid fa-check"></i></div>
+        </div>
+        <div class="sp-mode-title">Extract All Pages</div>
+        <div class="sp-mode-desc">Every page becomes its own PDF file.</div>
+        <span class="sp-mode-badge zip"><i class="fa-solid fa-file-zipper"></i> Downloads as ZIP</span>
+      </label>
+
+      <!-- Custom Ranges -->
+      <label class="sp-mode-card" id="cardRange">
+        <input type="radio" name="mode" id="modeRange" value="range">
+        <div class="sp-mode-top">
+          <div class="sp-mode-icon"><i class="fa-solid fa-list-ol"></i></div>
+          <div class="sp-check"><i class="fa-solid fa-check"></i></div>
+        </div>
+        <div class="sp-mode-title">Custom Ranges</div>
+        <div class="sp-mode-desc">Pick specific pages or ranges to extract.</div>
+        <span class="sp-mode-badge pdf"><i class="fa-solid fa-file-pdf"></i> Outputs PDF</span>
+      </label>
+    </div>
+
+    <!-- Ranges input -->
+    <div class="sp-ranges" id="rangesGroup">
+      <div class="sp-ranges-label"><i class="fa-solid fa-hashtag" style="color:#7c3aed"></i> Page Ranges</div>
+      <input type="text" name="ranges" id="rangesInput" class="sp-ranges-input" placeholder="e.g. 1-3, 5, 7-9">
+      <div class="sp-presets">
+        <span class="sp-preset" onclick="addRange('1-3')">Pages 1–3</span>
+        <span class="sp-preset" onclick="addRange('1-5')">Pages 1–5</span>
+        <span class="sp-preset" onclick="addRange('1-10')">Pages 1–10</span>
+        <span class="sp-preset" onclick="addRange('odd')">Odd</span>
+        <span class="sp-preset" onclick="addRange('even')">Even</span>
+      </div>
+      <div class="sp-ranges-hint">Separate multiple ranges with commas &nbsp;·&nbsp; e.g. <code>1-3, 5, 8-12</code></div>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <button type="submit" class="sp-submit btn-submit">
+    <i class="fa-solid fa-scissors"></i> Split PDF
+  </button>
+
+</form>
+
+<div class="progress-wrap" style="margin-top:1rem">
+  <div class="progress-header"><span class="progress-label">Splitting PDF…</span><span class="progress-pct"></span></div>
+  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+</div>
+<div class="result-card"></div>
+
+{% endblock %}
+{% block extra_js %}<script>
+const fileInput  = document.getElementById('fileInput');
+const uploadZone = document.getElementById('uploadZone');
+const fileBar    = document.getElementById('fileBar');
+
+function formatBytes(b) {
+  if (!b) return '0 B';
+  const k=1024,s=['B','KB','MB','GB'],i=Math.floor(Math.log(b)/Math.log(k));
+  return +(b/Math.pow(k,i)).toFixed(1)+' '+s[i];
+}
+
+fileInput.addEventListener('change', function() {
+  const f = this.files[0];
+  if (!f) return;
+  uploadZone.style.display = 'none';
+  document.getElementById('fileBarName').textContent = f.name;
+  document.getElementById('fileBarMeta').textContent = formatBytes(f.size) + ' · PDF';
+  fileBar.classList.add('show');
+});
+
+/* Drag events on upload zone */
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragging'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragging'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault(); uploadZone.classList.remove('dragging');
+  const dt = e.dataTransfer.files;
+  if (dt.length) { fileInput.files = dt; fileInput.dispatchEvent(new Event('change')); }
+});
+
+/* Mode toggle */
+document.querySelectorAll('input[name="mode"]').forEach(r => {
+  r.addEventListener('change', function() {
+    document.getElementById('cardAll').classList.toggle('selected', this.value === 'all');
+    document.getElementById('cardRange').classList.toggle('selected', this.value === 'range');
+    document.getElementById('rangesGroup').classList.toggle('show', this.value === 'range');
+  });
+});
+
+function addRange(val) {
+  const inp = document.getElementById('rangesInput');
+  inp.value = inp.value.trim() ? inp.value.trim() + ', ' + val : val;
+  inp.focus();
+}
+
+submitToolForm({formId:'toolForm', apiUrl:'{% url "api_split_pdf" %}', fileInputId:'fileInput'});
+</script>{% endblock %}
