@@ -430,79 +430,7 @@
   </a>
 </div>
 
-<!-- ── Privacy & Security ── -->
-<div class="db-section-head" style="margin-top:2rem">
-  <span class="dot" style="background:#16a34a"></span> Privacy &amp; Security
-</div>
-<div class="db-feature-grid">
-  <div class="db-feature-card">
-    <div class="db-feat-icon" style="background:rgba(22,163,74,.15);color:#4ade80"><i class="fa-solid fa-server"></i></div>
-    <div><div class="db-feat-title">100% Local Processing</div><div class="db-feat-desc">All PDF operations run on your own server. Files never leave your infrastructure or touch any cloud.</div></div>
-  </div>
-  <div class="db-feature-card">
-    <div class="db-feat-icon" style="background:rgba(37,99,235,.15);color:#60a5fa"><i class="fa-solid fa-shield-halved"></i></div>
-    <div><div class="db-feat-title">Security Headers</div><div class="db-feat-desc">CSP, HSTS, X-Frame-Options, Referrer-Policy and Permissions-Policy enforced on every response.</div></div>
-  </div>
-  <div class="db-feature-card">
-    <div class="db-feat-icon" style="background:rgba(124,58,237,.15);color:#a78bfa"><i class="fa-solid fa-file-shield"></i></div>
-    <div><div class="db-feat-title">Magic-Byte Validation</div><div class="db-feat-desc">Every upload is validated against its real file signature — malicious files can't masquerade as PDFs.</div></div>
-  </div>
-  <div class="db-feature-card">
-    <div class="db-feat-icon" style="background:rgba(217,119,6,.15);color:#fbbf24"><i class="fa-solid fa-clock-rotate-left"></i></div>
-    <div><div class="db-feat-title">Full Audit Trail</div><div class="db-feat-desc">Every file operation is logged with timestamp, IP address, and tool used for compliance and review.</div></div>
-  </div>
-  <div class="db-feature-card">
-    <div class="db-feat-icon" style="background:rgba(13,148,136,.15);color:#2dd4bf"><i class="fa-solid fa-trash-can"></i></div>
-    <div><div class="db-feat-title">Auto File Cleanup</div><div class="db-feat-desc">Uploaded files are deleted immediately after processing. Output files are yours to download and remove.</div></div>
-  </div>
-  <div class="db-feature-card">
-    <div class="db-feat-icon" style="background:rgba(219,39,119,.15);color:#f472b6"><i class="fa-solid fa-lock"></i></div>
-    <div><div class="db-feat-title">SSRF Protection</div><div class="db-feat-desc">URL inputs are validated against private IP ranges and blocked internal hostnames before any fetch.</div></div>
-  </div>
-</div>
 
-<!-- ── Recent Activity ── -->
-<div class="db-section-head" style="margin-top:2rem">
-  <span class="dot" style="background:var(--brand)"></span>
-  Recent Activity
-  {% if recent_jobs %}<span class="count">{{ recent_jobs|length }}</span>{% endif %}
-</div>
-
-{% if recent_jobs %}
-<div class="db-activity">
-  <div class="db-activity-head">
-    <div class="db-activity-title"><i class="fa-solid fa-clock-rotate-left"></i> Last {{ recent_jobs|length }} Jobs</div>
-    <span class="pill pill-success"><i class="fa-solid fa-circle" style="font-size:.38rem"></i> Live</span>
-  </div>
-  <table class="data-table">
-    <thead>
-      <tr>
-        <th>Tool</th>
-        <th>Input Files</th>
-        <th>Output</th>
-        <th>Status</th>
-        <th>Time</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for job in recent_jobs %}
-      <tr>
-        <td><span class="tool-chip"><i class="fa-solid fa-gear"></i> {{ job.tool }}</span></td>
-        <td style="color:var(--text-muted);font-size:.78rem">{{ job.input_files|join:", " }}</td>
-        <td style="color:var(--text-muted);font-size:.78rem">{{ job.output_files|join:", " }}</td>
-        <td><span class="pill pill-success"><i class="fa-solid fa-check" style="font-size:.6rem"></i> {{ job.status }}</span></td>
-        <td style="color:var(--text-muted);font-size:.78rem">{{ job.created_at|date:"M d, H:i" }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-{% else %}
-<div class="db-empty">
-  <i class="fa-solid fa-clock-rotate-left"></i>
-  <p>No jobs yet — start using a tool above and your history will appear here.</p>
-</div>
-{% endif %}
 
 {% endblock %}
 
