@@ -758,7 +758,7 @@ Rules:
             api_key = settings.MISTRAL_API_KEY
             if not api_key:
                 return JsonResponse({'error': 'Mistral API key not configured in .env'}, status=500)
-            from mistralai.client import Mistral
+            from mistralai import Mistral
             client = Mistral(api_key=api_key)
             response = client.chat.complete(
                 model='mistral-small-latest',
@@ -1477,7 +1477,7 @@ def _mistral_text(prompt):
     api_key = settings.MISTRAL_API_KEY
     if not api_key:
         raise ValueError('Mistral API key not configured in .env')
-    from mistralai.client import Mistral
+    from mistralai import Mistral
     client = Mistral(api_key=api_key)
     resp = client.chat.complete(
         model='mistral-small-latest',
@@ -1490,7 +1490,7 @@ def _mistral_vision_b64(img_b64, prompt):
     api_key = settings.MISTRAL_API_KEY
     if not api_key:
         raise ValueError('Mistral API key not configured in .env')
-    from mistralai.client import Mistral
+    from mistralai import Mistral
     client = Mistral(api_key=api_key)
     resp = client.chat.complete(
         model='mistral-small-latest',
