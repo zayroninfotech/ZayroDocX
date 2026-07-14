@@ -132,12 +132,12 @@ import time as _time
 _JOB_TTL = 600  # seconds — delete completed/errored jobs after 10 minutes
 
 def _jobs_dir():
-    d = Path(settings.OUTPUT_DIR) / “_ocr_jobs”
+    d = Path(settings.OUTPUT_DIR) / "_ocr_jobs"
     d.mkdir(parents=True, exist_ok=True)
     return d
 
 def _job_path(job_id):
-    return _jobs_dir() / (job_id + “.json”)
+    return _jobs_dir() / (job_id + ".json")
 
 def _write_job(job_id, data):
     p = _job_path(job_id)
@@ -146,7 +146,7 @@ def _write_job(job_id, data):
     except Exception:
         existing = {}
     existing.update(data)
-    tmp = p.with_suffix(“.tmp”)
+    tmp = p.with_suffix(".tmp")
     tmp.write_text(json.dumps(existing))
     tmp.replace(p)
 
@@ -162,11 +162,11 @@ def _read_job(job_id):
 def _prune_jobs():
     try:
         now = _time.time()
-        for f in _jobs_dir().glob(“*.json”):
+        for f in _jobs_dir().glob("*.json"):
             try:
                 data = json.loads(f.read_text())
-                ts = data.get(“_ts”, now)
-                if (data.get(“done”) or data.get(“error”)) and now - ts > _JOB_TTL:
+                ts = data.get("_ts", now)
+                if (data.get("done") or data.get("error")) and now - ts > _JOB_TTL:
                     f.unlink(missing_ok=True)
             except Exception:
                 pass
@@ -335,7 +335,7 @@ def extract_page(request):
         info_fill  = PatternFill('solid', fgColor='EFF6FF')
         info_lbl   = PatternFill('solid', fgColor='DBEAFE')
 
-        # â”€â”€ Account info header block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # â"€â"€ Account info header block â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
         # Parse key fields from header_section text
         def _find(pattern, text, flags=re.IGNORECASE):
             m = re.search(pattern, text or '', flags)
@@ -381,7 +381,7 @@ def extract_page(request):
             ws.row_dimensions[start_row].height = 8
             start_row += 1
 
-        # â”€â”€ Transaction table headers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # â"€â"€ Transaction table headers â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
         HEADERS = ['Tran Date', 'Chq No', 'Particulars', 'Debit', 'Credit', 'Balance', 'Branch']
         COL_W   = [13,          13,        50,             12,      12,        14,         8]
         for ci, (h, w_) in enumerate(zip(HEADERS, COL_W), start=1):
@@ -405,7 +405,7 @@ def extract_page(request):
                 _cell(ri, 7, row.get('branch', ''),      align='center', fill=fill)
                 ws.row_dimensions[ri].height = 18
         else:
-            # No bank transactions â€” export raw OCR text as plain content
+            # No bank transactions â€" export raw OCR text as plain content
             # Remove the bank-statement header columns and replace with a text sheet
             wb2 = openpyxl.Workbook()
             ws2 = wb2.active
@@ -416,7 +416,7 @@ def extract_page(request):
 
             # Sheet title
             ws2.merge_cells('A1:B1')
-            tc = ws2.cell(row=1, column=1, value=f'Extracted Text â€” Page {page_no}')
+            tc = ws2.cell(row=1, column=1, value=f'Extracted Text â€" Page {page_no}')
             tc.font      = Font(bold=True, size=11, color='FFFFFF')
             tc.fill      = purple_fill
             tc.alignment = Alignment(horizontal='center', vertical='center')
@@ -504,8 +504,8 @@ def _extract_bank_table_by_coords(img, lang='eng'):
     """
     Two-pass coordinate-based bank statement parser.
 
-    Pass 1 â€” find every date token in the date column (x 9-19% of width).
-    Pass 2 â€” assign every other word to the nearest transaction whose
+    Pass 1 â€" find every date token in the date column (x 9-19% of width).
+    Pass 2 â€" assign every other word to the nearest transaction whose
              date_y <= word_y <= date_y + row_height.  This correctly
              handles multi-line particulars and amounts that appear on the
              second OCR line of a transaction row.
@@ -540,7 +540,7 @@ def _extract_bank_table_by_coords(img, lang='eng'):
 
     data = pytesseract.image_to_data(img, lang=lang, output_type=pytesseract.Output.DICT)
 
-    # â”€â”€ Pass 1: collect all date tokens and estimate row height â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # â"€â"€ Pass 1: collect all date tokens and estimate row height â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
     date_entries = []   # list of (y, date_str)
     for i, word in enumerate(data['text']):
         word = word.strip()
@@ -569,11 +569,11 @@ def _extract_bank_table_by_coords(img, lang='eng'):
             'particulars': '', 'debit': '', 'credit': '', 'balance': '', 'branch': '',
         })
 
-    # â”€â”€ Pass 2: assign every word to its transaction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # â"€â"€ Pass 2: assign every word to its transaction â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
     # Amount columns accept conf>=0 because _clean_amount strips OCR noise.
     # Particulars need conf>=20 to block garbage like 'ge', 'ta', 'B InN ls'.
     # Extra guard: only store in debit/credit/balance if word contains a decimal
-    # amount pattern â€” this blocks noise chars ('a', '|', symbols) that land in
+    # amount pattern â€" this blocks noise chars ('a', '|', symbols) that land in
     # the numeric zone but would overwrite a valid amount already captured.
     AMOUNT_COLS = {'debit', 'credit', 'balance', 'branch'}
     _AMT_LIKE   = re.compile(r'\d[\d,]*[.,]\d{2}')   # e.g. 17918.98}|
@@ -623,7 +623,7 @@ def _extract_bank_table_by_coords(img, lang='eng'):
         else:
             owner['particulars'] = (owner['particulars'] + ' ' + word).strip()
 
-    # â”€â”€ Parse amounts + balance-math correction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # â"€â"€ Parse amounts + balance-math correction â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
     prev_balance = None
     result = []
 
@@ -635,17 +635,17 @@ def _extract_bank_table_by_coords(img, lang='eng'):
         if balance is not None and prev_balance is not None:
             diff = round(balance - prev_balance, 2)
             if debit is None and credit is None:
-                # No amount found â€” derive from balance change
+                # No amount found â€" derive from balance change
                 if diff > 0:
                     credit = round(diff, 2)
                 elif diff < 0:
                     debit  = round(-diff, 2)
             elif debit is not None and credit is None and diff > 0:
-                # Amount in debit col but balance went UP â†’ swap to credit
+                # Amount in debit col but balance went UP â†' swap to credit
                 if abs(diff - debit) < 2:
                     credit, debit = debit, None
             elif credit is not None and debit is None and diff < 0:
-                # Amount in credit col but balance went DOWN â†’ swap to debit
+                # Amount in credit col but balance went DOWN â†' swap to debit
                 if abs(diff + credit) < 2:
                     debit, credit = credit, None
 
@@ -720,7 +720,7 @@ Return a JSON object with this exact structure:
 Rules:
 - For bank statements: fill transactions array with every row you see
 - For invoices/tables: put table rows in transactions, invoice fields in header.fields
-- debit/credit/balance must be numbers (float) or null â€” no currency symbols
+- debit/credit/balance must be numbers (float) or null â€" no currency symbols
 - Keep description/particulars exactly as seen
 - Put totals, closing balance etc in summary.fields
 - raw_text should contain all visible text on the page
@@ -781,7 +781,7 @@ Rules:
         except json.JSONDecodeError:
             return JsonResponse({'error': 'GPT returned invalid JSON.', 'raw': raw_json[:500]}, status=500)
 
-        # â”€â”€ Build Excel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # â"€â"€ Build Excel â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
         import openpyxl
         from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
@@ -819,7 +819,7 @@ Rules:
 
         cur_row = 1
 
-        # â”€â”€ Header fields block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # â"€â"€ Header fields block â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
         header = extracted.get('header', {})
         hfields = header.get('fields', {})
         title_val = header.get('title', '') or extracted.get('page_type', 'Document').replace('_', ' ').title()
@@ -838,7 +838,7 @@ Rules:
                 cur_row += 1
             cur_row += 1  # blank separator
 
-        # â”€â”€ Transactions table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # â"€â"€ Transactions table â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
         transactions = extracted.get('transactions', [])
         if transactions:
             # Build dynamic columns from first row keys
@@ -867,7 +867,7 @@ Rules:
                 ws.row_dimensions[cur_row].height = 18
                 cur_row += 1
 
-        # â”€â”€ Summary fields â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # â"€â"€ Summary fields â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
         summary = extracted.get('summary', {})
         sfields = summary.get('fields', {})
         if sfields:
@@ -886,7 +886,7 @@ Rules:
         out_path, out_name = get_output_path('.xlsx', f'ai_page_{page_no}')
         wb.save(out_path)
 
-        # â”€â”€ Display text â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # â"€â"€ Display text â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
         lines = []
         if hfields:
             for k, v in hfields.items():
@@ -939,7 +939,7 @@ def extract_statement_summary(request):
     # OCR page 1 for header fields; totals are found by scanning pages in reverse
     text_first = pytesseract.image_to_string(Image.open(str(all_imgs[0])).convert('RGB'), lang='eng')
 
-    # â”€â”€ Parse header fields from page 1 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # â"€â"€ Parse header fields from page 1 â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
     lines_first = text_first.splitlines()
 
     # Locate "Customer No" line index so we only look above it for the name
@@ -982,7 +982,7 @@ def extract_statement_summary(request):
     if m:
         acct_no = m.group(1)
 
-    # Period: OCR sometimes reads "To :" as "To ;" â€” accept colon, semicolon, or dash
+    # Period: OCR sometimes reads "To :" as "To ;" â€" accept colon, semicolon, or dash
     period_from = period_to = ''
     _DATE_PAT = r'\d{2}[\/\-]\d{2}[\/\-]\d{4}'
     m = re.search(r'From\s*[:\-;]?\s*(' + _DATE_PAT + r')', text_first, re.IGNORECASE)
@@ -996,8 +996,8 @@ def extract_statement_summary(request):
     if m:
         period_to = m.group(1).replace('/', '-')
 
-    # â”€â”€ Parse totals â€” search ALL pages (totals may not be on last page) â”€â”€â”€â”€â”€
-    # OCR reads pipe | as space, l, I, ! â€” match any of those as separator
+    # â"€â"€ Parse totals â€" search ALL pages (totals may not be on last page) â"€â"€â"€â"€â"€
+    # OCR reads pipe | as space, l, I, ! â€" match any of those as separator
     _GAP = r'[\s|lI!]+'
     txn_debit = txn_credit = closing_balance = None
 
@@ -1039,7 +1039,7 @@ def extract_statement_summary(request):
                             closing_balance = _clean_amount(nums[-1])
                     break
 
-    # â”€â”€ Build Excel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # â"€â"€ Build Excel â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
     import openpyxl
     from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
@@ -1182,7 +1182,7 @@ def _parse_invoice(text):
     """Extract common invoice fields using regex patterns."""
     data = {}
 
-    # date helpers â€“ match "May 26, 2026" / "26 May 2026" / "26/05/2026" / "Feb 01, 2026"
+    # date helpers â€" match "May 26, 2026" / "26 May 2026" / "26/05/2026" / "Feb 01, 2026"
     _DATE_WORD = r'(\w+\s+\d{1,2},?\s+\d{4}|\d{1,2}\s+\w+\s+\d{4})'
     _DATE_NUM  = r'(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})'
     _DATE_ISO  = r'(\d{4}-\d{2}-\d{2})'
@@ -1381,7 +1381,7 @@ def invoice_to_excel(request):
 
     wb = openpyxl.Workbook()
 
-    # â”€â”€ Sheet 1: Invoice Summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # â"€â"€ Sheet 1: Invoice Summary â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
     ws = wb.active
     ws.title = 'Invoice Summary'
 
@@ -1453,7 +1453,7 @@ def invoice_to_excel(request):
     ws.column_dimensions['A'].width = 26
     ws.column_dimensions['B'].width = 44
 
-    # â”€â”€ Stream response â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # â"€â"€ Stream response â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
     buf = BytesIO()
     wb.save(buf)
     size = buf.tell()   # capture size BEFORE seeking back to 0
@@ -1469,9 +1469,9 @@ def invoice_to_excel(request):
     return resp
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 #  AI helpers (Mistral Vision / Text)
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 def _mistral_text(prompt):
     api_key = settings.MISTRAL_API_KEY
@@ -1547,7 +1547,7 @@ Return ONLY a valid JSON object with these exact keys (use null if a field is no
 }
 
 Rules:
-- Extract exactly what is printed â€” do not guess or invent values
+- Extract exactly what is printed â€" do not guess or invent values
 - For amounts include currency symbol if visible
 - Return ONLY the JSON, no markdown, no explanation"""
 

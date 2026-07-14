@@ -28,3 +28,5 @@ python-dotenv==1.0.1
 Wand==0.6.13
 fpdf2==2.7.9
 svglib==1.5.1
+openai>=1.0.0
+mistralai>=1.0.0
