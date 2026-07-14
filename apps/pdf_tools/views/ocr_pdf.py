@@ -127,17 +127,53 @@ import threading
 import uuid as _uuid
 import time as _time
 
-# in-memory job store: job_id â†’ progress dict
-_jobs: dict = {}
-_JOB_TTL = 600  # seconds â€” prune completed/errored jobs after 10 minutes
+# File-based job store — shared across all gunicorn workers.
+# Each job is a JSON file: <OUTPUT_DIR>/_ocr_jobs/<job_id>.json
+_JOB_TTL = 600  # seconds — delete completed/errored jobs after 10 minutes
+
+def _jobs_dir() -> Path:
+    d = Path(settings.OUTPUT_DIR) / ‘_ocr_jobs’
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+def _job_path(job_id: str) -> Path:
+    return _jobs_dir() / f’{job_id}.json’
+
+def _write_job(job_id: str, data: dict):
+    “””Merge `data` into the job file atomically.”””
+    p = _job_path(job_id)
+    try:
+        existing = json.loads(p.read_text()) if p.exists() else {}
+    except Exception:
+        existing = {}
+    existing.update(data)
+    tmp = p.with_suffix(‘.tmp’)
+    tmp.write_text(json.dumps(existing))
+    tmp.replace(p)
+
+def _read_job(job_id: str):
+    p = _job_path(job_id)
+    if not p.exists():
+        return None
+    try:
+        return json.loads(p.read_text())
+    except Exception:
+        return None
 
 def _prune_jobs():
-    """Remove jobs older than _JOB_TTL seconds after completion."""
-    now = _time.monotonic()
-    stale = [jid for jid, j in list(_jobs.items())
-             if (j.get('done') or j.get('error')) and now - j.get('_ts', now) > _JOB_TTL]
-    for jid in stale:
-        _jobs.pop(jid, None)
+    “””Delete job files older than _JOB_TTL seconds after completion.”””
+    try:
+        now = _time.time()
+        for f in _jobs_dir().glob(‘*.json’):
+            try:
+                data = json.loads(f.read_text())
+                ts = data.get(‘_ts’, now)
+                if (data.get(‘done’) or data.get(‘error’)) and now - ts > _JOB_TTL:
+                    f.unlink(missing_ok=True)
+            except Exception:
+                pass
+    except Exception:
+        pass
 
 
 @ip_ratelimit(limit=20)
@@ -157,18 +193,18 @@ def ocr_pdf_stream(request):
     job_id = _uuid.uuid4().hex
     orig_name = f.name
 
-    _jobs[job_id] = {'page': 0, 'total': 0, 'pct': 0, 'done': False, 'error': None, 'page_images': [], 'download_url': '', 'img_folder': ''}
+    _write_job(job_id, {'page': 0, 'total': 0, 'pct': 0, 'done': False, 'error': None, 'page_images': [], 'download_url': '', 'img_folder': ''})
 
     def run():
         try:
             validate_pdf(saved_path, orig_name)
             doc = fitz.open(saved_path)
             total = doc.page_count
-            _jobs[job_id]['total'] = total
+            _write_job(job_id, {'total': total})
 
             if total > _MAX_OCR_PAGES:
                 doc.close()
-                _jobs[job_id]['error'] = f'Too many pages (max {_MAX_OCR_PAGES}).'
+                _write_job(job_id, {'error': f'Too many pages (max {_MAX_OCR_PAGES}).', '_ts': _time.time()})
                 return
 
             stem = re.sub(r'[^a-zA-Z0-9_\-]', '_', Path(orig_name).stem)[:60]
@@ -195,7 +231,7 @@ def ocr_pdf_stream(request):
                 new_doc.insert_pdf(ocr_doc)
                 ocr_doc.close()
 
-                _jobs[job_id].update({
+                _write_job(job_id, {
                     'page': i + 1,
                     'pct': round((i + 1) / total * 100),
                     'page_images': list(page_urls),
@@ -207,10 +243,9 @@ def ocr_pdf_stream(request):
             doc.close()
             save_job('ocr_pdf', [orig_name], [out_name], meta={'mode': 'ocr', 'lang': lang})
 
-            _jobs[job_id].update({'done': True, 'download_url': media_url(out_name), 'img_folder': stem, '_ts': _time.monotonic()})
+            _write_job(job_id, {'done': True, 'download_url': media_url(out_name), 'img_folder': stem, '_ts': _time.time()})
         except Exception as e:
-            _jobs[job_id]['error'] = str(e)
-            _jobs[job_id]['_ts'] = _time.monotonic()
+            _write_job(job_id, {'error': str(e), '_ts': _time.time()})
         finally:
             cleanup_file(saved_path)
 
@@ -220,10 +255,9 @@ def ocr_pdf_stream(request):
 
 def ocr_pdf_progress(request, job_id):
     _prune_jobs()
-    job = _jobs.get(job_id)
+    job = _read_job(job_id)
     if not job:
         return JsonResponse({'error': 'Job not found.'}, status=404)
-    # Return a copy without internal metadata key
     return JsonResponse({k: v for k, v in job.items() if not k.startswith('_')})
 
 
