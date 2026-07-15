@@ -16,7 +16,7 @@ from apps.pdf_tools.views.edit_pdf import rotate_pdf, add_page_numbers
 from apps.pdf_tools.views.watermark import add_watermark
 from apps.pdf_tools.views.sign_pdf import sign_pdf
 from apps.pdf_tools.views.ocr_pdf import ocr_pdf, ocr_pdf_stream, ocr_pdf_progress, extract_page, extract_page_ai, extract_statement_summary, extract_invoice, scan_to_pdf, invoice_to_excel, extract_invoice_ai, smart_split_suggest, detect_blank_pages
-from apps.pdf_tools.views.convert_to_pdf import jpg_to_pdf, word_to_pdf, pptx_to_pdf, excel_to_pdf, html_to_pdf
+from apps.pdf_tools.views.convert_to_pdf import word_to_pdf, pptx_to_pdf, excel_to_pdf, html_to_pdf
 from apps.pdf_tools.views.convert_from_pdf import pdf_to_jpg, pdf_to_word, pdf_to_pptx, pdf_to_excel
 
 
@@ -33,7 +33,6 @@ urlpatterns = [
     path('sign-pdf/', tool_page('sign.html'), name='sign_pdf_page'),
     path('ocr-pdf/', tool_page('ocr.html'), name='ocr_pdf_page'),
     path('scan-to-pdf/', tool_page('scan.html'), name='scan_pdf_page'),
-    path('jpg-to-pdf/', tool_page('jpg_to_pdf.html'), name='jpg_to_pdf_page'),
     path('word-to-pdf/', tool_page('word_to_pdf.html'), name='word_to_pdf_page'),
     path('pptx-to-pdf/', tool_page('pptx_to_pdf.html'), name='pptx_to_pdf_page'),
     path('excel-to-pdf/', tool_page('excel_to_pdf.html'), name='excel_to_pdf_page'),
@@ -68,7 +67,6 @@ urlpatterns = [
     path('api/smart-split-suggest/', smart_split_suggest, name='api_smart_split'),
     path('api/detect-blank-pages/', detect_blank_pages, name='api_detect_blank'),
     path('api/scan-to-pdf/', scan_to_pdf, name='api_scan_pdf'),
-    path('api/jpg-to-pdf/', jpg_to_pdf, name='api_jpg_to_pdf'),
     path('api/word-to-pdf/', word_to_pdf, name='api_word_to_pdf'),
     path('api/pptx-to-pdf/', pptx_to_pdf, name='api_pptx_to_pdf'),
     path('api/excel-to-pdf/', excel_to_pdf, name='api_excel_to_pdf'),
