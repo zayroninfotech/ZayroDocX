@@ -160,17 +160,26 @@ def html_to_pdf(request):
             'load-media-error-handling': 'ignore',
         }
 
+        def _wk_convert(fn, *args):
+            """Run a pdfkit conversion; if it fails but the output exists, treat as success."""
+            try:
+                fn(*args, configuration=wk_config, options=options)
+            except IOError as exc:
+                # wkhtmltopdf exits with code 1 on resource-load warnings but still
+                # writes a valid PDF — only re-raise if the file was NOT created.
+                if not os.path.exists(out_path) or os.path.getsize(out_path) == 0:
+                    raise
+
         if html_file:
             saved_path, _ = save_uploaded_file(html_file)
-            # Read as string to avoid file:// protocol being blocked by disable-local-file-access
             with open(saved_path, 'r', encoding='utf-8', errors='replace') as fh:
                 html_content_from_file = fh.read()
-            pdfkit.from_string(html_content_from_file, out_path, configuration=wk_config, options=options)
+            _wk_convert(pdfkit.from_string, html_content_from_file, out_path)
         elif html_url:
             _validate_url(html_url)
-            pdfkit.from_url(html_url, out_path, configuration=wk_config, options=options)
+            _wk_convert(pdfkit.from_url, html_url, out_path)
         elif html_content:
-            pdfkit.from_string(html_content, out_path, configuration=wk_config, options=options)
+            _wk_convert(pdfkit.from_string, html_content, out_path)
         else:
             return JsonResponse({'error': 'Provide HTML file, URL, or content.'}, status=400)
 
