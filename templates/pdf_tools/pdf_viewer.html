@@ -107,58 +107,12 @@
     </div>
   </div>
 
-  <!-- Extract options -->
-  <div class="options-panel" style="margin-top:14px">
-    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Extract Options</div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-      <div class="form-group">
-        <div class="form-label">Output Format</div>
-        <div class="toggle-group">
-          <label class="toggle-option"><input type="radio" name="format" value="excel"><span><i class="fa-solid fa-file-excel"></i> Excel</span></label>
-          <label class="toggle-option"><input type="radio" name="format" value="csv"><span><i class="fa-solid fa-table"></i> CSV</span></label>
-          <label class="toggle-option"><input type="radio" name="format" value="text" checked><span><i class="fa-solid fa-align-left"></i> Text</span></label>
-        </div>
-      </div>
-      <div class="form-group">
-        <div class="form-label">Extraction Mode <span class="form-hint">(use OCR for scanned PDFs)</span></div>
-        <div class="toggle-group">
-          <label class="toggle-option"><input type="radio" name="mode" value="normal" checked><span><i class="fa-solid fa-file-lines"></i> Normal</span></label>
-          <label class="toggle-option"><input type="radio" name="mode" value="ocr"><span><i class="fa-solid fa-microchip"></i> OCR</span></label>
-        </div>
-      </div>
-    </div>
-
-    <!-- Page range -->
-    <div class="form-group" style="margin-top:8px">
-      <div class="form-label">Page Range <span class="form-hint">(leave blank to extract all pages)</span></div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span style="font-size:.82rem;color:var(--text-muted)">From page</span>
-        <input id="pageFrom" type="number" min="1" value="1" style="width:64px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:.82rem;background:var(--surface);color:var(--text)">
-        <span style="font-size:.82rem;color:var(--text-muted)">to page</span>
-        <input id="pageTo" type="number" min="1" placeholder="last" style="width:72px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:.82rem;background:var(--surface);color:var(--text)">
-        <button class="toolbar-btn" onclick="setRangeCurrent()" title="Set range to current page only"><i class="fa-solid fa-file"></i> Current page only</button>
-        <button class="toolbar-btn" onclick="resetRange()" title="Reset to all pages"><i class="fa-solid fa-list"></i> All pages</button>
-      </div>
-    </div>
-
-    <div class="form-group" id="langRow" style="display:none">
-      <div class="form-label">OCR Language</div>
-      <select name="lang" id="langSelect" class="form-control" style="max-width:260px">
-        <option value="eng">English</option>
-        <option value="hin">Hindi</option>
-        <option value="tam">Tamil</option>
-        <option value="tel">Telugu</option>
-        <option value="kan">Kannada</option>
-        <option value="mal">Malayalam</option>
-        <option value="ben">Bengali</option>
-        <option value="mar">Marathi</option>
-        <option value="guj">Gujarati</option>
-        <option value="fra">French</option>
-        <option value="deu">German</option>
-      </select>
-    </div>
-  </div>
+  <!-- hidden defaults so JS extract still works -->
+  <input type="hidden" name="format" value="text">
+  <input type="hidden" name="mode" value="normal">
+  <input type="hidden" id="pageFrom" value="">
+  <input type="hidden" id="pageTo" value="">
+  <select id="langSelect" style="display:none"><option value="eng">English</option></select>
 
   <div class="action-bar">
     <button id="extractBtn" class="btn btn-primary btn-lg">
