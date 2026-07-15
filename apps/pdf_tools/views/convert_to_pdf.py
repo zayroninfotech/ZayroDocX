@@ -255,7 +255,11 @@ def _libreoffice_convert(input_path, output_path):
         '--outdir', out_dir,
         input_path,
     ]
-    result = subprocess.run(cmd, capture_output=True, timeout=120)
+    # Gunicorn runs with a stripped PATH; LibreOffice's shell wrapper needs
+    # standard utilities (dirname, basename, sed, grep, uname) to be on PATH.
+    env = os.environ.copy()
+    env['PATH'] = '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:' + env.get('PATH', '')
+    result = subprocess.run(cmd, capture_output=True, timeout=120, env=env)
     logger.info('LibreOffice stdout: %s', result.stdout.decode(errors='replace'))
     if result.returncode != 0:
         logger.error('LibreOffice stderr: %s', result.stderr.decode(errors='replace'))
