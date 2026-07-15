@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Convert from JPG — ZayroDocX{% endblock %}
+{% block active_img_from_jpg %}active{% endblock %}
+{% block breadcrumb %}<span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Convert from JPG</span>{% endblock %}
+{% block content %}
+<div class="tool-header">
+  <div class="tool-icon-wrap ti-green"><i class="fa-solid fa-images"></i></div>
+  <div><h1 class="tool-title">Convert from JPG</h1><p class="tool-desc">Convert your JPG image to PNG, WebP, BMP, or TIFF.</p></div>
+</div>
+<form id="mainForm" enctype="multipart/form-data">{% csrf_token %}
+  <div class="upload-zone" id="uploadZone">
+    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i><p class="upload-title">Drop JPG here</p>
+    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select JPG</span>
+    <input type="file" id="fileInput" name="file" accept="image/jpeg,image/jpg" style="display:none">
+  </div>
+  <div class="file-list" id="fileList"></div>
+  <div class="options-panel">
+    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Output Format</div>
+    <div class="toggle-group" style="margin-top:.75rem;">
+      <label class="toggle-option"><input type="radio" name="format" value="png" checked><span>PNG</span></label>
+      <label class="toggle-option"><input type="radio" name="format" value="webp"><span>WebP</span></label>
+      <label class="toggle-option"><input type="radio" name="format" value="bmp"><span>BMP</span></label>
+      <label class="toggle-option"><input type="radio" name="format" value="tiff"><span>TIFF</span></label>
+    </div>
+  </div>
+  <div class="action-bar"><button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-images"></i> Convert</button></div>
+</form>
+<div class="progress-wrap" id="progressWrap" style="display:none;"><div class="progress-inner"><div class="progress-spinner"></div><span>Converting…</span></div></div>
+{% endblock %}
+{% block extra_js %}<script>
+const zone=document.getElementById('uploadZone'),input=document.getElementById('fileInput'),fileList=document.getElementById('fileList');
+zone.addEventListener('click',()=>input.click());zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});input.addEventListener('change',()=>setFile(input.files[0]));
+function setFile(f){if(!f)return;const dt=new DataTransfer();dt.items.add(f);input.files=dt.files;fileList.innerHTML=`<div class="file-item"><span class="file-name"><i class="fa-solid fa-image" style="color:#22c55e"></i> ${f.name}</span><span class="file-size">${(f.size/1024).toFixed(1)} KB</span></div>`;}
+document.getElementById('mainForm').addEventListener('submit',async e=>{e.preventDefault();if(!input.files[0]){toast('Please select a JPG image.','error');return;}document.getElementById('progressWrap').style.display='flex';const r=await fetch('/tools/api/img/from-jpg/',{method:'POST',body:new FormData(e.target)});const d=await r.json();document.getElementById('progressWrap').style.display='none';if(d.error){toast(d.error,'error');return;}const a=document.createElement('a');a.href=d.download_url;a.download=d.filename;a.click();toast('Converted!','success');});
+function toast(msg,type){const c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast toast-'+(type||'info');t.innerHTML=`<i class="fa-solid fa-${type==='error'?'circle-xmark':'circle-check'}"></i> ${msg}`;c.appendChild(t);setTimeout(()=>t.remove(),4000);}
+</script>{% endblock %}

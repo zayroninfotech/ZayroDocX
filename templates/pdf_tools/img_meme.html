@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Meme Generator — ZayroDocX{% endblock %}
+{% block active_img_meme %}active{% endblock %}
+{% block breadcrumb %}<span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Meme Generator</span>{% endblock %}
+{% block content %}
+<div class="tool-header">
+  <div class="tool-icon-wrap ti-green"><i class="fa-solid fa-face-laugh-squint"></i></div>
+  <div><h1 class="tool-title">Meme Generator</h1><p class="tool-desc">Add top and bottom text to any image to create a meme.</p></div>
+</div>
+<form id="mainForm" enctype="multipart/form-data">{% csrf_token %}
+  <div class="upload-zone" id="uploadZone">
+    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i><p class="upload-title">Drop image here</p>
+    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select Image</span>
+    <input type="file" id="fileInput" name="file" accept="image/*" style="display:none">
+  </div>
+  <div class="file-list" id="fileList"></div>
+  <div class="options-panel">
+    <div class="options-panel-title"><i class="fa-solid fa-font"></i> Meme Text</div>
+    <div class="form-group" style="margin-top:.75rem;">
+      <div class="form-label">Top Text</div>
+      <input type="text" name="top_text" class="form-control" placeholder="TOP TEXT">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Bottom Text</div>
+      <input type="text" name="bottom_text" class="form-control" placeholder="BOTTOM TEXT">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Font Size: <span id="fsVal">40</span>px</div>
+      <input type="range" name="font_size" min="20" max="100" value="40" oninput="document.getElementById('fsVal').textContent=this.value" style="width:100%">
+    </div>
+  </div>
+  <div class="action-bar"><button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-face-laugh-squint"></i> Generate Meme</button></div>
+</form>
+<div class="progress-wrap" id="progressWrap" style="display:none;"><div class="progress-inner"><div class="progress-spinner"></div><span>Generating meme…</span></div></div>
+{% endblock %}
+{% block extra_js %}<script>
+const zone=document.getElementById('uploadZone'),input=document.getElementById('fileInput'),fileList=document.getElementById('fileList');
+zone.addEventListener('click',()=>input.click());zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});input.addEventListener('change',()=>setFile(input.files[0]));
+function setFile(f){if(!f)return;const dt=new DataTransfer();dt.items.add(f);input.files=dt.files;fileList.innerHTML=`<div class="file-item"><span class="file-name"><i class="fa-solid fa-image" style="color:#22c55e"></i> ${f.name}</span><span class="file-size">${(f.size/1024).toFixed(1)} KB</span></div>`;}
+document.getElementById('mainForm').addEventListener('submit',async e=>{e.preventDefault();if(!input.files[0]){toast('Please select an image.','error');return;}document.getElementById('progressWrap').style.display='flex';const r=await fetch('/tools/api/img/meme/',{method:'POST',body:new FormData(e.target)});const d=await r.json();document.getElementById('progressWrap').style.display='none';if(d.error){toast(d.error,'error');return;}const a=document.createElement('a');a.href=d.download_url;a.download=d.filename;a.click();toast('Meme created!','success');});
+function toast(msg,type){const c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast toast-'+(type||'info');t.innerHTML=`<i class="fa-solid fa-${type==='error'?'circle-xmark':'circle-check'}"></i> ${msg}`;c.appendChild(t);setTimeout(()=>t.remove(),4000);}
+</script>{% endblock %}

@@ -94,6 +94,16 @@
           <span class="nav-label">Invoice Extractor</span>
           <span class="nav-badge">AI</span>
         </a>
+        <a href="{% url 'ai_summarizer_page' %}"  class="nav-item {% block active_ai_summarizer %}{% endblock %}">
+          <span class="nav-icon-wrap ni-pink"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+          <span class="nav-label">AI Summarizer</span>
+          <span class="nav-badge">AI</span>
+        </a>
+        <a href="{% url 'translate_pdf_page' %}"   class="nav-item {% block active_translate_pdf %}{% endblock %}">
+          <span class="nav-icon-wrap ni-pink"><i class="fa-solid fa-language"></i></span>
+          <span class="nav-label">Translate PDF</span>
+          <span class="nav-badge">AI</span>
+        </a>
 
       </div>
 
@@ -166,6 +176,82 @@
         <a href="{% url 'sign_pdf_page' %}"      class="nav-item {% block active_sign %}{% endblock %}">
           <span class="nav-icon-wrap ni-orange"><i class="fa-solid fa-signature"></i></span>
           <span class="nav-label">Sign PDF</span>
+        </a>
+        <a href="{% url 'crop_pdf_page' %}"       class="nav-item {% block active_crop %}{% endblock %}">
+          <span class="nav-icon-wrap ni-orange"><i class="fa-solid fa-crop-simple"></i></span>
+          <span class="nav-label">Crop PDF</span>
+        </a>
+      </div>
+
+      <!-- ── PDF Security ── -->
+      <div class="nav-section">
+        <div class="nav-cat-header nch-blue">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span class="nav-cat-label">PDF Security</span>
+        </div>
+        <a href="{% url 'protect_pdf_page' %}"    class="nav-item {% block active_protect %}{% endblock %}">
+          <span class="nav-icon-wrap ni-blue"><i class="fa-solid fa-lock"></i></span>
+          <span class="nav-label">Protect PDF</span>
+        </a>
+        <a href="{% url 'unlock_pdf_page' %}"     class="nav-item {% block active_unlock %}{% endblock %}">
+          <span class="nav-icon-wrap ni-blue"><i class="fa-solid fa-lock-open"></i></span>
+          <span class="nav-label">Unlock PDF</span>
+        </a>
+        <a href="{% url 'redact_pdf_page' %}"     class="nav-item {% block active_redact %}{% endblock %}">
+          <span class="nav-icon-wrap ni-blue"><i class="fa-solid fa-eraser"></i></span>
+          <span class="nav-label">Redact PDF</span>
+        </a>
+      </div>
+
+      <!-- ── Image Tools ── -->
+      <div class="nav-section">
+        <div class="nav-cat-header nch-green">
+          <i class="fa-solid fa-image"></i>
+          <span class="nav-cat-label">Image Tools</span>
+        </div>
+        <a href="{% url 'img_compress_page' %}"   class="nav-item {% block active_img_compress %}{% endblock %}">
+          <span class="nav-icon-wrap ni-green"><i class="fa-solid fa-compress-arrows-alt"></i></span>
+          <span class="nav-label">Compress Image</span>
+        </a>
+        <a href="{% url 'img_upscale_page' %}"    class="nav-item {% block active_img_upscale %}{% endblock %}">
+          <span class="nav-icon-wrap ni-green"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+          <span class="nav-label">Upscale Image</span>
+        </a>
+        <a href="{% url 'img_remove_bg_page' %}"  class="nav-item {% block active_img_remove_bg %}{% endblock %}">
+          <span class="nav-icon-wrap ni-green"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+          <span class="nav-label">Remove Background</span>
+        </a>
+        <a href="{% url 'img_meme_page' %}"       class="nav-item {% block active_img_meme %}{% endblock %}">
+          <span class="nav-icon-wrap ni-green"><i class="fa-solid fa-face-laugh-squint"></i></span>
+          <span class="nav-label">Meme Generator</span>
+        </a>
+        <a href="{% url 'img_resize_page' %}"     class="nav-item {% block active_img_resize %}{% endblock %}">
+          <span class="nav-icon-wrap ni-green"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></span>
+          <span class="nav-label">Resize Image</span>
+        </a>
+        <a href="{% url 'img_crop_page' %}"       class="nav-item {% block active_img_crop %}{% endblock %}">
+          <span class="nav-icon-wrap ni-green"><i class="fa-solid fa-crop-simple"></i></span>
+          <span class="nav-label">Crop Image</span>
+        </a>
+        <a href="{% url 'img_rotate_page' %}"     class="nav-item {% block active_img_rotate %}{% endblock %}">
+          <span class="nav-icon-wrap ni-green"><i class="fa-solid fa-rotate-right"></i></span>
+          <span class="nav-label">Rotate Image</span>
+        </a>
+        <a href="{% url 'img_to_jpg_page' %}"     class="nav-item {% block active_img_to_jpg %}{% endblock %}">
+          <span class="nav-icon-wrap ni-green"><i class="fa-solid fa-file-image"></i></span>
+          <span class="nav-label">Convert to JPG</span>
+        </a>
+        <a href="{% url 'img_from_jpg_page' %}"   class="nav-item {% block active_img_from_jpg %}{% endblock %}">
+          <span class="nav-icon-wrap ni-green"><i class="fa-solid fa-images"></i></span>
+          <span class="nav-label">Convert from JPG</span>
+        </a>
+        <a href="{% url 'img_watermark_page' %}"  class="nav-item {% block active_img_watermark %}{% endblock %}">
+          <span class="nav-icon-wrap ni-green"><i class="fa-solid fa-stamp"></i></span>
+          <span class="nav-label">Watermark Image</span>
+        </a>
+        <a href="{% url 'img_blur_face_page' %}"  class="nav-item {% block active_img_blur_face %}{% endblock %}">
+          <span class="nav-icon-wrap ni-green"><i class="fa-solid fa-user-secret"></i></span>
+          <span class="nav-label">Blur Face</span>
         </a>
       </div>
 

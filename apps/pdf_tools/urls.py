@@ -18,6 +18,15 @@ from apps.pdf_tools.views.sign_pdf import sign_pdf
 from apps.pdf_tools.views.ocr_pdf import ocr_pdf, ocr_pdf_stream, ocr_pdf_progress, extract_page, extract_page_ai, extract_statement_summary, extract_invoice, scan_to_pdf, invoice_to_excel, extract_invoice_ai, smart_split_suggest, detect_blank_pages
 from apps.pdf_tools.views.convert_to_pdf import word_to_pdf, pptx_to_pdf, excel_to_pdf, html_to_pdf
 from apps.pdf_tools.views.convert_from_pdf import pdf_to_jpg, pdf_to_word, pdf_to_pptx, pdf_to_excel
+from apps.pdf_tools.views.ai_summarizer import summarize_pdf
+from apps.pdf_tools.views.translate_pdf import translate_pdf
+from apps.pdf_tools.views.security import protect_pdf, unlock_pdf, redact_pdf
+from apps.pdf_tools.views.crop_pdf import crop_pdf
+from apps.pdf_tools.views.image_tools import (
+    compress_image, resize_image, crop_image, rotate_image,
+    convert_to_jpg, convert_from_jpg, watermark_image, meme_generator,
+    upscale_image, remove_background, blur_face,
+)
 
 
 urlpatterns = [
@@ -42,7 +51,25 @@ urlpatterns = [
     path('pdf-to-pptx/', tool_page('pdf_to_pptx.html'), name='pdf_to_pptx_page'),
     path('pdf-to-excel/', tool_page('pdf_to_excel.html'), name='pdf_to_excel_page'),
     path('invoice-extractor/', tool_page('invoice.html'), name='invoice_page'),
+    path('ai-summarizer/', tool_page('ai_summarizer.html'), name='ai_summarizer_page'),
+    path('translate-pdf/', tool_page('translate_pdf.html'), name='translate_pdf_page'),
+    path('crop-pdf/', tool_page('crop.html'), name='crop_pdf_page'),
+    path('protect-pdf/', tool_page('protect.html'), name='protect_pdf_page'),
+    path('unlock-pdf/', tool_page('unlock.html'), name='unlock_pdf_page'),
+    path('redact-pdf/', tool_page('redact.html'), name='redact_pdf_page'),
 
+    # Image tool pages
+    path('compress-image/', tool_page('img_compress.html'), name='img_compress_page'),
+    path('resize-image/', tool_page('img_resize.html'), name='img_resize_page'),
+    path('crop-image/', tool_page('img_crop.html'), name='img_crop_page'),
+    path('rotate-image/', tool_page('img_rotate.html'), name='img_rotate_page'),
+    path('convert-to-jpg/', tool_page('img_to_jpg.html'), name='img_to_jpg_page'),
+    path('convert-from-jpg/', tool_page('img_from_jpg.html'), name='img_from_jpg_page'),
+    path('watermark-image/', tool_page('img_watermark.html'), name='img_watermark_page'),
+    path('meme-generator/', tool_page('img_meme.html'), name='img_meme_page'),
+    path('upscale-image/', tool_page('img_upscale.html'), name='img_upscale_page'),
+    path('remove-background/', tool_page('img_remove_bg.html'), name='img_remove_bg_page'),
+    path('blur-face/', tool_page('img_blur_face.html'), name='img_blur_face_page'),
 
     # API endpoints
     path('api/merge-pdf/', merge_pdf, name='api_merge_pdf'),
@@ -75,5 +102,24 @@ urlpatterns = [
     path('api/pdf-to-word/', pdf_to_word, name='api_pdf_to_word'),
     path('api/pdf-to-pptx/', pdf_to_pptx, name='api_pdf_to_pptx'),
     path('api/pdf-to-excel/', pdf_to_excel, name='api_pdf_to_excel'),
+    path('api/summarize-pdf/', summarize_pdf, name='api_summarize_pdf'),
+    path('api/translate-pdf/', translate_pdf, name='api_translate_pdf'),
+    path('api/crop-pdf/', crop_pdf, name='api_crop_pdf'),
+    path('api/protect-pdf/', protect_pdf, name='api_protect_pdf'),
+    path('api/unlock-pdf/', unlock_pdf, name='api_unlock_pdf'),
+    path('api/redact-pdf/', redact_pdf, name='api_redact_pdf'),
+
+    # Image tool API endpoints
+    path('api/img/compress/', compress_image, name='api_img_compress'),
+    path('api/img/resize/', resize_image, name='api_img_resize'),
+    path('api/img/crop/', crop_image, name='api_img_crop'),
+    path('api/img/rotate/', rotate_image, name='api_img_rotate'),
+    path('api/img/to-jpg/', convert_to_jpg, name='api_img_to_jpg'),
+    path('api/img/from-jpg/', convert_from_jpg, name='api_img_from_jpg'),
+    path('api/img/watermark/', watermark_image, name='api_img_watermark'),
+    path('api/img/meme/', meme_generator, name='api_img_meme'),
+    path('api/img/upscale/', upscale_image, name='api_img_upscale'),
+    path('api/img/remove-bg/', remove_background, name='api_img_remove_bg'),
+    path('api/img/blur-face/', blur_face, name='api_img_blur_face'),
 
 ]

@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Translate PDF — ZayroDocX{% endblock %}
+{% block active_translate_pdf %}active{% endblock %}
+
+{% block breadcrumb %}
+<span class="sep"><i class="fa-solid fa-chevron-right"></i></span>
+<span class="current">Translate PDF</span>
+{% endblock %}
+
+{% block content %}
+<div class="tool-header">
+  <div class="tool-icon-wrap ti-pink"><i class="fa-solid fa-language"></i></div>
+  <div>
+    <h1 class="tool-title">Translate PDF <span class="nav-badge" style="font-size:.7rem;vertical-align:middle">AI</span></h1>
+    <p class="tool-desc">Upload a PDF and translate its content into any language using AI.</p>
+  </div>
+</div>
+
+<form id="translateForm" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="upload-zone" id="uploadZone">
+    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+    <p class="upload-title">Drop your PDF here</p>
+    <p class="upload-sub">or click to browse</p>
+    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select PDF</span>
+    <input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
+  </div>
+  <div class="file-list" id="fileList"></div>
+
+  <div class="options-panel">
+    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Translation Options</div>
+    <div class="form-group">
+      <div class="form-label">Target Language</div>
+      <div class="toggle-group" style="flex-wrap:wrap;gap:.4rem;">
+        <label class="toggle-option"><input type="radio" name="language" value="Hindi" checked><span>Hindi</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Telugu"><span>Telugu</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Tamil"><span>Tamil</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Kannada"><span>Kannada</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Malayalam"><span>Malayalam</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Bengali"><span>Bengali</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Marathi"><span>Marathi</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Gujarati"><span>Gujarati</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Punjabi"><span>Punjabi</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="French"><span>French</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Spanish"><span>Spanish</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="German"><span>German</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Arabic"><span>Arabic</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Chinese (Simplified)"><span>Chinese</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Japanese"><span>Japanese</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Korean"><span>Korean</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Portuguese"><span>Portuguese</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Russian"><span>Russian</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Italian"><span>Italian</span></label>
+        <label class="toggle-option"><input type="radio" name="language" value="Dutch"><span>Dutch</span></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button type="submit" class="btn btn-primary btn-lg btn-submit" id="submitBtn">
+      <i class="fa-solid fa-language"></i> Translate
+    </button>
+  </div>
+</form>
+
+<!-- Result panel -->
+<div id="resultPanel" style="display:none; margin-top:1.5rem;">
+  <div class="options-panel">
+    <div class="options-panel-title" style="display:flex;align-items:center;justify-content:space-between;">
+      <span><i class="fa-solid fa-file-lines"></i> Translated Text</span>
+      <div style="display:flex;gap:.5rem;align-items:center;">
+        <span id="pageCount" style="font-size:.75rem;color:var(--text-muted);font-weight:400;"></span>
+        <a id="downloadBtn" class="btn btn-sm" style="padding:.3rem .7rem;font-size:.78rem;text-decoration:none;">
+          <i class="fa-solid fa-download"></i> Download
+        </a>
+        <button class="btn btn-sm" onclick="copyText()" style="padding:.3rem .7rem;font-size:.78rem;">
+          <i class="fa-solid fa-copy"></i> Copy
+        </button>
+      </div>
+    </div>
+    <div id="translatedContent" style="
+      margin-top:1rem; line-height:1.8; color:var(--text);
+      white-space:pre-wrap; font-size:.9rem; max-height:500px;
+      overflow-y:auto; padding-right:.5rem;
+    "></div>
+  </div>
+</div>
+
+<div class="progress-wrap" id="progressWrap" style="display:none;">
+  <div class="progress-inner">
+    <div class="progress-spinner"></div>
+    <span id="progressMsg">Translating document…</span>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const zone      = document.getElementById('uploadZone');
+const input     = document.getElementById('fileInput');
+const fileList  = document.getElementById('fileList');
+const form      = document.getElementById('translateForm');
+const submitBtn = document.getElementById('submitBtn');
+const progress  = document.getElementById('progressWrap');
+const result    = document.getElementById('resultPanel');
+const contentEl = document.getElementById('translatedContent');
+const pageEl    = document.getElementById('pageCount');
+const dlBtn     = document.getElementById('downloadBtn');
+
+zone.addEventListener('click', () => input.click());
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
+input.addEventListener('change', () => setFile(input.files[0]));
+
+function setFile(f) {
+  if (!f) return;
+  const dt = new DataTransfer(); dt.items.add(f); input.files = dt.files;
+  fileList.innerHTML = `<div class="file-item"><span class="file-name"><i class="fa-solid fa-file-pdf" style="color:#e74c3c"></i> ${f.name}</span><span class="file-size">${(f.size/1024).toFixed(1)} KB</span></div>`;
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!input.files[0]) { showToast('Please select a PDF file.', 'error'); return; }
+
+  progress.style.display = 'flex';
+  result.style.display   = 'none';
+  submitBtn.disabled     = true;
+
+  const msgs = ['Translating document…', 'Processing pages…', 'Almost done…'];
+  let mi = 0;
+  const ticker = setInterval(() => { document.getElementById('progressMsg').textContent = msgs[Math.min(++mi, msgs.length-1)]; }, 5000);
+
+  const fd = new FormData(form);
+  try {
+    const resp = await fetch('/tools/api/translate-pdf/', { method: 'POST', body: fd });
+    const data = await resp.json();
+    clearInterval(ticker);
+    progress.style.display = 'none';
+    submitBtn.disabled = false;
+    if (data.error) { showToast(data.error, 'error'); return; }
+    contentEl.textContent = data.translated;
+    pageEl.textContent    = data.pages + ' page' + (data.pages !== 1 ? 's' : '');
+    dlBtn.href            = data.download_url;
+    dlBtn.download        = data.filename;
+    result.style.display  = 'block';
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (err) {
+    clearInterval(ticker);
+    progress.style.display = 'none';
+    submitBtn.disabled = false;
+    showToast('Request failed. Please try again.', 'error');
+  }
+});
+
+function copyText() {
+  navigator.clipboard.writeText(contentEl.textContent).then(() => showToast('Copied!', 'success'));
+}
+
+function showToast(msg, type) {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast toast-' + (type || 'info');
+  t.innerHTML = `<i class="fa-solid fa-${type==='error'?'circle-xmark':'circle-check'}"></i> ${msg}`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+</script>
+{% endblock %}

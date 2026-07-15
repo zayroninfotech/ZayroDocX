@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Crop PDF — ZayroDocX{% endblock %}
-{% block active_crop %}active{% endblock %}
-{% block breadcrumb %}<span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Crop PDF</span>{% endblock %}
+{% block title %}Redact PDF — ZayroDocX{% endblock %}
+{% block active_redact %}active{% endblock %}
+{% block breadcrumb %}<span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Redact PDF</span>{% endblock %}
 {% block content %}
 <div class="tool-header">
-  <div class="tool-icon-wrap ti-orange"><i class="fa-solid fa-crop-simple"></i></div>
+  <div class="tool-icon-wrap ti-blue"><i class="fa-solid fa-eraser"></i></div>
   <div>
-    <h1 class="tool-title">Crop PDF</h1>
-    <p class="tool-desc">Remove margins from all pages by specifying crop amounts in millimetres.</p>
+    <h1 class="tool-title">Redact PDF</h1>
+    <p class="tool-desc">Permanently black out sensitive text from your PDF.</p>
   </div>
 </div>
 <form id="mainForm" enctype="multipart/form-data">
@@ -22,19 +22,17 @@
   </div>
   <div class="file-list" id="fileList"></div>
   <div class="options-panel">
-    <div class="options-panel-title"><i class="fa-solid fa-crop-simple"></i> Crop Margins (mm)</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.75rem;">
-      <div class="form-group"><div class="form-label">Top</div><input type="number" name="top_mm" class="form-control" value="0" min="0" max="200"></div>
-      <div class="form-group"><div class="form-label">Bottom</div><input type="number" name="bottom_mm" class="form-control" value="0" min="0" max="200"></div>
-      <div class="form-group"><div class="form-label">Left</div><input type="number" name="left_mm" class="form-control" value="0" min="0" max="200"></div>
-      <div class="form-group"><div class="form-label">Right</div><input type="number" name="right_mm" class="form-control" value="0" min="0" max="200"></div>
+    <div class="options-panel-title"><i class="fa-solid fa-eraser"></i> Words / Phrases to Redact</div>
+    <div class="form-group">
+      <div class="form-label">Enter text to redact <span class="form-hint">(one per line or comma-separated)</span></div>
+      <textarea name="words" class="form-control" rows="5" placeholder="e.g. John Doe&#10;123-456-7890&#10;confidential"></textarea>
     </div>
   </div>
   <div class="action-bar">
-    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-crop-simple"></i> Crop PDF</button>
+    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-eraser"></i> Redact PDF</button>
   </div>
 </form>
-<div class="progress-wrap" id="progressWrap" style="display:none;"><div class="progress-inner"><div class="progress-spinner"></div><span>Cropping pages…</span></div></div>
+<div class="progress-wrap" id="progressWrap" style="display:none;"><div class="progress-inner"><div class="progress-spinner"></div><span>Redacting content…</span></div></div>
 {% endblock %}
 {% block extra_js %}<script>
 const zone=document.getElementById('uploadZone'),input=document.getElementById('fileInput'),fileList=document.getElementById('fileList');
@@ -44,24 +42,18 @@ zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
 zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
 input.addEventListener('change',()=>setFile(input.files[0]));
 function setFile(f){if(!f)return;const dt=new DataTransfer();dt.items.add(f);input.files=dt.files;fileList.innerHTML=`<div class="file-item"><span class="file-name"><i class="fa-solid fa-file-pdf" style="color:#e74c3c"></i> ${f.name}</span><span class="file-size">${(f.size/1024).toFixed(1)} KB</span></div>`;}
-const MM2PT=2.8346;
 document.getElementById('mainForm').addEventListener('submit',async e=>{
   e.preventDefault();
   if(!input.files[0]){toast('Please select a PDF.','error');return;}
+  if(!e.target.words.value.trim()){toast('Enter at least one word to redact.','error');return;}
   document.getElementById('progressWrap').style.display='flex';
-  const fd=new FormData();
-  fd.append('csrfmiddlewaretoken',e.target.querySelector('[name=csrfmiddlewaretoken]').value);
-  fd.append('file',input.files[0]);
-  fd.append('top',  (parseFloat(e.target.top_mm.value)||0)*MM2PT);
-  fd.append('bottom',(parseFloat(e.target.bottom_mm.value)||0)*MM2PT);
-  fd.append('left', (parseFloat(e.target.left_mm.value)||0)*MM2PT);
-  fd.append('right',(parseFloat(e.target.right_mm.value)||0)*MM2PT);
-  const r=await fetch('/tools/api/crop-pdf/',{method:'POST',body:fd});
+  const fd=new FormData(e.target);
+  const r=await fetch('/tools/api/redact-pdf/',{method:'POST',body:fd});
   const d=await r.json();
   document.getElementById('progressWrap').style.display='none';
   if(d.error){toast(d.error,'error');return;}
   const a=document.createElement('a');a.href=d.download_url;a.download=d.filename;a.click();
-  toast('PDF cropped successfully!','success');
+  toast(`Redacted ${d.count} occurrence(s) successfully!`,'success');
 });
 function toast(msg,type){const c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast toast-'+(type||'info');t.innerHTML=`<i class="fa-solid fa-${type==='error'?'circle-xmark':'circle-check'}"></i> ${msg}`;c.appendChild(t);setTimeout(()=>t.remove(),4000);}
 </script>{% endblock %}

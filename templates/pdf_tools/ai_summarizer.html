@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}AI Summarizer — ZayroDocX{% endblock %}
+
+{% block active_ai_summarizer %}active{% endblock %}
+
+{% block breadcrumb %}
+<span class="sep"><i class="fa-solid fa-chevron-right"></i></span>
+<span class="current">AI Summarizer</span>
+{% endblock %}
+
+{% block content %}
+<div class="tool-header">
+  <div class="tool-icon-wrap ti-pink"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+  <div>
+    <h1 class="tool-title">AI Summarizer <span class="nav-badge" style="font-size:.7rem;vertical-align:middle">AI</span></h1>
+    <p class="tool-desc">Upload a PDF and get an instant AI-generated summary with key points.</p>
+  </div>
+</div>
+
+<form id="summaryForm" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="upload-zone" id="uploadZone">
+    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+    <p class="upload-title">Drop your PDF here</p>
+    <p class="upload-sub">or click to browse</p>
+    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select PDF</span>
+    <input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
+  </div>
+  <div class="file-list" id="fileList"></div>
+
+  <div class="action-bar">
+    <button type="submit" class="btn btn-primary btn-lg btn-submit" id="submitBtn">
+      <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize
+    </button>
+  </div>
+</form>
+
+<!-- Result panel -->
+<div id="resultPanel" style="display:none; margin-top:1.5rem;">
+  <div class="options-panel">
+    <div class="options-panel-title" style="display:flex;align-items:center;justify-content:space-between;">
+      <span><i class="fa-solid fa-file-lines"></i> AI Summary</span>
+      <div style="display:flex;gap:.5rem;align-items:center;">
+        <span id="pageCount" style="font-size:.75rem;color:var(--text-muted);font-weight:400;"></span>
+        <button class="btn btn-sm" id="copyBtn" onclick="copySummary()" style="padding:.3rem .7rem;font-size:.78rem;">
+          <i class="fa-solid fa-copy"></i> Copy
+        </button>
+      </div>
+    </div>
+    <div id="summaryContent" style="
+      margin-top:1rem; line-height:1.75; color:var(--text);
+      white-space:pre-wrap; font-size:.9rem;
+    "></div>
+  </div>
+</div>
+
+<div class="progress-wrap" id="progressWrap" style="display:none;">
+  <div class="progress-inner">
+    <div class="progress-spinner"></div>
+    <span id="progressMsg">Analysing document…</span>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const zone      = document.getElementById('uploadZone');
+const input     = document.getElementById('fileInput');
+const fileList  = document.getElementById('fileList');
+const form      = document.getElementById('summaryForm');
+const submitBtn = document.getElementById('submitBtn');
+const progress  = document.getElementById('progressWrap');
+const result    = document.getElementById('resultPanel');
+const summaryEl = document.getElementById('summaryContent');
+const pageEl    = document.getElementById('pageCount');
+
+zone.addEventListener('click', () => input.click());
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
+input.addEventListener('change', () => setFile(input.files[0]));
+
+function setFile(f) {
+  if (!f) return;
+  input.files = createFileList(f);
+  fileList.innerHTML = `<div class="file-item"><span class="file-name"><i class="fa-solid fa-file-pdf" style="color:#e74c3c"></i> ${f.name}</span><span class="file-size">${(f.size/1024).toFixed(1)} KB</span></div>`;
+}
+function createFileList(f) {
+  const dt = new DataTransfer(); dt.items.add(f); return dt.files;
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!input.files[0]) { showToast('Please select a PDF file.', 'error'); return; }
+
+  progress.style.display = 'flex';
+  result.style.display   = 'none';
+  submitBtn.disabled     = true;
+
+  const msgs = ['Analysing document…', 'Reading pages…', 'Generating summary…', 'Almost done…'];
+  let mi = 0;
+  const ticker = setInterval(() => { document.getElementById('progressMsg').textContent = msgs[Math.min(++mi, msgs.length-1)]; }, 4000);
+
+  const fd = new FormData(form);
+  try {
+    const resp = await fetch('/tools/api/summarize-pdf/', { method: 'POST', body: fd });
+    const data = await resp.json();
+    clearInterval(ticker);
+    progress.style.display = 'none';
+    submitBtn.disabled = false;
+    if (data.error) { showToast(data.error, 'error'); return; }
+    summaryEl.textContent = data.summary;
+    pageEl.textContent    = data.pages + ' page' + (data.pages !== 1 ? 's' : '');
+    result.style.display  = 'block';
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (err) {
+    clearInterval(ticker);
+    progress.style.display = 'none';
+    submitBtn.disabled = false;
+    showToast('Request failed. Please try again.', 'error');
+  }
+});
+
+function copySummary() {
+  navigator.clipboard.writeText(summaryEl.textContent).then(() => showToast('Summary copied!', 'success'));
+}
+
+function showToast(msg, type) {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast toast-' + (type || 'info');
+  t.innerHTML = `<i class="fa-solid fa-${type === 'error' ? 'circle-xmark' : 'circle-check'}"></i> ${msg}`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+</script>
+{% endblock %}
