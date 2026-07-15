@@ -754,23 +754,17 @@ Rules:
             )
             raw_json = response.choices[0].message.content.strip()
         else:
-            # Default: Mistral AI (free)
+            # Default: Mistral AI via direct HTTP (no SDK dependency)
             api_key = settings.MISTRAL_API_KEY
             if not api_key:
                 return JsonResponse({'error': 'Mistral API key not configured in .env'}, status=500)
-            from mistralai import Mistral
-            client = Mistral(api_key=api_key)
-            response = client.chat.complete(
-                model='mistral-small-latest',
-                messages=[{
-                    'role': 'user',
-                    'content': [
-                        {'type': 'text', 'text': prompt},
-                        {'type': 'image_url', 'image_url': f'data:image/jpeg;base64,{img_b64}'},
-                    ]
-                }],
-            )
-            raw_json = response.choices[0].message.content.strip()
+            raw_json = _mistral_api(api_key, [{
+                'role': 'user',
+                'content': [
+                    {'type': 'text', 'text': prompt},
+                    {'type': 'image_url', 'image_url': f'data:image/jpeg;base64,{img_b64}'},
+                ]
+            }])
 
         # Strip markdown code fences if present
         raw_json = re.sub(r'^```(?:json)?\s*', '', raw_json)
@@ -1473,33 +1467,36 @@ def invoice_to_excel(request):
 #  AI helpers (Mistral Vision / Text)
 # â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
+def _mistral_api(api_key, messages, model='mistral-small-latest'):
+    """Call Mistral chat completions via raw HTTP — no SDK needed."""
+    import urllib.request
+    payload = json.dumps({'model': model, 'messages': messages}).encode()
+    req = urllib.request.Request(
+        'https://api.mistral.ai/v1/chat/completions',
+        data=payload,
+        headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'},
+        method='POST',
+    )
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        data = json.loads(resp.read().decode())
+    return data['choices'][0]['message']['content'].strip()
+
+
 def _mistral_text(prompt):
     api_key = settings.MISTRAL_API_KEY
     if not api_key:
         raise ValueError('Mistral API key not configured in .env')
-    from mistralai import Mistral
-    client = Mistral(api_key=api_key)
-    resp = client.chat.complete(
-        model='mistral-small-latest',
-        messages=[{'role': 'user', 'content': prompt}],
-    )
-    return resp.choices[0].message.content.strip()
+    return _mistral_api(api_key, [{'role': 'user', 'content': prompt}])
 
 
 def _mistral_vision_b64(img_b64, prompt):
     api_key = settings.MISTRAL_API_KEY
     if not api_key:
         raise ValueError('Mistral API key not configured in .env')
-    from mistralai import Mistral
-    client = Mistral(api_key=api_key)
-    resp = client.chat.complete(
-        model='mistral-small-latest',
-        messages=[{'role': 'user', 'content': [
-            {'type': 'text', 'text': prompt},
-            {'type': 'image_url', 'image_url': f'data:image/jpeg;base64,{img_b64}'},
-        ]}],
-    )
-    return resp.choices[0].message.content.strip()
+    return _mistral_api(api_key, [{'role': 'user', 'content': [
+        {'type': 'text', 'text': prompt},
+        {'type': 'image_url', 'image_url': f'data:image/jpeg;base64,{img_b64}'},
+    ]}])
 
 
 @ip_ratelimit(limit=10)
