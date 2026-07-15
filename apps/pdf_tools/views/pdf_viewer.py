@@ -143,6 +143,42 @@ def download_page_image(request):
         cleanup_file(saved_path)
 
 
+def _words_to_table(words, x_gap=20, y_tol=4):
+    """
+    Convert pdfplumber word dicts (with x0, x1, top, text keys) into a 2-D list.
+    Words on the same line (y within y_tol) are grouped into one row.
+    Within a row, words separated by a gap > x_gap start a new cell.
+    """
+    if not words:
+        return []
+
+    # Group into rows by top-position
+    rows_map = {}
+    for w in sorted(words, key=lambda w: w['top']):
+        placed = False
+        for y in list(rows_map):
+            if abs(w['top'] - y) <= y_tol:
+                rows_map[y].append(w)
+                placed = True
+                break
+        if not placed:
+            rows_map[w['top']] = [w]
+
+    result = []
+    for y in sorted(rows_map):
+        row_words = sorted(rows_map[y], key=lambda w: w['x0'])
+        cells, cur = [], [row_words[0]]
+        for w in row_words[1:]:
+            if w['x0'] - cur[-1]['x1'] <= x_gap:
+                cur.append(w)
+            else:
+                cells.append(' '.join(c['text'] for c in cur))
+                cur = [w]
+        cells.append(' '.join(c['text'] for c in cur))
+        result.append(cells)
+    return result
+
+
 def _get_page_text_ocr(page, lang):
     pix = page.get_pixmap(dpi=300)
     img = Image.open(BytesIO(pix.tobytes('png')))
@@ -190,17 +226,24 @@ def _extract_csv(saved_path, orig_name, mode, lang, page_range=None):
                 start, end = page_range if page_range else (0, len(pdf.pages))
                 for page_num in range(start, end):
                     page = pdf.pages[page_num]
+                    # Try native table detection first
                     tables = page.extract_tables() or []
                     if tables:
                         for table in tables:
                             for row in (table or []):
                                 if row:
-                                    all_rows.append([str(cell) if cell is not None else '' for cell in row])
+                                    all_rows.append([str(c) if c is not None else '' for c in row])
                     else:
-                        text = page.extract_text() or ''
-                        for line in text.split('\n'):
-                            if line.strip():
-                                all_rows.append([line.strip()])
+                        # Position-based column detection via word coords
+                        words = page.extract_words()
+                        rows = _words_to_table(words) if words else []
+                        if rows:
+                            all_rows.extend(rows)
+                        else:
+                            text = page.extract_text() or ''
+                            for line in text.split('\n'):
+                                if line.strip():
+                                    all_rows.append([line.strip()])
         except Exception as e:
             logger.warning('pdfplumber csv failed (%s), falling back to fitz', e)
             doc = fitz.open(saved_path)
@@ -251,25 +294,43 @@ def _extract_excel(saved_path, orig_name, mode, lang, page_range=None):
                 start, end = page_range if page_range else (0, len(pdf.pages))
                 for page_num in range(start, end):
                     page = pdf.pages[page_num]
+                    ws = wb.create_sheet(title=f'Page_{page_num + 1}')
+
+                    # 1. Try native table detection
                     tables = page.extract_tables() or []
                     if tables:
-                        for tbl_idx, table in enumerate(tables):
-                            ws = wb.create_sheet(title=f'P{page_num + 1}_T{tbl_idx + 1}')
-                            for row_idx, row in enumerate(table or []):
+                        row_idx = 1
+                        for table in tables:
+                            for row in (table or []):
                                 if not row:
                                     continue
                                 for col_idx, cell in enumerate(row):
                                     val = str(cell) if cell is not None else ''
-                                    c = ws.cell(row=row_idx + 1, column=col_idx + 1, value=val)
-                                    if row_idx == 0:
-                                        c.font = Font(bold=True, color='FFFFFF')
-                                        c.fill = hdr_fill
+                                    c = ws.cell(row=row_idx, column=col_idx + 1, value=val)
                                     c.alignment = Alignment(wrap_text=True)
+                                row_idx += 1
+                            row_idx += 1  # blank row between tables
                     else:
-                        ws = wb.create_sheet(title=f'Page_{page_num + 1}')
-                        text = page.extract_text() or ''
-                        for i, line in enumerate(text.split('\n')):
-                            ws.cell(row=i + 1, column=1, value=line)
+                        # 2. Position-based column detection
+                        words = page.extract_words()
+                        rows = _words_to_table(words) if words else []
+                        if rows:
+                            for row_idx, row in enumerate(rows):
+                                for col_idx, cell in enumerate(row):
+                                    c = ws.cell(row=row_idx + 1, column=col_idx + 1, value=cell)
+                                    c.alignment = Alignment(wrap_text=True)
+                        else:
+                            # 3. Plain text fallback
+                            text = page.extract_text() or ''
+                            for i, line in enumerate(text.split('\n')):
+                                if line.strip():
+                                    ws.cell(row=i + 1, column=1, value=line.strip())
+
+                    # Auto-fit column widths
+                    for col in ws.columns:
+                        max_len = max((len(str(c.value or '')) for c in col), default=10)
+                        ws.column_dimensions[col[0].column_letter].width = min(max_len + 2, 60)
+
         except Exception as e:
             logger.warning('pdfplumber excel failed (%s), falling back to fitz', e)
             doc = fitz.open(saved_path)
@@ -278,7 +339,8 @@ def _extract_excel(saved_path, orig_name, mode, lang, page_range=None):
                 ws = wb.create_sheet(title=f'Page_{page_num + 1}')
                 text = doc[page_num].get_text() or ''
                 for i, line in enumerate(text.split('\n')):
-                    ws.cell(row=i + 1, column=1, value=line)
+                    if line.strip():
+                        ws.cell(row=i + 1, column=1, value=line.strip())
             doc.close()
 
     if not wb.sheetnames:
