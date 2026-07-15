@@ -18,7 +18,7 @@ from apps.pdf_tools.views.sign_pdf import sign_pdf
 from apps.pdf_tools.views.ocr_pdf import ocr_pdf, ocr_pdf_stream, ocr_pdf_progress, extract_page, extract_page_ai, extract_statement_summary, extract_invoice, scan_to_pdf, invoice_to_excel, extract_invoice_ai, smart_split_suggest, detect_blank_pages
 from apps.pdf_tools.views.convert_to_pdf import jpg_to_pdf, word_to_pdf, pptx_to_pdf, excel_to_pdf, html_to_pdf
 from apps.pdf_tools.views.convert_from_pdf import pdf_to_jpg, pdf_to_word, pdf_to_pptx, pdf_to_excel
-from apps.pdf_tools.views.pdf_viewer import pdf_preview, extract_pdf_data, download_page_image
+
 
 urlpatterns = [
     # Tool pages
@@ -43,7 +43,7 @@ urlpatterns = [
     path('pdf-to-pptx/', tool_page('pdf_to_pptx.html'), name='pdf_to_pptx_page'),
     path('pdf-to-excel/', tool_page('pdf_to_excel.html'), name='pdf_to_excel_page'),
     path('invoice-extractor/', tool_page('invoice.html'), name='invoice_page'),
-    path('pdf-viewer/', tool_page('pdf_viewer.html'), name='pdf_viewer_page'),
+
 
     # API endpoints
     path('api/merge-pdf/', merge_pdf, name='api_merge_pdf'),
@@ -77,7 +77,5 @@ urlpatterns = [
     path('api/pdf-to-word/', pdf_to_word, name='api_pdf_to_word'),
     path('api/pdf-to-pptx/', pdf_to_pptx, name='api_pdf_to_pptx'),
     path('api/pdf-to-excel/', pdf_to_excel, name='api_pdf_to_excel'),
-    path('api/pdf-preview/', pdf_preview, name='api_pdf_preview'),
-    path('api/extract-pdf-data/', extract_pdf_data, name='api_extract_pdf_data'),
-    path('api/download-page-image/', download_page_image, name='api_download_page_image'),
+
 ]
