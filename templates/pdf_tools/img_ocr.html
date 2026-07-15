@@ -1,31 +1,46 @@
 {% extends "base.html" %}
-{% block title %}Image to Text OCR — ZayroDocX{% endblock %}
+{% block title %}Image to Text — ZayroDocX{% endblock %}
 
 {% block content %}
 <div class="tool-header">
   <div class="tool-icon-wrap ti-teal">📷</div>
   <div>
-    <h1 class="tool-title">Image to Text OCR</h1>
-    <p class="tool-subtitle">Upload any image — photo, screenshot, scan — and extract all text instantly using Tesseract OCR.</p>
+    <h1 class="tool-title">Image to Text</h1>
+    <p class="tool-subtitle">Upload any image and extract all text — choose Tesseract OCR for offline speed or AI Extract for smarter results on complex layouts.</p>
   </div>
 </div>
 
+<!-- Mode toggle -->
+<div class="mode-toggle-wrap">
+  <button class="mode-btn active" id="modeOcr" onclick="setMode('ocr')">
+    <span class="mode-icon">⚡</span>
+    <span class="mode-label">OCR Extract</span>
+    <span class="mode-sub">Tesseract · Offline · Fast</span>
+  </button>
+  <button class="mode-btn" id="modeAi" onclick="setMode('ai')">
+    <span class="mode-icon">🤖</span>
+    <span class="mode-label">AI Extract</span>
+    <span class="mode-sub">Mistral Vision · Smarter</span>
+  </button>
+</div>
+
+<!-- Upload -->
 <div class="card" style="margin-bottom:1.25rem;">
   <div class="drop-zone" id="dropZone">
     <div class="dz-icon">🖼️</div>
-    <div class="dz-text">Drop your image here or <label for="fileInput" class="dz-link">browse</label></div>
-    <div class="dz-hint">JPG, PNG, WEBP, BMP, TIFF — photos, screenshots, scanned documents</div>
+    <div class="dz-text">Drop image here or <label for="fileInput" class="dz-link">browse</label></div>
+    <div class="dz-hint">JPG · PNG · WEBP · BMP · TIFF — photos, screenshots, scanned docs</div>
     <input type="file" id="fileInput" accept="image/*" style="display:none">
   </div>
-
   <div id="preview-wrap" style="display:none;margin-top:1rem;text-align:center;">
-    <img id="imgPreview" style="max-width:100%;max-height:280px;border-radius:10px;border:1px solid var(--border);">
+    <img id="imgPreview" style="max-width:100%;max-height:260px;border-radius:10px;border:1px solid var(--border);">
     <div id="imgMeta" style="font-size:.76rem;color:var(--text-muted);margin-top:.4rem;"></div>
   </div>
 </div>
 
-<div class="card" style="margin-bottom:1.25rem;">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+<!-- OCR options (shown only in OCR mode) -->
+<div class="card" id="ocrOptions" style="margin-bottom:1.25rem;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
     <div>
       <label class="form-label">Language</label>
       <select id="lang" class="form-control">
@@ -53,40 +68,61 @@
       <label class="form-label">Preprocessing</label>
       <select id="preprocess" class="form-control">
         <option value="auto" selected>Auto (recommended)</option>
-        <option value="aggressive">Aggressive — blurry/dark images</option>
-        <option value="none">None — already clean image</option>
+        <option value="aggressive">Aggressive — blurry/dark</option>
+        <option value="none">None — clean digital image</option>
       </select>
     </div>
   </div>
-  <button class="btn btn-primary" id="ocrBtn" disabled style="width:100%;padding:.75rem;">
-    Extract Text
-  </button>
 </div>
+
+<!-- AI mode info (shown only in AI mode) -->
+<div class="card ai-info-card" id="aiInfo" style="display:none;margin-bottom:1.25rem;">
+  <div style="display:flex;align-items:flex-start;gap:.85rem;">
+    <div style="font-size:1.5rem;flex-shrink:0;">🤖</div>
+    <div>
+      <div style="font-weight:700;font-size:.88rem;margin-bottom:.3rem;">Mistral Vision AI</div>
+      <div style="font-size:.78rem;color:var(--text-muted);line-height:1.6;">
+        AI reads and understands your image — works great on handwriting, complex table layouts, mixed languages, and low-quality scans where standard OCR struggles. No language selection needed — AI auto-detects.
+      </div>
+      <div style="margin-top:.6rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+        <span class="info-chip">✓ Handwriting</span>
+        <span class="info-chip">✓ Tables &amp; Receipts</span>
+        <span class="info-chip">✓ Mixed Languages</span>
+        <span class="info-chip">✓ Low-quality Scans</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="btn btn-primary" id="extractBtn" disabled style="width:100%;padding:.8rem;font-size:.9rem;margin-bottom:1.25rem;">
+  ⚡ Extract Text
+</button>
 
 <!-- Progress -->
 <div id="progressWrap" style="display:none;" class="card">
   <div class="progress-spinner"></div>
-  <span style="font-size:.82rem;color:var(--text-muted);">Running OCR — reading your image…</span>
+  <span id="progressMsg" style="font-size:.82rem;color:var(--text-muted);">Processing…</span>
 </div>
 
 <!-- Result -->
 <div id="resultWrap" style="display:none;">
   <div class="card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem;">
-      <div>
+      <div style="display:flex;align-items:center;gap:.6rem;">
         <span style="font-weight:700;font-size:.9rem;">Extracted Text</span>
-        <span id="statsChip" style="margin-left:.6rem;font-size:.72rem;color:var(--text-muted);background:var(--surface2);padding:.15rem .55rem;border-radius:20px;border:1px solid var(--border);"></span>
+        <span id="modeChip" class="mode-result-chip"></span>
+        <span id="statsChip" style="font-size:.72rem;color:var(--text-muted);background:var(--surface2);padding:.15rem .55rem;border-radius:20px;border:1px solid var(--border);"></span>
       </div>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
         <button class="btn btn-secondary" id="copyBtn" style="font-size:.78rem;padding:.4rem .85rem;">📋 Copy</button>
         <a id="downloadBtn" class="btn btn-primary" style="font-size:.78rem;padding:.4rem .85rem;text-decoration:none;" download>⬇ Download .txt</a>
       </div>
     </div>
-    <textarea id="ocrText" style="width:100%;min-height:280px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem;font-size:.82rem;font-family:'Courier New',monospace;color:var(--text);resize:vertical;line-height:1.6;" readonly></textarea>
+    <textarea id="ocrText" style="width:100%;min-height:300px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem;font-size:.82rem;font-family:'Courier New',monospace;color:var(--text);resize:vertical;line-height:1.6;"></textarea>
   </div>
-
   <div class="card" style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap;">
     <button class="btn btn-secondary" id="tryAnotherBtn" style="flex:1;">Try Another Image</button>
+    <button class="btn btn-secondary" id="switchModeBtn" style="flex:1;"></button>
   </div>
 </div>
 
@@ -98,34 +134,67 @@
 .dz-text{font-size:.88rem;color:var(--text);margin-bottom:.3rem;}
 .dz-link{color:var(--brand);cursor:pointer;text-decoration:underline;}
 .dz-hint{font-size:.72rem;color:var(--text-muted);}
+
+/* Mode toggle */
+.mode-toggle-wrap{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem;}
+.mode-btn{display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:.9rem 1rem;border-radius:12px;border:2px solid var(--border);background:var(--surface);cursor:pointer;transition:all .15s;font-family:inherit;color:var(--text-muted);}
+.mode-btn.active{border-color:var(--brand);background:rgba(99,102,241,.08);color:var(--text);}
+.mode-icon{font-size:1.35rem;}
+.mode-label{font-size:.85rem;font-weight:700;}
+.mode-sub{font-size:.68rem;color:var(--text-muted);}
+.mode-btn.active .mode-label{color:var(--brand);}
+
+.ai-info-card{border-color:rgba(99,102,241,.35);background:rgba(99,102,241,.05);}
+.info-chip{font-size:.68rem;font-weight:600;padding:.18rem .5rem;border-radius:5px;background:rgba(99,102,241,.15);color:var(--brand);border:1px solid rgba(99,102,241,.3);}
+
 .form-label{display:block;font-size:.78rem;font-weight:600;margin-bottom:.4rem;color:var(--text-muted);}
 .form-control{width:100%;padding:.55rem .75rem;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:.82rem;}
-.btn{border:none;border-radius:8px;cursor:pointer;font-weight:600;font-family:inherit;}
+.btn{border:none;border-radius:8px;cursor:pointer;font-weight:600;font-family:inherit;padding:.5rem 1rem;}
 .btn-primary{background:var(--brand,#6366f1);color:#fff;}
 .btn-primary:disabled{opacity:.45;cursor:not-allowed;}
 .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
-.progress-spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--brand,#6366f1);border-radius:50%;animation:spin .8s linear infinite;margin-right:.65rem;}
+
+.mode-result-chip{font-size:.68rem;font-weight:700;padding:.18rem .5rem;border-radius:5px;}
+.chip-ocr{background:rgba(14,165,233,.15);color:#0369a1;border:1px solid rgba(14,165,233,.3);}
+.chip-ai{background:rgba(99,102,241,.15);color:#6366f1;border:1px solid rgba(99,102,241,.3);}
+
+.progress-spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--brand,#6366f1);border-radius:50%;animation:spin .8s linear infinite;margin-right:.65rem;flex-shrink:0;}
 @keyframes spin{to{transform:rotate(360deg)}}
 #progressWrap{display:flex;align-items:center;}
 </style>
 
 <script>
-const dropZone   = document.getElementById('dropZone');
-const fileInput  = document.getElementById('fileInput');
-const ocrBtn     = document.getElementById('ocrBtn');
-const progressWrap = document.getElementById('progressWrap');
-const resultWrap = document.getElementById('resultWrap');
-const previewWrap = document.getElementById('preview-wrap');
-const imgPreview = document.getElementById('imgPreview');
-const imgMeta    = document.getElementById('imgMeta');
-const ocrText    = document.getElementById('ocrText');
-const statsChip  = document.getElementById('statsChip');
-const copyBtn    = document.getElementById('copyBtn');
-const downloadBtn = document.getElementById('downloadBtn');
-const tryAnotherBtn = document.getElementById('tryAnotherBtn');
-
+let currentMode = 'ocr';
 let selectedFile = null;
 
+const dropZone    = document.getElementById('dropZone');
+const fileInput   = document.getElementById('fileInput');
+const extractBtn  = document.getElementById('extractBtn');
+const progressWrap = document.getElementById('progressWrap');
+const progressMsg = document.getElementById('progressMsg');
+const resultWrap  = document.getElementById('resultWrap');
+const previewWrap = document.getElementById('preview-wrap');
+const imgPreview  = document.getElementById('imgPreview');
+const imgMeta     = document.getElementById('imgMeta');
+const ocrText     = document.getElementById('ocrText');
+const statsChip   = document.getElementById('statsChip');
+const modeChip    = document.getElementById('modeChip');
+const copyBtn     = document.getElementById('copyBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const tryAnotherBtn = document.getElementById('tryAnotherBtn');
+const switchModeBtn = document.getElementById('switchModeBtn');
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('modeOcr').classList.toggle('active', mode === 'ocr');
+  document.getElementById('modeAi').classList.toggle('active', mode === 'ai');
+  document.getElementById('ocrOptions').style.display = mode === 'ocr' ? '' : 'none';
+  document.getElementById('aiInfo').style.display = mode === 'ai' ? '' : 'none';
+  extractBtn.textContent = mode === 'ocr' ? '⚡ Extract Text (OCR)' : '🤖 Extract Text (AI)';
+  resultWrap.style.display = 'none';
+}
+
+// file handling
 dropZone.addEventListener('click', () => fileInput.click());
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
@@ -137,8 +206,7 @@ fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fil
 
 function setFile(f) {
   selectedFile = f;
-  ocrBtn.disabled = false;
-  // preview
+  extractBtn.disabled = false;
   const reader = new FileReader();
   reader.onload = e => {
     imgPreview.src = e.target.result;
@@ -149,14 +217,18 @@ function setFile(f) {
   resultWrap.style.display = 'none';
 }
 
-ocrBtn.addEventListener('click', async () => {
+extractBtn.addEventListener('click', async () => {
   if (!selectedFile) return;
-  ocrBtn.disabled = true;
+  extractBtn.disabled = true;
   progressWrap.style.display = 'flex';
+  progressMsg.textContent = currentMode === 'ai'
+    ? 'Sending to Mistral AI — reading your image…'
+    : 'Running Tesseract OCR — processing image…';
   resultWrap.style.display = 'none';
 
   const fd = new FormData();
   fd.append('file', selectedFile);
+  fd.append('mode', currentMode);
   fd.append('lang', document.getElementById('lang').value);
   fd.append('preprocess', document.getElementById('preprocess').value);
 
@@ -167,19 +239,23 @@ ocrBtn.addEventListener('click', async () => {
 
     if (data.error) {
       alert('Error: ' + data.error);
-      ocrBtn.disabled = false;
+      extractBtn.disabled = false;
       return;
     }
 
     ocrText.value = data.text || '(No text found in this image)';
     statsChip.textContent = `${data.word_count} words · ${data.char_count} chars`;
+    modeChip.textContent = data.mode === 'ai' ? '🤖 AI' : '⚡ OCR';
+    modeChip.className = 'mode-result-chip ' + (data.mode === 'ai' ? 'chip-ai' : 'chip-ocr');
     downloadBtn.href = data.download_url;
     downloadBtn.setAttribute('download', data.filename);
+    switchModeBtn.textContent = data.mode === 'ai'
+      ? '⚡ Re-extract with OCR' : '🤖 Re-extract with AI';
     resultWrap.style.display = 'block';
   } catch(e) {
     progressWrap.style.display = 'none';
     alert('Request failed. Please try again.');
-    ocrBtn.disabled = false;
+    extractBtn.disabled = false;
   }
 });
 
@@ -195,8 +271,17 @@ tryAnotherBtn.addEventListener('click', () => {
   fileInput.value = '';
   previewWrap.style.display = 'none';
   resultWrap.style.display = 'none';
-  ocrBtn.disabled = true;
+  extractBtn.disabled = true;
   ocrText.value = '';
 });
+
+switchModeBtn.addEventListener('click', () => {
+  const newMode = currentMode === 'ai' ? 'ocr' : 'ai';
+  setMode(newMode);
+  if (selectedFile) extractBtn.click();
+});
+
+// init
+setMode('ocr');
 </script>
 {% endblock %}
