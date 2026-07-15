@@ -2,6 +2,8 @@ import fitz
 import pytesseract
 import csv
 import base64
+import logging
+import traceback
 from io import BytesIO
 from PIL import Image, ImageEnhance, ImageFilter
 from django.http import JsonResponse
@@ -10,6 +12,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from apps.pdf_tools.utils import save_uploaded_file, get_output_path, media_url, cleanup_file, validate_pdf
 from apps.pdf_tools.mongo_db import save_job
+
+logger = logging.getLogger(__name__)
 
 pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
 
@@ -62,8 +66,9 @@ def pdf_preview(request):
         })
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
-    except Exception:
-        return JsonResponse({'error': 'Operation failed. Ensure the file is a valid PDF.'}, status=500)
+    except Exception as e:
+        logger.error('pdf_preview error: %s\n%s', e, traceback.format_exc())
+        return JsonResponse({'error': f'Preview failed: {e}'}, status=500)
     finally:
         cleanup_file(saved_path)
 
@@ -103,8 +108,9 @@ def extract_pdf_data(request):
             return _extract_text(saved_path, f.name, mode, lang, page_range)
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
-    except Exception:
-        return JsonResponse({'error': 'Operation failed. Ensure the file is a valid PDF.'}, status=500)
+    except Exception as e:
+        logger.error('extract_pdf_data error: %s\n%s', e, traceback.format_exc())
+        return JsonResponse({'error': f'Extraction failed: {e}'}, status=500)
     finally:
         cleanup_file(saved_path)
 
@@ -177,24 +183,35 @@ def _extract_csv(saved_path, orig_name, mode, lang, page_range=None):
         with open(out_path, 'w', newline='', encoding='utf-8-sig') as fp:
             csv.writer(fp).writerows(rows)
     else:
-        import pdfplumber
-        with pdfplumber.open(saved_path) as pdf:
-            start, end = page_range if page_range else (0, len(pdf.pages))
-            all_rows = []
-            for page_num in range(start, end):
-                page = pdf.pages[page_num]
-                tables = page.extract_tables()
-                if tables:
-                    for table in tables:
-                        for row in table:
-                            all_rows.append([cell or '' for cell in row])
-                else:
-                    text = page.extract_text() or ''
-                    for line in text.split('\n'):
-                        if line.strip():
-                            all_rows.append([line.strip()])
-            with open(out_path, 'w', newline='', encoding='utf-8-sig') as fp:
-                csv.writer(fp).writerows(all_rows)
+        all_rows = []
+        try:
+            import pdfplumber
+            with pdfplumber.open(saved_path) as pdf:
+                start, end = page_range if page_range else (0, len(pdf.pages))
+                for page_num in range(start, end):
+                    page = pdf.pages[page_num]
+                    tables = page.extract_tables() or []
+                    if tables:
+                        for table in tables:
+                            for row in (table or []):
+                                if row:
+                                    all_rows.append([str(cell) if cell is not None else '' for cell in row])
+                    else:
+                        text = page.extract_text() or ''
+                        for line in text.split('\n'):
+                            if line.strip():
+                                all_rows.append([line.strip()])
+        except Exception as e:
+            logger.warning('pdfplumber csv failed (%s), falling back to fitz', e)
+            doc = fitz.open(saved_path)
+            start, end = page_range if page_range else (0, doc.page_count)
+            for i in range(start, end):
+                for line in doc[i].get_text().split('\n'):
+                    if line.strip():
+                        all_rows.append([line.strip()])
+            doc.close()
+        with open(out_path, 'w', newline='', encoding='utf-8-sig') as fp:
+            csv.writer(fp).writerows(all_rows)
 
     save_job('pdf_viewer_extract', [orig_name], [out_name], meta={'format': 'csv', 'mode': mode})
     return JsonResponse({'download_url': media_url(out_name), 'filename': out_name})
@@ -227,28 +244,42 @@ def _extract_excel(saved_path, orig_name, mode, lang, page_range=None):
             row_idx += 1
         doc.close()
     else:
-        import pdfplumber
         hdr_fill = PatternFill('solid', fgColor='4F81BD')
-        with pdfplumber.open(saved_path) as pdf:
-            start, end = page_range if page_range else (0, len(pdf.pages))
+        try:
+            import pdfplumber
+            with pdfplumber.open(saved_path) as pdf:
+                start, end = page_range if page_range else (0, len(pdf.pages))
+                for page_num in range(start, end):
+                    page = pdf.pages[page_num]
+                    tables = page.extract_tables() or []
+                    if tables:
+                        for tbl_idx, table in enumerate(tables):
+                            ws = wb.create_sheet(title=f'P{page_num + 1}_T{tbl_idx + 1}')
+                            for row_idx, row in enumerate(table or []):
+                                if not row:
+                                    continue
+                                for col_idx, cell in enumerate(row):
+                                    val = str(cell) if cell is not None else ''
+                                    c = ws.cell(row=row_idx + 1, column=col_idx + 1, value=val)
+                                    if row_idx == 0:
+                                        c.font = Font(bold=True, color='FFFFFF')
+                                        c.fill = hdr_fill
+                                    c.alignment = Alignment(wrap_text=True)
+                    else:
+                        ws = wb.create_sheet(title=f'Page_{page_num + 1}')
+                        text = page.extract_text() or ''
+                        for i, line in enumerate(text.split('\n')):
+                            ws.cell(row=i + 1, column=1, value=line)
+        except Exception as e:
+            logger.warning('pdfplumber excel failed (%s), falling back to fitz', e)
+            doc = fitz.open(saved_path)
+            start, end = page_range if page_range else (0, doc.page_count)
             for page_num in range(start, end):
-                page = pdf.pages[page_num]
-                tables = page.extract_tables()
-                if tables:
-                    for tbl_idx, table in enumerate(tables):
-                        ws = wb.create_sheet(title=f'P{page_num + 1}_T{tbl_idx + 1}')
-                        for row_idx, row in enumerate(table):
-                            for col_idx, cell in enumerate(row):
-                                c = ws.cell(row=row_idx + 1, column=col_idx + 1, value=cell or '')
-                                if row_idx == 0:
-                                    c.font = Font(bold=True, color='FFFFFF')
-                                    c.fill = hdr_fill
-                                c.alignment = Alignment(wrap_text=True)
-                else:
-                    ws = wb.create_sheet(title=f'Page_{page_num + 1}')
-                    text = page.extract_text() or ''
-                    for i, line in enumerate(text.split('\n')):
-                        ws.cell(row=i + 1, column=1, value=line)
+                ws = wb.create_sheet(title=f'Page_{page_num + 1}')
+                text = doc[page_num].get_text() or ''
+                for i, line in enumerate(text.split('\n')):
+                    ws.cell(row=i + 1, column=1, value=line)
+            doc.close()
 
     if not wb.sheetnames:
         wb.create_sheet('Sheet1')
