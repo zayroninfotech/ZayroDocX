@@ -215,9 +215,10 @@ a:hover { text-decoration: underline; }
 /* Collapsed state */
 .sidebar.collapsed .nav-label,
 .sidebar.collapsed .nav-badge   { opacity: 0; width: 0; overflow: hidden; flex: none; }
-.sidebar.collapsed .nav-item    { margin: 2px 6px; padding: 7px; justify-content: center; }
+.sidebar.collapsed .nav-item    { margin: 2px 6px; padding: 7px; justify-content: center; gap: 0; }
 .sidebar.collapsed .nav-item.active::before { display: none; }
 .sidebar.collapsed .sidebar-dashboard-link { padding: 8px 6px 4px; }
+.sidebar.collapsed .sidebar-dashboard-link .nav-item { display: flex; justify-content: center; }
 
 /* Sidebar footer */
 .sidebar-footer {
