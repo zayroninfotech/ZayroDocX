@@ -10,28 +10,9 @@
     <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select PDF</span>
   </div>
   <div class="file-list" id="fileList"></div>
-  <div class="options-panel">
-    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Options</div>
-    <div class="form-group">
-      <div class="form-label">Image Format</div>
-      <div class="toggle-group">
-        <label class="toggle-option"><input type="radio" name="format" value="jpg" checked><span>JPG</span></label>
-        <label class="toggle-option"><input type="radio" name="format" value="png"><span>PNG</span></label>
-      </div>
-    </div>
-    <div class="form-group">
-      <div class="form-label">DPI / Resolution</div>
-      <div class="toggle-group">
-        <label class="toggle-option"><input type="radio" name="dpi" value="72"><span>Screen (72)</span></label>
-        <label class="toggle-option"><input type="radio" name="dpi" value="150" checked><span>Medium (150)</span></label>
-        <label class="toggle-option"><input type="radio" name="dpi" value="300"><span>Print (300)</span></label>
-      </div>
-    </div>
-    <div class="form-group">
-      <div class="form-label">Pages <span class="form-hint">(leave blank for all)</span></div>
-      <input type="text" name="pages" class="form-control" placeholder="e.g. 1, 3, 5-8  — blank = all">
-    </div>
-  </div>
+  <input type="hidden" name="format" value="jpg">
+  <input type="hidden" name="dpi" value="150">
+  <input type="hidden" name="pages" value="">
   <div class="action-bar">
     <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-image"></i> Export Images</button>
   </div>

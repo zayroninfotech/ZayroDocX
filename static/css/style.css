@@ -253,6 +253,14 @@ a:hover { text-decoration: underline; }
 .breadcrumb .sep { color: var(--border); font-size: .65rem; }
 .breadcrumb .current { color: var(--text); font-weight: 600; }
 .topbar-right { display: flex; align-items: center; gap: .5rem; }
+.topbar-local-badge {
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: .35rem .75rem; border-radius: 8px; font-size: .75rem; font-weight: 500;
+  color: #16a34a; background: #dcfce7; border: 1px solid #bbf7d0;
+}
+[data-theme="dark"] .topbar-local-badge {
+  color: #4ade80; background: rgba(74,222,128,.1); border-color: rgba(74,222,128,.25);
+}
 .topbar-btn {
   display: inline-flex; align-items: center; gap: .4rem;
   padding: .38rem .85rem; border-radius: 8px; font-size: .8rem;
