@@ -148,9 +148,17 @@ def html_to_pdf(request):
 
     try:
         import pdfkit
+        # Ensure wkhtmltopdf can run headless without a display/runtime dir
+        os.environ.setdefault('XDG_RUNTIME_DIR', '/tmp/runtime-wkhtmltopdf')
         wk_config = pdfkit.configuration(wkhtmltopdf=settings.WKHTMLTOPDF_CMD)
-        # local-file-access disabled to prevent reading server files via file:// URIs
-        options = {'quiet': '', 'disable-local-file-access': ''}
+        # local-file-access disabled to prevent reading server files via file:// URIs.
+        # Ignore resource load errors so CDN/relative links don't abort conversion.
+        options = {
+            'quiet': '',
+            'disable-local-file-access': '',
+            'load-error-handling': 'ignore',
+            'load-media-error-handling': 'ignore',
+        }
 
         if html_file:
             saved_path, _ = save_uploaded_file(html_file)
