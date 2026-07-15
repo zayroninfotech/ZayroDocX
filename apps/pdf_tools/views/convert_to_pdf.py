@@ -167,8 +167,9 @@ def html_to_pdf(request):
         return JsonResponse({'download_url': media_url(out_name), 'filename': out_name})
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
-    except Exception:
-        return JsonResponse({'error': 'Conversion failed. Check your input and try again.'}, status=500)
+    except Exception as e:
+        logger.error('html_to_pdf error: %s\n%s', e, traceback.format_exc())
+        return JsonResponse({'error': f'Conversion failed: {e}'}, status=500)
     finally:
         if saved_path:
             cleanup_file(saved_path)
