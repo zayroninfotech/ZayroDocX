@@ -1,6 +1,9 @@
 ﻿import fitz
 import os
 import subprocess
+import tempfile
+import logging
+import traceback
 import img2pdf
 from PIL import Image
 from io import BytesIO
@@ -11,6 +14,8 @@ from django.views.decorators.csrf import csrf_exempt
 from apps.pdf_tools.utils import save_uploaded_file, get_output_path, media_url, cleanup_file, validate_image, validate_office
 from apps.pdf_tools.mongo_db import save_job
 from apps.pdf_tools.utils import ip_ratelimit
+
+logger = logging.getLogger(__name__)
 
 
 @csrf_exempt
@@ -63,15 +68,17 @@ def word_to_pdf(request):
         validate_office(saved_path, f.name, kinds=('doc', 'docx'))
         success = _libreoffice_convert(saved_path, out_path)
         if not success:
-            from docx2pdf import convert
-            convert(saved_path, out_path)
-
+            raise RuntimeError(
+                'LibreOffice not found or conversion failed. '
+                'Run: sudo apt-get install -y libreoffice on the server.'
+            )
         save_job('word_to_pdf', [f.name], [out_name])
         return JsonResponse({'download_url': media_url(out_name), 'filename': out_name})
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
-    except Exception:
-        return JsonResponse({'error': 'Conversion failed. Ensure the file is a valid Word document.'}, status=500)
+    except Exception as e:
+        logger.error('word_to_pdf error: %s\n%s', e, traceback.format_exc())
+        return JsonResponse({'error': f'Conversion failed: {e}'}, status=500)
     finally:
         cleanup_file(saved_path)
 
@@ -90,14 +97,14 @@ def pptx_to_pdf(request):
         validate_office(saved_path, f.name, kinds=('ppt', 'pptx'))
         success = _libreoffice_convert(saved_path, out_path)
         if not success:
-            raise Exception('LibreOffice not found.')
-
+            raise RuntimeError('LibreOffice not found or conversion failed.')
         save_job('pptx_to_pdf', [f.name], [out_name])
         return JsonResponse({'download_url': media_url(out_name), 'filename': out_name})
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
-    except Exception:
-        return JsonResponse({'error': 'Conversion failed. Ensure LibreOffice is installed and the file is a valid PowerPoint.'}, status=500)
+    except Exception as e:
+        logger.error('pptx_to_pdf error: %s\n%s', e, traceback.format_exc())
+        return JsonResponse({'error': f'Conversion failed: {e}'}, status=500)
     finally:
         cleanup_file(saved_path)
 
@@ -116,14 +123,14 @@ def excel_to_pdf(request):
         validate_office(saved_path, f.name, kinds=('xls', 'xlsx'))
         success = _libreoffice_convert(saved_path, out_path)
         if not success:
-            raise Exception('LibreOffice not found.')
-
+            raise RuntimeError('LibreOffice not found or conversion failed.')
         save_job('excel_to_pdf', [f.name], [out_name])
         return JsonResponse({'download_url': media_url(out_name), 'filename': out_name})
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
-    except Exception:
-        return JsonResponse({'error': 'Conversion failed. Ensure LibreOffice is installed and the file is a valid Excel spreadsheet.'}, status=500)
+    except Exception as e:
+        logger.error('excel_to_pdf error: %s\n%s', e, traceback.format_exc())
+        return JsonResponse({'error': f'Conversion failed: {e}'}, status=500)
     finally:
         cleanup_file(saved_path)
 
@@ -222,19 +229,36 @@ def _libreoffice_convert(input_path, output_path):
             r'C:\Program Files\LibreOffice\program\soffice.exe',
             r'C:\Program Files (x86)\LibreOffice\program\soffice.exe',
             '/usr/bin/libreoffice', '/usr/bin/soffice',
+            '/usr/local/bin/libreoffice', '/usr/local/bin/soffice',
+            '/snap/bin/libreoffice',
         ]:
             if os.path.exists(p):
                 lo_path = p
                 break
 
     if not lo_path:
+        logger.error('LibreOffice not found on PATH or known locations')
         return False
 
     out_dir = os.path.dirname(output_path)
-    result = subprocess.run(
-        [lo_path, '--headless', '--convert-to', 'pdf', '--outdir', out_dir, input_path],
-        capture_output=True, timeout=60
-    )
+    # Temp user profile prevents permission errors when running as www-data/nobody
+    user_profile = os.path.join(tempfile.gettempdir(), 'lo_userprofile')
+    os.makedirs(user_profile, exist_ok=True)
+
+    cmd = [
+        lo_path,
+        '--headless',
+        '--norestore',
+        '--nofirststartwizard',
+        f'-env:UserInstallation=file://{user_profile}',
+        '--convert-to', 'pdf',
+        '--outdir', out_dir,
+        input_path,
+    ]
+    result = subprocess.run(cmd, capture_output=True, timeout=120)
+    logger.info('LibreOffice stdout: %s', result.stdout.decode(errors='replace'))
+    if result.returncode != 0:
+        logger.error('LibreOffice stderr: %s', result.stderr.decode(errors='replace'))
 
     # LibreOffice saves as <input_stem>.pdf in out_dir
     stem = os.path.splitext(os.path.basename(input_path))[0]
