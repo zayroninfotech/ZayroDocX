@@ -162,7 +162,10 @@ def html_to_pdf(request):
 
         if html_file:
             saved_path, _ = save_uploaded_file(html_file)
-            pdfkit.from_file(saved_path, out_path, configuration=wk_config, options=options)
+            # Read as string to avoid file:// protocol being blocked by disable-local-file-access
+            with open(saved_path, 'r', encoding='utf-8', errors='replace') as fh:
+                html_content_from_file = fh.read()
+            pdfkit.from_string(html_content_from_file, out_path, configuration=wk_config, options=options)
         elif html_url:
             _validate_url(html_url)
             pdfkit.from_url(html_url, out_path, configuration=wk_config, options=options)
