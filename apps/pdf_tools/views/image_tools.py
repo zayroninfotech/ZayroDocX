@@ -456,3 +456,79 @@ def blur_face(request):
         return JsonResponse({'error': f'Face blur failed: {e}'}, status=500)
     finally:
         cleanup_file(saved_path)
+
+
+# ── Image to Text OCR ─────────────────────────────────────────────────────────
+
+@csrf_exempt
+@require_POST
+def img_ocr(request):
+    """
+    Extract text from an image using Tesseract OCR.
+    Preprocessing: grayscale → sharpen → contrast boost for best accuracy.
+    Returns: { text, download_url, filename, word_count, char_count }
+    """
+    import pytesseract
+    from PIL import ImageEnhance
+    from django.conf import settings
+
+    f = request.FILES.get('file')
+    if not f:
+        return JsonResponse({'error': 'No file uploaded.'}, status=400)
+
+    lang     = request.POST.get('lang', 'eng')
+    preproc  = request.POST.get('preprocess', 'auto')   # auto | none | aggressive
+
+    saved_path, _ = save_uploaded_file(f)
+    try:
+        validate_image(saved_path, f.name)
+        pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
+
+        img = Image.open(saved_path).convert('RGB')
+
+        if preproc != 'none':
+            # Convert to grayscale for OCR
+            gray = img.convert('L')
+            if preproc == 'aggressive':
+                gray = ImageEnhance.Contrast(gray).enhance(2.0)
+                gray = ImageEnhance.Sharpness(gray).enhance(3.0)
+                gray = gray.filter(ImageFilter.SHARPEN)
+            else:  # auto
+                gray = ImageEnhance.Contrast(gray).enhance(1.5)
+                gray = ImageEnhance.Sharpness(gray).enhance(2.0)
+            ocr_img = gray
+        else:
+            ocr_img = img
+
+        # Scale up small images — Tesseract works best at 300+ DPI equivalent
+        w, h = ocr_img.size
+        if w < 1000:
+            scale = max(2, 1000 // w)
+            ocr_img = ocr_img.resize((w * scale, h * scale), Image.LANCZOS)
+
+        text = pytesseract.image_to_string(ocr_img, lang=lang)
+        text = text.strip()
+
+        # Save as .txt
+        out_path, out_name = get_output_path('.txt', 'img_ocr')
+        with open(out_path, 'w', encoding='utf-8') as fp:
+            fp.write(text)
+
+        word_count = len(text.split()) if text else 0
+        char_count = len(text)
+
+        save_job('img_ocr', [f.name], [out_name], meta={'lang': lang})
+        return JsonResponse({
+            'text':         text,
+            'download_url': media_url(out_name),
+            'filename':     out_name,
+            'word_count':   word_count,
+            'char_count':   char_count,
+        })
+    except ValueError as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    except Exception as e:
+        logger.error('img_ocr: %s\n%s', e, traceback.format_exc())
+        return JsonResponse({'error': f'OCR failed: {e}'}, status=500)
+    finally:
+        cleanup_file(saved_path)

@@ -25,7 +25,7 @@ from apps.pdf_tools.views.crop_pdf import crop_pdf
 from apps.pdf_tools.views.image_tools import (
     compress_image, resize_image, crop_image, rotate_image,
     convert_to_jpg, convert_from_jpg, watermark_image, meme_generator,
-    upscale_image, remove_background, blur_face,
+    upscale_image, remove_background, blur_face, img_ocr,
 )
 
 
@@ -70,6 +70,7 @@ urlpatterns = [
     path('upscale-image/', tool_page('img_upscale.html'), name='img_upscale_page'),
     path('remove-background/', tool_page('img_remove_bg.html'), name='img_remove_bg_page'),
     path('blur-face/', tool_page('img_blur_face.html'), name='img_blur_face_page'),
+    path('image-to-text/', tool_page('img_ocr.html'), name='img_ocr_page'),
 
     # API endpoints
     path('api/merge-pdf/', merge_pdf, name='api_merge_pdf'),
@@ -121,5 +122,6 @@ urlpatterns = [
     path('api/img/upscale/', upscale_image, name='api_img_upscale'),
     path('api/img/remove-bg/', remove_background, name='api_img_remove_bg'),
     path('api/img/blur-face/', blur_face, name='api_img_blur_face'),
+    path('api/img/ocr/', img_ocr, name='api_img_ocr'),
 
 ]

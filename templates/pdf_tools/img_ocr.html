@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block title %}Image to Text OCR — ZayroDocX{% endblock %}
+
+{% block content %}
+<div class="tool-header">
+  <div class="tool-icon-wrap ti-teal">📷</div>
+  <div>
+    <h1 class="tool-title">Image to Text OCR</h1>
+    <p class="tool-subtitle">Upload any image — photo, screenshot, scan — and extract all text instantly using Tesseract OCR.</p>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:1.25rem;">
+  <div class="drop-zone" id="dropZone">
+    <div class="dz-icon">🖼️</div>
+    <div class="dz-text">Drop your image here or <label for="fileInput" class="dz-link">browse</label></div>
+    <div class="dz-hint">JPG, PNG, WEBP, BMP, TIFF — photos, screenshots, scanned documents</div>
+    <input type="file" id="fileInput" accept="image/*" style="display:none">
+  </div>
+
+  <div id="preview-wrap" style="display:none;margin-top:1rem;text-align:center;">
+    <img id="imgPreview" style="max-width:100%;max-height:280px;border-radius:10px;border:1px solid var(--border);">
+    <div id="imgMeta" style="font-size:.76rem;color:var(--text-muted);margin-top:.4rem;"></div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:1.25rem;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+    <div>
+      <label class="form-label">Language</label>
+      <select id="lang" class="form-control">
+        <option value="eng" selected>English</option>
+        <option value="hin">Hindi</option>
+        <option value="mar">Marathi</option>
+        <option value="tam">Tamil</option>
+        <option value="tel">Telugu</option>
+        <option value="kan">Kannada</option>
+        <option value="mal">Malayalam</option>
+        <option value="ben">Bengali</option>
+        <option value="guj">Gujarati</option>
+        <option value="pan">Punjabi</option>
+        <option value="ara">Arabic</option>
+        <option value="fra">French</option>
+        <option value="deu">German</option>
+        <option value="spa">Spanish</option>
+        <option value="por">Portuguese</option>
+        <option value="chi_sim">Chinese (Simplified)</option>
+        <option value="jpn">Japanese</option>
+        <option value="kor">Korean</option>
+      </select>
+    </div>
+    <div>
+      <label class="form-label">Preprocessing</label>
+      <select id="preprocess" class="form-control">
+        <option value="auto" selected>Auto (recommended)</option>
+        <option value="aggressive">Aggressive — blurry/dark images</option>
+        <option value="none">None — already clean image</option>
+      </select>
+    </div>
+  </div>
+  <button class="btn btn-primary" id="ocrBtn" disabled style="width:100%;padding:.75rem;">
+    Extract Text
+  </button>
+</div>
+
+<!-- Progress -->
+<div id="progressWrap" style="display:none;" class="card">
+  <div class="progress-spinner"></div>
+  <span style="font-size:.82rem;color:var(--text-muted);">Running OCR — reading your image…</span>
+</div>
+
+<!-- Result -->
+<div id="resultWrap" style="display:none;">
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem;">
+      <div>
+        <span style="font-weight:700;font-size:.9rem;">Extracted Text</span>
+        <span id="statsChip" style="margin-left:.6rem;font-size:.72rem;color:var(--text-muted);background:var(--surface2);padding:.15rem .55rem;border-radius:20px;border:1px solid var(--border);"></span>
+      </div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <button class="btn btn-secondary" id="copyBtn" style="font-size:.78rem;padding:.4rem .85rem;">📋 Copy</button>
+        <a id="downloadBtn" class="btn btn-primary" style="font-size:.78rem;padding:.4rem .85rem;text-decoration:none;" download>⬇ Download .txt</a>
+      </div>
+    </div>
+    <textarea id="ocrText" style="width:100%;min-height:280px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem;font-size:.82rem;font-family:'Courier New',monospace;color:var(--text);resize:vertical;line-height:1.6;" readonly></textarea>
+  </div>
+
+  <div class="card" style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+    <button class="btn btn-secondary" id="tryAnotherBtn" style="flex:1;">Try Another Image</button>
+  </div>
+</div>
+
+<style>
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;}
+.drop-zone{border:2px dashed var(--border);border-radius:12px;padding:2rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;}
+.drop-zone.drag-over{border-color:var(--brand);background:rgba(99,102,241,.06);}
+.dz-icon{font-size:2rem;margin-bottom:.5rem;}
+.dz-text{font-size:.88rem;color:var(--text);margin-bottom:.3rem;}
+.dz-link{color:var(--brand);cursor:pointer;text-decoration:underline;}
+.dz-hint{font-size:.72rem;color:var(--text-muted);}
+.form-label{display:block;font-size:.78rem;font-weight:600;margin-bottom:.4rem;color:var(--text-muted);}
+.form-control{width:100%;padding:.55rem .75rem;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:.82rem;}
+.btn{border:none;border-radius:8px;cursor:pointer;font-weight:600;font-family:inherit;}
+.btn-primary{background:var(--brand,#6366f1);color:#fff;}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed;}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.progress-spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--brand,#6366f1);border-radius:50%;animation:spin .8s linear infinite;margin-right:.65rem;}
+@keyframes spin{to{transform:rotate(360deg)}}
+#progressWrap{display:flex;align-items:center;}
+</style>
+
+<script>
+const dropZone   = document.getElementById('dropZone');
+const fileInput  = document.getElementById('fileInput');
+const ocrBtn     = document.getElementById('ocrBtn');
+const progressWrap = document.getElementById('progressWrap');
+const resultWrap = document.getElementById('resultWrap');
+const previewWrap = document.getElementById('preview-wrap');
+const imgPreview = document.getElementById('imgPreview');
+const imgMeta    = document.getElementById('imgMeta');
+const ocrText    = document.getElementById('ocrText');
+const statsChip  = document.getElementById('statsChip');
+const copyBtn    = document.getElementById('copyBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const tryAnotherBtn = document.getElementById('tryAnotherBtn');
+
+let selectedFile = null;
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
+
+function setFile(f) {
+  selectedFile = f;
+  ocrBtn.disabled = false;
+  // preview
+  const reader = new FileReader();
+  reader.onload = e => {
+    imgPreview.src = e.target.result;
+    previewWrap.style.display = 'block';
+    imgMeta.textContent = `${f.name} — ${(f.size/1024).toFixed(1)} KB`;
+  };
+  reader.readAsDataURL(f);
+  resultWrap.style.display = 'none';
+}
+
+ocrBtn.addEventListener('click', async () => {
+  if (!selectedFile) return;
+  ocrBtn.disabled = true;
+  progressWrap.style.display = 'flex';
+  resultWrap.style.display = 'none';
+
+  const fd = new FormData();
+  fd.append('file', selectedFile);
+  fd.append('lang', document.getElementById('lang').value);
+  fd.append('preprocess', document.getElementById('preprocess').value);
+
+  try {
+    const res = await fetch('/tools/api/img/ocr/', { method: 'POST', body: fd });
+    const data = await res.json();
+    progressWrap.style.display = 'none';
+
+    if (data.error) {
+      alert('Error: ' + data.error);
+      ocrBtn.disabled = false;
+      return;
+    }
+
+    ocrText.value = data.text || '(No text found in this image)';
+    statsChip.textContent = `${data.word_count} words · ${data.char_count} chars`;
+    downloadBtn.href = data.download_url;
+    downloadBtn.setAttribute('download', data.filename);
+    resultWrap.style.display = 'block';
+  } catch(e) {
+    progressWrap.style.display = 'none';
+    alert('Request failed. Please try again.');
+    ocrBtn.disabled = false;
+  }
+});
+
+copyBtn.addEventListener('click', () => {
+  navigator.clipboard.writeText(ocrText.value).then(() => {
+    copyBtn.textContent = '✓ Copied!';
+    setTimeout(() => copyBtn.textContent = '📋 Copy', 2000);
+  });
+});
+
+tryAnotherBtn.addEventListener('click', () => {
+  selectedFile = null;
+  fileInput.value = '';
+  previewWrap.style.display = 'none';
+  resultWrap.style.display = 'none';
+  ocrBtn.disabled = true;
+  ocrText.value = '';
+});
+</script>
+{% endblock %}
