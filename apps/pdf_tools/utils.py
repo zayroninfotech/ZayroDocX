@@ -37,6 +37,7 @@ def get_upload_path(filename):
 
 
 def get_output_path(suffix='.pdf', prefix='output'):
+    os.makedirs(settings.OUTPUT_DIR, exist_ok=True)
     unique_name = f"{prefix}_{uuid.uuid4().hex}{suffix}"
     path = settings.OUTPUT_DIR / unique_name
     return str(path), unique_name

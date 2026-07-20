@@ -163,6 +163,11 @@ LOGGING = {
             'level': 'WARNING',
             'propagate': False,
         },
+        'apps': {
+            'handlers': ['console', 'audit_file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
     },
 }
 

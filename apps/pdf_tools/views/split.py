@@ -1,11 +1,15 @@
 import fitz
 import zipfile
 import os
+import logging
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 from apps.pdf_tools.utils import save_uploaded_file, get_output_path, media_url, cleanup_file, validate_pdf
 from apps.pdf_tools.mongo_db import save_job
+
+logger = logging.getLogger(__name__)
 
 
 @csrf_exempt
@@ -27,6 +31,9 @@ def split_pdf(request):
     parts = []
 
     try:
+        # Ensure output directory exists
+        os.makedirs(settings.OUTPUT_DIR, exist_ok=True)
+
         doc = fitz.open(saved_path)
         total = doc.page_count
 
@@ -53,9 +60,14 @@ def split_pdf(request):
             for pp, pn in part_paths:
                 zf.write(pp, pn)
 
-        save_job('split_pdf', [f.name], parts)
+        try:
+            save_job('split_pdf', [f.name], parts)
+        except Exception:
+            logger.exception('split_pdf: MongoDB save_job failed (non-fatal)')
+
         return JsonResponse({'download_url': media_url(zip_name), 'filename': zip_name, 'parts': len(parts)})
     except Exception as e:
+        logger.exception('split_pdf: processing failed for file=%s', f.name)
         return JsonResponse({'error': 'Split failed. Ensure the file is a valid PDF.'}, status=500)
     finally:
         cleanup_file(saved_path)
