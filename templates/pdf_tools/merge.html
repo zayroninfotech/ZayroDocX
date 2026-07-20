@@ -6,187 +6,243 @@
 {% block content %}
 
 <style>
-/* ── Merge-page local styles ── */
+/* ═══════════════════════════════════════
+   MERGE PDF — White · Red · Cream theme
+═══════════════════════════════════════ */
 
-/* Steps */
-.steps-bar{display:flex;align-items:center;gap:0;margin-bottom:1.8rem;}
-.step{display:flex;align-items:center;gap:.6rem;font-size:.85rem;font-weight:600;color:var(--text-muted);}
-.step.active{color:var(--accent);}
-.step.done{color:#dc2626;}
-.step-num{
-  width:28px;height:28px;border-radius:50%;border:2px solid currentColor;
-  display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;
+/* ── Page hero banner ── */
+.merge-hero {
+  background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 45%, #dc2626 80%, #ef4444 100%);
+  border-radius: 18px; padding: 2rem 2.2rem; margin-bottom: 1.6rem;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.2rem;
+  box-shadow: 0 6px 28px rgba(220,38,38,.28); position: relative; overflow: hidden;
 }
-.step.done .step-num{background:#dc2626;border-color:#dc2626;color:#fff;}
-.step.active .step-num{background:var(--accent);border-color:var(--accent);color:#fff;}
-.step-line{flex:1;height:2px;background:var(--border);margin:0 .5rem;}
-.step-line.done{background:#dc2626;}
+.merge-hero::before {
+  content:''; position:absolute; top:-60px; right:-40px;
+  width:220px; height:220px; border-radius:50%;
+  background:rgba(255,255,255,.07); pointer-events:none;
+}
+.merge-hero-left { position:relative; z-index:1; }
+.merge-hero-eyebrow {
+  display:inline-flex; align-items:center; gap:.4rem;
+  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25);
+  border-radius:999px; padding:.22rem .75rem; font-size:.68rem; font-weight:700;
+  color:#fff; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.55rem;
+}
+.merge-hero-left h2 { font-size:1.65rem; font-weight:900; color:#fff; margin:0 0 .3rem; letter-spacing:-.03em; }
+.merge-hero-left p  { font-size:.82rem; color:rgba(255,255,255,.75); margin:0; }
+.merge-hero-right {
+  display:flex; gap:.75rem; flex-shrink:0; position:relative; z-index:1;
+}
+.merge-pill {
+  background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.18);
+  border-radius:12px; padding:.75rem 1.1rem; text-align:center; min-width:72px;
+}
+.merge-pill .n { font-size:1.4rem; font-weight:900; color:#fff; line-height:1; display:block; }
+.merge-pill .l { font-size:.58rem; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.07em; }
 
-/* Drop zone */
-.drop-zone{
-  border:2.5px dashed var(--border);border-radius:16px;
-  padding:3rem 2rem;text-align:center;cursor:pointer;
-  transition:background .2s,border-color .2s;position:relative;
-  background:var(--surface);
+/* ── Steps ── */
+.steps-bar { display:flex; align-items:center; gap:0; margin-bottom:1.6rem; }
+.step { display:flex; align-items:center; gap:.55rem; font-size:.82rem; font-weight:700; color:#bbb; }
+.step.active { color:#dc2626; }
+.step.done   { color:#dc2626; }
+.step-num {
+  width:32px; height:32px; border-radius:50%; border:2px solid currentColor;
+  display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:800; flex-shrink:0;
 }
-.drop-zone:hover,.drop-zone.dragging{border-color:var(--accent);background:rgba(124,58,237,.06);}
-.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-.drop-zone-icon{font-size:3rem;color:var(--accent);margin-bottom:1rem;display:block;}
-.drop-zone h3{font-size:1.2rem;font-weight:700;margin:0 0 .4rem;}
-.drop-zone p{color:var(--text-muted);margin:0 0 1.2rem;font-size:.9rem;}
-.drop-zone-btn{
-  display:inline-flex;align-items:center;gap:.5rem;
-  background:var(--accent);color:#fff;border:none;border-radius:8px;
-  padding:.65rem 1.4rem;font-size:.95rem;font-weight:600;cursor:pointer;
-  transition:opacity .2s;
-}
-.drop-zone-btn:hover{opacity:.88;}
-.drop-zone-hint{display:block;margin-top:.9rem;color:var(--text-muted);font-size:.8rem;}
+.step.done   .step-num { background:#dc2626; border-color:#dc2626; color:#fff; }
+.step.active .step-num { background:#dc2626; border-color:#dc2626; color:#fff; }
+.step-line { flex:1; height:2px; background:#e8e8e8; margin:0 .5rem; }
+.step-line.done { background:#dc2626; }
 
-/* Stats bar */
-.stats-bar{
-  display:flex;align-items:center;gap:1rem;padding:.75rem 1rem;
-  background:var(--surface);border-radius:10px;margin-bottom:1rem;
-  border:1px solid var(--border);flex-wrap:wrap;
+/* ── Drop zone ── */
+.drop-zone {
+  border: 2.5px dashed #fca5a5; border-radius: 18px;
+  padding: 3.5rem 2rem; text-align: center; cursor: pointer;
+  transition: background .2s, border-color .2s; position: relative;
+  background: #fff8f8;
 }
-.stat-chip{display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--text-muted);}
-.stat-chip strong{color:var(--text);}
-.stats-bar .ms-auto{margin-left:auto;}
+.drop-zone:hover, .drop-zone.dragging { border-color: #dc2626; background: #fff1f1; }
+.drop-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.drop-zone-icon {
+  width:72px; height:72px; border-radius:20px;
+  background:linear-gradient(135deg,#b91c1c,#dc2626);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.7rem; color:#fff; margin:0 auto 1.2rem; box-shadow:0 4px 16px rgba(220,38,38,.3);
+}
+.drop-zone h3 { font-size:1.25rem; font-weight:800; margin:0 0 .4rem; color:#111; }
+.drop-zone p  { color:#888; margin:0 0 1.4rem; font-size:.88rem; }
+.drop-zone-btn {
+  display:inline-flex; align-items:center; gap:.5rem;
+  background:linear-gradient(135deg,#b91c1c,#dc2626); color:#fff; border:none; border-radius:10px;
+  padding:.7rem 1.6rem; font-size:.95rem; font-weight:700; cursor:pointer;
+  transition:opacity .2s, transform .1s; box-shadow:0 3px 12px rgba(220,38,38,.3);
+}
+.drop-zone-btn:hover { opacity:.88; transform:translateY(-1px); }
+.drop-zone-hint {
+  display:block; margin-top:1rem;
+  background:#fff5f5; border:1px solid #fecaca; border-radius:8px;
+  padding:.45rem .9rem; display:inline-flex; align-items:center; gap:.5rem;
+  font-size:.76rem; color:#b91c1c; font-weight:500;
+}
+.drop-zone-hint i { color:#dc2626; }
 
-/* File list */
-.file-list-wrap{display:flex;flex-direction:column;gap:.55rem;margin-bottom:1.2rem;}
-.file-row{
-  display:flex;align-items:center;gap:.75rem;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:10px;padding:.65rem 1rem;
-  transition:box-shadow .15s,border-color .15s;
-  cursor:default;
+/* ── Stats bar ── */
+.stats-bar {
+  display:flex; align-items:center; gap:1rem; padding:.8rem 1.1rem;
+  background:#fff; border-radius:12px; margin-bottom:.85rem;
+  border:1px solid #e8e8e8; flex-wrap:wrap;
+  box-shadow:0 1px 4px rgba(0,0,0,.05);
 }
-.file-row.drag-over{border-color:var(--accent);box-shadow:0 0 0 2px rgba(124,58,237,.25);}
-.file-row.dragging-row{opacity:.4;}
-.drag-handle{
-  color:var(--text-muted);cursor:grab;font-size:1rem;padding:0 .2rem;
-  flex-shrink:0;touch-action:none;
-}
-.drag-handle:active{cursor:grabbing;}
-.file-num{
-  width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;
-  font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
-.file-thumb{
-  width:36px;height:44px;background:rgba(220,38,38,.12);border-radius:5px;
-  display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#dc2626;flex-shrink:0;
-}
-.file-info{flex:1;min-width:0;}
-.file-name{font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.file-meta{font-size:.75rem;color:var(--text-muted);margin-top:.15rem;}
-.file-remove{
-  background:none;border:none;cursor:pointer;padding:.25rem .35rem;border-radius:6px;
-  color:var(--text-muted);transition:background .15s,color .15s;font-size:.9rem;flex-shrink:0;
-}
-.file-remove:hover{background:rgba(220,38,38,.12);color:#dc2626;}
+.stat-chip { display:flex; align-items:center; gap:.4rem; font-size:.84rem; color:#888; }
+.stat-chip strong { color:#111; font-weight:700; }
+.stats-bar .ms-auto { margin-left:auto; }
 
-/* Empty state */
-.empty-state{text-align:center;padding:1.5rem;color:var(--text-muted);font-size:.88rem;display:none;}
+/* ── File list ── */
+.file-list-wrap { display:flex; flex-direction:column; gap:.5rem; margin-bottom:1.1rem; }
+.file-row {
+  display:flex; align-items:center; gap:.75rem;
+  background:#fff; border:1px solid #efe8e8;
+  border-radius:12px; padding:.7rem 1rem;
+  transition:box-shadow .15s, border-color .15s, background .15s;
+  cursor:default; position:relative;
+}
+.file-row::before {
+  content:''; position:absolute; left:0; top:0; bottom:0;
+  width:3px; background:#dc2626; border-radius:3px 0 0 3px; opacity:0; transition:opacity .15s;
+}
+.file-row:hover { border-color:#fca5a5; background:#fffafa; box-shadow:0 2px 10px rgba(220,38,38,.08); }
+.file-row:hover::before { opacity:1; }
+.file-row.drag-over { border-color:#dc2626; box-shadow:0 0 0 2px rgba(220,38,38,.2); }
+.file-row.dragging-row { opacity:.35; }
+.drag-handle {
+  color:#ccc; cursor:grab; font-size:1rem; padding:0 .2rem; flex-shrink:0; touch-action:none;
+  transition:color .15s;
+}
+.file-row:hover .drag-handle { color:#dc2626; }
+.drag-handle:active { cursor:grabbing; }
+.file-num {
+  width:24px; height:24px; border-radius:50%;
+  background:linear-gradient(135deg,#b91c1c,#dc2626); color:#fff;
+  font-size:.68rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.file-thumb {
+  width:38px; height:46px; background:#fee2e2; border-radius:6px;
+  display:flex; align-items:center; justify-content:center; font-size:1.2rem; color:#dc2626; flex-shrink:0;
+}
+.file-info { flex:1; min-width:0; }
+.file-name { font-size:.87rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#111; }
+.file-meta { font-size:.72rem; color:#aaa; margin-top:.12rem; }
+.file-remove {
+  background:none; border:none; cursor:pointer; padding:.28rem .38rem; border-radius:6px;
+  color:#ccc; transition:background .15s, color .15s; font-size:.88rem; flex-shrink:0;
+}
+.file-remove:hover { background:#fee2e2; color:#dc2626; }
 
-/* Merge options */
-.options-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;
-  padding:1.2rem 1.4rem;margin-bottom:1.4rem;
-}
-.options-card h5{font-size:.9rem;font-weight:700;margin:0 0 1rem;display:flex;align-items:center;gap:.5rem;}
-.option-row{display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border);}
-.option-row:last-child{border-bottom:none;padding-bottom:0;}
-.option-label{font-size:.85rem;font-weight:600;}
-.option-desc{font-size:.75rem;color:var(--text-muted);}
-.toggle-switch{position:relative;width:40px;height:22px;flex-shrink:0;}
-.toggle-switch input{opacity:0;width:0;height:0;}
-.toggle-slider{
-  position:absolute;inset:0;background:var(--border);border-radius:11px;cursor:pointer;transition:.2s;
-}
-.toggle-switch input:checked+.toggle-slider{background:var(--accent);}
-.toggle-slider:before{
-  content:'';position:absolute;width:16px;height:16px;border-radius:50%;
-  background:#fff;top:3px;left:3px;transition:.2s;
-}
-.toggle-switch input:checked+.toggle-slider:before{transform:translateX(18px);}
+/* ── Empty state ── */
+.empty-state { text-align:center; padding:1.5rem; color:#ccc; font-size:.86rem; display:none; }
 
-/* Action bar */
-.merge-actions{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;}
-.btn-merge{
-  display:inline-flex;align-items:center;gap:.5rem;
-  background:linear-gradient(135deg,#dc2626,#a855f7);color:#fff;
-  border:none;border-radius:10px;padding:.75rem 1.8rem;font-size:1rem;
-  font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s;
+/* ── Action bar ── */
+.merge-actions { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; }
+.btn-merge {
+  display:inline-flex; align-items:center; gap:.55rem;
+  background:linear-gradient(135deg,#991b1b,#dc2626); color:#fff;
+  border:none; border-radius:12px; padding:.8rem 2rem; font-size:1rem;
+  font-weight:800; cursor:pointer; transition:opacity .2s, transform .1s;
+  box-shadow:0 4px 16px rgba(220,38,38,.35);
 }
-.btn-merge:hover:not(:disabled){opacity:.9;transform:translateY(-1px);}
-.btn-merge:disabled{opacity:.5;cursor:not-allowed;}
-.btn-clear-all{
-  background:none;border:1.5px solid var(--border);border-radius:10px;
-  padding:.7rem 1.2rem;font-size:.9rem;font-weight:600;cursor:pointer;
-  color:var(--text-muted);display:flex;align-items:center;gap:.5rem;transition:border-color .15s;
+.btn-merge:hover:not(:disabled) { opacity:.9; transform:translateY(-2px); }
+.btn-merge:disabled { opacity:.45; cursor:not-allowed; box-shadow:none; }
+.btn-clear-all {
+  background:#fff; border:1.5px solid #e8e8e8; border-radius:12px;
+  padding:.75rem 1.2rem; font-size:.88rem; font-weight:600; cursor:pointer;
+  color:#888; display:flex; align-items:center; gap:.45rem; transition:all .15s;
 }
-.btn-clear-all:hover{border-color:var(--accent);color:var(--accent);}
-.file-count-badge{
-  margin-left:auto;font-size:.82rem;color:var(--text-muted);
-  display:flex;align-items:center;gap:.4rem;
+.btn-clear-all:hover { border-color:#fca5a5; color:#dc2626; background:#fff8f8; }
+.file-count-badge {
+  margin-left:auto; font-size:.8rem; color:#888;
+  display:flex; align-items:center; gap:.4rem;
 }
 
-/* Progress */
-.progress-wrap{display:none;margin-top:1.4rem;}
-.progress-wrap.show{display:block;}
-.progress-steps{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;}
-.progress-step-item{
-  display:flex;align-items:center;gap:.4rem;font-size:.8rem;
-  padding:.3rem .7rem;border-radius:20px;background:var(--surface);
-  border:1px solid var(--border);color:var(--text-muted);
+/* ── Progress ── */
+.progress-wrap { display:none; margin-top:1.4rem; background:#fff; border:1px solid #e8e8e8; border-radius:14px; padding:1.4rem; }
+.progress-wrap.show { display:block; }
+.progress-steps { display:flex; gap:.5rem; margin-bottom:1.1rem; flex-wrap:wrap; }
+.progress-step-item {
+  display:flex; align-items:center; gap:.4rem; font-size:.78rem;
+  padding:.3rem .75rem; border-radius:20px; background:#f7f7f7;
+  border:1px solid #e8e8e8; color:#aaa;
 }
-.progress-step-item.active{border-color:var(--accent);color:var(--accent);background:rgba(124,58,237,.07);}
-.progress-step-item.done{border-color:#dc2626;color:#dc2626;background:rgba(22,163,74,.07);}
-.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;}
-.progress-label{font-weight:600;font-size:.9rem;}
-.progress-pct{font-size:.82rem;color:var(--text-muted);}
-.progress-track{height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
-.progress-fill{height:100%;background:linear-gradient(90deg,#dc2626,#a855f7);border-radius:4px;transition:width .3s;}
-.progress-sub{font-size:.8rem;color:var(--text-muted);margin:.6rem 0 0;}
+.progress-step-item.active { border-color:#dc2626; color:#dc2626; background:#fff5f5; }
+.progress-step-item.done   { border-color:#dc2626; color:#dc2626; background:#fee2e2; }
+.progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
+.progress-label { font-weight:700; font-size:.9rem; color:#111; }
+.progress-pct   { font-size:.82rem; color:#dc2626; font-weight:700; }
+.progress-track { height:10px; background:#f0f0f0; border-radius:5px; overflow:hidden; }
+.progress-fill  { height:100%; background:linear-gradient(90deg,#991b1b,#dc2626,#f87171); border-radius:5px; transition:width .3s; }
+.progress-sub   { font-size:.78rem; color:#aaa; margin:.7rem 0 0; display:flex; align-items:center; gap:.4rem; }
 
-/* Result */
-.result-card{display:none;margin-top:1.4rem;border-radius:14px;padding:1.5rem;}
-.result-card.show{display:block;}
-.result-card.success{background:linear-gradient(135deg,rgba(22,163,74,.12),rgba(22,163,74,.04));border:1.5px solid #dc2626;}
-.result-card.error{background:rgba(220,38,38,.07);border:1.5px solid #dc2626;}
-.result-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;}
-.result-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
-.result-icon.ok{background:#dc2626;color:#fff;}
-.result-icon.err{background:#dc2626;color:#fff;}
-.result-title{font-size:1.1rem;font-weight:700;}
-.result-sub{font-size:.82rem;color:var(--text-muted);margin-top:.15rem;}
-.result-meta{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.2rem;}
-.result-meta-item{text-align:center;}
-.result-meta-item .val{font-size:1.1rem;font-weight:700;color:var(--accent);}
-.result-meta-item .lbl{font-size:.75rem;color:var(--text-muted);}
-.btn-download{
-  display:inline-flex;align-items:center;gap:.5rem;
-  background:#dc2626;color:#fff;border:none;border-radius:10px;
-  padding:.7rem 1.6rem;font-size:.95rem;font-weight:700;text-decoration:none;
-  transition:opacity .2s;
+/* ── Result ── */
+.result-card { display:none; margin-top:1.4rem; border-radius:16px; padding:1.6rem; }
+.result-card.show { display:block; }
+.result-card.success { background:linear-gradient(135deg,#fff8f8,#fff1f1); border:1.5px solid #fca5a5; }
+.result-card.error   { background:#fff8f8; border:1.5px solid #fca5a5; }
+.result-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.2rem; }
+.result-icon { width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; }
+.result-icon.ok  { background:linear-gradient(135deg,#b91c1c,#dc2626); color:#fff; box-shadow:0 3px 12px rgba(220,38,38,.3); }
+.result-icon.err { background:#fee2e2; color:#dc2626; }
+.result-title { font-size:1.1rem; font-weight:800; color:#111; }
+.result-sub   { font-size:.8rem; color:#888; margin-top:.15rem; }
+.result-meta  { display:flex; gap:1.5rem; flex-wrap:wrap; margin-bottom:1.3rem; }
+.result-meta-item { text-align:center; }
+.result-meta-item .val { font-size:1.15rem; font-weight:900; color:#dc2626; }
+.result-meta-item .lbl { font-size:.72rem; color:#aaa; }
+.btn-download {
+  display:inline-flex; align-items:center; gap:.5rem;
+  background:linear-gradient(135deg,#991b1b,#dc2626); color:#fff; border:none; border-radius:10px;
+  padding:.75rem 1.7rem; font-size:.95rem; font-weight:800; text-decoration:none;
+  transition:opacity .2s; box-shadow:0 3px 12px rgba(220,38,38,.3);
 }
-.btn-download:hover{opacity:.88;color:#fff;}
-.btn-merge-again{
-  display:inline-flex;align-items:center;gap:.5rem;
-  background:none;border:1.5px solid var(--border);border-radius:10px;
-  padding:.65rem 1.1rem;font-size:.88rem;font-weight:600;cursor:pointer;
-  color:var(--text-muted);margin-left:.5rem;text-decoration:none;
+.btn-download:hover { opacity:.88; color:#fff; }
+.btn-merge-again {
+  display:inline-flex; align-items:center; gap:.5rem;
+  background:#fff; border:1.5px solid #e8e8e8; border-radius:10px;
+  padding:.7rem 1.1rem; font-size:.88rem; font-weight:600; cursor:pointer;
+  color:#888; margin-left:.5rem; text-decoration:none; transition:all .15s;
 }
-.btn-merge-again:hover{border-color:var(--accent);color:var(--accent);}
+.btn-merge-again:hover { border-color:#fca5a5; color:#dc2626; }
 
-/* Tips */
-.tips-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-top:1.8rem;}
-.tip-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;text-align:center;}
-.tip-card i{font-size:1.4rem;color:var(--accent);margin-bottom:.5rem;display:block;}
-.tip-card strong{font-size:.82rem;display:block;margin-bottom:.25rem;}
-.tip-card span{font-size:.75rem;color:var(--text-muted);}
+/* ── Info strip ── */
+.merge-info-strip {
+  display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1.6rem;
+}
+.minfo-card {
+  flex:1; min-width:140px; background:#fff; border:1px solid #e8e8e8; border-radius:12px;
+  padding:.9rem 1rem; display:flex; align-items:center; gap:.75rem;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.minfo-icon {
+  width:36px; height:36px; border-radius:10px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:.88rem;
+  background:#fee2e2; color:#dc2626;
+}
+.minfo-title { font-size:.78rem; font-weight:700; color:#111; }
+.minfo-desc  { font-size:.68rem; color:#aaa; margin-top:.1rem; }
 </style>
+
+<!-- Hero -->
+<div class="merge-hero">
+  <div class="merge-hero-left">
+    <div class="merge-hero-eyebrow"><i class="fa-solid fa-object-group"></i> Organize PDF</div>
+    <h2>Merge PDF Files</h2>
+    <p>Combine multiple PDFs into one — drag to reorder, processed 100% locally</p>
+  </div>
+  <div class="merge-hero-right">
+    <div class="merge-pill"><span class="n">∞</span><div class="l">No limit</div></div>
+    <div class="merge-pill"><span class="n">AES</span><div class="l">Secure</div></div>
+    <div class="merge-pill"><span class="n">Free</span><div class="l">Forever</div></div>
+  </div>
+</div>
 
 <!-- Steps -->
 <div class="steps-bar" id="stepsBar">
@@ -200,13 +256,13 @@
 <!-- Upload zone (hidden once files selected) -->
 <div class="drop-zone" id="uploadZone">
   <input type="file" id="fileInput" name="files" multiple accept=".pdf">
-  <i class="fa-solid fa-cloud-arrow-up drop-zone-icon"></i>
+  <div class="drop-zone-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
   <h3>Drop PDF files here</h3>
-  <p>Select two or more PDFs to merge them into a single document</p>
+  <p>Select two or more PDFs to merge them into one document</p>
   <button type="button" class="drop-zone-btn" onclick="document.getElementById('fileInput').click()">
     <i class="fa-solid fa-plus"></i> Select PDF Files
   </button>
-  <span class="drop-zone-hint">PDF files only &nbsp;·&nbsp; No size limit &nbsp;·&nbsp; All processed locally</span>
+  <span class="drop-zone-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; No size limit &nbsp;·&nbsp; 100% local — never uploaded</span>
 </div>
 
 <!-- File list panel (shown once files selected) -->
@@ -256,6 +312,26 @@
 
 <!-- Result -->
 <div class="result-card" id="resultCard"></div>
+
+<!-- Info strip -->
+<div class="merge-info-strip">
+  <div class="minfo-card">
+    <div class="minfo-icon"><i class="fa-solid fa-shield-halved"></i></div>
+    <div><div class="minfo-title">100% Private</div><div class="minfo-desc">Files never leave your server</div></div>
+  </div>
+  <div class="minfo-card">
+    <div class="minfo-icon"><i class="fa-solid fa-arrows-up-down"></i></div>
+    <div><div class="minfo-title">Drag to Reorder</div><div class="minfo-desc">Set page order before merging</div></div>
+  </div>
+  <div class="minfo-card">
+    <div class="minfo-icon"><i class="fa-solid fa-infinity"></i></div>
+    <div><div class="minfo-title">No File Limit</div><div class="minfo-desc">Merge as many PDFs as you need</div></div>
+  </div>
+  <div class="minfo-card">
+    <div class="minfo-icon"><i class="fa-solid fa-bolt"></i></div>
+    <div><div class="minfo-title">Fast Processing</div><div class="minfo-desc">Server-side merge in seconds</div></div>
+  </div>
+</div>
 
 {% endblock %}
 
