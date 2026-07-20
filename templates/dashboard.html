@@ -35,7 +35,7 @@
 .db-hero-left { flex: 1; min-width: 260px; }
 .db-hero-left h1 {
   font-size: 2.6rem; font-weight: 900; letter-spacing: -.05em; margin-bottom: .6rem; line-height: 1;
-  background: linear-gradient(135deg, #fff 30%, #a78bfa 100%);
+  background: linear-gradient(135deg, #fff 30%, #f87171 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
 .db-hero-left p {
@@ -62,7 +62,7 @@
 }
 .db-hero-pill .n {
   font-size: 2.8rem; font-weight: 900; color: #fff; line-height: 1;
-  background: linear-gradient(135deg,#c4b5fd,#818cf8); -webkit-background-clip:text;
+  background: linear-gradient(135deg,#fca5a5,#818cf8); -webkit-background-clip:text;
   -webkit-text-fill-color:transparent; background-clip:text;
 }
 .db-hero-pill .l { font-size: .65rem; color: rgba(255,255,255,.45); margin-top: .3rem; text-transform: uppercase; letter-spacing: .08em; }
@@ -97,7 +97,7 @@
 .qa-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
   opacity: 0; transition: opacity .2s;
-  background: linear-gradient(90deg, #7c3aed, #2563eb);
+  background: linear-gradient(90deg, #dc2626, #dc2626);
 }
 .qa-card:hover { transform: translateY(-4px); border-color: rgba(124,58,237,.45); box-shadow: 0 12px 32px rgba(124,58,237,.18); text-decoration: none; }
 .qa-card:hover::before { opacity: 1; }
@@ -149,15 +149,15 @@
 </div>
 <div class="qa-grid">
   <a href="{% url 'merge_pdf_page' %}" class="qa-card">
-    <div class="qa-icon" style="background:rgba(124,58,237,.15);color:#a78bfa"><i class="fa-solid fa-object-group"></i></div>
+    <div class="qa-icon" style="background:rgba(124,58,237,.15);color:#f87171"><i class="fa-solid fa-object-group"></i></div>
     <div class="qa-lbl">Merge PDF</div>
   </a>
   <a href="{% url 'split_pdf_page' %}" class="qa-card">
-    <div class="qa-icon" style="background:rgba(124,58,237,.15);color:#a78bfa"><i class="fa-solid fa-scissors"></i></div>
+    <div class="qa-icon" style="background:rgba(124,58,237,.15);color:#f87171"><i class="fa-solid fa-scissors"></i></div>
     <div class="qa-lbl">Split PDF</div>
   </a>
   <a href="{% url 'compress_pdf_page' %}" class="qa-card">
-    <div class="qa-icon" style="background:rgba(37,99,235,.15);color:#60a5fa"><i class="fa-solid fa-compress"></i></div>
+    <div class="qa-icon" style="background:rgba(37,99,235,.15);color:#f87171"><i class="fa-solid fa-compress"></i></div>
     <div class="qa-lbl">Compress PDF</div>
   </a>
   <a href="{% url 'ocr_pdf_page' %}" class="qa-card">
@@ -165,15 +165,15 @@
     <div class="qa-lbl">OCR PDF</div>
   </a>
   <a href="{% url 'pdf_to_word_page' %}" class="qa-card">
-    <div class="qa-icon" style="background:rgba(13,148,136,.15);color:#2dd4bf"><i class="fa-solid fa-file-word"></i></div>
+    <div class="qa-icon" style="background:rgba(13,148,136,.15);color:#f87171"><i class="fa-solid fa-file-word"></i></div>
     <div class="qa-lbl">PDF to Word</div>
   </a>
   <a href="{% url 'word_to_pdf_page' %}" class="qa-card">
-    <div class="qa-icon" style="background:rgba(37,99,235,.15);color:#60a5fa"><i class="fa-solid fa-file-word"></i></div>
+    <div class="qa-icon" style="background:rgba(37,99,235,.15);color:#f87171"><i class="fa-solid fa-file-word"></i></div>
     <div class="qa-lbl">Word to PDF</div>
   </a>
   <a href="{% url 'sign_pdf_page' %}" class="qa-card">
-    <div class="qa-icon" style="background:rgba(22,163,74,.15);color:#4ade80"><i class="fa-solid fa-signature"></i></div>
+    <div class="qa-icon" style="background:rgba(22,163,74,.15);color:#f87171"><i class="fa-solid fa-signature"></i></div>
     <div class="qa-lbl">Sign PDF</div>
   </a>
   <a href="{% url 'invoice_page' %}" class="qa-card">

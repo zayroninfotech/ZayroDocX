@@ -136,18 +136,18 @@
 /* Result header */
 .inv-result-header {
   display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
-  background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 60%,#d1fae5 100%);
+  background:linear-gradient(135deg,#f0fdf4 0%,rgba(220,38,38,.08) 60%,#d1fae5 100%);
   border:1.5px solid #86efac; border-radius:16px; padding:16px 22px;
   box-shadow:0 4px 20px rgba(22,163,74,.1);
 }
 .inv-result-left { display:flex; align-items:center; gap:14px; }
 .inv-ok-icon {
   width:44px; height:44px; border-radius:50%; flex-shrink:0;
-  background:linear-gradient(135deg,#22c55e,#16a34a);
+  background:linear-gradient(135deg,#f87171,#dc2626);
   color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.1rem;
   box-shadow:0 4px 14px rgba(22,163,74,.35);
 }
-.inv-result-title { font-size:1rem; font-weight:800; color:#15803d; }
+.inv-result-title { font-size:1rem; font-weight:800; color:#b91c1c; }
 .inv-result-meta  { font-size:.76rem; color:#166534; margin-top:3px; }
 .inv-btns-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 
@@ -165,8 +165,8 @@
 .inv-restart-btn {
   display:inline-flex; align-items:center; gap:7px;
   font-size:.84rem; padding:9px 18px; border-radius:10px;
-  border:1.5px solid #16a34a; background:transparent;
-  color:#15803d; cursor:pointer; font-weight:700;
+  border:1.5px solid #dc2626; background:transparent;
+  color:#b91c1c; cursor:pointer; font-weight:700;
   transition:all .15s;
 }
 .inv-restart-btn:hover { background:#bbf7d0; }
@@ -395,7 +395,7 @@
         <i class="fa-solid fa-file-excel"></i> Download Excel
       </button>
       <button class="inv-dl-btn" id="aiReExtractBtn" onclick="aiReExtract()"
-        style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">
+        style="background:linear-gradient(135deg,#dc2626,#b91c1c)">
         <i class="fa-solid fa-wand-magic-sparkles"></i> AI Re-extract
       </button>
       <button class="inv-restart-btn" id="restartBtn">
@@ -530,22 +530,22 @@ function submitFile(f){
 
 // ── field definitions ─────────────────────────────────────────────────────────
 const FIELDS = {
-  invoice_number:    { label:'Invoice Number',           c:'#2563eb', ct:'rgba(37,99,235,.06)',   icon:'fa-hashtag',               big:true },
-  date_of_issue:     { label:'Invoice Issued',           c:'#7c3aed', ct:'rgba(124,58,237,.05)',  icon:'fa-calendar-day'                    },
-  date:              { label:'Invoice Date',             c:'#7c3aed', ct:'rgba(124,58,237,.05)',  icon:'fa-calendar'                        },
+  invoice_number:    { label:'Invoice Number',           c:'#dc2626', ct:'rgba(37,99,235,.06)',   icon:'fa-hashtag',               big:true },
+  date_of_issue:     { label:'Invoice Issued',           c:'#dc2626', ct:'rgba(124,58,237,.05)',  icon:'fa-calendar-day'                    },
+  date:              { label:'Invoice Date',             c:'#dc2626', ct:'rgba(124,58,237,.05)',  icon:'fa-calendar'                        },
   due_date:          { label:'Date Due',                 c:'#dc2626', ct:'rgba(220,38,38,.05)',   icon:'fa-calendar-xmark'                  },
-  next_billing_date: { label:'Next Billing Date',        c:'#d97706', ct:'rgba(217,119,6,.05)',   icon:'fa-calendar-check'                  },
-  total_amount:      { label:'Invoice Amount',           c:'#16a34a', ct:'rgba(22,163,74,.06)',   icon:'fa-circle-dollar-to-slot', big:true },
+  next_billing_date: { label:'Next Billing Date',        c:'#dc2626', ct:'rgba(217,119,6,.05)',   icon:'fa-calendar-check'                  },
+  total_amount:      { label:'Invoice Amount',           c:'#dc2626', ct:'rgba(22,163,74,.06)',   icon:'fa-circle-dollar-to-slot', big:true },
   subtotal:          { label:'Subtotal (excl. Tax)',     c:'#0891b2', ct:'rgba(8,145,178,.05)',   icon:'fa-receipt'                         },
-  tax:               { label:'Tax / IGST / VAT',        c:'#d97706', ct:'rgba(217,119,6,.05)',   icon:'fa-percent'                         },
-  payment_status:    { label:'Payment Status',           c:'#16a34a', ct:'rgba(22,163,74,.06)',   icon:'fa-circle-check',          big:true },
+  tax:               { label:'Tax / IGST / VAT',        c:'#dc2626', ct:'rgba(217,119,6,.05)',   icon:'fa-percent'                         },
+  payment_status:    { label:'Payment Status',           c:'#dc2626', ct:'rgba(22,163,74,.06)',   icon:'fa-circle-check',          big:true },
   order_number:      { label:'Order Number',             c:'#64748b', ct:'rgba(100,116,139,.04)', icon:'fa-file-contract'                   },
   currency:          { label:'Currency',                 c:'#64748b', ct:'rgba(100,116,139,.04)', icon:'fa-coins'                           },
-  vendor_name:       { label:'Vendor / Seller',          c:'#7c3aed', ct:'rgba(124,58,237,.05)',  icon:'fa-building'                        },
+  vendor_name:       { label:'Vendor / Seller',          c:'#dc2626', ct:'rgba(124,58,237,.05)',  icon:'fa-building'                        },
   vendor_gst:        { label:'Vendor GST / VAT No.',    c:'#0891b2', ct:'rgba(8,145,178,.05)',   icon:'fa-id-badge'                        },
   customer_name:     { label:'Customer / Buyer',         c:'#dc2626', ct:'rgba(220,38,38,.05)',   icon:'fa-user'                            },
   billing_address:   { label:'Billing Address',          c:'#64748b', ct:'rgba(100,116,139,.04)', icon:'fa-location-dot'                    },
-  customer_gst:      { label:'Customer GST / VAT No.',  c:'#16a34a', ct:'rgba(22,163,74,.06)',   icon:'fa-id-card'                         },
+  customer_gst:      { label:'Customer GST / VAT No.',  c:'#dc2626', ct:'rgba(22,163,74,.06)',   icon:'fa-id-card'                         },
   po_number:         { label:'PO Number',                c:'#64748b', ct:'rgba(100,116,139,.04)', icon:'fa-file-contract'                   },
 };
 
@@ -715,7 +715,7 @@ function showToast(msg){
 }
 function showToast2(msg){
   const t=document.createElement('div'); t.className='inv-toast';
-  t.style.background='linear-gradient(135deg,#16a34a,#15803d)';
+  t.style.background='linear-gradient(135deg,#dc2626,#b91c1c)';
   t.innerHTML=`<i class="fa-solid fa-check"></i>${esc(msg)}`;
   document.body.appendChild(t); setTimeout(()=>t.remove(),2000);
 }

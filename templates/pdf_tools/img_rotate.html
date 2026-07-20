@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% load static %}
 {% block title %}Rotate Image — ZayroDocX{% endblock %}
 {% block active_img_rotate %}active{% endblock %}
@@ -38,7 +38,7 @@
 {% block extra_js %}<script>
 const zone=document.getElementById('uploadZone'),input=document.getElementById('fileInput'),fileList=document.getElementById('fileList');
 zone.addEventListener('click',()=>input.click());zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});input.addEventListener('change',()=>setFile(input.files[0]));
-function setFile(f){if(!f)return;const dt=new DataTransfer();dt.items.add(f);input.files=dt.files;fileList.innerHTML=`<div class="file-item"><span class="file-name"><i class="fa-solid fa-image" style="color:#22c55e"></i> ${f.name}</span><span class="file-size">${(f.size/1024).toFixed(1)} KB</span></div>`;}
+function setFile(f){if(!f)return;const dt=new DataTransfer();dt.items.add(f);input.files=dt.files;fileList.innerHTML=`<div class="file-item"><span class="file-name"><i class="fa-solid fa-image" style="color:#f87171"></i> ${f.name}</span><span class="file-size">${(f.size/1024).toFixed(1)} KB</span></div>`;}
 document.querySelectorAll('[name=angle]').forEach(r=>r.addEventListener('change',()=>{document.getElementById('customWrap').style.display=r.value==='custom'?'block':'none';}));
 document.getElementById('mainForm').addEventListener('submit',async e=>{
   e.preventDefault();if(!input.files[0]){toast('Please select an image.','error');return;}

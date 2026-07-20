@@ -9,12 +9,12 @@
 .thumb-item.active { border-color:var(--brand) }
 .thumb-num { display:block;text-align:center;padding:3px 0;font-size:.72rem;color:var(--text-muted) }
 .search-highlight { background:#fde68a;color:#1e293b;border-radius:2px;padding:0 1px }
-.search-match { background:#fbbf24 }
+.search-match { background:#f87171 }
 #pageImgModal { display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:9999;align-items:center;justify-content:center;flex-direction:column }
 #pageImgModal.open { display:flex }
 #pageImgModal img { max-width:90vw;max-height:85vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.6) }
 .modal-close-btn { position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:1.6rem;cursor:pointer;line-height:1 }
-.modal-dl-btn { margin-top:14px;background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:8px 22px;font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:6px }
+.modal-dl-btn { margin-top:14px;background:#dc2626;color:#fff;border:none;border-radius:8px;padding:8px 22px;font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:6px }
 .toolbar-btn { background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:.78rem;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap }
 .toolbar-btn:hover { background:var(--border) }
 .stat-badge { font-size:.72rem;color:var(--text-muted);background:var(--surface-alt);border:1px solid var(--border);border-radius:20px;padding:2px 10px;display:inline-block }
@@ -84,7 +84,7 @@
     <button class="toolbar-btn" onclick="copyText()"><i class="fa-solid fa-copy"></i> Copy</button>
 
     <!-- View image -->
-    <button class="toolbar-btn" onclick="viewFullImage()" style="color:#7c3aed;border-color:#7c3aed"><i class="fa-solid fa-expand"></i> Full View</button>
+    <button class="toolbar-btn" onclick="viewFullImage()" style="color:#dc2626;border-color:#dc2626"><i class="fa-solid fa-expand"></i> Full View</button>
   </div>
 
   <!-- Two-panel layout -->
@@ -221,7 +221,7 @@ function renderViewer(data) {
   const typeEl = document.getElementById('infoType');
   if (data.scanned_hint) {
     typeEl.textContent = '🔍 Likely Scanned — use OCR mode';
-    typeEl.style.cssText = 'font-size:.75rem;background:#fef3c7;color:#92400e;border-radius:20px;padding:2px 10px';
+    typeEl.style.cssText = 'font-size:.75rem;background:rgba(220,38,38,.08);color:#92400e;border-radius:20px;padding:2px 10px';
     document.querySelector('input[name="mode"][value="ocr"]').checked = true;
     document.getElementById('langRow').style.display = 'block';
   } else {

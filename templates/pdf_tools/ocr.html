@@ -16,13 +16,13 @@
   cursor: pointer; transition: border-color .2s, background .2s;
   background: var(--surface); margin-bottom: 1.2rem;
 }
-.ocr-drop:hover, .ocr-drop.dragging { border-color: #7c3aed; background: rgba(124,58,237,.05); }
+.ocr-drop:hover, .ocr-drop.dragging { border-color: #dc2626; background: rgba(124,58,237,.05); }
 .ocr-drop.processing { pointer-events: none; opacity: .55; }
 .ocr-drop input[type=file] { position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer; }
 .ocr-drop-icon {
   width: 64px; height: 64px; border-radius: 18px;
   background: linear-gradient(135deg,rgba(124,58,237,.15),rgba(124,58,237,.05));
-  color: #7c3aed; display: flex; align-items: center; justify-content: center;
+  color: #dc2626; display: flex; align-items: center; justify-content: center;
   font-size: 1.8rem; margin: 0 auto 1rem;
   box-shadow: 0 4px 20px rgba(124,58,237,.2);
 }
@@ -30,7 +30,7 @@
 .ocr-drop p  { font-size: .84rem; color: var(--text-muted); margin: 0 0 1.2rem; }
 .ocr-drop-btn {
   display: inline-flex; align-items: center; gap: .5rem;
-  background: linear-gradient(135deg,#6d28d9,#7c3aed);
+  background: linear-gradient(135deg,#b91c1c,#dc2626);
   color: #fff; border: none; border-radius: 9px;
   padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600;
   cursor: pointer; position: relative; z-index: 1; transition: opacity .2s;
@@ -50,7 +50,7 @@
 }
 .ocr-proc-icon {
   width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
-  background: linear-gradient(135deg,#6d28d9,#7c3aed);
+  background: linear-gradient(135deg,#b91c1c,#dc2626);
   display: flex; align-items: center; justify-content: center;
   font-size: 1.2rem; color: #fff; animation: pulse-dot 2s infinite;
 }
@@ -62,7 +62,7 @@
 }
 .ocr-proc-bar {
   height: 100%; width: 0%; border-radius: 99px;
-  background: linear-gradient(90deg,#6d28d9,#7c3aed,#a78bfa);
+  background: linear-gradient(90deg,#b91c1c,#dc2626,#f87171);
   background-size: 400px 100%;
   animation: shimmer 1.8s infinite linear;
   transition: width .4s ease;
@@ -71,7 +71,7 @@
   display: flex; align-items: center; justify-content: space-between;
   font-size: .78rem; color: var(--text-muted);
 }
-.ocr-proc-pct { font-weight: 700; color: #7c3aed; font-size: .88rem; }
+.ocr-proc-pct { font-weight: 700; color: #dc2626; font-size: .88rem; }
 
 /* ── Pages header ── */
 .pdf-pages-header {
@@ -79,7 +79,7 @@
   gap: 10px; padding: 1rem 1.2rem; margin-top: 1.2rem;
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 12px 12px 0 0;
-  border-bottom: 2px solid #7c3aed;
+  border-bottom: 2px solid #dc2626;
 }
 .pdf-pages-title {
   display: flex; align-items: center; gap: .5rem;
@@ -100,7 +100,7 @@
   padding: 5px 26px 5px 26px; border: 1px solid var(--border); border-radius: 8px;
   font-size: .78rem; background: var(--bg); color: var(--text); width: 150px; outline: none;
 }
-.ocr-search-input:focus { border-color: #7c3aed; }
+.ocr-search-input:focus { border-color: #dc2626; }
 .ocr-search-clear { position:absolute;right:6px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.9rem;display:none; }
 .ocr-zoom-group { display: flex; gap: 3px; }
 .zoom-btn {
@@ -108,7 +108,7 @@
   background: var(--bg); color: var(--text-muted); cursor: pointer;
   font-size: .75rem; transition: background .15s;
 }
-.zoom-btn.active, .zoom-btn:hover { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+.zoom-btn.active, .zoom-btn:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
 .ocr-action-btn {
   display: inline-flex; align-items: center; gap: .4rem;
   border: none; border-radius: 8px; padding: 5px 12px;
@@ -127,7 +127,7 @@
   border-radius: 0 0 12px 12px; max-height: 74vh; overflow-y: auto;
 }
 .pdf-pages-grid::-webkit-scrollbar { width: 5px; }
-.pdf-pages-grid::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 3px; }
+.pdf-pages-grid::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 3px; }
 .pdf-pages-grid.zoom-sm { grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); }
 .pdf-pages-grid.zoom-md { grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); }
 .pdf-pages-grid.zoom-lg { grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); }
@@ -139,7 +139,7 @@
   border-radius: 10px; overflow: hidden;
   transition: box-shadow .18s, border-color .18s, transform .18s;
 }
-.pdf-page-card:hover { border-color: #7c3aed; box-shadow: 0 6px 20px rgba(124,58,237,.2); transform: translateY(-2px); }
+.pdf-page-card:hover { border-color: #dc2626; box-shadow: 0 6px 20px rgba(124,58,237,.2); transform: translateY(-2px); }
 .pdf-card-img-wrap { width: 100%; cursor: pointer; overflow: hidden; }
 .pdf-card-img-wrap img { width: 100%; display: block; object-fit: contain; transition: transform .2s; }
 .pdf-card-img-wrap:hover img { transform: scale(1.03); }
@@ -150,7 +150,7 @@
 }
 .pdf-page-badge {
   font-size: .65rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-  color: #a78bfa; background: rgba(124,58,237,.15);
+  color: #f87171; background: rgba(124,58,237,.15);
   padding: 2px 8px; border-radius: 20px; flex-shrink: 0;
 }
 .pdf-card-actions { display: flex; gap: 4px; }
@@ -160,7 +160,7 @@
   display: flex; align-items: center; justify-content: center; font-size: .7rem;
   transition: background .15s, color .15s, border-color .15s;
 }
-.pdf-card-btn:hover { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+.pdf-card-btn:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
 .pdf-card-btn.loading { pointer-events: none; opacity: .5; }
 .pdf-page-card.search-match { border-color: #f59e0b !important; box-shadow: 0 0 0 2px rgba(245,158,11,.3) !important; }
 .pdf-page-card.search-no-match { opacity: .25; }
@@ -188,7 +188,7 @@
   background: transparent; color: var(--text); cursor: pointer; font-size: .95rem;
   display: flex; align-items: center; justify-content: center; transition: background .15s;
 }
-.page-modal-close:hover { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+.page-modal-close:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
 .page-modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; min-height: 500px; }
 @media(max-width:700px){ .page-modal-body { grid-template-columns: 1fr; } }
 .page-modal-img {
@@ -209,7 +209,7 @@
   padding: 12px; flex: 1; overflow-y: auto; max-height: 380px;
 }
 .page-modal-txt::-webkit-scrollbar { width: 4px; }
-.page-modal-txt::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 3px; }
+.page-modal-txt::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 3px; }
 .page-modal-actions { display: flex; gap: 7px; flex-wrap: wrap; padding: 14px 20px; border-top: 1px solid var(--border); background: var(--bg); }
 .pm-nav { display: flex; gap: 7px; margin-left: auto; }
 .btn-spin { width:12px;height:12px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:4px; }
@@ -247,11 +247,11 @@
       <div class="ocr-proc-title">Processing PDF with OCR…</div>
       <div class="ocr-proc-sub" id="loaderSub">Starting…</div>
     </div>
-    <div style="margin-left:auto;font-size:1.4rem;font-weight:800;color:#7c3aed" id="loaderPct">0%</div>
+    <div style="margin-left:auto;font-size:1.4rem;font-weight:800;color:#dc2626" id="loaderPct">0%</div>
   </div>
   <div class="ocr-proc-bar-wrap"><div class="ocr-proc-bar" id="loaderBar"></div></div>
   <div class="ocr-proc-footer">
-    <span><i class="fa-solid fa-lock" style="color:#7c3aed"></i> All processing done locally</span>
+    <span><i class="fa-solid fa-lock" style="color:#dc2626"></i> All processing done locally</span>
     <span class="ocr-proc-pct" id="loaderPctSmall"></span>
   </div>
 </div>
@@ -260,7 +260,7 @@
 <div id="pdfViewer" style="display:none">
   <div class="pdf-pages-header">
     <div class="pdf-pages-title">
-      <i class="fa-solid fa-images" style="color:#7c3aed"></i>
+      <i class="fa-solid fa-images" style="color:#dc2626"></i>
       <span id="viewerTitle">Document</span>
       <span class="pdf-pages-count" id="pagesCount">0 pages</span>
     </div>
@@ -277,8 +277,8 @@
   <!-- Summary panel (shows after extraction) -->
   <div id="summaryPanel" style="display:none;background:var(--card-bg);border:1px solid var(--border);border-top:none;padding:16px 20px;border-radius:0 0 0 0">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px">
-      <span style="font-weight:700;font-size:.88rem;color:var(--text)"><i class="fa-solid fa-circle-check" style="color:#16a34a"></i> Statement Summary Extracted</span>
-      <a id="summaryExcelBtn" href="#" class="btn btn-sm" style="background:#16a34a;color:#fff;border:none;padding:5px 14px;border-radius:8px;font-size:.8rem">
+      <span style="font-weight:700;font-size:.88rem;color:var(--text)"><i class="fa-solid fa-circle-check" style="color:#dc2626"></i> Statement Summary Extracted</span>
+      <a id="summaryExcelBtn" href="#" class="btn btn-sm" style="background:#dc2626;color:#fff;border:none;padding:5px 14px;border-radius:8px;font-size:.8rem">
         <i class="fa-solid fa-file-excel"></i> Download Summary Excel
       </a>
     </div>
@@ -317,12 +317,12 @@
       <button class="btn btn-sm" onclick="copyModalText()" style="background:var(--surface-alt);border:1px solid var(--border);color:var(--text)">
         <i class="fa-solid fa-copy"></i> Copy
       </button>
-      <select id="aiProviderSelect" style="font-size:12px;padding:3px 6px;border:1px solid #7c3aed;border-radius:6px;color:#7c3aed;background:#faf5ff;cursor:pointer;margin-right:2px">
+      <select id="aiProviderSelect" style="font-size:12px;padding:3px 6px;border:1px solid #dc2626;border-radius:6px;color:#dc2626;background:#faf5ff;cursor:pointer;margin-right:2px">
         <option value="gemini">LLM-1</option>
         <option value="gpt">LLM-2</option>
       </select>
       <button class="btn btn-sm" id="modalAiBtn" onclick="aiExtractModal()"
-        style="background:#7c3aed;color:#fff;border:none;cursor:pointer">
+        style="background:#dc2626;color:#fff;border:none;cursor:pointer">
         <i class="fa-solid fa-wand-magic-sparkles"></i> AI Extract
       </button>
       <a class="btn btn-success btn-sm" id="modalExcelBtn" href="#" style="display:none">
@@ -385,7 +385,7 @@ function buildGrid() {
           <button class="pdf-card-btn" title="View &amp; Extract Text" onclick="openModal(${i})">
             <i class="fa-solid fa-eye"></i>
           </button>
-          <button class="pdf-card-btn" title="AI Extract" onclick="aiExtractCard(event,${i})" style="color:#7c3aed;border-color:#7c3aed">
+          <button class="pdf-card-btn" title="AI Extract" onclick="aiExtractCard(event,${i})" style="color:#dc2626;border-color:#dc2626">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
           </button>
           <button class="pdf-card-btn" title="Download Excel" onclick="downloadPageExcel(event,${i})">
@@ -521,7 +521,7 @@ async function extractSummary() {
     };
     const COLORS = {
       customer_name:'#dc2626', txn_total_debit:'#dc2626',
-      txn_total_credit:'#16a34a', closing_balance:'#2563eb',
+      txn_total_credit:'#dc2626', closing_balance:'#dc2626',
     };
     const NUM_FIELDS = new Set(['txn_total_debit','txn_total_credit','closing_balance']);
 
@@ -614,8 +614,8 @@ async function aiExtractCard(e, idx) {
   finally {
     btn.classList.remove('loading');
     btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i>';
-    btn.style.color = '#7c3aed';
-    btn.style.borderColor = '#7c3aed';
+    btn.style.color = '#dc2626';
+    btn.style.borderColor = '#dc2626';
   }
 }
 

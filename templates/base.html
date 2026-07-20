@@ -11,12 +11,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   {% block extra_head %}{% endblock %}
-  <script>
-    (function(){
-      var s = localStorage.getItem('theme');
-      document.documentElement.setAttribute('data-theme', s === 'light' ? 'light' : 'dark');
-    })();
-  </script>
 </head>
 <body>
 
@@ -38,23 +32,23 @@
           <span class="mh-link">Organize PDF <i class="fa-solid fa-chevron-down mh-caret"></i></span>
           <div class="mh-drop">
             <a href="{% url 'merge_pdf_page' %}" class="mh-drop-item {% block active_merge %}{% endblock %}">
-              <span class="mhd-icon" style="background:#ede9fe;color:#7c3aed"><i class="fa-solid fa-object-group"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-object-group"></i></span>
               <span class="mhd-text"><strong>Merge PDF</strong><em>Combine multiple PDFs</em></span>
             </a>
             <a href="{% url 'split_pdf_page' %}" class="mh-drop-item {% block active_split %}{% endblock %}">
-              <span class="mhd-icon" style="background:#ede9fe;color:#7c3aed"><i class="fa-solid fa-scissors"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-scissors"></i></span>
               <span class="mhd-text"><strong>Split PDF</strong><em>Separate pages into files</em></span>
             </a>
             <a href="{% url 'remove_pages_page' %}" class="mh-drop-item {% block active_remove %}{% endblock %}">
-              <span class="mhd-icon" style="background:#ede9fe;color:#7c3aed"><i class="fa-solid fa-trash-can"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-trash-can"></i></span>
               <span class="mhd-text"><strong>Remove Pages</strong><em>Delete specific pages</em></span>
             </a>
             <a href="{% url 'extract_pages_page' %}" class="mh-drop-item {% block active_extract %}{% endblock %}">
-              <span class="mhd-icon" style="background:#ede9fe;color:#7c3aed"><i class="fa-solid fa-file-export"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-file-export"></i></span>
               <span class="mhd-text"><strong>Extract Pages</strong><em>Pull pages into new PDF</em></span>
             </a>
             <a href="{% url 'scan_pdf_page' %}" class="mh-drop-item {% block active_scan %}{% endblock %}">
-              <span class="mhd-icon" style="background:#ede9fe;color:#7c3aed"><i class="fa-solid fa-camera"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-camera"></i></span>
               <span class="mhd-text"><strong>Scan to PDF</strong><em>Image to searchable PDF</em></span>
             </a>
           </div>
@@ -65,23 +59,23 @@
           <span class="mh-link">Optimize &amp; AI <i class="fa-solid fa-chevron-down mh-caret"></i></span>
           <div class="mh-drop">
             <a href="{% url 'compress_pdf_page' %}" class="mh-drop-item {% block active_compress %}{% endblock %}">
-              <span class="mhd-icon" style="background:#fce7f3;color:#db2777"><i class="fa-solid fa-compress"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-compress"></i></span>
               <span class="mhd-text"><strong>Compress PDF</strong><em>Reduce file size</em></span>
             </a>
             <a href="{% url 'ocr_pdf_page' %}" class="mh-drop-item {% block active_ocr %}{% endblock %}">
-              <span class="mhd-icon" style="background:#fce7f3;color:#db2777"><i class="fa-solid fa-eye"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-eye"></i></span>
               <span class="mhd-text"><strong>OCR PDF</strong><em>Make scans searchable</em><span class="mhd-ai">AI</span></span>
             </a>
             <a href="{% url 'invoice_page' %}" class="mh-drop-item {% block active_invoice %}{% endblock %}">
-              <span class="mhd-icon" style="background:#fce7f3;color:#db2777"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-file-invoice-dollar"></i></span>
               <span class="mhd-text"><strong>Invoice Extractor</strong><em>Extract invoice data</em><span class="mhd-ai">AI</span></span>
             </a>
             <a href="{% url 'ai_summarizer_page' %}" class="mh-drop-item {% block active_ai_summarizer %}{% endblock %}">
-              <span class="mhd-icon" style="background:#fce7f3;color:#db2777"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
               <span class="mhd-text"><strong>AI Summarizer</strong><em>Summarize PDF with AI</em><span class="mhd-ai">AI</span></span>
             </a>
             <a href="{% url 'translate_pdf_page' %}" class="mh-drop-item {% block active_translate_pdf %}{% endblock %}">
-              <span class="mhd-icon" style="background:#fce7f3;color:#db2777"><i class="fa-solid fa-language"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-language"></i></span>
               <span class="mhd-text"><strong>Translate PDF</strong><em>20 languages</em><span class="mhd-ai">AI</span></span>
             </a>
           </div>
@@ -93,37 +87,37 @@
           <div class="mh-drop mh-drop-wide">
             <div class="mhd-group-label">To PDF</div>
             <a href="{% url 'word_to_pdf_page' %}" class="mh-drop-item {% block active_word2pdf %}{% endblock %}">
-              <span class="mhd-icon" style="background:#dbeafe;color:#2563eb"><i class="fa-solid fa-file-word"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-file-word"></i></span>
               <span class="mhd-text"><strong>Word to PDF</strong></span>
             </a>
             <a href="{% url 'pptx_to_pdf_page' %}" class="mh-drop-item {% block active_pptx2pdf %}{% endblock %}">
-              <span class="mhd-icon" style="background:#dbeafe;color:#2563eb"><i class="fa-solid fa-file-powerpoint"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-file-powerpoint"></i></span>
               <span class="mhd-text"><strong>PowerPoint to PDF</strong></span>
             </a>
             <a href="{% url 'excel_to_pdf_page' %}" class="mh-drop-item {% block active_excel2pdf %}{% endblock %}">
-              <span class="mhd-icon" style="background:#dbeafe;color:#2563eb"><i class="fa-solid fa-file-excel"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-file-excel"></i></span>
               <span class="mhd-text"><strong>Excel to PDF</strong></span>
             </a>
             <a href="{% url 'html_to_pdf_page' %}" class="mh-drop-item {% block active_html2pdf %}{% endblock %}">
-              <span class="mhd-icon" style="background:#dbeafe;color:#2563eb"><i class="fa-brands fa-html5"></i></span>
+              <span class="mhd-icon"><i class="fa-brands fa-html5"></i></span>
               <span class="mhd-text"><strong>HTML to PDF</strong></span>
             </a>
             <div class="mhd-divider"></div>
             <div class="mhd-group-label">From PDF</div>
             <a href="{% url 'pdf_to_jpg_page' %}" class="mh-drop-item {% block active_pdf2jpg %}{% endblock %}">
-              <span class="mhd-icon" style="background:#ccfbf1;color:#0d9488"><i class="fa-solid fa-images"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-images"></i></span>
               <span class="mhd-text"><strong>PDF to JPG</strong></span>
             </a>
             <a href="{% url 'pdf_to_word_page' %}" class="mh-drop-item {% block active_pdf2word %}{% endblock %}">
-              <span class="mhd-icon" style="background:#ccfbf1;color:#0d9488"><i class="fa-solid fa-file-word"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-file-word"></i></span>
               <span class="mhd-text"><strong>PDF to Word</strong></span>
             </a>
             <a href="{% url 'pdf_to_pptx_page' %}" class="mh-drop-item {% block active_pdf2pptx %}{% endblock %}">
-              <span class="mhd-icon" style="background:#ccfbf1;color:#0d9488"><i class="fa-solid fa-file-powerpoint"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-file-powerpoint"></i></span>
               <span class="mhd-text"><strong>PDF to PowerPoint</strong></span>
             </a>
             <a href="{% url 'pdf_to_excel_page' %}" class="mh-drop-item {% block active_pdf2excel %}{% endblock %}">
-              <span class="mhd-icon" style="background:#ccfbf1;color:#0d9488"><i class="fa-solid fa-file-excel"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-file-excel"></i></span>
               <span class="mhd-text"><strong>PDF to Excel</strong></span>
             </a>
           </div>
@@ -134,23 +128,23 @@
           <span class="mh-link">Edit PDF <i class="fa-solid fa-chevron-down mh-caret"></i></span>
           <div class="mh-drop">
             <a href="{% url 'rotate_pdf_page' %}" class="mh-drop-item {% block active_rotate %}{% endblock %}">
-              <span class="mhd-icon" style="background:#fef3c7;color:#d97706"><i class="fa-solid fa-rotate-right"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-rotate-right"></i></span>
               <span class="mhd-text"><strong>Rotate PDF</strong><em>Rotate pages any angle</em></span>
             </a>
             <a href="{% url 'page_numbers_page' %}" class="mh-drop-item {% block active_pagenum %}{% endblock %}">
-              <span class="mhd-icon" style="background:#fef3c7;color:#d97706"><i class="fa-solid fa-list-ol"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-list-ol"></i></span>
               <span class="mhd-text"><strong>Add Page Numbers</strong><em>Number your pages</em></span>
             </a>
             <a href="{% url 'watermark_pdf_page' %}" class="mh-drop-item {% block active_watermark %}{% endblock %}">
-              <span class="mhd-icon" style="background:#fef3c7;color:#d97706"><i class="fa-solid fa-droplet"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-droplet"></i></span>
               <span class="mhd-text"><strong>Add Watermark</strong><em>Brand your documents</em></span>
             </a>
             <a href="{% url 'sign_pdf_page' %}" class="mh-drop-item {% block active_sign %}{% endblock %}">
-              <span class="mhd-icon" style="background:#fef3c7;color:#d97706"><i class="fa-solid fa-signature"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-signature"></i></span>
               <span class="mhd-text"><strong>Sign PDF</strong><em>Add your signature</em></span>
             </a>
             <a href="{% url 'crop_pdf_page' %}" class="mh-drop-item {% block active_crop %}{% endblock %}">
-              <span class="mhd-icon" style="background:#fef3c7;color:#d97706"><i class="fa-solid fa-crop-simple"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-crop-simple"></i></span>
               <span class="mhd-text"><strong>Crop PDF</strong><em>Trim page margins</em></span>
             </a>
           </div>
@@ -161,15 +155,15 @@
           <span class="mh-link">PDF Security <i class="fa-solid fa-chevron-down mh-caret"></i></span>
           <div class="mh-drop">
             <a href="{% url 'protect_pdf_page' %}" class="mh-drop-item {% block active_protect %}{% endblock %}">
-              <span class="mhd-icon" style="background:#fee2e2;color:#dc2626"><i class="fa-solid fa-lock"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-lock"></i></span>
               <span class="mhd-text"><strong>Protect PDF</strong><em>AES-256 encryption</em></span>
             </a>
             <a href="{% url 'unlock_pdf_page' %}" class="mh-drop-item {% block active_unlock %}{% endblock %}">
-              <span class="mhd-icon" style="background:#fee2e2;color:#dc2626"><i class="fa-solid fa-lock-open"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-lock-open"></i></span>
               <span class="mhd-text"><strong>Unlock PDF</strong><em>Remove password</em></span>
             </a>
             <a href="{% url 'redact_pdf_page' %}" class="mh-drop-item {% block active_redact %}{% endblock %}">
-              <span class="mhd-icon" style="background:#fee2e2;color:#dc2626"><i class="fa-solid fa-eraser"></i></span>
+              <span class="mhd-icon"><i class="fa-solid fa-eraser"></i></span>
               <span class="mhd-text"><strong>Redact PDF</strong><em>Black-out sensitive text</em></span>
             </a>
           </div>
@@ -181,51 +175,51 @@
           <div class="mh-drop mh-drop-mega">
             <div class="mhd-mega-grid">
               <a href="{% url 'img_compress_page' %}" class="mh-drop-item {% block active_img_compress %}{% endblock %}">
-                <span class="mhd-icon" style="background:#dcfce7;color:#16a34a"><i class="fa-solid fa-compress-arrows-alt"></i></span>
+                <span class="mhd-icon" ><i class="fa-solid fa-compress-arrows-alt"></i></span>
                 <span class="mhd-text"><strong>Compress</strong></span>
               </a>
               <a href="{% url 'img_upscale_page' %}" class="mh-drop-item {% block active_img_upscale %}{% endblock %}">
-                <span class="mhd-icon" style="background:#dcfce7;color:#16a34a"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                <span class="mhd-icon" ><i class="fa-solid fa-magnifying-glass-plus"></i></span>
                 <span class="mhd-text"><strong>Upscale</strong></span>
               </a>
               <a href="{% url 'img_remove_bg_page' %}" class="mh-drop-item {% block active_img_remove_bg %}{% endblock %}">
-                <span class="mhd-icon" style="background:#dcfce7;color:#16a34a"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                <span class="mhd-icon" ><i class="fa-solid fa-wand-magic-sparkles"></i></span>
                 <span class="mhd-text"><strong>Remove BG</strong></span>
               </a>
               <a href="{% url 'img_meme_page' %}" class="mh-drop-item {% block active_img_meme %}{% endblock %}">
-                <span class="mhd-icon" style="background:#dcfce7;color:#16a34a"><i class="fa-solid fa-face-laugh-squint"></i></span>
+                <span class="mhd-icon" ><i class="fa-solid fa-face-laugh-squint"></i></span>
                 <span class="mhd-text"><strong>Meme Generator</strong></span>
               </a>
               <a href="{% url 'img_resize_page' %}" class="mh-drop-item {% block active_img_resize %}{% endblock %}">
-                <span class="mhd-icon" style="background:#dcfce7;color:#16a34a"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></span>
+                <span class="mhd-icon" ><i class="fa-solid fa-up-right-and-down-left-from-center"></i></span>
                 <span class="mhd-text"><strong>Resize</strong></span>
               </a>
               <a href="{% url 'img_crop_page' %}" class="mh-drop-item {% block active_img_crop %}{% endblock %}">
-                <span class="mhd-icon" style="background:#dcfce7;color:#16a34a"><i class="fa-solid fa-crop-simple"></i></span>
+                <span class="mhd-icon" ><i class="fa-solid fa-crop-simple"></i></span>
                 <span class="mhd-text"><strong>Crop</strong></span>
               </a>
               <a href="{% url 'img_rotate_page' %}" class="mh-drop-item {% block active_img_rotate %}{% endblock %}">
-                <span class="mhd-icon" style="background:#dcfce7;color:#16a34a"><i class="fa-solid fa-rotate-right"></i></span>
+                <span class="mhd-icon" ><i class="fa-solid fa-rotate-right"></i></span>
                 <span class="mhd-text"><strong>Rotate</strong></span>
               </a>
               <a href="{% url 'img_to_jpg_page' %}" class="mh-drop-item {% block active_img_to_jpg %}{% endblock %}">
-                <span class="mhd-icon" style="background:#dcfce7;color:#16a34a"><i class="fa-solid fa-file-image"></i></span>
+                <span class="mhd-icon" ><i class="fa-solid fa-file-image"></i></span>
                 <span class="mhd-text"><strong>To JPG</strong></span>
               </a>
               <a href="{% url 'img_from_jpg_page' %}" class="mh-drop-item {% block active_img_from_jpg %}{% endblock %}">
-                <span class="mhd-icon" style="background:#dcfce7;color:#16a34a"><i class="fa-solid fa-images"></i></span>
+                <span class="mhd-icon" ><i class="fa-solid fa-images"></i></span>
                 <span class="mhd-text"><strong>From JPG</strong></span>
               </a>
               <a href="{% url 'img_watermark_page' %}" class="mh-drop-item {% block active_img_watermark %}{% endblock %}">
-                <span class="mhd-icon" style="background:#dcfce7;color:#16a34a"><i class="fa-solid fa-stamp"></i></span>
+                <span class="mhd-icon" ><i class="fa-solid fa-stamp"></i></span>
                 <span class="mhd-text"><strong>Watermark</strong></span>
               </a>
               <a href="{% url 'img_blur_face_page' %}" class="mh-drop-item {% block active_img_blur_face %}{% endblock %}">
-                <span class="mhd-icon" style="background:#dcfce7;color:#16a34a"><i class="fa-solid fa-user-secret"></i></span>
+                <span class="mhd-icon" ><i class="fa-solid fa-user-secret"></i></span>
                 <span class="mhd-text"><strong>Blur Face</strong></span>
               </a>
               <a href="{% url 'img_ocr_page' %}" class="mh-drop-item {% block active_img_ocr %}{% endblock %}">
-                <span class="mhd-icon" style="background:#e0f2fe;color:#0369a1"><i class="fa-solid fa-font"></i></span>
+                <span class="mhd-icon"><i class="fa-solid fa-font"></i></span>
                 <span class="mhd-text"><strong>Image to Text</strong></span>
               </a>
             </div>
@@ -244,9 +238,6 @@
         <span class="mh-local-badge">
           <i class="fa-solid fa-shield-halved"></i> 100% Local
         </span>
-        <button class="mh-dark-toggle" id="darkToggle" title="Toggle dark mode">
-          <i class="fa-solid fa-moon" id="darkIcon"></i>
-        </button>
         <!-- Mobile hamburger -->
         <button class="mh-hamburger" id="mhHamburger" aria-label="Menu">
           <i class="fa-solid fa-bars"></i>
@@ -278,21 +269,6 @@
 
   <script src="{% static 'js/main.js' %}"></script>
   <script>
-  // Dark mode toggle
-  (function(){
-    var btn=document.getElementById('darkToggle'), icon=document.getElementById('darkIcon');
-    function applyTheme(t){
-      document.documentElement.setAttribute('data-theme',t);
-      localStorage.setItem('theme',t);
-      icon.className='fa-solid fa-'+(t==='dark'?'sun':'moon');
-    }
-    applyTheme(localStorage.getItem('theme')||'dark');
-    btn.addEventListener('click',function(){
-      var cur=document.documentElement.getAttribute('data-theme');
-      applyTheme(cur==='dark'?'light':'dark');
-    });
-  })();
-
   // Mobile nav hamburger
   var ham=document.getElementById('mhHamburger'), nav=document.getElementById('mhNav');
   if(ham) ham.addEventListener('click',function(){nav.classList.toggle('mobile-open');});
