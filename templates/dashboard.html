@@ -1,25 +1,29 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 {% block title %}Dashboard — ZayroDocX{% endblock %}
 {% block breadcrumb %}<span class="current">Dashboard</span>{% endblock %}
 
 {% block extra_head %}
 <style>
+/* ══════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════ */
+
 /* ── Hero ── */
 .db-hero {
   position: relative; overflow: hidden;
-  background: linear-gradient(135deg, #991b1b 0%, #dc2626 60%, #ef4444 100%);
-  border-radius: 20px; padding: 2.8rem 2.5rem; margin-bottom: 2rem;
-  box-shadow: 0 4px 24px rgba(220,38,38,.25);
+  background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 40%, #dc2626 75%, #ef4444 100%);
+  border-radius: 20px; padding: 3rem 2.8rem; margin-bottom: 1.75rem;
+  box-shadow: 0 8px 32px rgba(220,38,38,.3);
 }
 .db-hero::before {
   content: ''; position: absolute; top: -80px; right: -60px;
-  width: 320px; height: 320px; border-radius: 50%;
+  width: 360px; height: 360px; border-radius: 50%;
   background: rgba(255,255,255,.07); pointer-events: none;
 }
 .db-hero::after {
-  content: ''; position: absolute; bottom: -70px; left: 15%;
-  width: 240px; height: 240px; border-radius: 50%;
+  content: ''; position: absolute; bottom: -60px; left: 10%;
+  width: 220px; height: 220px; border-radius: 50%;
   background: rgba(255,255,255,.04); pointer-events: none;
 }
 .db-hero-inner {
@@ -27,43 +31,94 @@
   display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem;
 }
 .db-hero-left { flex: 1; min-width: 260px; }
+.db-hero-eyebrow {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+  border-radius: 999px; padding: .28rem .9rem; font-size: .72rem; font-weight: 700;
+  color: #fff; letter-spacing: .04em; text-transform: uppercase; margin-bottom: .9rem;
+}
 .db-hero-left h1 {
-  font-size: 2.6rem; font-weight: 900; letter-spacing: -.05em; margin-bottom: .6rem; line-height: 1;
+  font-size: 2.8rem; font-weight: 900; letter-spacing: -.04em; margin-bottom: .6rem; line-height: 1.05;
   color: #ffffff;
 }
+.db-hero-left h1 span { color: #fecaca; }
 .db-hero-left p {
-  color: rgba(255,255,255,.8); font-size: .88rem; max-width: 480px;
-  margin-bottom: 1.4rem; line-height: 1.7;
+  color: rgba(255,255,255,.8); font-size: .92rem; max-width: 480px;
+  margin-bottom: 1.6rem; line-height: 1.7;
 }
 .db-badges { display: flex; flex-wrap: wrap; gap: .45rem; }
 .db-badge {
   display: inline-flex; align-items: center; gap: .38rem;
   background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
-  border-radius: 999px; padding: .32rem .85rem; font-size: .73rem; font-weight: 600;
-  color: #ffffff;
+  border-radius: 999px; padding: .32rem .85rem; font-size: .73rem; font-weight: 600; color: #fff;
 }
 .db-badge i { font-size: .65rem; }
 
-/* ── Section heading ── */
-.db-section-head {
+/* Hero right stats */
+.db-hero-right {
+  display: flex; gap: 1rem; flex-shrink: 0; flex-wrap: wrap; justify-content: center;
+}
+.db-stat-pill {
+  background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.18);
+  border-radius: 16px; padding: 1.2rem 1.6rem; text-align: center; min-width: 100px;
+}
+.db-stat-pill .n {
+  font-size: 2.2rem; font-weight: 900; color: #fff; line-height: 1;
+  display: block; margin-bottom: .2rem;
+}
+.db-stat-pill .l { font-size: .65rem; color: rgba(255,255,255,.65); text-transform: uppercase; letter-spacing: .08em; }
+
+/* ── Stats row ── */
+.db-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1rem; margin-bottom: 1.75rem;
+}
+.db-stat-card {
+  background: #fff; border: 1px solid #e8e8e8; border-radius: 14px;
+  padding: 1.2rem 1.4rem; display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06); transition: transform .2s, box-shadow .2s;
+  position: relative; overflow: hidden;
+}
+.db-stat-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #991b1b, #dc2626);
+}
+.db-stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(220,38,38,.1); }
+.db-stat-icon {
+  width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; background: #fee2e2; color: #dc2626;
+}
+.db-stat-body {}
+.db-stat-val { font-size: 1.8rem; font-weight: 900; color: #111; line-height: 1; margin-bottom: .15rem; }
+.db-stat-lbl { font-size: .72rem; color: #888; font-weight: 500; }
+.db-stat-sub { font-size: .68rem; color: #dc2626; font-weight: 600; margin-top: .1rem; }
+
+/* ── Section head ── */
+.db-sec {
   display: flex; align-items: center; gap: .6rem;
   font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-  color: #888888; margin: 0 0 1rem; padding-bottom: .55rem;
+  color: #888; margin: 0 0 1rem; padding-bottom: .55rem;
   border-bottom: 1px solid #e8e8e8;
 }
-.db-section-head .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: #dc2626; }
-.db-section-head .count {
+.db-sec .dot { width: 7px; height: 7px; border-radius: 50%; background: #dc2626; flex-shrink: 0; }
+.db-sec .count {
   margin-left: auto; background: #f0f0f0; border: 1px solid #e8e8e8;
-  border-radius: 999px; padding: .1rem .55rem; font-size: .65rem; color: #888888;
+  border-radius: 999px; padding: .1rem .55rem; font-size: .65rem; color: #888;
 }
+.db-sec-action {
+  margin-left: auto; font-size: .72rem; font-weight: 600; color: #dc2626;
+  text-decoration: none; display: flex; align-items: center; gap: .3rem;
+}
+.db-sec-action:hover { text-decoration: underline; }
 
-/* ── Quick Access grid ── */
+/* ── Quick Access ── */
 .qa-grid {
   display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 1rem; margin-bottom: 2rem;
+  gap: .85rem; margin-bottom: 2rem;
 }
 .qa-card {
-  background: #ffffff; border: 1px solid #e8e8e8; border-radius: 16px;
+  background: #fff; border: 1px solid #e8e8e8; border-radius: 16px;
   padding: 1.5rem 1rem 1.3rem; text-align: center; text-decoration: none;
   transition: transform .2s, border-color .2s, box-shadow .2s;
   display: flex; flex-direction: column; align-items: center; gap: .75rem;
@@ -73,47 +128,186 @@
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
   background: #dc2626; opacity: 0; transition: opacity .2s;
 }
-.qa-card:hover { transform: translateY(-4px); border-color: #fca5a5; box-shadow: 0 12px 32px rgba(220,38,38,.12); text-decoration: none; }
+.qa-card:hover { transform: translateY(-4px); border-color: #fca5a5; box-shadow: 0 8px 24px rgba(220,38,38,.12); text-decoration: none; }
 .qa-card:hover::before { opacity: 1; }
 .qa-icon {
   width: 52px; height: 52px; border-radius: 14px;
-  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
   background: #fee2e2; color: #dc2626; transition: transform .2s;
 }
 .qa-card:hover .qa-icon { transform: scale(1.1) rotate(-4deg); }
-.qa-lbl { font-size: .78rem; font-weight: 700; color: #111111; line-height: 1.3; }
+.qa-lbl { font-size: .78rem; font-weight: 700; color: #111; line-height: 1.3; }
 
-@media (max-width: 600px) {
+/* ── All Tools grid ── */
+.db-tools-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: .75rem; margin-bottom: 2rem;
+}
+.db-tool-card {
+  background: #fff; border: 1px solid #e8e8e8; border-radius: 12px;
+  padding: .85rem 1rem; display: flex; align-items: center; gap: .75rem;
+  text-decoration: none; transition: all .2s; position: relative; overflow: hidden;
+}
+.db-tool-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: #dc2626; opacity: 0; transition: opacity .2s;
+}
+.db-tool-card:hover { border-color: #fca5a5; box-shadow: 0 4px 16px rgba(220,38,38,.1); transform: translateY(-1px); text-decoration: none; }
+.db-tool-card:hover::before { opacity: 1; }
+.db-tool-icon {
+  width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: .85rem;
+  background: #fee2e2; color: #dc2626;
+}
+.db-tool-name { font-size: .78rem; font-weight: 600; color: #111; line-height: 1.3; }
+.db-tool-tag {
+  margin-left: auto; font-size: .52rem; font-weight: 700; letter-spacing: .04em;
+  background: #dc2626; color: #fff; padding: 1px 4px; border-radius: 3px; flex-shrink: 0;
+}
+
+/* ── Two column layout ── */
+.db-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 2rem; }
+
+/* ── Recent jobs ── */
+.db-jobs-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.db-jobs-table th {
+  background: #f7f7f7; padding: .55rem .85rem; text-align: left;
+  font-weight: 700; border-bottom: 1px solid #e8e8e8;
+  color: #888; font-size: .68rem; text-transform: uppercase; letter-spacing: .05em;
+}
+.db-jobs-table td { padding: .6rem .85rem; border-bottom: 1px solid #f0f0f0; color: #333; }
+.db-jobs-table tr:last-child td { border-bottom: none; }
+.db-jobs-table tr:hover td { background: #fff5f5; }
+.db-job-tool {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: #fee2e2; color: #dc2626; border-radius: 6px;
+  padding: .18rem .55rem; font-size: .72rem; font-weight: 600;
+}
+.db-job-ok   { color: #16a34a; font-weight: 600; font-size: .72rem; }
+.db-job-fail { color: #dc2626; font-weight: 600; font-size: .72rem; }
+
+/* ── Feature cards ── */
+.db-features { display: flex; flex-direction: column; gap: .75rem; }
+.db-feat {
+  display: flex; align-items: flex-start; gap: .85rem;
+  background: #fff; border: 1px solid #e8e8e8; border-radius: 12px;
+  padding: 1rem 1.1rem; transition: border-color .2s, box-shadow .2s;
+}
+.db-feat:hover { border-color: #fca5a5; box-shadow: 0 2px 12px rgba(220,38,38,.08); }
+.db-feat-icon {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: .88rem;
+  background: #fee2e2; color: #dc2626;
+}
+.db-feat-title { font-size: .82rem; font-weight: 700; color: #111; margin-bottom: .15rem; }
+.db-feat-desc  { font-size: .72rem; color: #888; line-height: 1.55; }
+
+/* ── Card wrapper ── */
+.db-card {
+  background: #fff; border: 1px solid #e8e8e8; border-radius: 14px;
+  overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+.db-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .85rem 1.1rem; border-bottom: 1px solid #e8e8e8;
+  font-size: .78rem; font-weight: 700; color: #111;
+}
+.db-card-head i { color: #dc2626; margin-right: .4rem; }
+.db-card-body { padding: .5rem 0; }
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .db-stats { grid-template-columns: repeat(2, 1fr); }
+  .db-two-col { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
   .qa-grid { grid-template-columns: repeat(2, 1fr); }
-  .db-hero-left h1 { font-size: 1.8rem; }
+  .db-stats { grid-template-columns: repeat(2, 1fr); }
+  .db-hero-left h1 { font-size: 2rem; }
+  .db-hero-right { display: none; }
+  .db-hero { padding: 2rem 1.5rem; }
+}
+@media (max-width: 480px) {
+  .qa-grid { grid-template-columns: repeat(2, 1fr); }
+  .db-stats { grid-template-columns: 1fr 1fr; }
+  .db-tools-grid { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
 {% endblock extra_head %}
 
 {% block content %}
 
-<!-- ── Hero ── -->
+<!-- ══ HERO ══ -->
 <div class="db-hero">
   <div class="db-hero-inner">
     <div class="db-hero-left">
-      <h1>ZayroDocX</h1>
-      <p>Professional PDF tools — all files processed locally on your server. Nothing ever leaves your infrastructure.</p>
+      <div class="db-hero-eyebrow"><i class="fa-solid fa-shield-halved"></i> 100% Local &amp; Private</div>
+      <h1>ZayroDocX<span>.</span></h1>
+      <p>Professional PDF &amp; image toolkit — all processing happens on your server. Your files never leave your infrastructure.</p>
       <div class="db-badges">
-        <span class="db-badge"><i class="fa-solid fa-lock"></i> 100% Private</span>
-        <span class="db-badge"><i class="fa-solid fa-server"></i> Local Processing</span>
-        <span class="db-badge"><i class="fa-solid fa-shield-halved"></i> No Cloud Upload</span>
+        <span class="db-badge"><i class="fa-solid fa-lock"></i> No Cloud Upload</span>
         <span class="db-badge"><i class="fa-solid fa-eye"></i> OCR Support</span>
+        <span class="db-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Powered</span>
         <span class="db-badge"><i class="fa-solid fa-file-invoice-dollar"></i> Invoice Extraction</span>
+        <span class="db-badge"><i class="fa-solid fa-language"></i> 20 Languages</span>
+      </div>
+    </div>
+    <div class="db-hero-right">
+      <div class="db-stat-pill">
+        <span class="n">38</span>
+        <div class="l">Total Tools</div>
+      </div>
+      <div class="db-stat-pill">
+        <span class="n">{{ stats.total_jobs|default:"0" }}</span>
+        <div class="l">Jobs Done</div>
+      </div>
+      <div class="db-stat-pill">
+        <span class="n">AES</span>
+        <div class="l">256-bit</div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- ══ STATS ROW ══ -->
+<div class="db-stats">
+  <div class="db-stat-card">
+    <div class="db-stat-icon"><i class="fa-solid fa-file-pdf"></i></div>
+    <div class="db-stat-body">
+      <div class="db-stat-val">{{ stats.total_jobs|default:"0" }}</div>
+      <div class="db-stat-lbl">Files Processed</div>
+      <div class="db-stat-sub"><i class="fa-solid fa-circle" style="font-size:.5rem"></i> Live</div>
+    </div>
+  </div>
+  <div class="db-stat-card">
+    <div class="db-stat-icon"><i class="fa-solid fa-toolbox"></i></div>
+    <div class="db-stat-body">
+      <div class="db-stat-val">26</div>
+      <div class="db-stat-lbl">PDF Tools</div>
+      <div class="db-stat-sub">All free</div>
+    </div>
+  </div>
+  <div class="db-stat-card">
+    <div class="db-stat-icon"><i class="fa-solid fa-image"></i></div>
+    <div class="db-stat-body">
+      <div class="db-stat-val">12</div>
+      <div class="db-stat-lbl">Image Tools</div>
+      <div class="db-stat-sub">All free</div>
+    </div>
+  </div>
+  <div class="db-stat-card">
+    <div class="db-stat-icon"><i class="fa-solid fa-brain"></i></div>
+    <div class="db-stat-body">
+      <div class="db-stat-val">5</div>
+      <div class="db-stat-lbl">AI Tools</div>
+      <div class="db-stat-sub">Mistral · OpenAI</div>
+    </div>
+  </div>
+</div>
 
-<!-- ── Quick Access ── -->
-<div class="db-section-head">
-  <span class="dot" style="background:var(--brand)"></span>
-  Quick Access
+<!-- ══ QUICK ACCESS ══ -->
+<div class="db-sec">
+  <span class="dot"></span> Quick Access
   <span class="count">8</span>
 </div>
 <div class="qa-grid">
@@ -138,7 +332,7 @@
     <div class="qa-lbl">PDF to Word</div>
   </a>
   <a href="{% url 'word_to_pdf_page' %}" class="qa-card">
-    <div class="qa-icon"><i class="fa-solid fa-file-word"></i></div>
+    <div class="qa-icon"><i class="fa-solid fa-file-pdf"></i></div>
     <div class="qa-lbl">Word to PDF</div>
   </a>
   <a href="{% url 'sign_pdf_page' %}" class="qa-card">
@@ -151,7 +345,294 @@
   </a>
 </div>
 
+<!-- ══ ALL PDF TOOLS ══ -->
+<div class="db-sec">
+  <span class="dot"></span> Organize PDF
+  <span class="count">5</span>
+</div>
+<div class="db-tools-grid" style="margin-bottom:1.25rem">
+  <a href="{% url 'merge_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-object-group"></i></div>
+    <div class="db-tool-name">Merge PDF</div>
+  </a>
+  <a href="{% url 'split_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-scissors"></i></div>
+    <div class="db-tool-name">Split PDF</div>
+  </a>
+  <a href="{% url 'remove_pages_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-trash-can"></i></div>
+    <div class="db-tool-name">Remove Pages</div>
+  </a>
+  <a href="{% url 'extract_pages_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-file-export"></i></div>
+    <div class="db-tool-name">Extract Pages</div>
+  </a>
+  <a href="{% url 'scan_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-camera"></i></div>
+    <div class="db-tool-name">Scan to PDF</div>
+  </a>
+</div>
 
+<div class="db-sec">
+  <span class="dot"></span> Optimize &amp; AI
+  <span class="count">5</span>
+</div>
+<div class="db-tools-grid" style="margin-bottom:1.25rem">
+  <a href="{% url 'compress_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-compress"></i></div>
+    <div class="db-tool-name">Compress PDF</div>
+  </a>
+  <a href="{% url 'ocr_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-eye"></i></div>
+    <div class="db-tool-name">OCR PDF</div>
+    <span class="db-tool-tag">AI</span>
+  </a>
+  <a href="{% url 'invoice_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+    <div class="db-tool-name">Invoice Extractor</div>
+    <span class="db-tool-tag">AI</span>
+  </a>
+  <a href="{% url 'ai_summarizer_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+    <div class="db-tool-name">AI Summarizer</div>
+    <span class="db-tool-tag">AI</span>
+  </a>
+  <a href="{% url 'translate_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-language"></i></div>
+    <div class="db-tool-name">Translate PDF</div>
+    <span class="db-tool-tag">AI</span>
+  </a>
+</div>
 
+<div class="db-sec">
+  <span class="dot"></span> Convert PDF
+  <span class="count">8</span>
+</div>
+<div class="db-tools-grid" style="margin-bottom:1.25rem">
+  <a href="{% url 'word_to_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-file-word"></i></div>
+    <div class="db-tool-name">Word to PDF</div>
+  </a>
+  <a href="{% url 'pptx_to_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-file-powerpoint"></i></div>
+    <div class="db-tool-name">PowerPoint to PDF</div>
+  </a>
+  <a href="{% url 'excel_to_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-file-excel"></i></div>
+    <div class="db-tool-name">Excel to PDF</div>
+  </a>
+  <a href="{% url 'html_to_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-brands fa-html5"></i></div>
+    <div class="db-tool-name">HTML to PDF</div>
+  </a>
+  <a href="{% url 'pdf_to_jpg_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-images"></i></div>
+    <div class="db-tool-name">PDF to JPG</div>
+  </a>
+  <a href="{% url 'pdf_to_word_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-file-word"></i></div>
+    <div class="db-tool-name">PDF to Word</div>
+  </a>
+  <a href="{% url 'pdf_to_pptx_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-file-powerpoint"></i></div>
+    <div class="db-tool-name">PDF to PowerPoint</div>
+  </a>
+  <a href="{% url 'pdf_to_excel_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-file-excel"></i></div>
+    <div class="db-tool-name">PDF to Excel</div>
+  </a>
+</div>
+
+<div class="db-sec">
+  <span class="dot"></span> Edit PDF
+  <span class="count">5</span>
+</div>
+<div class="db-tools-grid" style="margin-bottom:1.25rem">
+  <a href="{% url 'rotate_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-rotate-right"></i></div>
+    <div class="db-tool-name">Rotate PDF</div>
+  </a>
+  <a href="{% url 'page_numbers_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-list-ol"></i></div>
+    <div class="db-tool-name">Add Page Numbers</div>
+  </a>
+  <a href="{% url 'watermark_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-droplet"></i></div>
+    <div class="db-tool-name">Add Watermark</div>
+  </a>
+  <a href="{% url 'sign_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-signature"></i></div>
+    <div class="db-tool-name">Sign PDF</div>
+  </a>
+  <a href="{% url 'crop_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-crop-simple"></i></div>
+    <div class="db-tool-name">Crop PDF</div>
+  </a>
+</div>
+
+<div class="db-sec">
+  <span class="dot"></span> PDF Security
+  <span class="count">3</span>
+</div>
+<div class="db-tools-grid" style="margin-bottom:1.25rem">
+  <a href="{% url 'protect_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-lock"></i></div>
+    <div class="db-tool-name">Protect PDF</div>
+  </a>
+  <a href="{% url 'unlock_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-lock-open"></i></div>
+    <div class="db-tool-name">Unlock PDF</div>
+  </a>
+  <a href="{% url 'redact_pdf_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-eraser"></i></div>
+    <div class="db-tool-name">Redact PDF</div>
+  </a>
+</div>
+
+<div class="db-sec">
+  <span class="dot"></span> Image Tools
+  <span class="count">12</span>
+</div>
+<div class="db-tools-grid" style="margin-bottom:2rem">
+  <a href="{% url 'img_compress_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-compress-arrows-alt"></i></div>
+    <div class="db-tool-name">Compress Image</div>
+  </a>
+  <a href="{% url 'img_resize_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></div>
+    <div class="db-tool-name">Resize Image</div>
+  </a>
+  <a href="{% url 'img_crop_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-crop-simple"></i></div>
+    <div class="db-tool-name">Crop Image</div>
+  </a>
+  <a href="{% url 'img_rotate_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-rotate-right"></i></div>
+    <div class="db-tool-name">Rotate Image</div>
+  </a>
+  <a href="{% url 'img_to_jpg_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-file-image"></i></div>
+    <div class="db-tool-name">Convert to JPG</div>
+  </a>
+  <a href="{% url 'img_from_jpg_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-images"></i></div>
+    <div class="db-tool-name">Convert from JPG</div>
+  </a>
+  <a href="{% url 'img_watermark_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-stamp"></i></div>
+    <div class="db-tool-name">Watermark Image</div>
+  </a>
+  <a href="{% url 'img_meme_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-face-laugh-squint"></i></div>
+    <div class="db-tool-name">Meme Generator</div>
+  </a>
+  <a href="{% url 'img_upscale_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></div>
+    <div class="db-tool-name">Upscale Image</div>
+  </a>
+  <a href="{% url 'img_remove_bg_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+    <div class="db-tool-name">Remove Background</div>
+  </a>
+  <a href="{% url 'img_blur_face_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-user-secret"></i></div>
+    <div class="db-tool-name">Blur Face</div>
+  </a>
+  <a href="{% url 'img_ocr_page' %}" class="db-tool-card">
+    <div class="db-tool-icon"><i class="fa-solid fa-font"></i></div>
+    <div class="db-tool-name">Image to Text</div>
+    <span class="db-tool-tag">AI</span>
+  </a>
+</div>
+
+<!-- ══ TWO-COL: Recent Jobs + Features ══ -->
+<div class="db-two-col">
+
+  <!-- Recent Jobs -->
+  <div class="db-card">
+    <div class="db-card-head">
+      <span><i class="fa-solid fa-clock-rotate-left"></i> Recent Jobs</span>
+      <span style="font-size:.7rem;color:#888;font-weight:400">Last 10 operations</span>
+    </div>
+    <div class="db-card-body">
+      {% if recent_jobs %}
+      <table class="db-jobs-table">
+        <thead>
+          <tr>
+            <th>Tool</th>
+            <th>Status</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for job in recent_jobs %}
+          <tr>
+            <td><span class="db-job-tool"><i class="fa-solid fa-file-pdf"></i> {{ job.tool|default:"—" }}</span></td>
+            <td>
+              {% if job.status == 'ok' or job.status == 'success' %}
+                <span class="db-job-ok"><i class="fa-solid fa-check"></i> Done</span>
+              {% else %}
+                <span class="db-job-fail"><i class="fa-solid fa-xmark"></i> Failed</span>
+              {% endif %}
+            </td>
+            <td style="color:#888;font-size:.75rem">{{ job.created_at|default:"—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div style="text-align:center;padding:2rem 1rem;color:#bbb;">
+        <i class="fa-solid fa-inbox" style="font-size:2rem;display:block;margin-bottom:.5rem;color:#fca5a5"></i>
+        No jobs yet — run your first tool above
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Platform Highlights -->
+  <div>
+    <div class="db-sec" style="margin-top:0">
+      <span class="dot"></span> Why ZayroDocX
+    </div>
+    <div class="db-features">
+      <div class="db-feat">
+        <div class="db-feat-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <div>
+          <div class="db-feat-title">100% Private & Local</div>
+          <div class="db-feat-desc">All files are processed on your own server. Nothing is sent to external services — ever.</div>
+        </div>
+      </div>
+      <div class="db-feat">
+        <div class="db-feat-icon"><i class="fa-solid fa-brain"></i></div>
+        <div>
+          <div class="db-feat-title">AI-Powered Tools</div>
+          <div class="db-feat-desc">OCR, invoice extraction, summarization and translation powered by Mistral &amp; OpenAI.</div>
+        </div>
+      </div>
+      <div class="db-feat">
+        <div class="db-feat-icon"><i class="fa-solid fa-lock"></i></div>
+        <div>
+          <div class="db-feat-title">AES-256 Encryption</div>
+          <div class="db-feat-desc">Password-protect your PDFs with industry-standard encryption. Unlock and redact with ease.</div>
+        </div>
+      </div>
+      <div class="db-feat">
+        <div class="db-feat-icon"><i class="fa-solid fa-bolt"></i></div>
+        <div>
+          <div class="db-feat-title">38 Tools, Zero Cost</div>
+          <div class="db-feat-desc">Every PDF and image tool is completely free. No limits, no subscriptions, no watermarks.</div>
+        </div>
+      </div>
+      <div class="db-feat">
+        <div class="db-feat-icon"><i class="fa-solid fa-language"></i></div>
+        <div>
+          <div class="db-feat-title">Translate to 20 Languages</div>
+          <div class="db-feat-desc">Translate full PDF documents while preserving layout, using AI translation.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
 
 {% endblock %}
