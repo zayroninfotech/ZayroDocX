@@ -60,11 +60,7 @@ def split_pdf(request):
             for pp, pn in part_paths:
                 zf.write(pp, pn)
 
-        try:
-            save_job('split_pdf', [f.name], parts)
-        except Exception:
-            logger.exception('split_pdf: MongoDB save_job failed (non-fatal)')
-
+        save_job('split_pdf', [f.name], parts)
         return JsonResponse({'download_url': media_url(zip_name), 'filename': zip_name, 'parts': len(parts)})
     except Exception as e:
         logger.exception('split_pdf: processing failed for file=%s', f.name)
