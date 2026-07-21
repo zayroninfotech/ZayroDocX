@@ -60,7 +60,7 @@ body { padding-top: var(--mh-h); }
 
 /* Brand */
 .mh-brand { display: flex; align-items: center; gap: .6rem; text-decoration: none; flex-shrink: 0; }
-.mh-logo { width: 34px; height: 34px; border-radius: 9px; overflow: hidden; flex-shrink: 0; border: 2px solid var(--brand); }
+.mh-logo { width: 44px; height: 44px; border-radius: 10px; overflow: hidden; flex-shrink: 0; }
 .mh-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .mh-name { font-size: 1.05rem; font-weight: 800; color: #111111; letter-spacing: -.02em; white-space: nowrap; }
 .mh-name span { color: var(--brand); }
