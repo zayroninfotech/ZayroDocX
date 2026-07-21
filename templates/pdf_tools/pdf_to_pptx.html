@@ -1,27 +1,65 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block title %}PDF to PowerPoint — ZayroDocX{% endblock %}
 {% block active_pdf2pptx %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">PDF to PowerPoint</span>{% endblock %}
+
 {% block content %}
+<div class="cv-hero">
+  <div class="cv-hero-left">
+    <div class="cv-eyebrow"><i class="fa-solid fa-file-powerpoint"></i> From PDF</div>
+    <h2>PDF to PowerPoint</h2>
+    <p>Convert PDF pages to editable PowerPoint slides — each page becomes a slide</p>
+  </div>
+  <div class="cv-hero-pills">
+    <div class="cv-hero-pill"><span class="n">.PDF</span><div class="l">Input</div></div>
+    <div class="cv-hero-pill"><span class="n">.PPTX</span><div class="l">Output</div></div>
+    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
+  </div>
+</div>
+
 <form id="toolForm">{% csrf_token %}
-  <div class="upload-zone"><input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-    <h3>Drop your file here</h3><p>or click to browse</p>
-    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select File</span>
+  <div class="cv-drop" id="cvDrop">
+    <input type="file" id="fileInput" name="file" accept=".pdf">
+    <div class="cv-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+    <h3>Drop your PDF here</h3>
+    <p>Each PDF page will become an editable PowerPoint slide</p>
+    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-folder-open"></i> Select PDF File
+    </button>
+    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; Editable slides &nbsp;·&nbsp; Free</span>
   </div>
-  <div class="file-list" id="fileList"></div>
-  
-  <div class="action-bar">
-    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-file-powerpoint"></i> PDF to PowerPoint</button>
+  <div class="cv-file-bar" id="cvFileBar">
+    <i class="fa-solid fa-file-pdf cv-file-icon" style="color:#dc2626"></i>
+    <span class="cv-file-name" id="cvFileName">—</span>
+    <span class="cv-file-size" id="cvFileSize">—</span>
   </div>
+  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-file-powerpoint"></i> Convert PDF to PowerPoint</button>
 </form>
+
 <div class="progress-wrap">
   <div class="progress-header"><span class="progress-label">Processing…</span></div>
   <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
 </div>
 <div class="result-card"></div>
+
+<div class="cv-info-strip">
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-file-powerpoint"></i></div><div><div class="cv-info-title">PPTX Output</div><div class="cv-info-desc">Editable slides</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-layer-group"></i></div><div><div class="cv-info-title">Per Page</div><div class="cv-info-desc">One slide per page</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast conversion</div></div></div>
+</div>
 {% endblock %}
+
 {% block extra_js %}<script>
-document.getElementById('fileInput').addEventListener('change',function(){renderFileList(this.files,'fileList');});
+(function(){
+  const inp = document.getElementById('fileInput');
+  const drop = document.getElementById('cvDrop');
+  const bar  = document.getElementById('cvFileBar');
+  function setFile(f){ if(!f) return; document.getElementById('cvFileName').textContent=f.name; document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB'; bar.classList.add('show'); const dt=new DataTransfer(); dt.items.add(f); inp.files=dt.files; }
+  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+  inp.addEventListener('change',()=>setFile(inp.files[0]));
+})();
 submitToolForm({formId:'toolForm',apiUrl:'{% url "api_pdf_to_pptx" %}',fileInputId:'fileInput'});
 </script>{% endblock %}

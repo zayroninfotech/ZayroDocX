@@ -1,80 +1,143 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block title %}HTML to PDF — ZayroDocX{% endblock %}
 {% block active_html2pdf %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">HTML to PDF</span>{% endblock %}
+
+{% block extra_head %}
+<style>
+.html-src-panel { background:#fff; border:1.5px solid #fca5a5; border-radius:16px; padding:1.2rem 1.4rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(220,38,38,.06); }
+.html-src-title { font-size:.75rem; font-weight:800; color:#b91c1c; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.85rem; display:flex; align-items:center; gap:.45rem; }
+.html-src-tabs { display:flex; gap:.45rem; margin-bottom:1rem; }
+.html-src-tab { display:inline-flex; align-items:center; gap:.38rem; padding:.42rem .85rem; border:1.5px solid #e8e8e8; border-radius:8px; font-size:.8rem; font-weight:600; cursor:pointer; color:#555; background:#fff; transition:all .15s; }
+.html-src-tab.active { border-color:#dc2626; background:#fff8f8; color:#dc2626; box-shadow:0 0 0 2px rgba(220,38,38,.1); }
+.html-src-tab:hover { border-color:#fca5a5; color:#b91c1c; }
+.html-opts-row { display:flex; gap:.75rem; flex-wrap:wrap; }
+.html-opt-group { flex:1; min-width:140px; }
+.html-opt-label { font-size:.72rem; font-weight:700; color:#b91c1c; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.5rem; }
+.html-opt-tabs { display:flex; gap:.35rem; }
+.html-opt-btn { padding:.38rem .8rem; border:1.5px solid #e8e8e8; border-radius:7px; font-size:.78rem; font-weight:600; cursor:pointer; color:#555; background:#fff; transition:all .15s; }
+.html-opt-btn:has(input:checked) { border-color:#dc2626; background:#fff8f8; color:#dc2626; }
+.html-opt-btn input { display:none; }
+.html-url-input, .html-code-input {
+  width:100%; box-sizing:border-box; border:1.5px solid #fca5a5; border-radius:10px;
+  padding:.7rem 1rem; font-size:.88rem; color:#111; background:#fff;
+  outline:none; transition:border-color .15s;
+}
+.html-url-input:focus, .html-code-input:focus { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.1); }
+.html-code-input { font-family:'Courier New',monospace; font-size:.8rem; resize:vertical; min-height:160px; }
+</style>
+{% endblock %}
+
 {% block content %}
+<div class="cv-hero">
+  <div class="cv-hero-left">
+    <div class="cv-eyebrow"><i class="fa-brands fa-html5"></i> Convert to PDF</div>
+    <h2>HTML to PDF</h2>
+    <p>Convert HTML files, URLs, or pasted code to PDF — full layout support</p>
+  </div>
+  <div class="cv-hero-pills">
+    <div class="cv-hero-pill"><span class="n">File</span><div class="l">Upload</div></div>
+    <div class="cv-hero-pill"><span class="n">URL</span><div class="l">Website</div></div>
+    <div class="cv-hero-pill"><span class="n">Code</span><div class="l">Paste</div></div>
+  </div>
+</div>
+
 <form id="toolForm">{% csrf_token %}
-  <div class="options-panel">
-    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Input Source</div>
-    <div class="form-group">
-      <div class="toggle-group">
-        <label class="toggle-option"><input type="radio" name="source" value="file" checked><span><i class="fa-solid fa-file-code"></i> Upload File</span></label>
-        <label class="toggle-option"><input type="radio" name="source" value="url"><span><i class="fa-solid fa-link"></i> URL</span></label>
-        <label class="toggle-option"><input type="radio" name="source" value="content"><span><i class="fa-solid fa-code"></i> Paste HTML</span></label>
-      </div>
+
+  <!-- Source panel -->
+  <div class="html-src-panel">
+    <div class="html-src-title"><i class="fa-solid fa-sliders"></i> Input Source</div>
+    <div class="html-src-tabs">
+      <div class="html-src-tab active" data-src="file" onclick="switchSrc('file',this)"><i class="fa-solid fa-file-code"></i> Upload File</div>
+      <div class="html-src-tab" data-src="url"  onclick="switchSrc('url',this)"><i class="fa-solid fa-link"></i> URL</div>
+      <div class="html-src-tab" data-src="content" onclick="switchSrc('content',this)"><i class="fa-solid fa-code"></i> Paste HTML</div>
     </div>
 
     <div id="fileSource">
-      <div class="upload-zone"><input type="file" id="fileInput" name="file" accept=".html,.htm">
-        <div class="upload-icon-wrap"><i class="fa-brands fa-html5"></i></div>
-        <h3>Drop HTML file here</h3><p>or click to browse</p>
-        <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select HTML File</span>
+      <div class="cv-drop" id="cvDrop" style="padding:2rem 1.5rem;">
+        <input type="file" id="fileInput" name="file" accept=".html,.htm">
+        <div class="cv-drop-icon"><i class="fa-brands fa-html5"></i></div>
+        <h3>Drop HTML file here</h3>
+        <p>Supports .html and .htm files</p>
+        <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
+          <i class="fa-solid fa-folder-open"></i> Select HTML File
+        </button>
       </div>
-      <div class="file-list" id="fileList"></div>
+      <div class="cv-file-bar" id="cvFileBar" style="margin-top:.5rem;">
+        <i class="fa-brands fa-html5 cv-file-icon" style="color:#e44d26"></i>
+        <span class="cv-file-name" id="cvFileName">—</span>
+        <span class="cv-file-size" id="cvFileSize">—</span>
+      </div>
     </div>
 
     <div id="urlSource" style="display:none">
-      <div class="form-group">
-        <div class="form-label">Website URL</div>
-        <input type="url" name="url" class="form-control" placeholder="https://example.com">
-      </div>
+      <input type="url" name="url" class="html-url-input" placeholder="https://example.com">
     </div>
 
     <div id="contentSource" style="display:none">
-      <div class="form-group">
-        <div class="form-label">HTML Code</div>
-        <textarea name="content" class="form-control" rows="10" placeholder="<html><body><h1>Hello</h1></body></html>" style="font-family:monospace;font-size:.82rem"></textarea>
-      </div>
+      <textarea name="content" class="html-code-input" placeholder="<html><body><h1>Hello</h1></body></html>"></textarea>
     </div>
 
-    <div class="form-group" style="margin-top:16px">
-      <div class="form-label">Page Size</div>
-      <div class="toggle-group">
-        <label class="toggle-option"><input type="radio" name="page_size" value="A4" checked><span>A4</span></label>
-        <label class="toggle-option"><input type="radio" name="page_size" value="Letter"><span>Letter</span></label>
-      </div>
-    </div>
-    <div class="form-group">
-      <div class="form-label">Orientation</div>
-      <div class="toggle-group">
-        <label class="toggle-option"><input type="radio" name="orientation" value="Portrait" checked><span>Portrait</span></label>
-        <label class="toggle-option"><input type="radio" name="orientation" value="Landscape"><span>Landscape</span></label>
+    <div style="margin-top:1rem;">
+      <div class="html-opts-row">
+        <div class="html-opt-group">
+          <div class="html-opt-label">Page Size</div>
+          <div class="html-opt-tabs">
+            <label class="html-opt-btn"><input type="radio" name="page_size" value="A4" checked> A4</label>
+            <label class="html-opt-btn"><input type="radio" name="page_size" value="Letter"> Letter</label>
+          </div>
+        </div>
+        <div class="html-opt-group">
+          <div class="html-opt-label">Orientation</div>
+          <div class="html-opt-tabs">
+            <label class="html-opt-btn"><input type="radio" name="orientation" value="Portrait" checked> Portrait</label>
+            <label class="html-opt-btn"><input type="radio" name="orientation" value="Landscape"> Landscape</label>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="action-bar">
-    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-file-pdf"></i> Convert to PDF</button>
-  </div>
+  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-file-pdf"></i> Convert to PDF</button>
 </form>
+
 <div class="progress-wrap">
   <div class="progress-header"><span class="progress-label">Converting…</span></div>
   <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
 </div>
 <div class="result-card"></div>
+
+<div class="cv-info-strip">
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-link"></i></div><div><div class="cv-info-title">3 Sources</div><div class="cv-info-desc">File, URL or Code</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-ruler-combined"></i></div><div><div class="cv-info-title">Page Size</div><div class="cv-info-desc">A4 or Letter</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast rendering</div></div></div>
+</div>
 {% endblock %}
+
 {% block extra_js %}<script>
-document.getElementById('fileInput')?.addEventListener('change',function(){renderFileList(this.files,'fileList');});
-document.querySelectorAll('input[name="source"]').forEach(r => r.addEventListener('change', function() {
-  document.getElementById('fileSource').style.display  = this.value === 'file'    ? 'block' : 'none';
-  document.getElementById('urlSource').style.display   = this.value === 'url'     ? 'block' : 'none';
-  document.getElementById('contentSource').style.display = this.value === 'content' ? 'block' : 'none';
-}));
+function switchSrc(src, el) {
+  document.querySelectorAll('.html-src-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('fileSource').style.display    = src === 'file'    ? '' : 'none';
+  document.getElementById('urlSource').style.display     = src === 'url'     ? '' : 'none';
+  document.getElementById('contentSource').style.display = src === 'content' ? '' : 'none';
+}
+(function(){
+  const inp = document.getElementById('fileInput');
+  const drop = document.getElementById('cvDrop');
+  const bar  = document.getElementById('cvFileBar');
+  function setFile(f){ if(!f) return; document.getElementById('cvFileName').textContent=f.name; document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB'; bar.classList.add('show'); const dt=new DataTransfer(); dt.items.add(f); inp.files=dt.files; }
+  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+  inp.addEventListener('change',()=>setFile(inp.files[0]));
+})();
 submitToolForm({formId:'toolForm', apiUrl:'{% url "api_html_to_pdf" %}', fileInputId:'fileInput',
   onSuccess(data){showDownload(data);}, onError(data){showError(data.error);}
 });
 document.getElementById('toolForm').addEventListener('submit', async function(e) {
-  const src = document.querySelector('input[name="source"]:checked').value;
+  const src = document.querySelector('.html-src-tab.active').dataset.src;
   if (src !== 'file') {
     e.stopImmediatePropagation(); e.preventDefault();
     const fd = new FormData(this);

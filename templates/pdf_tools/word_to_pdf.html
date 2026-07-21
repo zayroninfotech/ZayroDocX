@@ -1,27 +1,65 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block title %}Word to PDF — ZayroDocX{% endblock %}
 {% block active_word2pdf %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Word to PDF</span>{% endblock %}
+
 {% block content %}
+<div class="cv-hero">
+  <div class="cv-hero-left">
+    <div class="cv-eyebrow"><i class="fa-solid fa-file-word"></i> Convert to PDF</div>
+    <h2>Word to PDF</h2>
+    <p>Convert DOC &amp; DOCX files to PDF — formatting perfectly preserved</p>
+  </div>
+  <div class="cv-hero-pills">
+    <div class="cv-hero-pill"><span class="n">.DOC</span><div class="l">Format</div></div>
+    <div class="cv-hero-pill"><span class="n">.DOCX</span><div class="l">Format</div></div>
+    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
+  </div>
+</div>
+
 <form id="toolForm">{% csrf_token %}
-  <div class="upload-zone"><input type="file" id="fileInput" name="file" accept=".doc,.docx">
-    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-    <h3>Drop your file here</h3><p>or click to browse</p>
-    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select File</span>
+  <div class="cv-drop" id="cvDrop">
+    <input type="file" id="fileInput" name="file" accept=".doc,.docx">
+    <div class="cv-drop-icon"><i class="fa-solid fa-file-word"></i></div>
+    <h3>Drop your Word file here</h3>
+    <p>Supports .doc and .docx formats</p>
+    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-folder-open"></i> Select Word File
+    </button>
+    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> DOC / DOCX &nbsp;·&nbsp; Private &nbsp;·&nbsp; Free</span>
   </div>
-  <div class="file-list" id="fileList"></div>
-  
-  <div class="action-bar">
-    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-file-word"></i> Word to PDF</button>
+  <div class="cv-file-bar" id="cvFileBar">
+    <i class="fa-solid fa-file-word cv-file-icon" style="color:#2b7cd3"></i>
+    <span class="cv-file-name" id="cvFileName">—</span>
+    <span class="cv-file-size" id="cvFileSize">—</span>
   </div>
+  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-file-word"></i> Convert Word to PDF</button>
 </form>
+
 <div class="progress-wrap">
-  <div class="progress-header"><span class="progress-label">Processing…</span></div>
+  <div class="progress-header"><span class="progress-label">Converting…</span></div>
   <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
 </div>
 <div class="result-card"></div>
+
+<div class="cv-info-strip">
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-file-word"></i></div><div><div class="cv-info-title">DOC & DOCX</div><div class="cv-info-desc">All Word formats</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div><div class="cv-info-title">Formatting</div><div class="cv-info-desc">Perfectly preserved</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast conversion</div></div></div>
+</div>
 {% endblock %}
+
 {% block extra_js %}<script>
-document.getElementById('fileInput').addEventListener('change',function(){renderFileList(this.files,'fileList');});
+(function(){
+  const inp = document.getElementById('fileInput');
+  const drop = document.getElementById('cvDrop');
+  const bar  = document.getElementById('cvFileBar');
+  function setFile(f){ if(!f) return; document.getElementById('cvFileName').textContent=f.name; document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB'; bar.classList.add('show'); const dt=new DataTransfer(); dt.items.add(f); inp.files=dt.files; renderFileList(inp.files,'fileList'); }
+  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+  inp.addEventListener('change',()=>setFile(inp.files[0]));
+})();
 submitToolForm({formId:'toolForm',apiUrl:'{% url "api_word_to_pdf" %}',fileInputId:'fileInput'});
 </script>{% endblock %}
