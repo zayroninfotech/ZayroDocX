@@ -9,6 +9,7 @@
 <span class="current">Translate PDF</span>
 {% endblock %}
 
+{% block extra_head %}
 <style>
 .tr-hero {
   background: linear-gradient(135deg,#7f1d1d 0%,#b91c1c 45%,#dc2626 80%,#ef4444 100%);
@@ -72,7 +73,9 @@
 .tr-info-title { font-size:.78rem; font-weight:700; color:#111; }
 .tr-info-desc  { font-size:.68rem; color:#aaa; margin-top:.1rem; }
 </style>
+{% endblock %}
 
+{% block content %}
 <!-- Hero -->
 <div class="tr-hero">
   <div class="tr-hero-left">
