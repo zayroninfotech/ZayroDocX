@@ -1310,10 +1310,18 @@ def _parse_invoice(text):
 @csrf_exempt
 @require_POST
 def scan_to_pdf(request):
-    """Convert uploaded images to a single searchable PDF."""
+    """Convert uploaded images to a single PDF with optional page size."""
     files = request.FILES.getlist('files')
     lang = request.POST.get('lang', 'eng')
     do_ocr = request.POST.get('ocr', 'true') == 'true'
+    page_size = request.POST.get('page_size', 'fit')  # fit | a4 | letter | a3
+
+    # Page size dimensions in points (72 pts = 1 inch)
+    PAGE_SIZES = {
+        'a4':     (595, 842),
+        'letter': (612, 792),
+        'a3':     (842, 1191),
+    }
 
     if not files:
         return JsonResponse({'error': 'No images uploaded.'}, status=400)
@@ -1336,14 +1344,39 @@ def scan_to_pdf(request):
                 img.save(img_bytes, format='PDF')
                 tmp_doc = fitz.open('pdf', img_bytes.getvalue())
 
-            new_doc.insert_pdf(tmp_doc)
-            tmp_doc.close()
+            if page_size in PAGE_SIZES:
+                pw, ph = PAGE_SIZES[page_size]
+                # Fit image into the target page, centred
+                for page in tmp_doc:
+                    orig = page.rect
+                    scale = min(pw / orig.width, ph / orig.height)
+                    new_w = orig.width * scale
+                    new_h = orig.height * scale
+                    # Resize the page
+                    page.set_mediabox(fitz.Rect(0, 0, pw, ph))
+                    # Move content to centre
+                    mat = fitz.Matrix(scale, scale).pretranslate(
+                        (pw - new_w) / 2 / scale,
+                        (ph - new_h) / 2 / scale
+                    )
+                    page.set_cropbox(fitz.Rect(0, 0, pw, ph))
+                    # Apply transform via a new page in target doc
+                    target_page = new_doc.new_page(width=pw, height=ph)
+                    target_page.show_pdf_page(
+                        fitz.Rect((pw - new_w) / 2, (ph - new_h) / 2,
+                                  (pw + new_w) / 2, (ph + new_h) / 2),
+                        tmp_doc, page.number
+                    )
+                tmp_doc.close()
+            else:
+                new_doc.insert_pdf(tmp_doc)
+                tmp_doc.close()
 
         out_path, out_name = get_output_path('.pdf', 'scanned')
         new_doc.save(out_path, deflate=True)
         new_doc.close()
 
-        save_job('scan_to_pdf', [f.name for f in files], [out_name], meta={'ocr': do_ocr})
+        save_job('scan_to_pdf', [f.name for f in files], [out_name], meta={'ocr': do_ocr, 'page_size': page_size})
         return JsonResponse({'download_url': media_url(out_name), 'filename': out_name})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)

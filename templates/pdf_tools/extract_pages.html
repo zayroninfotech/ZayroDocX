@@ -1,30 +1,326 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block title %}Extract Pages — ZayroDocX{% endblock %}
 {% block active_extract %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Extract Pages</span>{% endblock %}
 {% block content %}
+
+<style>
+/* ═══════════════════════════════════════
+   EXTRACT PAGES — White · Red · Cream
+═══════════════════════════════════════ */
+
+/* ── Hero ── */
+.ep-hero {
+  background: linear-gradient(135deg,#7f1d1d 0%,#b91c1c 45%,#dc2626 80%,#ef4444 100%);
+  border-radius: 18px; padding: 2rem 2.2rem; margin-bottom: 1.6rem;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.2rem;
+  box-shadow: 0 6px 28px rgba(220,38,38,.28); position: relative; overflow: hidden;
+}
+.ep-hero::before {
+  content:''; position:absolute; top:-60px; right:-40px;
+  width:220px; height:220px; border-radius:50%;
+  background:rgba(255,255,255,.07); pointer-events:none;
+}
+.ep-hero::after {
+  content:''; position:absolute; bottom:-50px; left:15%;
+  width:160px; height:160px; border-radius:50%;
+  background:rgba(255,255,255,.04); pointer-events:none;
+}
+.ep-hero-left { position:relative; z-index:1; }
+.ep-eyebrow {
+  display:inline-flex; align-items:center; gap:.4rem;
+  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25);
+  border-radius:999px; padding:.22rem .75rem; font-size:.68rem; font-weight:700;
+  color:#fff; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.55rem;
+}
+.ep-hero-left h2 { font-size:1.65rem; font-weight:900; color:#fff; margin:0 0 .3rem; letter-spacing:-.03em; }
+.ep-hero-left p  { font-size:.82rem; color:rgba(255,255,255,.75); margin:0 0 .9rem; }
+.ep-badges { display:flex; flex-wrap:wrap; gap:.4rem; }
+.ep-badge {
+  display:inline-flex; align-items:center; gap:.35rem;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22);
+  border-radius:999px; padding:.24rem .75rem; font-size:.7rem; font-weight:600; color:#fff;
+}
+.ep-hero-pills { display:flex; gap:.75rem; flex-shrink:0; position:relative; z-index:1; }
+.ep-pill {
+  background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.18);
+  border-radius:12px; padding:.75rem 1.1rem; text-align:center; min-width:72px;
+}
+.ep-pill .n { font-size:1.1rem; font-weight:900; color:#fff; line-height:1; display:block; }
+.ep-pill .l { font-size:.58rem; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.07em; }
+
+/* ── Upload zone ── */
+.ep-upload {
+  border: 2.5px dashed #fca5a5; border-radius: 18px;
+  padding: 3rem 2rem; text-align: center; cursor: pointer; position: relative;
+  transition: border-color .2s, background .2s; background: #fff8f8; margin-bottom: 1rem;
+}
+.ep-upload:hover, .ep-upload.dragging { border-color: #dc2626; background: #fff1f1; }
+.ep-upload input[type=file] { position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer; }
+.ep-upload-icon {
+  width: 68px; height: 68px; border-radius: 18px;
+  background: linear-gradient(135deg,#b91c1c,#dc2626);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; margin: 0 auto 1.1rem;
+  box-shadow: 0 4px 16px rgba(220,38,38,.3);
+}
+.ep-upload h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 .3rem; color:#111; }
+.ep-upload p  { font-size: .85rem; color: #888; margin: 0 0 1.2rem; }
+.ep-upload-btn {
+  display: inline-flex; align-items: center; gap: .48rem;
+  background: linear-gradient(135deg,#b91c1c,#dc2626); color: #fff; border: none; border-radius: 10px;
+  padding: .7rem 1.6rem; font-size: .95rem; font-weight: 700;
+  cursor: pointer; transition: opacity .2s, transform .1s; position: relative; z-index: 1;
+  box-shadow: 0 3px 12px rgba(220,38,38,.3);
+}
+.ep-upload-btn:hover { opacity: .88; transform: translateY(-1px); }
+.ep-upload-hint {
+  display: inline-flex; align-items:center; gap:.45rem; margin-top: .9rem;
+  background: #fff5f5; border: 1px solid #fecaca; border-radius: 8px;
+  padding: .38rem .85rem; font-size: .74rem; color: #b91c1c; font-weight:500;
+}
+
+/* ── File bar ── */
+.ep-file-bar {
+  display: none; align-items: center; gap: .85rem;
+  background: #fff; border: 1.5px solid #fca5a5;
+  border-radius: 14px; padding: .85rem 1.1rem; margin-bottom: 1rem;
+  box-shadow: 0 2px 10px rgba(220,38,38,.08);
+}
+.ep-file-bar.show { display: flex; }
+.ep-file-bar-icon {
+  width: 42px; height: 50px; border-radius: 9px;
+  background: #fee2e2; display: flex; align-items: center;
+  justify-content: center; font-size: 1.4rem; color: #dc2626; flex-shrink: 0;
+}
+.ep-file-bar-info { flex: 1; min-width: 0; }
+.ep-file-bar-name { font-size: .88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color:#111; }
+.ep-file-bar-meta { font-size: .74rem; color: #888; margin-top: .15rem; }
+.ep-file-bar-change {
+  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 9px;
+  padding: .42rem .85rem; font-size: .78rem; font-weight: 600;
+  color: #888; cursor: pointer; flex-shrink: 0; transition: all .15s;
+}
+.ep-file-bar-change:hover { border-color: #fca5a5; color: #dc2626; background: #fff8f8; }
+
+/* ── Options ── */
+.ep-options {
+  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 16px;
+  padding: 1.4rem 1.5rem; margin-bottom: 1.1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+.ep-options-title {
+  font-size: .8rem; font-weight: 800; color: #111; letter-spacing: .04em; text-transform: uppercase;
+  display: flex; align-items: center; gap: .5rem; margin-bottom: 1.1rem;
+  padding-bottom: .65rem; border-bottom: 1px solid #f0f0f0;
+}
+.ep-options-title i { color: #dc2626; }
+
+/* Output format toggle */
+.ep-format-row { display:flex; gap:.65rem; margin-bottom:1.1rem; }
+.ep-format-btn {
+  flex:1; padding:.62rem .5rem; border-radius:10px; border:2px solid #e8e8e8;
+  font-size:.8rem; font-weight:700; cursor:pointer; background:#fff; color:#888;
+  display:flex; align-items:center; justify-content:center; gap:.4rem;
+  transition:all .15s;
+}
+.ep-format-btn:hover { border-color:#fca5a5; color:#dc2626; }
+.ep-format-btn.active { border-color:#dc2626; background:#fee2e2; color:#dc2626; }
+
+.ep-field-label {
+  font-size: .8rem; font-weight: 700; color: #111; margin-bottom: .45rem;
+  display: flex; align-items: center; gap: .5rem;
+}
+.ep-field-hint { font-size: .72rem; color: #aaa; font-weight: 400; margin-left: .2rem; }
+.ep-input {
+  width: 100%; padding: .7rem 1rem; box-sizing: border-box;
+  border: 1.5px solid #e8e8e8; border-radius: 10px;
+  font-size: .92rem; background: #fff; color: #111;
+  outline: none; transition: border-color .15s, box-shadow .15s;
+  font-family: monospace; letter-spacing: .03em;
+}
+.ep-input:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+
+.ep-presets { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .7rem; }
+.ep-preset {
+  padding: .25rem .7rem; border-radius: 20px; font-size: .72rem; font-weight: 600;
+  background: #fff; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer; transition: all .15s;
+}
+.ep-preset:hover { background: #fee2e2; border-color: #dc2626; }
+
+.ep-field-note {
+  display: flex; align-items: flex-start; gap: .5rem;
+  background: #fff8f8; border: 1px solid #fecaca; border-radius: 9px;
+  padding: .6rem .85rem; margin-top: .85rem; font-size: .74rem; color: #b91c1c; line-height: 1.55;
+}
+.ep-field-note i { color: #dc2626; margin-top: .1rem; flex-shrink: 0; }
+
+/* ── Submit ── */
+.ep-submit {
+  width: 100%; padding: .9rem;
+  background: linear-gradient(135deg,#991b1b,#b91c1c,#dc2626);
+  color: #fff; border: none; border-radius: 14px;
+  font-size: 1rem; font-weight: 800; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: .6rem;
+  transition: opacity .2s, transform .1s;
+  box-shadow: 0 5px 20px rgba(220,38,38,.35);
+  letter-spacing: .01em;
+}
+.ep-submit:hover:not(:disabled) { opacity:.9; transform:translateY(-2px); }
+.ep-submit:disabled { opacity:.4; cursor:not-allowed; box-shadow:none; }
+
+/* ── Info strip ── */
+.ep-info-strip { display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1.6rem; }
+.ep-info-card {
+  flex:1; min-width:140px; background:#fff; border:1px solid #e8e8e8; border-radius:12px;
+  padding:.9rem 1rem; display:flex; align-items:center; gap:.75rem;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.ep-info-icon {
+  width:36px; height:36px; border-radius:10px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:.88rem;
+  background:#fee2e2; color:#dc2626;
+}
+.ep-info-title { font-size:.78rem; font-weight:700; color:#111; }
+.ep-info-desc  { font-size:.68rem; color:#aaa; margin-top:.1rem; }
+</style>
+
+<!-- Hero -->
+<div class="ep-hero">
+  <div class="ep-hero-left">
+    <div class="ep-eyebrow"><i class="fa-solid fa-file-export"></i> Organize PDF</div>
+    <h2>Extract Pages</h2>
+    <p>Pull out specific pages or ranges from any PDF — save as a new document</p>
+    <div class="ep-badges">
+      <span class="ep-badge"><i class="fa-solid fa-shield-halved"></i> 100% Local</span>
+      <span class="ep-badge"><i class="fa-solid fa-file-pdf"></i> PDF Output</span>
+      <span class="ep-badge"><i class="fa-solid fa-bolt"></i> Instant</span>
+    </div>
+  </div>
+  <div class="ep-hero-pills">
+    <div class="ep-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
+    <div class="ep-pill"><span class="n">Any</span><div class="l">Pages</div></div>
+    <div class="ep-pill"><span class="n">Free</span><div class="l">Forever</div></div>
+  </div>
+</div>
+
 <form id="toolForm">{% csrf_token %}
-  <div class="upload-zone"><input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-    <h3>Drop your file here</h3><p>or click to browse</p>
-    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select File</span>
+
+  <!-- Upload zone -->
+  <div class="ep-upload" id="uploadZone">
+    <input type="file" id="fileInput" name="file" accept=".pdf">
+    <div class="ep-upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+    <h3>Drop your PDF here</h3>
+    <p>Drag &amp; drop or click to browse</p>
+    <button type="button" class="ep-upload-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-folder-open"></i> Select PDF File
+    </button>
+    <br>
+    <span class="ep-upload-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; All sizes supported &nbsp;·&nbsp; 100% local</span>
   </div>
-  <div class="file-list" id="fileList"></div>
-    <div class="options-panel">
-    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Options</div>
-    <div class="form-group"><div class="form-label">Pages to Extract <span class="form-hint">(e.g. 1, 3, 5-8)</span></div><input type="text" name="pages" class="form-control" placeholder="1, 3, 5-8" required></div>
+
+  <!-- File bar -->
+  <div class="ep-file-bar" id="fileBar">
+    <div class="ep-file-bar-icon"><i class="fa-solid fa-file-pdf"></i></div>
+    <div class="ep-file-bar-info">
+      <div class="ep-file-bar-name" id="fileBarName">—</div>
+      <div class="ep-file-bar-meta" id="fileBarMeta">—</div>
+    </div>
+    <button type="button" class="ep-file-bar-change" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-arrow-rotate-left"></i> Change
+    </button>
   </div>
-  <div class="action-bar">
-    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-file-export"></i> Extract Pages</button>
+
+  <!-- Options -->
+  <div class="ep-options">
+    <div class="ep-options-title"><i class="fa-solid fa-sliders"></i> Extract Options</div>
+
+    <div class="ep-field-label">
+      Pages to Extract <span class="ep-field-hint">(e.g. 1, 3, 5-8)</span>
+    </div>
+    <input type="text" name="pages" id="pagesInput" class="ep-input" placeholder="1, 3, 5-8" required>
+
+    <div class="ep-presets">
+      <span class="ep-preset" onclick="addPages('1')">Page 1</span>
+      <span class="ep-preset" onclick="addPages('1-3')">Pages 1–3</span>
+      <span class="ep-preset" onclick="addPages('1-5')">Pages 1–5</span>
+      <span class="ep-preset" onclick="addPages('1-10')">Pages 1–10</span>
+    </div>
+
+    <div class="ep-field-note">
+      <i class="fa-solid fa-circle-info"></i>
+      Enter page numbers separated by commas. Use a dash for ranges. Example: <strong>1, 3, 5-8</strong> extracts pages 1, 3, and 5 through 8 into a new PDF.
+    </div>
   </div>
+
+  <!-- Submit -->
+  <button type="submit" class="ep-submit btn-submit">
+    <i class="fa-solid fa-file-export"></i> Extract Pages
+  </button>
+
 </form>
-<div class="progress-wrap">
-  <div class="progress-header"><span class="progress-label">Processing…</span></div>
+
+<div class="progress-wrap" style="margin-top:1rem">
+  <div class="progress-header"><span class="progress-label">Extracting pages…</span><span class="progress-pct"></span></div>
   <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
 </div>
 <div class="result-card"></div>
+
+<!-- Info strip -->
+<div class="ep-info-strip">
+  <div class="ep-info-card">
+    <div class="ep-info-icon"><i class="fa-solid fa-shield-halved"></i></div>
+    <div><div class="ep-info-title">100% Private</div><div class="ep-info-desc">Files never leave your server</div></div>
+  </div>
+  <div class="ep-info-card">
+    <div class="ep-info-icon"><i class="fa-solid fa-file-export"></i></div>
+    <div><div class="ep-info-title">Custom Pages</div><div class="ep-info-desc">Pick any pages or ranges</div></div>
+  </div>
+  <div class="ep-info-card">
+    <div class="ep-info-icon"><i class="fa-solid fa-file-pdf"></i></div>
+    <div><div class="ep-info-title">PDF Output</div><div class="ep-info-desc">Clean PDF with extracted pages</div></div>
+  </div>
+  <div class="ep-info-card">
+    <div class="ep-info-icon"><i class="fa-solid fa-bolt"></i></div>
+    <div><div class="ep-info-title">Fast & Free</div><div class="ep-info-desc">No limits, no cost, no signup</div></div>
+  </div>
+</div>
+
 {% endblock %}
+
 {% block extra_js %}<script>
-document.getElementById('fileInput').addEventListener('change',function(){renderFileList(this.files,'fileList');});
-submitToolForm({formId:'toolForm',apiUrl:'{% url "api_extract_pages" %}',fileInputId:'fileInput'});
+const fileInput  = document.getElementById('fileInput');
+const uploadZone = document.getElementById('uploadZone');
+const fileBar    = document.getElementById('fileBar');
+
+function formatBytes(b) {
+  if (!b) return '0 B';
+  const k=1024,s=['B','KB','MB','GB'],i=Math.floor(Math.log(b)/Math.log(k));
+  return +(b/Math.pow(k,i)).toFixed(1)+' '+s[i];
+}
+
+fileInput.addEventListener('change', function() {
+  const f = this.files[0];
+  if (!f) return;
+  uploadZone.style.display = 'none';
+  document.getElementById('fileBarName').textContent = f.name;
+  document.getElementById('fileBarMeta').textContent = formatBytes(f.size) + ' · PDF';
+  fileBar.classList.add('show');
+});
+
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragging'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragging'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault(); uploadZone.classList.remove('dragging');
+  const dt = e.dataTransfer.files;
+  if (dt.length) { fileInput.files = dt; fileInput.dispatchEvent(new Event('change')); }
+});
+
+function addPages(val) {
+  const inp = document.getElementById('pagesInput');
+  inp.value = inp.value.trim() ? inp.value.trim() + ', ' + val : val;
+  inp.focus();
+}
+
+submitToolForm({formId:'toolForm', apiUrl:'{% url "api_extract_pages" %}', fileInputId:'fileInput'});
 </script>{% endblock %}
