@@ -5,6 +5,38 @@
 
 {% block content %}
 <style>
+.inv-hero {
+  background: linear-gradient(135deg,#7f1d1d 0%,#b91c1c 45%,#dc2626 80%,#ef4444 100%);
+  border-radius: 18px; padding: 2rem 2.2rem; margin-bottom: 1.6rem;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.2rem;
+  box-shadow: 0 6px 28px rgba(220,38,38,.28); position: relative; overflow: hidden;
+}
+.inv-hero::before { content:''; position:absolute; top:-60px; right:-40px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,.07); pointer-events:none; }
+.inv-hero-left { position:relative; z-index:1; }
+.inv-eyebrow { display:inline-flex; align-items:center; gap:.4rem; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); border-radius:999px; padding:.22rem .75rem; font-size:.68rem; font-weight:700; color:#fff; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.55rem; }
+.inv-hero-left h2 { font-size:1.65rem; font-weight:900; color:#fff; margin:0 0 .3rem; letter-spacing:-.03em; }
+.inv-hero-left p  { font-size:.82rem; color:rgba(255,255,255,.75); margin:0; }
+.inv-hero-pills { display:flex; gap:.75rem; flex-shrink:0; position:relative; z-index:1; }
+.inv-hero-pill { background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.18); border-radius:12px; padding:.75rem 1.1rem; text-align:center; min-width:72px; }
+.inv-hero-pill .n { font-size:.95rem; font-weight:900; color:#fff; line-height:1; display:block; }
+.inv-hero-pill .l { font-size:.58rem; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.07em; }
+</style>
+
+<!-- Hero -->
+<div class="inv-hero">
+  <div class="inv-hero-left">
+    <div class="inv-eyebrow"><i class="fa-solid fa-file-invoice-dollar"></i> Optimize & AI</div>
+    <h2>Invoice Extractor</h2>
+    <p>Upload any invoice PDF — AI extracts all key fields instantly into structured data</p>
+  </div>
+  <div class="inv-hero-pills">
+    <div class="inv-hero-pill"><span class="n"><i class="fa-solid fa-brain"></i></span><div class="l">AI</div></div>
+    <div class="inv-hero-pill"><span class="n"><i class="fa-solid fa-file-excel"></i></span><div class="l">Excel</div></div>
+    <div class="inv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
+  </div>
+</div>
+
+<style>
 /* ═══════════════════════════════════════════════════════════
    INVOICE EXTRACTOR — Premium UI
 ═══════════════════════════════════════════════════════════ */

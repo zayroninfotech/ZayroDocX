@@ -1,54 +1,127 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block title %}Image to PDF — ZayroDocX{% endblock %}
 {% block active_scan %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Image to PDF</span>{% endblock %}
 {% block content %}
 
 <style>
-/* ── Upload zone ── */
-.sc-drop {
-  border: 2px dashed var(--border); border-radius: 14px;
-  padding: 2.5rem 1.5rem; text-align: center; position: relative;
-  cursor: pointer; transition: border-color .2s, background .2s;
-  background: var(--surface); margin-bottom: 1rem;
+/* ═══════════════════════════════════════
+   IMAGE TO PDF — White · Red · Cream
+═══════════════════════════════════════ */
+
+/* ── Hero ── */
+.sc-hero {
+  background: linear-gradient(135deg,#7f1d1d 0%,#b91c1c 45%,#dc2626 80%,#ef4444 100%);
+  border-radius: 18px; padding: 2rem 2.2rem; margin-bottom: 1.6rem;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.2rem;
+  box-shadow: 0 6px 28px rgba(220,38,38,.28); position: relative; overflow: hidden;
 }
-.sc-drop:hover, .sc-drop.dragging { border-color: #dc2626; background: rgba(124,58,237,.05); }
+.sc-hero::before {
+  content:''; position:absolute; top:-60px; right:-40px;
+  width:240px; height:240px; border-radius:50%;
+  background:rgba(255,255,255,.07); pointer-events:none;
+}
+.sc-hero::after {
+  content:''; position:absolute; bottom:-50px; left:10%;
+  width:160px; height:160px; border-radius:50%;
+  background:rgba(255,255,255,.04); pointer-events:none;
+}
+.sc-hero-left { position:relative; z-index:1; }
+.sc-eyebrow {
+  display:inline-flex; align-items:center; gap:.4rem;
+  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25);
+  border-radius:999px; padding:.22rem .75rem; font-size:.68rem; font-weight:700;
+  color:#fff; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.55rem;
+}
+.sc-hero-left h2 { font-size:1.65rem; font-weight:900; color:#fff; margin:0 0 .3rem; letter-spacing:-.03em; }
+.sc-hero-left p  { font-size:.82rem; color:rgba(255,255,255,.75); margin:0 0 .85rem; }
+.sc-hero-formats { display:flex; flex-wrap:wrap; gap:.38rem; }
+.sc-hfmt {
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22);
+  border-radius:6px; padding:.18rem .55rem; font-size:.68rem; font-weight:700; color:#fff;
+}
+.sc-hero-pills { display:flex; gap:.75rem; flex-shrink:0; position:relative; z-index:1; }
+.sc-pill {
+  background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.18);
+  border-radius:12px; padding:.75rem 1.1rem; text-align:center; min-width:72px;
+}
+.sc-pill .n { font-size:1.1rem; font-weight:900; color:#fff; line-height:1; display:block; }
+.sc-pill .l { font-size:.58rem; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.07em; }
+
+/* ── Drop zone ── */
+.sc-drop {
+  border: 2.5px dashed #fca5a5; border-radius: 18px;
+  padding: 3rem 2rem; text-align: center; position: relative;
+  cursor: pointer; transition: border-color .2s, background .2s;
+  background: #fff8f8; margin-bottom: 1rem;
+}
+.sc-drop:hover, .sc-drop.dragging { border-color: #dc2626; background: #fff1f1; }
 .sc-drop input[type=file] { position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer; }
 .sc-drop-icon {
-  width: 56px; height: 56px; border-radius: 16px;
-  background: rgba(124,58,237,.1); color: #dc2626;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem; margin: 0 auto .9rem;
+  width: 68px; height: 68px; border-radius: 18px;
+  background: linear-gradient(135deg,#b91c1c,#dc2626);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; margin: 0 auto 1.1rem;
+  box-shadow: 0 4px 16px rgba(220,38,38,.3);
 }
-.sc-drop h3 { font-size: 1rem; font-weight: 700; margin: 0 0 .3rem; }
-.sc-drop p  { font-size: .82rem; color: var(--text-muted); margin: 0 0 1rem; }
+.sc-drop h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 .3rem; color:#111; }
+.sc-drop p  { font-size: .85rem; color: #888; margin: 0 0 1.2rem; }
 .sc-drop-btn {
-  display: inline-flex; align-items: center; gap: .45rem;
-  background: #dc2626; color: #fff; border: none; border-radius: 8px;
-  padding: .55rem 1.2rem; font-size: .88rem; font-weight: 600;
-  cursor: pointer; position: relative; z-index: 1; transition: opacity .2s;
+  display: inline-flex; align-items: center; gap: .48rem;
+  background: linear-gradient(135deg,#b91c1c,#dc2626); color: #fff; border: none; border-radius: 10px;
+  padding: .7rem 1.6rem; font-size: .95rem; font-weight: 700;
+  cursor: pointer; transition: opacity .2s, transform .1s; position: relative; z-index: 1;
+  box-shadow: 0 3px 12px rgba(220,38,38,.3);
 }
-.sc-drop-btn:hover { opacity: .88; }
-.sc-drop-hint { display: block; margin-top: .75rem; font-size: .74rem; color: var(--text-muted); }
+.sc-drop-btn:hover { opacity: .88; transform: translateY(-1px); }
+.sc-drop-hint {
+  display: inline-flex; align-items:center; gap:.45rem; margin-top: .9rem;
+  background: #fff5f5; border: 1px solid #fecaca; border-radius: 8px;
+  padding: .38rem .85rem; font-size: .74rem; color: #b91c1c; font-weight:500;
+}
 
-/* ── Format badges ── */
-.sc-formats { display: flex; justify-content: center; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-.sc-fmt {
-  padding: .22rem .65rem; border-radius: 20px; font-size: .72rem; font-weight: 700;
-  border: 1px solid var(--border); color: var(--text-muted); background: var(--surface);
+/* ── Format badges row ── */
+.sc-formats {
+  display: flex; justify-content: center; gap: .5rem; margin-bottom: 1.1rem; flex-wrap: wrap;
 }
+.sc-fmt {
+  padding: .28rem .75rem; border-radius: 8px; font-size: .72rem; font-weight: 700;
+  border: 1px solid #fca5a5; color: #dc2626; background: #fff8f8;
+  letter-spacing: .04em;
+}
+
+/* ── Stats bar ── */
+.sc-stats {
+  display: none; align-items: center; gap: 1rem;
+  background: #fff; border: 1.5px solid #fca5a5;
+  border-radius: 14px; padding: .8rem 1.1rem; margin-bottom: .85rem; flex-wrap: wrap;
+  box-shadow: 0 2px 10px rgba(220,38,38,.07);
+}
+.sc-stats.show { display: flex; }
+.sc-stat { display: flex; align-items: center; gap: .4rem; font-size: .84rem; color: #888; }
+.sc-stat strong { color: #111; font-weight: 700; }
+.sc-stats-actions { margin-left: auto; display: flex; gap: .5rem; }
+.sc-btn-add, .sc-btn-clear {
+  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 9px;
+  padding: .38rem .8rem; font-size: .78rem; font-weight: 600;
+  color: #888; cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; gap: .35rem;
+}
+.sc-btn-add:hover, .sc-btn-clear:hover { border-color: #fca5a5; color: #dc2626; background: #fff8f8; }
 
 /* ── Image preview grid ── */
 .sc-preview-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: .65rem; margin-bottom: 1rem; display: none;
+  display: none;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: .65rem; margin-bottom: 1rem;
 }
 .sc-preview-grid.show { display: grid; }
 .sc-thumb {
-  position: relative; border-radius: 10px; overflow: hidden;
-  border: 1.5px solid var(--border); aspect-ratio: 3/4;
-  background: var(--bg);
+  position: relative; border-radius: 12px; overflow: hidden;
+  border: 1.5px solid #e8e8e8; aspect-ratio: 3/4; background: #f7f7f7;
+  transition: border-color .15s, box-shadow .15s;
 }
+.sc-thumb:hover { border-color: #fca5a5; box-shadow: 0 3px 12px rgba(220,38,38,.12); }
 .sc-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .sc-thumb-overlay {
   position: absolute; inset: 0; background: rgba(0,0,0,.55);
@@ -58,68 +131,87 @@
 .sc-thumb:hover .sc-thumb-overlay { opacity: 1; }
 .sc-thumb-name { font-size: .6rem; color: #fff; text-align: center; word-break: break-all; margin-bottom: .2rem; }
 .sc-thumb-remove {
-  background: rgba(220,38,38,.85); border: none; border-radius: 6px;
-  color: #fff; font-size: .65rem; padding: .2rem .4rem; cursor: pointer;
+  background: rgba(220,38,38,.9); border: none; border-radius: 6px;
+  color: #fff; font-size: .65rem; padding: .2rem .5rem; cursor: pointer; font-weight: 600;
 }
 .sc-thumb-num {
   position: absolute; top: .35rem; left: .35rem;
-  background: #dc2626; color: #fff; font-size: .6rem; font-weight: 700;
-  width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg,#b91c1c,#dc2626); color: #fff; font-size: .6rem; font-weight: 800;
+  width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
 }
 
-/* ── Stats bar ── */
-.sc-stats {
-  display: none; align-items: center; gap: 1rem;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 10px; padding: .65rem 1rem; margin-bottom: 1rem; flex-wrap: wrap;
-}
-.sc-stats.show { display: flex; }
-.sc-stat { display: flex; align-items: center; gap: .4rem; font-size: .82rem; color: var(--text-muted); }
-.sc-stat strong { color: var(--text); }
-.sc-stats-actions { margin-left: auto; display: flex; gap: .5rem; }
-.sc-btn-add {
-  background: none; border: 1.5px solid var(--border); border-radius: 8px;
-  padding: .35rem .75rem; font-size: .78rem; font-weight: 600;
-  color: var(--text-muted); cursor: pointer; transition: border-color .15s, color .15s;
-  display: flex; align-items: center; gap: .35rem;
-}
-.sc-btn-add:hover { border-color: #dc2626; color: #dc2626; }
-.sc-btn-clear {
-  background: none; border: 1.5px solid var(--border); border-radius: 8px;
-  padding: .35rem .75rem; font-size: .78rem; font-weight: 600;
-  color: var(--text-muted); cursor: pointer; transition: border-color .15s, color .15s;
-  display: flex; align-items: center; gap: .35rem;
-}
-.sc-btn-clear:hover { border-color: #dc2626; color: #dc2626; }
-
-/* ── Page size option ── */
+/* ── Options card ── */
 .sc-options {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1rem;
+  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 16px;
+  padding: 1.3rem 1.4rem; margin-bottom: 1.1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
 }
-.sc-options-title { font-size: .82rem; font-weight: 700; margin-bottom: .75rem; display: flex; align-items: center; gap: .45rem; }
+.sc-options-title {
+  font-size: .8rem; font-weight: 800; color: #111; letter-spacing: .04em; text-transform: uppercase;
+  display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem;
+  padding-bottom: .65rem; border-bottom: 1px solid #f0f0f0;
+}
+.sc-options-title i { color: #dc2626; }
 .sc-option-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-.sc-option-label { font-size: .82rem; font-weight: 600; }
-.sc-option-desc  { font-size: .72rem; color: var(--text-muted); }
+.sc-option-label { font-size: .84rem; font-weight: 700; color: #111; }
+.sc-option-desc  { font-size: .72rem; color: #888; margin-top: .1rem; }
 .sc-select {
-  padding: .4rem .75rem; border: 1.5px solid var(--border); border-radius: 8px;
-  background: var(--bg); color: var(--text); font-size: .82rem; cursor: pointer; outline: none;
+  padding: .5rem .85rem; border: 1.5px solid #e8e8e8; border-radius: 9px;
+  background: #fff; color: #111; font-size: .84rem; cursor: pointer; outline: none;
+  transition: border-color .15s, box-shadow .15s; font-weight: 600; min-width: 130px;
 }
-.sc-select:focus { border-color: #dc2626; }
+.sc-select:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
 
-/* ── Submit button ── */
+/* ── Submit ── */
 .sc-submit {
-  width: 100%; padding: .85rem;
-  background: linear-gradient(135deg,#b91c1c,#dc2626,#8b5cf6);
-  color: #fff; border: none; border-radius: 12px;
-  font-size: .97rem; font-weight: 700; cursor: pointer;
+  width: 100%; padding: .9rem;
+  background: linear-gradient(135deg,#991b1b,#b91c1c,#dc2626);
+  color: #fff; border: none; border-radius: 14px;
+  font-size: 1rem; font-weight: 800; cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: .6rem;
   transition: opacity .2s, transform .1s;
-  box-shadow: 0 4px 18px rgba(124,58,237,.3);
+  box-shadow: 0 5px 20px rgba(220,38,38,.35); letter-spacing: .01em;
 }
-.sc-submit:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
-.sc-submit:disabled { opacity:.45; cursor:not-allowed; }
+.sc-submit:hover:not(:disabled) { opacity:.9; transform:translateY(-2px); }
+.sc-submit:disabled { opacity:.4; cursor:not-allowed; box-shadow:none; }
+
+/* ── Info strip ── */
+.sc-info-strip { display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1.6rem; }
+.sc-info-card {
+  flex:1; min-width:140px; background:#fff; border:1px solid #e8e8e8; border-radius:12px;
+  padding:.9rem 1rem; display:flex; align-items:center; gap:.75rem;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.sc-info-icon {
+  width:36px; height:36px; border-radius:10px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:.88rem;
+  background:#fee2e2; color:#dc2626;
+}
+.sc-info-title { font-size:.78rem; font-weight:700; color:#111; }
+.sc-info-desc  { font-size:.68rem; color:#aaa; margin-top:.1rem; }
 </style>
+
+<!-- Hero -->
+<div class="sc-hero">
+  <div class="sc-hero-left">
+    <div class="sc-eyebrow"><i class="fa-solid fa-images"></i> Organize PDF</div>
+    <h2>Image to PDF</h2>
+    <p>Convert any image into a professional PDF — 100% processed on your server</p>
+    <div class="sc-hero-formats">
+      <span class="sc-hfmt">JPG</span>
+      <span class="sc-hfmt">PNG</span>
+      <span class="sc-hfmt">BMP</span>
+      <span class="sc-hfmt">TIFF</span>
+      <span class="sc-hfmt">WEBP</span>
+      <span class="sc-hfmt">GIF</span>
+    </div>
+  </div>
+  <div class="sc-hero-pills">
+    <div class="sc-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
+    <div class="sc-pill"><span class="n">6</span><div class="l">Formats</div></div>
+    <div class="sc-pill"><span class="n">Free</span><div class="l">Forever</div></div>
+  </div>
+</div>
 
 <form id="toolForm">{% csrf_token %}
 
@@ -128,14 +220,15 @@
     <input type="file" id="fileInput" name="files" accept="image/*" multiple>
     <div class="sc-drop-icon"><i class="fa-solid fa-images"></i></div>
     <h3>Drop images here</h3>
-    <p>JPG, PNG, BMP, TIFF, WEBP, GIF — converted into a single PDF</p>
+    <p>JPG, PNG, BMP, TIFF, WEBP, GIF — combine into one PDF</p>
     <button type="button" class="sc-drop-btn" onclick="document.getElementById('fileInput').click()">
       <i class="fa-solid fa-plus"></i> Select Images
     </button>
-    <span class="sc-drop-hint">Drag &amp; drop supported</span>
+    <br>
+    <span class="sc-drop-hint"><i class="fa-solid fa-shield-halved"></i> All processing done locally — never uploaded</span>
   </div>
 
-  <!-- Supported formats -->
+  <!-- Format tags -->
   <div class="sc-formats">
     <span class="sc-fmt">JPG</span>
     <span class="sc-fmt">PNG</span>
@@ -147,7 +240,7 @@
 
   <!-- Stats bar -->
   <div class="sc-stats" id="scStats">
-    <div class="sc-stat"><i class="fa-solid fa-image" style="color:#dc2626"></i> <strong id="scCount">0</strong> images</div>
+    <div class="sc-stat"><i class="fa-solid fa-image" style="color:#dc2626"></i> <strong id="scCount">0</strong>&nbsp;images</div>
     <div class="sc-stat"><i class="fa-solid fa-weight-hanging"></i> <strong id="scSize">0 KB</strong></div>
     <div class="sc-stats-actions">
       <button type="button" class="sc-btn-add" onclick="document.getElementById('fileInput').click()">
@@ -164,7 +257,7 @@
 
   <!-- Options -->
   <div class="sc-options" id="scOptions" style="display:none">
-    <div class="sc-options-title"><i class="fa-solid fa-sliders" style="color:#dc2626"></i> Output Options</div>
+    <div class="sc-options-title"><i class="fa-solid fa-sliders"></i> Output Options</div>
     <div class="sc-option-row">
       <div>
         <div class="sc-option-label">Page Size</div>
@@ -186,7 +279,7 @@
 
 </form>
 
-<div class="progress-wrap">
+<div class="progress-wrap" style="margin-top:1rem">
   <div class="progress-header">
     <span class="progress-label">Converting images…</span>
     <span class="progress-pct"></span>
@@ -195,7 +288,28 @@
 </div>
 <div class="result-card"></div>
 
+<!-- Info strip -->
+<div class="sc-info-strip">
+  <div class="sc-info-card">
+    <div class="sc-info-icon"><i class="fa-solid fa-shield-halved"></i></div>
+    <div><div class="sc-info-title">100% Private</div><div class="sc-info-desc">Files never leave your server</div></div>
+  </div>
+  <div class="sc-info-card">
+    <div class="sc-info-icon"><i class="fa-solid fa-images"></i></div>
+    <div><div class="sc-info-title">6 Formats</div><div class="sc-info-desc">JPG, PNG, BMP, TIFF, WEBP, GIF</div></div>
+  </div>
+  <div class="sc-info-card">
+    <div class="sc-info-icon"><i class="fa-solid fa-layer-group"></i></div>
+    <div><div class="sc-info-title">Multi-Image</div><div class="sc-info-desc">Combine many images into one PDF</div></div>
+  </div>
+  <div class="sc-info-card">
+    <div class="sc-info-icon"><i class="fa-solid fa-expand"></i></div>
+    <div><div class="sc-info-title">Page Size</div><div class="sc-info-desc">A4, A3, Letter or fit to image</div></div>
+  </div>
+</div>
+
 {% endblock %}
+
 {% block extra_js %}<script>
 let imageFiles = [];
 
@@ -272,7 +386,6 @@ function render() {
   });
 }
 
-/* Override form submit to send imageFiles in order */
 document.getElementById('toolForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   if (!imageFiles.length) return;

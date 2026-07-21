@@ -9,22 +9,39 @@
 @keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
 @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
 
+/* ── Hero ── */
+.ocr-hero {
+  background: linear-gradient(135deg,#7f1d1d 0%,#b91c1c 45%,#dc2626 80%,#ef4444 100%);
+  border-radius: 18px; padding: 2rem 2.2rem; margin-bottom: 1.6rem;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.2rem;
+  box-shadow: 0 6px 28px rgba(220,38,38,.28); position: relative; overflow: hidden;
+}
+.ocr-hero::before { content:''; position:absolute; top:-60px; right:-40px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,.07); pointer-events:none; }
+.ocr-hero-left { position:relative; z-index:1; }
+.ocr-eyebrow { display:inline-flex; align-items:center; gap:.4rem; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); border-radius:999px; padding:.22rem .75rem; font-size:.68rem; font-weight:700; color:#fff; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.55rem; }
+.ocr-hero-left h2 { font-size:1.65rem; font-weight:900; color:#fff; margin:0 0 .3rem; letter-spacing:-.03em; }
+.ocr-hero-left p  { font-size:.82rem; color:rgba(255,255,255,.75); margin:0; }
+.ocr-hero-pills { display:flex; gap:.75rem; flex-shrink:0; position:relative; z-index:1; }
+.ocr-hero-pill { background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.18); border-radius:12px; padding:.75rem 1.1rem; text-align:center; min-width:72px; }
+.ocr-hero-pill .n { font-size:.95rem; font-weight:900; color:#fff; line-height:1; display:block; }
+.ocr-hero-pill .l { font-size:.58rem; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.07em; }
+
 /* ── Drop zone ── */
 .ocr-drop {
-  border: 2px dashed var(--border); border-radius: 14px;
+  border: 2.5px dashed #fca5a5; border-radius: 18px;
   padding: 3rem 2rem; text-align: center; position: relative;
   cursor: pointer; transition: border-color .2s, background .2s;
-  background: var(--surface); margin-bottom: 1.2rem;
+  background: #fff8f8; margin-bottom: 1.2rem;
 }
-.ocr-drop:hover, .ocr-drop.dragging { border-color: #dc2626; background: rgba(124,58,237,.05); }
+.ocr-drop:hover, .ocr-drop.dragging { border-color: #dc2626; background: #fff1f1; }
 .ocr-drop.processing { pointer-events: none; opacity: .55; }
 .ocr-drop input[type=file] { position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer; }
 .ocr-drop-icon {
   width: 64px; height: 64px; border-radius: 18px;
-  background: linear-gradient(135deg,rgba(124,58,237,.15),rgba(124,58,237,.05));
-  color: #dc2626; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg,#b91c1c,#dc2626);
+  color: #fff; display: flex; align-items: center; justify-content: center;
   font-size: 1.8rem; margin: 0 auto 1rem;
-  box-shadow: 0 4px 20px rgba(124,58,237,.2);
+  box-shadow: 0 4px 20px rgba(220,38,38,.3);
 }
 .ocr-drop h3 { font-size: 1.05rem; font-weight: 700; margin: 0 0 .35rem; }
 .ocr-drop p  { font-size: .84rem; color: var(--text-muted); margin: 0 0 1.2rem; }
@@ -34,7 +51,7 @@
   color: #fff; border: none; border-radius: 9px;
   padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600;
   cursor: pointer; position: relative; z-index: 1; transition: opacity .2s;
-  box-shadow: 0 4px 14px rgba(124,58,237,.35);
+  box-shadow: 0 4px 14px rgba(220,38,38,.35);
 }
 .ocr-drop-btn:hover { opacity: .88; }
 .ocr-drop-hint { display: block; margin-top: .7rem; font-size: .74rem; color: var(--text-muted); }
@@ -139,7 +156,7 @@
   border-radius: 10px; overflow: hidden;
   transition: box-shadow .18s, border-color .18s, transform .18s;
 }
-.pdf-page-card:hover { border-color: #dc2626; box-shadow: 0 6px 20px rgba(124,58,237,.2); transform: translateY(-2px); }
+.pdf-page-card:hover { border-color: #dc2626; box-shadow: 0 6px 20px rgba(220,38,38,.2); transform: translateY(-2px); }
 .pdf-card-img-wrap { width: 100%; cursor: pointer; overflow: hidden; }
 .pdf-card-img-wrap img { width: 100%; display: block; object-fit: contain; transition: transform .2s; }
 .pdf-card-img-wrap:hover img { transform: scale(1.03); }
@@ -220,6 +237,20 @@
 {% endblock %}
 
 {% block content %}
+
+<!-- Hero -->
+<div class="ocr-hero">
+  <div class="ocr-hero-left">
+    <div class="ocr-eyebrow"><i class="fa-solid fa-eye"></i> Optimize & AI</div>
+    <h2>PDF Viewer & OCR</h2>
+    <p>Upload a PDF — all pages rendered with OCR text extraction &amp; AI analysis</p>
+  </div>
+  <div class="ocr-hero-pills">
+    <div class="ocr-hero-pill"><span class="n"><i class="fa-solid fa-eye"></i></span><div class="l">OCR</div></div>
+    <div class="ocr-hero-pill"><span class="n"><i class="fa-solid fa-brain"></i></span><div class="l">AI</div></div>
+    <div class="ocr-hero-pill"><span class="n"><i class="fa-solid fa-file-excel"></i></span><div class="l">Excel</div></div>
+  </div>
+</div>
 
 <!-- Error banner (shown when OCR/upload fails) -->
 <div id="ocrErr" style="display:none;background:#fee2e2;border:1px solid #fca5a5;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;display:none;align-items:center;gap:.8rem;color:#991b1b;font-size:.875rem">

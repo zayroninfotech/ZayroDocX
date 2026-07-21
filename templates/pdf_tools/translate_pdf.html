@@ -9,83 +9,160 @@
 <span class="current">Translate PDF</span>
 {% endblock %}
 
-{% block content %}
-<div class="tool-header">
-  <div class="tool-icon-wrap ti-pink"><i class="fa-solid fa-language"></i></div>
-  <div>
-    <h1 class="tool-title">Translate PDF <span class="nav-badge" style="font-size:.7rem;vertical-align:middle">AI</span></h1>
-    <p class="tool-desc">Upload a PDF and translate its content into any language using AI.</p>
+<style>
+.tr-hero {
+  background: linear-gradient(135deg,#7f1d1d 0%,#b91c1c 45%,#dc2626 80%,#ef4444 100%);
+  border-radius: 18px; padding: 2rem 2.2rem; margin-bottom: 1.6rem;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.2rem;
+  box-shadow: 0 6px 28px rgba(220,38,38,.28); position: relative; overflow: hidden;
+}
+.tr-hero::before { content:''; position:absolute; top:-60px; right:-40px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,.07); pointer-events:none; }
+.tr-hero-left { position:relative; z-index:1; }
+.tr-eyebrow { display:inline-flex; align-items:center; gap:.4rem; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); border-radius:999px; padding:.22rem .75rem; font-size:.68rem; font-weight:700; color:#fff; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.55rem; }
+.tr-hero-left h2 { font-size:1.65rem; font-weight:900; color:#fff; margin:0 0 .3rem; letter-spacing:-.03em; }
+.tr-hero-left p  { font-size:.82rem; color:rgba(255,255,255,.75); margin:0; }
+.tr-hero-langs { display:flex; gap:.5rem; flex-wrap:wrap; position:relative; z-index:1; }
+.tr-lang-badge { background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.18); border-radius:8px; padding:.3rem .65rem; font-size:.65rem; font-weight:700; color:#fff; }
+
+.tr-drop {
+  border: 2.5px dashed #fca5a5; border-radius: 18px;
+  padding: 3rem 2rem; text-align: center; cursor: pointer; position: relative;
+  transition: border-color .2s, background .2s; background: #fff8f8; margin-bottom: 1rem;
+}
+.tr-drop:hover, .tr-drop.drag-over { border-color: #dc2626; background: #fff1f1; }
+.tr-drop input[type=file] { position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer; }
+.tr-drop-icon { width:68px; height:68px; border-radius:18px; background:linear-gradient(135deg,#b91c1c,#dc2626); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.6rem; margin:0 auto 1.1rem; box-shadow:0 4px 16px rgba(220,38,38,.3); }
+.tr-drop h3 { font-size:1.15rem; font-weight:800; margin:0 0 .3rem; color:#111; }
+.tr-drop p  { font-size:.85rem; color:#888; margin:0 0 1.2rem; }
+.tr-drop-btn { display:inline-flex; align-items:center; gap:.48rem; background:linear-gradient(135deg,#b91c1c,#dc2626); color:#fff; border:none; border-radius:10px; padding:.7rem 1.6rem; font-size:.95rem; font-weight:700; cursor:pointer; transition:opacity .2s,transform .1s; position:relative; z-index:1; box-shadow:0 3px 12px rgba(220,38,38,.3); }
+.tr-drop-btn:hover { opacity:.88; transform:translateY(-1px); }
+.tr-drop-hint { display:inline-flex; align-items:center; gap:.45rem; margin-top:.9rem; background:#fff5f5; border:1px solid #fecaca; border-radius:8px; padding:.38rem .85rem; font-size:.74rem; color:#b91c1c; font-weight:500; }
+
+.tr-file-bar { display:none; align-items:center; gap:.85rem; background:#fff; border:1.5px solid #fca5a5; border-radius:14px; padding:.85rem 1.1rem; margin-bottom:1rem; box-shadow:0 2px 10px rgba(220,38,38,.08); }
+.tr-file-bar.show { display:flex; }
+.tr-file-bar-icon { color:#dc2626; font-size:1.4rem; flex-shrink:0; }
+.tr-file-bar-name { font-size:.88rem; font-weight:700; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#111; }
+.tr-file-bar-size { font-size:.72rem; color:#dc2626; font-weight:600; background:#fee2e2; padding:.18rem .55rem; border-radius:6px; flex-shrink:0; }
+
+.tr-lang-panel { background:#fff; border:1.5px solid #fca5a5; border-radius:16px; padding:1.2rem 1.4rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(220,38,38,.06); }
+.tr-lang-title { font-size:.75rem; font-weight:800; color:#b91c1c; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.85rem; display:flex; align-items:center; gap:.45rem; }
+.tr-lang-grid { display:flex; flex-wrap:wrap; gap:.45rem; }
+.tr-lang-opt { position:relative; }
+.tr-lang-opt input[type=radio] { position:absolute;opacity:0;width:0;height:0; }
+.tr-lang-opt label { display:inline-flex; align-items:center; gap:.35rem; padding:.42rem .85rem; border:1.5px solid #e8e8e8; border-radius:8px; font-size:.8rem; font-weight:600; cursor:pointer; color:#555; background:#fff; transition:all .15s; }
+.tr-lang-opt input:checked + label { border-color:#dc2626; background:#fff8f8; color:#dc2626; box-shadow:0 0 0 2px rgba(220,38,38,.1); }
+.tr-lang-opt label:hover { border-color:#fca5a5; color:#b91c1c; }
+
+.tr-submit { width:100%; padding:.9rem; background:linear-gradient(135deg,#991b1b,#b91c1c,#dc2626); color:#fff; border:none; border-radius:14px; font-size:1rem; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:.6rem; transition:opacity .2s,transform .1s; box-shadow:0 5px 20px rgba(220,38,38,.35); }
+.tr-submit:hover:not(:disabled) { opacity:.9; transform:translateY(-2px); }
+.tr-submit:disabled { opacity:.4; cursor:not-allowed; box-shadow:none; }
+
+.tr-result-card { background:#fff; border:1.5px solid #fca5a5; border-radius:16px; margin-top:1.4rem; overflow:hidden; box-shadow:0 2px 12px rgba(220,38,38,.08); }
+.tr-result-head { display:flex; align-items:center; justify-content:space-between; padding:.85rem 1.2rem; border-bottom:1px solid #fecaca; background:#fff8f8; }
+.tr-result-head-left { display:flex; align-items:center; gap:.5rem; font-size:.82rem; font-weight:700; color:#111; }
+.tr-result-head-left i { color:#dc2626; }
+.tr-result-actions { display:flex; gap:.5rem; }
+.tr-action-btn { display:inline-flex; align-items:center; gap:.35rem; background:#fff; border:1.5px solid #fca5a5; border-radius:8px; padding:.3rem .75rem; font-size:.76rem; font-weight:600; color:#dc2626; cursor:pointer; transition:all .15s; text-decoration:none; }
+.tr-action-btn:hover { background:#fee2e2; }
+.tr-result-body { padding:1.2rem 1.4rem; line-height:1.8; color:#111; white-space:pre-wrap; font-size:.9rem; max-height:520px; overflow-y:auto; }
+
+.tr-info-strip { display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1.6rem; }
+.tr-info-card { flex:1; min-width:140px; background:#fff; border:1px solid #e8e8e8; border-radius:12px; padding:.9rem 1rem; display:flex; align-items:center; gap:.75rem; box-shadow:0 1px 4px rgba(0,0,0,.04); }
+.tr-info-icon { width:36px; height:36px; border-radius:10px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:.88rem; background:#fee2e2; color:#dc2626; }
+.tr-info-title { font-size:.78rem; font-weight:700; color:#111; }
+.tr-info-desc  { font-size:.68rem; color:#aaa; margin-top:.1rem; }
+</style>
+
+<!-- Hero -->
+<div class="tr-hero">
+  <div class="tr-hero-left">
+    <div class="tr-eyebrow"><i class="fa-solid fa-language"></i> Optimize & AI</div>
+    <h2>Translate PDF</h2>
+    <p>Upload a PDF and translate its content into 20 languages instantly</p>
+  </div>
+  <div class="tr-hero-langs">
+    <span class="tr-lang-badge">Hindi</span>
+    <span class="tr-lang-badge">French</span>
+    <span class="tr-lang-badge">Arabic</span>
+    <span class="tr-lang-badge">Japanese</span>
+    <span class="tr-lang-badge">+16 more</span>
   </div>
 </div>
 
 <form id="translateForm" enctype="multipart/form-data">
   {% csrf_token %}
-  <div class="upload-zone" id="uploadZone">
-    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-    <p class="upload-title">Drop your PDF here</p>
-    <p class="upload-sub">or click to browse</p>
-    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select PDF</span>
-    <input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
-  </div>
-  <div class="file-list" id="fileList"></div>
 
-  <div class="options-panel">
-    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Translation Options</div>
-    <div class="form-group">
-      <div class="form-label">Target Language</div>
-      <div class="toggle-group" style="flex-wrap:wrap;gap:.4rem;">
-        <label class="toggle-option"><input type="radio" name="language" value="Hindi" checked><span>Hindi</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Telugu"><span>Telugu</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Tamil"><span>Tamil</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Kannada"><span>Kannada</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Malayalam"><span>Malayalam</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Bengali"><span>Bengali</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Marathi"><span>Marathi</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Gujarati"><span>Gujarati</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Punjabi"><span>Punjabi</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="French"><span>French</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Spanish"><span>Spanish</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="German"><span>German</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Arabic"><span>Arabic</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Chinese (Simplified)"><span>Chinese</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Japanese"><span>Japanese</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Korean"><span>Korean</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Portuguese"><span>Portuguese</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Russian"><span>Russian</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Italian"><span>Italian</span></label>
-        <label class="toggle-option"><input type="radio" name="language" value="Dutch"><span>Dutch</span></label>
-      </div>
+  <!-- Drop zone -->
+  <div class="tr-drop" id="uploadZone">
+    <input type="file" id="fileInput" name="file" accept=".pdf">
+    <div class="tr-drop-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+    <h3>Drop your PDF here</h3>
+    <p>Upload any PDF — AI will translate the entire document content</p>
+    <button type="button" class="tr-drop-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-folder-open"></i> Select PDF File
+    </button>
+    <br><span class="tr-drop-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; 100% local &nbsp;·&nbsp; Never stored</span>
+  </div>
+
+  <!-- File bar -->
+  <div class="tr-file-bar" id="fileBar">
+    <i class="fa-solid fa-file-pdf tr-file-bar-icon"></i>
+    <span class="tr-file-bar-name" id="fileBarName">—</span>
+    <span class="tr-file-bar-size" id="fileBarSize">—</span>
+  </div>
+
+  <!-- Language picker -->
+  <div class="tr-lang-panel">
+    <div class="tr-lang-title"><i class="fa-solid fa-globe"></i> Choose Target Language</div>
+    <div class="tr-lang-grid">
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_hi" value="Hindi" checked><label for="l_hi">🇮🇳 Hindi</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_te" value="Telugu"><label for="l_te">Telugu</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_ta" value="Tamil"><label for="l_ta">Tamil</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_kn" value="Kannada"><label for="l_kn">Kannada</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_ml" value="Malayalam"><label for="l_ml">Malayalam</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_bn" value="Bengali"><label for="l_bn">Bengali</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_mr" value="Marathi"><label for="l_mr">Marathi</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_gu" value="Gujarati"><label for="l_gu">Gujarati</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_pa" value="Punjabi"><label for="l_pa">Punjabi</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_fr" value="French"><label for="l_fr">🇫🇷 French</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_es" value="Spanish"><label for="l_es">🇪🇸 Spanish</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_de" value="German"><label for="l_de">🇩🇪 German</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_ar" value="Arabic"><label for="l_ar">🇸🇦 Arabic</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_zh" value="Chinese (Simplified)"><label for="l_zh">🇨🇳 Chinese</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_ja" value="Japanese"><label for="l_ja">🇯🇵 Japanese</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_ko" value="Korean"><label for="l_ko">🇰🇷 Korean</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_pt" value="Portuguese"><label for="l_pt">🇵🇹 Portuguese</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_ru" value="Russian"><label for="l_ru">🇷🇺 Russian</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_it" value="Italian"><label for="l_it">🇮🇹 Italian</label></div>
+      <div class="tr-lang-opt"><input type="radio" name="language" id="l_nl" value="Dutch"><label for="l_nl">🇳🇱 Dutch</label></div>
     </div>
   </div>
 
-  <div class="action-bar">
-    <button type="submit" class="btn btn-primary btn-lg btn-submit" id="submitBtn">
-      <i class="fa-solid fa-language"></i> Translate
-    </button>
-  </div>
+  <button type="submit" class="tr-submit" id="submitBtn">
+    <i class="fa-solid fa-language"></i> Translate PDF
+  </button>
 </form>
 
 <!-- Result panel -->
-<div id="resultPanel" style="display:none; margin-top:1.5rem;">
-  <div class="options-panel">
-    <div class="options-panel-title" style="display:flex;align-items:center;justify-content:space-between;">
-      <span><i class="fa-solid fa-file-lines"></i> Translated Text</span>
-      <div style="display:flex;gap:.5rem;align-items:center;">
-        <span id="pageCount" style="font-size:.75rem;color:var(--text-muted);font-weight:400;"></span>
-        <a id="downloadBtn" class="btn btn-sm" style="padding:.3rem .7rem;font-size:.78rem;text-decoration:none;">
-          <i class="fa-solid fa-download"></i> Download
-        </a>
-        <button class="btn btn-sm" onclick="copyText()" style="padding:.3rem .7rem;font-size:.78rem;">
-          <i class="fa-solid fa-copy"></i> Copy
-        </button>
+<div id="resultPanel" style="display:none;">
+  <div class="tr-result-card">
+    <div class="tr-result-head">
+      <div class="tr-result-head-left"><i class="fa-solid fa-file-lines"></i> Translated Text &nbsp;<span id="pageCount" style="font-size:.72rem;color:#888;font-weight:400;"></span></div>
+      <div class="tr-result-actions">
+        <a id="downloadBtn" class="tr-action-btn"><i class="fa-solid fa-download"></i> Download</a>
+        <button class="tr-action-btn" onclick="copyText()"><i class="fa-solid fa-copy"></i> Copy</button>
       </div>
     </div>
-    <div id="translatedContent" style="
-      margin-top:1rem; line-height:1.8; color:var(--text);
-      white-space:pre-wrap; font-size:.9rem; max-height:500px;
-      overflow-y:auto; padding-right:.5rem;
-    "></div>
+    <div class="tr-result-body" id="translatedContent"></div>
   </div>
+</div>
+
+<!-- Info strip -->
+<div class="tr-info-strip">
+  <div class="tr-info-card"><div class="tr-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="tr-info-title">Private</div><div class="tr-info-desc">Files never stored</div></div></div>
+  <div class="tr-info-card"><div class="tr-info-icon"><i class="fa-solid fa-globe"></i></div><div><div class="tr-info-title">20 Languages</div><div class="tr-info-desc">Indian + Global</div></div></div>
+  <div class="tr-info-card"><div class="tr-info-icon"><i class="fa-solid fa-brain"></i></div><div><div class="tr-info-title">AI Powered</div><div class="tr-info-desc">Accurate translation</div></div></div>
+  <div class="tr-info-card"><div class="tr-info-icon"><i class="fa-solid fa-download"></i></div><div><div class="tr-info-title">Download TXT</div><div class="tr-info-desc">Save translated text</div></div></div>
 </div>
 
 <div class="progress-wrap" id="progressWrap" style="display:none;">
@@ -100,7 +177,7 @@
 <script>
 const zone      = document.getElementById('uploadZone');
 const input     = document.getElementById('fileInput');
-const fileList  = document.getElementById('fileList');
+const fileBar   = document.getElementById('fileBar');
 const form      = document.getElementById('translateForm');
 const submitBtn = document.getElementById('submitBtn');
 const progress  = document.getElementById('progressWrap');
@@ -109,7 +186,6 @@ const contentEl = document.getElementById('translatedContent');
 const pageEl    = document.getElementById('pageCount');
 const dlBtn     = document.getElementById('downloadBtn');
 
-zone.addEventListener('click', () => input.click());
 zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
 zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
 zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
@@ -118,7 +194,9 @@ input.addEventListener('change', () => setFile(input.files[0]));
 function setFile(f) {
   if (!f) return;
   const dt = new DataTransfer(); dt.items.add(f); input.files = dt.files;
-  fileList.innerHTML = `<div class="file-item"><span class="file-name"><i class="fa-solid fa-file-pdf" style="color:#e74c3c"></i> ${f.name}</span><span class="file-size">${(f.size/1024).toFixed(1)} KB</span></div>`;
+  document.getElementById('fileBarName').textContent = f.name;
+  document.getElementById('fileBarSize').textContent = (f.size/1024).toFixed(1) + ' KB';
+  fileBar.classList.add('show');
 }
 
 form.addEventListener('submit', async e => {
