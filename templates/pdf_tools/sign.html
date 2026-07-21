@@ -1,57 +1,114 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block title %}Sign PDF — ZayroDocX{% endblock %}
 {% block active_sign %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Sign PDF</span>{% endblock %}
+
+{% block extra_head %}
+<style>
+.cv-opts-card { background:#fff; border:1.5px solid #fca5a5; border-radius:16px; padding:1.2rem 1.4rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(220,38,38,.06); }
+.cv-opts-title { font-size:.75rem; font-weight:800; color:#b91c1c; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.85rem; display:flex; align-items:center; gap:.45rem; }
+.cv-field-label { font-size:.75rem; font-weight:700; color:#555; margin-bottom:.45rem; }
+.cv-input { width:100%; box-sizing:border-box; border:1.5px solid #e8e8e8; border-radius:10px; padding:.65rem .9rem; font-size:.88rem; color:#111; background:#fff; outline:none; transition:border-color .15s; }
+.cv-input:focus { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.1); }
+.cv-type-tabs { display:flex; gap:.5rem; margin-bottom:1rem; }
+.cv-type-tab { display:inline-flex; align-items:center; gap:.4rem; padding:.5rem 1rem; border:1.5px solid #e8e8e8; border-radius:9px; font-size:.82rem; font-weight:600; cursor:pointer; color:#555; background:#fff; transition:all .15s; }
+.cv-type-tab input { display:none; }
+.cv-type-tab:has(input:checked) { border-color:#dc2626; background:#fff8f8; color:#dc2626; box-shadow:0 0 0 2px rgba(220,38,38,.1); }
+.cv-type-tab:hover { border-color:#fca5a5; color:#b91c1c; }
+.cv-canvas-wrap { border:1.5px solid #fca5a5; border-radius:12px; overflow:hidden; background:#fff; touch-action:none; margin-bottom:.65rem; }
+.cv-canvas-wrap canvas { display:block; width:100%; height:160px; cursor:crosshair; }
+.cv-clear-btn { display:inline-flex; align-items:center; gap:.4rem; background:#fff; border:1.5px solid #fca5a5; border-radius:8px; padding:.38rem .85rem; font-size:.78rem; font-weight:600; color:#dc2626; cursor:pointer; transition:all .15s; }
+.cv-clear-btn:hover { background:#fee2e2; }
+.cv-row5 { display:grid; grid-template-columns:repeat(5,1fr); gap:.5rem; margin-top:.75rem; }
+.cv-hint { font-size:.74rem; color:#aaa; margin-bottom:.65rem; }
+</style>
+{% endblock %}
+
 {% block content %}
-<form id="toolForm" enctype="multipart/form-data">{% csrf_token %}
-  <div class="upload-zone"><input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-    <h3>Drop your PDF here</h3><p>or click to browse</p>
-    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select PDF File</span>
+<div class="cv-hero">
+  <div class="cv-hero-left">
+    <div class="cv-eyebrow"><i class="fa-solid fa-signature"></i> Edit PDF</div>
+    <h2>Sign PDF</h2>
+    <p>Draw your signature or upload an image — place it precisely on any page</p>
   </div>
-  <div class="file-list" id="fileList"></div>
-  <div class="options-panel">
-    <div class="options-panel-title"><i class="fa-solid fa-signature"></i> Signature</div>
-    <div class="form-group">
-      <div class="toggle-group">
-        <div class="toggle-option"><input type="radio" name="sig_method" id="smDraw" value="draw" checked><label for="smDraw"><i class="fa-solid fa-pen"></i> Draw</label></div>
-        <div class="toggle-option"><input type="radio" name="sig_method" id="smUpload" value="upload"><label for="smUpload"><i class="fa-solid fa-image"></i> Upload Image</label></div>
-      </div>
+  <div class="cv-hero-pills">
+    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-pen"></i></span><div class="l">Draw</div></div>
+    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-image"></i></span><div class="l">Upload</div></div>
+    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
+  </div>
+</div>
+
+<form id="toolForm" enctype="multipart/form-data">{% csrf_token %}
+  <div class="cv-drop" id="cvDrop">
+    <input type="file" id="fileInput" name="file" accept=".pdf">
+    <div class="cv-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+    <h3>Drop your PDF here</h3>
+    <p>Then draw or upload your signature below</p>
+    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-folder-open"></i> Select PDF File
+    </button>
+    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; Private &nbsp;·&nbsp; Free</span>
+  </div>
+  <div class="cv-file-bar" id="cvFileBar">
+    <i class="fa-solid fa-file-pdf cv-file-icon" style="color:#dc2626"></i>
+    <span class="cv-file-name" id="cvFileName">—</span>
+    <span class="cv-file-size" id="cvFileSize">—</span>
+  </div>
+
+  <div class="cv-opts-card">
+    <div class="cv-opts-title"><i class="fa-solid fa-signature"></i> Signature</div>
+    <div class="cv-type-tabs">
+      <label class="cv-type-tab"><input type="radio" name="sig_method" id="smDraw" value="draw" checked><i class="fa-solid fa-pen"></i> Draw</label>
+      <label class="cv-type-tab"><input type="radio" name="sig_method" id="smUpload" value="upload"><i class="fa-solid fa-image"></i> Upload Image</label>
     </div>
+
     <div id="drawSection">
-      <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:10px">Draw your signature below (mouse or touch):</p>
-      <div class="sig-wrap"><canvas id="signatureCanvas" width="600" height="160"></canvas></div>
-      <div class="sig-actions">
-        <button type="button" id="clearCanvas" class="btn btn-secondary btn-sm"><i class="fa-solid fa-eraser"></i> Clear</button>
-      </div>
+      <div class="cv-hint">Draw your signature below using mouse or touch:</div>
+      <div class="cv-canvas-wrap"><canvas id="signatureCanvas" width="600" height="160"></canvas></div>
+      <button type="button" id="clearCanvas" class="cv-clear-btn"><i class="fa-solid fa-eraser"></i> Clear</button>
       <input type="hidden" name="signature_data" id="signatureData">
     </div>
+
     <div id="uploadSection" style="display:none">
-      <div class="form-group">
-        <div class="form-label">Signature Image <span class="form-hint">(PNG with transparent background recommended)</span></div>
-        <input type="file" name="signature" class="form-control" accept="image/*">
-      </div>
+      <div class="cv-field-label">Signature Image <span style="font-size:.7rem;color:#aaa;font-weight:400;">(PNG with transparent background recommended)</span></div>
+      <input type="file" name="signature" class="cv-input" accept="image/*" style="padding:.5rem .9rem;">
     </div>
-    <div class="form-row" style="margin-top:18px">
-      <div class="form-group"><div class="form-label">Page</div><input type="number" name="page" class="form-control" value="1" min="1"></div>
-      <div class="form-group"><div class="form-label">X1 (left pt)</div><input type="number" name="x1" class="form-control" value="50"></div>
-      <div class="form-group"><div class="form-label">Y1 (top pt)</div><input type="number" name="y1" class="form-control" value="700"></div>
-      <div class="form-group"><div class="form-label">X2 (right pt)</div><input type="number" name="x2" class="form-control" value="250"></div>
-      <div class="form-group"><div class="form-label">Y2 (bottom pt)</div><input type="number" name="y2" class="form-control" value="760"></div>
+
+    <div class="cv-row5" style="margin-top:1rem;">
+      <div><div class="cv-field-label">Page</div><input type="number" name="page" class="cv-input" value="1" min="1"></div>
+      <div><div class="cv-field-label">X1 (left)</div><input type="number" name="x1" class="cv-input" value="50"></div>
+      <div><div class="cv-field-label">Y1 (top)</div><input type="number" name="y1" class="cv-input" value="700"></div>
+      <div><div class="cv-field-label">X2 (right)</div><input type="number" name="x2" class="cv-input" value="250"></div>
+      <div><div class="cv-field-label">Y2 (bottom)</div><input type="number" name="y2" class="cv-input" value="760"></div>
     </div>
   </div>
-  <div class="action-bar">
-    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-signature"></i> Sign PDF</button>
-  </div>
+
+  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-signature"></i> Sign PDF</button>
 </form>
+
 <div class="progress-wrap">
   <div class="progress-header"><span class="progress-label">Signing PDF…</span></div>
   <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
 </div>
 <div class="result-card"></div>
+
+<div class="cv-info-strip">
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-pen"></i></div><div><div class="cv-info-title">Draw or Upload</div><div class="cv-info-desc">Two signature modes</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-crosshairs"></i></div><div><div class="cv-info-title">Precise Placement</div><div class="cv-info-desc">X/Y coordinates</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
+</div>
 {% endblock %}
+
 {% block extra_js %}<script>
-document.getElementById('fileInput').addEventListener('change',function(){renderFileList(this.files,'fileList');});
+(function(){
+  const inp=document.getElementById('fileInput'),drop=document.getElementById('cvDrop'),bar=document.getElementById('cvFileBar');
+  function setFile(f){if(!f)return;document.getElementById('cvFileName').textContent=f.name;document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB';bar.classList.add('show');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;}
+  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+  inp.addEventListener('change',()=>setFile(inp.files[0]));
+})();
 initSignatureCanvas('signatureCanvas');
 document.querySelectorAll('input[name="sig_method"]').forEach(r=>r.addEventListener('change',function(){
   document.getElementById('drawSection').style.display=this.value==='draw'?'block':'none';

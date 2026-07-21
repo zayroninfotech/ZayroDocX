@@ -1,41 +1,95 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block title %}Rotate PDF — ZayroDocX{% endblock %}
 {% block active_rotate %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Rotate PDF</span>{% endblock %}
+
+{% block extra_head %}
+<style>
+.cv-angle-grid { display:flex; gap:.6rem; flex-wrap:wrap; }
+.cv-angle-opt { position:relative; }
+.cv-angle-opt input { position:absolute;opacity:0;width:0;height:0; }
+.cv-angle-opt label { display:flex; flex-direction:column; align-items:center; gap:.4rem; padding:.85rem 1.1rem; border:1.5px solid #e8e8e8; border-radius:12px; cursor:pointer; color:#555; background:#fff; transition:all .15s; min-width:80px; }
+.cv-angle-opt label i { font-size:1.3rem; color:#aaa; transition:color .15s; }
+.cv-angle-opt label span { font-size:.78rem; font-weight:700; }
+.cv-angle-opt input:checked + label { border-color:#dc2626; background:#fff8f8; color:#dc2626; box-shadow:0 0 0 2px rgba(220,38,38,.12); }
+.cv-angle-opt input:checked + label i { color:#dc2626; }
+.cv-angle-opt label:hover { border-color:#fca5a5; color:#b91c1c; }
+.cv-opts-card { background:#fff; border:1.5px solid #fca5a5; border-radius:16px; padding:1.2rem 1.4rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(220,38,38,.06); }
+.cv-opts-title { font-size:.75rem; font-weight:800; color:#b91c1c; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.85rem; display:flex; align-items:center; gap:.45rem; }
+.cv-field-label { font-size:.75rem; font-weight:700; color:#555; margin-bottom:.45rem; }
+.cv-input { width:100%; box-sizing:border-box; border:1.5px solid #e8e8e8; border-radius:10px; padding:.65rem .9rem; font-size:.88rem; color:#111; background:#fff; outline:none; transition:border-color .15s; }
+.cv-input:focus { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.1); }
+</style>
+{% endblock %}
+
 {% block content %}
+<div class="cv-hero">
+  <div class="cv-hero-left">
+    <div class="cv-eyebrow"><i class="fa-solid fa-rotate-right"></i> Edit PDF</div>
+    <h2>Rotate PDF</h2>
+    <p>Rotate pages 90°, 180° or 270° — choose specific pages or all at once</p>
+  </div>
+  <div class="cv-hero-pills">
+    <div class="cv-hero-pill"><span class="n">90°</span><div class="l">Right</div></div>
+    <div class="cv-hero-pill"><span class="n">180°</span><div class="l">Flip</div></div>
+    <div class="cv-hero-pill"><span class="n">270°</span><div class="l">Left</div></div>
+  </div>
+</div>
+
 <form id="toolForm">{% csrf_token %}
-  <div class="upload-zone"><input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-    <h3>Drop your file here</h3><p>or click to browse</p>
-    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select PDF</span>
+  <div class="cv-drop" id="cvDrop">
+    <input type="file" id="fileInput" name="file" accept=".pdf">
+    <div class="cv-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+    <h3>Drop your PDF here</h3>
+    <p>Select the rotation angle and pages below</p>
+    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-folder-open"></i> Select PDF File
+    </button>
+    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; Private &nbsp;·&nbsp; Free</span>
   </div>
-  <div class="file-list" id="fileList"></div>
-  <div class="options-panel">
-    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Options</div>
-    <div class="form-group">
-      <div class="form-label">Rotation Angle</div>
-      <div class="toggle-group">
-        <label class="toggle-option"><input type="radio" name="angle" value="90" checked><span>90° Right</span></label>
-        <label class="toggle-option"><input type="radio" name="angle" value="180"><span>180°</span></label>
-        <label class="toggle-option"><input type="radio" name="angle" value="270"><span>90° Left</span></label>
-      </div>
+  <div class="cv-file-bar" id="cvFileBar">
+    <i class="fa-solid fa-file-pdf cv-file-icon" style="color:#dc2626"></i>
+    <span class="cv-file-name" id="cvFileName">—</span>
+    <span class="cv-file-size" id="cvFileSize">—</span>
+  </div>
+
+  <div class="cv-opts-card">
+    <div class="cv-opts-title"><i class="fa-solid fa-sliders"></i> Rotation Options</div>
+    <div class="cv-field-label">Rotation Angle</div>
+    <div class="cv-angle-grid" style="margin-bottom:1rem;">
+      <div class="cv-angle-opt"><input type="radio" name="angle" id="a90" value="90" checked><label for="a90"><i class="fa-solid fa-rotate-right"></i><span>90° Right</span></label></div>
+      <div class="cv-angle-opt"><input type="radio" name="angle" id="a180" value="180"><label for="a180"><i class="fa-solid fa-arrows-rotate"></i><span>180°</span></label></div>
+      <div class="cv-angle-opt"><input type="radio" name="angle" id="a270" value="270"><label for="a270"><i class="fa-solid fa-rotate-left"></i><span>90° Left</span></label></div>
     </div>
-    <div class="form-group">
-      <div class="form-label">Pages <span class="form-hint">(leave blank for all pages)</span></div>
-      <input type="text" name="pages" class="form-control" placeholder="e.g. 1, 3, 5-8  — blank = all">
-    </div>
+    <div class="cv-field-label">Pages <span style="font-size:.7rem;color:#aaa;font-weight:400;">(leave blank for all pages)</span></div>
+    <input type="text" name="pages" class="cv-input" placeholder="e.g. 1, 3, 5-8 — blank = all pages">
   </div>
-  <div class="action-bar">
-    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-rotate-right"></i> Rotate Pages</button>
-  </div>
+
+  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-rotate-right"></i> Rotate Pages</button>
 </form>
+
 <div class="progress-wrap">
-  <div class="progress-header"><span class="progress-label">Processing…</span></div>
+  <div class="progress-header"><span class="progress-label">Rotating pages…</span></div>
   <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
 </div>
 <div class="result-card"></div>
+
+<div class="cv-info-strip">
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-rotate-right"></i></div><div><div class="cv-info-title">Any Angle</div><div class="cv-info-desc">90°, 180°, 270°</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-file-lines"></i></div><div><div class="cv-info-title">Select Pages</div><div class="cv-info-desc">Specific or all pages</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
+</div>
 {% endblock %}
+
 {% block extra_js %}<script>
-document.getElementById('fileInput').addEventListener('change',function(){renderFileList(this.files,'fileList');});
+(function(){
+  const inp=document.getElementById('fileInput'),drop=document.getElementById('cvDrop'),bar=document.getElementById('cvFileBar');
+  function setFile(f){if(!f)return;document.getElementById('cvFileName').textContent=f.name;document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB';bar.classList.add('show');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;}
+  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+  inp.addEventListener('change',()=>setFile(inp.files[0]));
+})();
 submitToolForm({formId:'toolForm',apiUrl:'{% url "api_rotate_pdf" %}',fileInputId:'fileInput'});
 </script>{% endblock %}

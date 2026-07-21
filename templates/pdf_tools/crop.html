@@ -2,56 +2,113 @@
 {% load static %}
 {% block title %}Crop PDF — ZayroDocX{% endblock %}
 {% block active_crop %}active{% endblock %}
-{% block breadcrumb %}<span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Crop PDF</span>{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Crop PDF</span>{% endblock %}
+
+{% block extra_head %}
+<style>
+.cv-opts-card { background:#fff; border:1.5px solid #fca5a5; border-radius:16px; padding:1.2rem 1.4rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(220,38,38,.06); }
+.cv-opts-title { font-size:.75rem; font-weight:800; color:#b91c1c; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.85rem; display:flex; align-items:center; gap:.45rem; }
+.cv-field-label { font-size:.75rem; font-weight:700; color:#555; margin-bottom:.45rem; }
+.cv-input { width:100%; box-sizing:border-box; border:1.5px solid #e8e8e8; border-radius:10px; padding:.65rem .9rem; font-size:.88rem; color:#111; background:#fff; outline:none; transition:border-color .15s; }
+.cv-input:focus { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.1); }
+.cv-crop-grid { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
+.cv-crop-field { position:relative; }
+.cv-crop-unit { position:absolute; right:.75rem; top:50%; transform:translateY(-50%); font-size:.72rem; color:#aaa; font-weight:600; pointer-events:none; }
+.cv-crop-diagram { display:flex; align-items:center; justify-content:center; padding:1.2rem 0 .5rem; }
+.cv-crop-box { width:120px; height:80px; border:2.5px solid #dc2626; border-radius:8px; position:relative; background:#fff8f8; display:flex; align-items:center; justify-content:center; }
+.cv-crop-label { font-size:.6rem; font-weight:700; color:#dc2626; position:absolute; }
+.cv-crop-label.top    { top:-18px; left:50%; transform:translateX(-50%); }
+.cv-crop-label.bottom { bottom:-18px; left:50%; transform:translateX(-50%); }
+.cv-crop-label.left   { left:-24px; top:50%; transform:translateY(-50%); }
+.cv-crop-label.right  { right:-28px; top:50%; transform:translateY(-50%); }
+.cv-crop-center { font-size:.6rem; color:#dc2626; opacity:.5; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="tool-header">
-  <div class="tool-icon-wrap ti-orange"><i class="fa-solid fa-crop-simple"></i></div>
-  <div>
-    <h1 class="tool-title">Crop PDF</h1>
-    <p class="tool-desc">Remove margins from all pages by specifying crop amounts in millimetres.</p>
+<div class="cv-hero">
+  <div class="cv-hero-left">
+    <div class="cv-eyebrow"><i class="fa-solid fa-crop-simple"></i> Edit PDF</div>
+    <h2>Crop PDF</h2>
+    <p>Remove margins from all pages by specifying crop amounts in millimetres</p>
+  </div>
+  <div class="cv-hero-pills">
+    <div class="cv-hero-pill"><span class="n">mm</span><div class="l">Precision</div></div>
+    <div class="cv-hero-pill"><span class="n">All</span><div class="l">Pages</div></div>
+    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
   </div>
 </div>
-<form id="mainForm" enctype="multipart/form-data">
-  {% csrf_token %}
-  <div class="upload-zone" id="uploadZone">
-    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-    <p class="upload-title">Drop your PDF here</p>
-    <p class="upload-sub">or click to browse</p>
-    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select PDF</span>
-    <input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
+
+<form id="mainForm" enctype="multipart/form-data">{% csrf_token %}
+  <div class="cv-drop" id="cvDrop">
+    <input type="file" id="fileInput" name="file" accept=".pdf">
+    <div class="cv-drop-icon"><i class="fa-solid fa-crop-simple"></i></div>
+    <h3>Drop your PDF here</h3>
+    <p>Set crop margins below to trim all pages</p>
+    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-folder-open"></i> Select PDF File
+    </button>
+    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; Private &nbsp;·&nbsp; Free</span>
   </div>
-  <div class="file-list" id="fileList"></div>
-  <div class="options-panel">
-    <div class="options-panel-title"><i class="fa-solid fa-crop-simple"></i> Crop Margins (mm)</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.75rem;">
-      <div class="form-group"><div class="form-label">Top</div><input type="number" name="top_mm" class="form-control" value="0" min="0" max="200"></div>
-      <div class="form-group"><div class="form-label">Bottom</div><input type="number" name="bottom_mm" class="form-control" value="0" min="0" max="200"></div>
-      <div class="form-group"><div class="form-label">Left</div><input type="number" name="left_mm" class="form-control" value="0" min="0" max="200"></div>
-      <div class="form-group"><div class="form-label">Right</div><input type="number" name="right_mm" class="form-control" value="0" min="0" max="200"></div>
+  <div class="cv-file-bar" id="cvFileBar">
+    <i class="fa-solid fa-file-pdf cv-file-icon" style="color:#dc2626"></i>
+    <span class="cv-file-name" id="cvFileName">—</span>
+    <span class="cv-file-size" id="cvFileSize">—</span>
+  </div>
+
+  <div class="cv-opts-card">
+    <div class="cv-opts-title"><i class="fa-solid fa-crop-simple"></i> Crop Margins</div>
+    <div class="cv-crop-diagram">
+      <div class="cv-crop-box">
+        <span class="cv-crop-label top">TOP</span>
+        <span class="cv-crop-label bottom">BOTTOM</span>
+        <span class="cv-crop-label left">LEFT</span>
+        <span class="cv-crop-label right">RIGHT</span>
+        <span class="cv-crop-center">PDF Page</span>
+      </div>
+    </div>
+    <div class="cv-crop-grid" style="margin-top:.75rem;">
+      <div class="cv-crop-field"><div class="cv-field-label">Top (mm)</div><input type="number" name="top_mm" class="cv-input" value="0" min="0" max="200"><span class="cv-crop-unit">mm</span></div>
+      <div class="cv-crop-field"><div class="cv-field-label">Bottom (mm)</div><input type="number" name="bottom_mm" class="cv-input" value="0" min="0" max="200"><span class="cv-crop-unit">mm</span></div>
+      <div class="cv-crop-field"><div class="cv-field-label">Left (mm)</div><input type="number" name="left_mm" class="cv-input" value="0" min="0" max="200"><span class="cv-crop-unit">mm</span></div>
+      <div class="cv-crop-field"><div class="cv-field-label">Right (mm)</div><input type="number" name="right_mm" class="cv-input" value="0" min="0" max="200"><span class="cv-crop-unit">mm</span></div>
     </div>
   </div>
-  <div class="action-bar">
-    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-crop-simple"></i> Crop PDF</button>
-  </div>
+
+  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-crop-simple"></i> Crop PDF</button>
 </form>
-<div class="progress-wrap" id="progressWrap" style="display:none;"><div class="progress-inner"><div class="progress-spinner"></div><span>Cropping pages…</span></div></div>
+
+<div class="progress-wrap" id="progressWrap" style="display:none;">
+  <div class="progress-header"><span class="progress-label">Cropping pages…</span></div>
+  <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
+</div>
+
+<div class="cv-info-strip">
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-ruler"></i></div><div><div class="cv-info-title">mm Precision</div><div class="cv-info-desc">Millimetre accuracy</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-file-lines"></i></div><div><div class="cv-info-title">All Pages</div><div class="cv-info-desc">Every page cropped</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
+</div>
 {% endblock %}
+
 {% block extra_js %}<script>
-const zone=document.getElementById('uploadZone'),input=document.getElementById('fileInput'),fileList=document.getElementById('fileList');
-zone.addEventListener('click',()=>input.click());
-zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
-zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
-zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
-input.addEventListener('change',()=>setFile(input.files[0]));
-function setFile(f){if(!f)return;const dt=new DataTransfer();dt.items.add(f);input.files=dt.files;fileList.innerHTML=`<div class="file-item"><span class="file-name"><i class="fa-solid fa-file-pdf" style="color:#e74c3c"></i> ${f.name}</span><span class="file-size">${(f.size/1024).toFixed(1)} KB</span></div>`;}
+(function(){
+  const inp=document.getElementById('fileInput'),drop=document.getElementById('cvDrop'),bar=document.getElementById('cvFileBar');
+  function setFile(f){if(!f)return;document.getElementById('cvFileName').textContent=f.name;document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB';bar.classList.add('show');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;}
+  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+  inp.addEventListener('change',()=>setFile(inp.files[0]));
+})();
 const MM2PT=2.8346;
 document.getElementById('mainForm').addEventListener('submit',async e=>{
   e.preventDefault();
-  if(!input.files[0]){toast('Please select a PDF.','error');return;}
-  document.getElementById('progressWrap').style.display='flex';
+  const inp=document.getElementById('fileInput');
+  if(!inp.files[0]){toast('Please select a PDF.','error');return;}
+  document.getElementById('progressWrap').style.display='block';
   const fd=new FormData();
   fd.append('csrfmiddlewaretoken',e.target.querySelector('[name=csrfmiddlewaretoken]').value);
-  fd.append('file',input.files[0]);
+  fd.append('file',inp.files[0]);
   fd.append('top',  (parseFloat(e.target.top_mm.value)||0)*MM2PT);
   fd.append('bottom',(parseFloat(e.target.bottom_mm.value)||0)*MM2PT);
   fd.append('left', (parseFloat(e.target.left_mm.value)||0)*MM2PT);

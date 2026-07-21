@@ -1,46 +1,102 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block title %}Page Numbers — ZayroDocX{% endblock %}
 {% block active_pagenum %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Page Numbers</span>{% endblock %}
+
+{% block extra_head %}
+<style>
+.cv-opts-card { background:#fff; border:1.5px solid #fca5a5; border-radius:16px; padding:1.2rem 1.4rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(220,38,38,.06); }
+.cv-opts-title { font-size:.75rem; font-weight:800; color:#b91c1c; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.85rem; display:flex; align-items:center; gap:.45rem; }
+.cv-field-label { font-size:.75rem; font-weight:700; color:#555; margin-bottom:.45rem; }
+.cv-input { width:100%; box-sizing:border-box; border:1.5px solid #e8e8e8; border-radius:10px; padding:.65rem .9rem; font-size:.88rem; color:#111; background:#fff; outline:none; transition:border-color .15s; }
+.cv-input:focus { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.1); }
+.cv-pos-grid { display:grid; grid-template-columns:1fr 1fr; gap:.5rem; margin-bottom:1rem; }
+.cv-pos-opt { position:relative; }
+.cv-pos-opt input { position:absolute;opacity:0;width:0;height:0; }
+.cv-pos-opt label { display:flex; align-items:center; gap:.5rem; padding:.65rem .9rem; border:1.5px solid #e8e8e8; border-radius:10px; cursor:pointer; color:#555; font-size:.82rem; font-weight:600; background:#fff; transition:all .15s; }
+.cv-pos-opt input:checked + label { border-color:#dc2626; background:#fff8f8; color:#dc2626; box-shadow:0 0 0 2px rgba(220,38,38,.1); }
+.cv-pos-opt label:hover { border-color:#fca5a5; color:#b91c1c; }
+.cv-row2 { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
+</style>
+{% endblock %}
+
 {% block content %}
-<form id="toolForm">{% csrf_token %}
-  <div class="upload-zone"><input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-    <h3>Drop your file here</h3><p>or click to browse</p>
-    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select PDF</span>
+<div class="cv-hero">
+  <div class="cv-hero-left">
+    <div class="cv-eyebrow"><i class="fa-solid fa-list-ol"></i> Edit PDF</div>
+    <h2>Add Page Numbers</h2>
+    <p>Number every page automatically — choose position, start number and font size</p>
   </div>
-  <div class="file-list" id="fileList"></div>
-  <div class="options-panel">
-    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Options</div>
-    <div class="form-group">
-      <div class="form-label">Position</div>
-      <div class="toggle-group">
-        <label class="toggle-option"><input type="radio" name="position" value="bottom-center" checked><span>Bottom Centre</span></label>
-        <label class="toggle-option"><input type="radio" name="position" value="bottom-right"><span>Bottom Right</span></label>
-        <label class="toggle-option"><input type="radio" name="position" value="top-center"><span>Top Centre</span></label>
-        <label class="toggle-option"><input type="radio" name="position" value="top-right"><span>Top Right</span></label>
+  <div class="cv-hero-pills">
+    <div class="cv-hero-pill"><span class="n">4</span><div class="l">Positions</div></div>
+    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-font"></i></span><div class="l">Custom Font</div></div>
+    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
+  </div>
+</div>
+
+<form id="toolForm">{% csrf_token %}
+  <div class="cv-drop" id="cvDrop">
+    <input type="file" id="fileInput" name="file" accept=".pdf">
+    <div class="cv-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+    <h3>Drop your PDF here</h3>
+    <p>Page numbers will be added to every page</p>
+    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-folder-open"></i> Select PDF File
+    </button>
+    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; Private &nbsp;·&nbsp; Free</span>
+  </div>
+  <div class="cv-file-bar" id="cvFileBar">
+    <i class="fa-solid fa-file-pdf cv-file-icon" style="color:#dc2626"></i>
+    <span class="cv-file-name" id="cvFileName">—</span>
+    <span class="cv-file-size" id="cvFileSize">—</span>
+  </div>
+
+  <div class="cv-opts-card">
+    <div class="cv-opts-title"><i class="fa-solid fa-sliders"></i> Number Options</div>
+    <div class="cv-field-label" style="margin-bottom:.55rem;">Number Position</div>
+    <div class="cv-pos-grid">
+      <div class="cv-pos-opt"><input type="radio" name="position" id="pbc" value="bottom-center" checked><label for="pbc"><i class="fa-solid fa-align-center"></i> Bottom Centre</label></div>
+      <div class="cv-pos-opt"><input type="radio" name="position" id="pbr" value="bottom-right"><label for="pbr"><i class="fa-solid fa-align-right"></i> Bottom Right</label></div>
+      <div class="cv-pos-opt"><input type="radio" name="position" id="ptc" value="top-center"><label for="ptc"><i class="fa-solid fa-align-center"></i> Top Centre</label></div>
+      <div class="cv-pos-opt"><input type="radio" name="position" id="ptr" value="top-right"><label for="ptr"><i class="fa-solid fa-align-right"></i> Top Right</label></div>
+    </div>
+    <div class="cv-row2">
+      <div>
+        <div class="cv-field-label">Starting Number</div>
+        <input type="number" name="start" class="cv-input" value="1" min="0">
+      </div>
+      <div>
+        <div class="cv-field-label">Font Size (pt)</div>
+        <input type="number" name="font_size" class="cv-input" value="12" min="8" max="36">
       </div>
     </div>
-    <div class="form-group">
-      <div class="form-label">Starting Number</div>
-      <input type="number" name="start" class="form-control" value="1" min="0">
-    </div>
-    <div class="form-group">
-      <div class="form-label">Font Size</div>
-      <input type="number" name="font_size" class="form-control" value="12" min="8" max="36">
-    </div>
   </div>
-  <div class="action-bar">
-    <button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-list-ol"></i> Add Page Numbers</button>
-  </div>
+
+  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-list-ol"></i> Add Page Numbers</button>
 </form>
+
 <div class="progress-wrap">
-  <div class="progress-header"><span class="progress-label">Processing…</span></div>
+  <div class="progress-header"><span class="progress-label">Adding page numbers…</span></div>
   <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
 </div>
 <div class="result-card"></div>
+
+<div class="cv-info-strip">
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-crosshairs"></i></div><div><div class="cv-info-title">4 Positions</div><div class="cv-info-desc">Top & bottom options</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-font"></i></div><div><div class="cv-info-title">Custom Font</div><div class="cv-info-desc">Size & start number</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
+</div>
 {% endblock %}
+
 {% block extra_js %}<script>
-document.getElementById('fileInput').addEventListener('change',function(){renderFileList(this.files,'fileList');});
+(function(){
+  const inp=document.getElementById('fileInput'),drop=document.getElementById('cvDrop'),bar=document.getElementById('cvFileBar');
+  function setFile(f){if(!f)return;document.getElementById('cvFileName').textContent=f.name;document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB';bar.classList.add('show');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;}
+  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+  inp.addEventListener('change',()=>setFile(inp.files[0]));
+})();
 submitToolForm({formId:'toolForm',apiUrl:'{% url "api_page_numbers" %}',fileInputId:'fileInput'});
 </script>{% endblock %}
