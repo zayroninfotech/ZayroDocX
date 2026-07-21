@@ -1,7 +1,7 @@
 ﻿{% extends 'base.html' %}
-{% block title %}Scan to PDF — ZayroDocX{% endblock %}
+{% block title %}Image to PDF — ZayroDocX{% endblock %}
 {% block active_scan %}active{% endblock %}
-{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Scan to PDF</span>{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Image to PDF</span>{% endblock %}
 {% block content %}
 
 <style>
@@ -128,7 +128,7 @@
     <input type="file" id="fileInput" name="files" accept="image/*" multiple>
     <div class="sc-drop-icon"><i class="fa-solid fa-images"></i></div>
     <h3>Drop images here</h3>
-    <p>Select one or more images to convert into a single PDF</p>
+    <p>JPG, PNG, BMP, TIFF, WEBP, GIF — converted into a single PDF</p>
     <button type="button" class="sc-drop-btn" onclick="document.getElementById('fileInput').click()">
       <i class="fa-solid fa-plus"></i> Select Images
     </button>
