@@ -1,40 +1,103 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% load static %}
 {% block title %}Compress Image — ZayroDocX{% endblock %}
 {% block active_img_compress %}active{% endblock %}
 {% block breadcrumb %}<span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Compress Image</span>{% endblock %}
-{% block content %}
-<div class="tool-header">
-  <div class="tool-icon-wrap ti-green"><i class="fa-solid fa-compress-arrows-alt"></i></div>
-  <div><h1 class="tool-title">Compress Image</h1><p class="tool-desc">Reduce image file size while maintaining quality.</p></div>
-</div>
-<form id="mainForm" enctype="multipart/form-data">{% csrf_token %}
-  <div class="upload-zone" id="uploadZone">
-    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i><p class="upload-title">Drop image here</p><p class="upload-sub">JPG, PNG, WebP, BMP</p>
-    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select Image</span>
-    <input type="file" id="fileInput" name="file" accept="image/*" style="display:none">
-  </div>
-  <div class="file-list" id="fileList"></div>
-  <div class="options-panel">
-    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Quality</div>
-    <div class="form-group">
-      <div class="form-label">Quality: <span id="qVal">70</span>%</div>
-      <input type="range" name="quality" min="10" max="95" value="70" oninput="document.getElementById('qVal').textContent=this.value" style="width:100%">
-    </div>
-  </div>
-  <div class="action-bar"><button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-compress-arrows-alt"></i> Compress</button></div>
-</form>
-<div id="resultPanel" style="display:none;margin-top:1rem;" class="options-panel">
-  <div class="options-panel-title"><i class="fa-solid fa-chart-bar"></i> Result</div>
-  <p id="resultInfo" style="margin:.5rem 0;color:var(--text-muted);font-size:.9rem;"></p>
-  <a id="dlBtn" class="btn btn-primary" style="text-decoration:none"><i class="fa-solid fa-download"></i> Download</a>
-</div>
-<div class="progress-wrap" id="progressWrap" style="display:none;"><div class="progress-inner"><div class="progress-spinner"></div><span>Compressing…</span></div></div>
+
+{% block extra_head %}
+<style>
+.cv-opts-card{background:#fff;border:1.5px solid #fca5a5;border-radius:16px;padding:1.2rem 1.4rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(220,38,38,.06);}
+.cv-opts-title{font-size:.75rem;font-weight:800;color:#b91c1c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.85rem;display:flex;align-items:center;gap:.45rem;}
+.cv-field-label{font-size:.75rem;font-weight:700;color:#555;margin-bottom:.45rem;}
+.cv-range{width:100%;accent-color:#dc2626;}
+.cv-result-card{background:#fff8f8;border:1.5px solid #fca5a5;border-radius:16px;padding:1.1rem 1.4rem;margin-bottom:1rem;display:none;}
+.cv-result-title{font-size:.75rem;font-weight:800;color:#b91c1c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.65rem;display:flex;align-items:center;gap:.45rem;}
+.cv-result-info{font-size:.9rem;color:#333;margin-bottom:.85rem;}
+.cv-dl-btn{display:inline-flex;align-items:center;gap:.5rem;background:linear-gradient(135deg,#991b1b,#b91c1c,#dc2626);color:#fff;border:none;border-radius:10px;padding:.6rem 1.3rem;font-size:.85rem;font-weight:700;text-decoration:none;cursor:pointer;}
+</style>
 {% endblock %}
+
+{% block content %}
+<div class="cv-hero">
+  <div class="cv-hero-left">
+    <div class="cv-eyebrow"><i class="fa-solid fa-compress-arrows-alt"></i> Image Tools</div>
+    <h2>Compress Image</h2>
+    <p>Reduce image file size while maintaining quality — JPG, PNG, WebP, BMP</p>
+  </div>
+  <div class="cv-hero-pills">
+    <div class="cv-hero-pill"><span class="n">JPG</span><div class="l">PNG · WebP</div></div>
+    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-sliders"></i></span><div class="l">Quality</div></div>
+    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
+  </div>
+</div>
+
+<form id="mainForm" enctype="multipart/form-data">{% csrf_token %}
+  <div class="cv-drop" id="cvDrop">
+    <input type="file" id="fileInput" name="file" accept="image/*">
+    <div class="cv-drop-icon"><i class="fa-solid fa-image"></i></div>
+    <h3>Drop your image here</h3>
+    <p>Adjust quality below and compress</p>
+    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-folder-open"></i> Select Image
+    </button>
+    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> JPG · PNG · WebP · BMP &nbsp;·&nbsp; Private</span>
+  </div>
+  <div class="cv-file-bar" id="cvFileBar">
+    <i class="fa-solid fa-image cv-file-icon" style="color:#f87171"></i>
+    <span class="cv-file-name" id="cvFileName">—</span>
+    <span class="cv-file-size" id="cvFileSize">—</span>
+  </div>
+
+  <div class="cv-opts-card">
+    <div class="cv-opts-title"><i class="fa-solid fa-sliders"></i> Quality</div>
+    <div class="cv-field-label" style="margin-top:.75rem;">Quality: <span id="qVal">70</span>%</div>
+    <input type="range" name="quality" class="cv-range" min="10" max="95" value="70" oninput="document.getElementById('qVal').textContent=this.value">
+  </div>
+
+  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-compress-arrows-alt"></i> Compress Image</button>
+</form>
+
+<div class="cv-result-card" id="resultCard">
+  <div class="cv-result-title"><i class="fa-solid fa-chart-bar"></i> Result</div>
+  <div class="cv-result-info" id="resultInfo"></div>
+  <a id="dlBtn" class="cv-dl-btn"><i class="fa-solid fa-download"></i> Download</a>
+</div>
+
+<div class="progress-wrap" id="progressWrap" style="display:none;">
+  <div class="progress-header"><span class="progress-label">Compressing…</span></div>
+  <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
+</div>
+
+<div class="cv-info-strip">
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-image"></i></div><div><div class="cv-info-title">All Formats</div><div class="cv-info-desc">JPG, PNG, WebP, BMP</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-sliders"></i></div><div><div class="cv-info-title">Quality Slider</div><div class="cv-info-desc">10%–95% control</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
+</div>
+{% endblock %}
+
 {% block extra_js %}<script>
-const zone=document.getElementById('uploadZone'),input=document.getElementById('fileInput'),fileList=document.getElementById('fileList');
-zone.addEventListener('click',()=>input.click());zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});input.addEventListener('change',()=>setFile(input.files[0]));
-function setFile(f){if(!f)return;const dt=new DataTransfer();dt.items.add(f);input.files=dt.files;fileList.innerHTML=`<div class="file-item"><span class="file-name"><i class="fa-solid fa-image" style="color:#f87171"></i> ${f.name}</span><span class="file-size">${(f.size/1024).toFixed(1)} KB</span></div>`;}
-document.getElementById('mainForm').addEventListener('submit',async e=>{e.preventDefault();if(!input.files[0]){toast('Please select an image.','error');return;}document.getElementById('progressWrap').style.display='flex';const r=await fetch('/tools/api/img/compress/',{method:'POST',body:new FormData(e.target)});const d=await r.json();document.getElementById('progressWrap').style.display='none';if(d.error){toast(d.error,'error');return;}document.getElementById('resultInfo').textContent=`${d.orig_kb} KB → ${d.new_kb} KB (saved ${Math.round((1-d.new_kb/d.orig_kb)*100)}%)`;const a=document.getElementById('dlBtn');a.href=d.download_url;a.download=d.filename;document.getElementById('resultPanel').style.display='block';toast('Compressed!','success');});
+(function(){
+  const inp=document.getElementById('fileInput'),drop=document.getElementById('cvDrop'),bar=document.getElementById('cvFileBar');
+  function setFile(f){if(!f)return;document.getElementById('cvFileName').textContent=f.name;document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB';bar.classList.add('show');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;}
+  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+  inp.addEventListener('change',()=>setFile(inp.files[0]));
+})();
+document.getElementById('mainForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const inp=document.getElementById('fileInput');
+  if(!inp.files[0]){toast('Please select an image.','error');return;}
+  document.getElementById('progressWrap').style.display='block';
+  const r=await fetch('/tools/api/img/compress/',{method:'POST',body:new FormData(e.target)});
+  const d=await r.json();
+  document.getElementById('progressWrap').style.display='none';
+  if(d.error){toast(d.error,'error');return;}
+  document.getElementById('resultInfo').textContent=`${d.orig_kb} KB → ${d.new_kb} KB (saved ${Math.round((1-d.new_kb/d.orig_kb)*100)}%)`;
+  const a=document.getElementById('dlBtn');a.href=d.download_url;a.download=d.filename;
+  document.getElementById('resultCard').style.display='block';
+  toast('Compressed!','success');
+});
 function toast(msg,type){const c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast toast-'+(type||'info');t.innerHTML=`<i class="fa-solid fa-${type==='error'?'circle-xmark':'circle-check'}"></i> ${msg}`;c.appendChild(t);setTimeout(()=>t.remove(),4000);}
 </script>{% endblock %}

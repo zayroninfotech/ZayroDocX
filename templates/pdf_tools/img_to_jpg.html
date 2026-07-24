@@ -1,35 +1,91 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% load static %}
 {% block title %}Convert to JPG — ZayroDocX{% endblock %}
 {% block active_img_to_jpg %}active{% endblock %}
 {% block breadcrumb %}<span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Convert to JPG</span>{% endblock %}
-{% block content %}
-<div class="tool-header">
-  <div class="tool-icon-wrap ti-green"><i class="fa-solid fa-file-image"></i></div>
-  <div><h1 class="tool-title">Convert to JPG</h1><p class="tool-desc">Convert PNG, WebP, BMP, TIFF, or GIF to JPG format.</p></div>
-</div>
-<form id="mainForm" enctype="multipart/form-data">{% csrf_token %}
-  <div class="upload-zone" id="uploadZone">
-    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i><p class="upload-title">Drop image here</p>
-    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select Image</span>
-    <input type="file" id="fileInput" name="file" accept="image/*" style="display:none">
-  </div>
-  <div class="file-list" id="fileList"></div>
-  <div class="options-panel">
-    <div class="options-panel-title"><i class="fa-solid fa-sliders"></i> Options</div>
-    <div class="form-group" style="margin-top:.75rem;">
-      <div class="form-label">Quality: <span id="qVal">90</span>%</div>
-      <input type="range" name="quality" min="10" max="95" value="90" oninput="document.getElementById('qVal').textContent=this.value" style="width:100%">
-    </div>
-  </div>
-  <div class="action-bar"><button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-file-image"></i> Convert to JPG</button></div>
-</form>
-<div class="progress-wrap" id="progressWrap" style="display:none;"><div class="progress-inner"><div class="progress-spinner"></div><span>Converting…</span></div></div>
+
+{% block extra_head %}
+<style>
+.cv-opts-card{background:#fff;border:1.5px solid #fca5a5;border-radius:16px;padding:1.2rem 1.4rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(220,38,38,.06);}
+.cv-opts-title{font-size:.75rem;font-weight:800;color:#b91c1c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.85rem;display:flex;align-items:center;gap:.45rem;}
+.cv-field-label{font-size:.75rem;font-weight:700;color:#555;margin-bottom:.45rem;}
+.cv-range{width:100%;accent-color:#dc2626;}
+</style>
 {% endblock %}
+
+{% block content %}
+<div class="cv-hero">
+  <div class="cv-hero-left">
+    <div class="cv-eyebrow"><i class="fa-solid fa-file-image"></i> Image Tools</div>
+    <h2>Convert to JPG</h2>
+    <p>Convert PNG, WebP, BMP, TIFF, or GIF to JPG format with quality control</p>
+  </div>
+  <div class="cv-hero-pills">
+    <div class="cv-hero-pill"><span class="n">PNG</span><div class="l">WebP · BMP</div></div>
+    <div class="cv-hero-pill"><span class="n">→ JPG</span><div class="l">Output</div></div>
+    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
+  </div>
+</div>
+
+<form id="mainForm" enctype="multipart/form-data">{% csrf_token %}
+  <div class="cv-drop" id="cvDrop">
+    <input type="file" id="fileInput" name="file" accept="image/*">
+    <div class="cv-drop-icon"><i class="fa-solid fa-file-image"></i></div>
+    <h3>Drop your image here</h3>
+    <p>PNG, WebP, BMP, TIFF, or GIF → JPG</p>
+    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-folder-open"></i> Select Image
+    </button>
+    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> Any image format &nbsp;·&nbsp; Private</span>
+  </div>
+  <div class="cv-file-bar" id="cvFileBar">
+    <i class="fa-solid fa-image cv-file-icon" style="color:#f87171"></i>
+    <span class="cv-file-name" id="cvFileName">—</span>
+    <span class="cv-file-size" id="cvFileSize">—</span>
+  </div>
+
+  <div class="cv-opts-card">
+    <div class="cv-opts-title"><i class="fa-solid fa-sliders"></i> Options</div>
+    <div class="cv-field-label" style="margin-top:.75rem;">Quality: <span id="qVal">90</span>%</div>
+    <input type="range" name="quality" class="cv-range" min="10" max="95" value="90" oninput="document.getElementById('qVal').textContent=this.value">
+  </div>
+
+  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-file-image"></i> Convert to JPG</button>
+</form>
+
+<div class="progress-wrap" id="progressWrap" style="display:none;">
+  <div class="progress-header"><span class="progress-label">Converting…</span></div>
+  <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
+</div>
+
+<div class="cv-info-strip">
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-images"></i></div><div><div class="cv-info-title">Any Format</div><div class="cv-info-desc">PNG, WebP, BMP, GIF</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-sliders"></i></div><div><div class="cv-info-title">Quality Control</div><div class="cv-info-desc">10%–95% range</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
+</div>
+{% endblock %}
+
 {% block extra_js %}<script>
-const zone=document.getElementById('uploadZone'),input=document.getElementById('fileInput'),fileList=document.getElementById('fileList');
-zone.addEventListener('click',()=>input.click());zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});input.addEventListener('change',()=>setFile(input.files[0]));
-function setFile(f){if(!f)return;const dt=new DataTransfer();dt.items.add(f);input.files=dt.files;fileList.innerHTML=`<div class="file-item"><span class="file-name"><i class="fa-solid fa-image" style="color:#f87171"></i> ${f.name}</span><span class="file-size">${(f.size/1024).toFixed(1)} KB</span></div>`;}
-document.getElementById('mainForm').addEventListener('submit',async e=>{e.preventDefault();if(!input.files[0]){toast('Please select an image.','error');return;}document.getElementById('progressWrap').style.display='flex';const r=await fetch('/tools/api/img/to-jpg/',{method:'POST',body:new FormData(e.target)});const d=await r.json();document.getElementById('progressWrap').style.display='none';if(d.error){toast(d.error,'error');return;}const a=document.createElement('a');a.href=d.download_url;a.download=d.filename;a.click();toast('Converted to JPG!','success');});
+(function(){
+  const inp=document.getElementById('fileInput'),drop=document.getElementById('cvDrop'),bar=document.getElementById('cvFileBar');
+  function setFile(f){if(!f)return;document.getElementById('cvFileName').textContent=f.name;document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB';bar.classList.add('show');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;}
+  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+  inp.addEventListener('change',()=>setFile(inp.files[0]));
+})();
+document.getElementById('mainForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const inp=document.getElementById('fileInput');
+  if(!inp.files[0]){toast('Please select an image.','error');return;}
+  document.getElementById('progressWrap').style.display='block';
+  const r=await fetch('/tools/api/img/to-jpg/',{method:'POST',body:new FormData(e.target)});
+  const d=await r.json();
+  document.getElementById('progressWrap').style.display='none';
+  if(d.error){toast(d.error,'error');return;}
+  const a=document.createElement('a');a.href=d.download_url;a.download=d.filename;a.click();
+  toast('Converted to JPG!','success');
+});
 function toast(msg,type){const c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast toast-'+(type||'info');t.innerHTML=`<i class="fa-solid fa-${type==='error'?'circle-xmark':'circle-check'}"></i> ${msg}`;c.appendChild(t);setTimeout(()=>t.remove(),4000);}
 </script>{% endblock %}

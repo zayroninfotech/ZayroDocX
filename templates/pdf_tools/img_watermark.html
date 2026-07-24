@@ -1,47 +1,114 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% load static %}
 {% block title %}Watermark Image — ZayroDocX{% endblock %}
 {% block active_img_watermark %}active{% endblock %}
 {% block breadcrumb %}<span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Watermark Image</span>{% endblock %}
+
+{% block extra_head %}
+<style>
+.cv-opts-card{background:#fff;border:1.5px solid #fca5a5;border-radius:16px;padding:1.2rem 1.4rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(220,38,38,.06);}
+.cv-opts-title{font-size:.75rem;font-weight:800;color:#b91c1c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.85rem;display:flex;align-items:center;gap:.45rem;}
+.cv-field-label{font-size:.75rem;font-weight:700;color:#555;margin-bottom:.45rem;}
+.cv-input{width:100%;box-sizing:border-box;border:1.5px solid #e8e8e8;border-radius:10px;padding:.65rem .9rem;font-size:.88rem;color:#111;background:#fff;outline:none;transition:border-color .15s;}
+.cv-input:focus{border-color:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.1);}
+.cv-range{width:100%;accent-color:#dc2626;}
+.cv-pos-grid{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.5rem;margin-bottom:.75rem;}
+.cv-pos-opt{position:relative;}
+.cv-pos-opt input{position:absolute;opacity:0;width:0;height:0;}
+.cv-pos-opt label{display:flex;align-items:center;gap:.4rem;padding:.5rem .9rem;border:1.5px solid #e8e8e8;border-radius:9px;cursor:pointer;font-size:.8rem;font-weight:600;color:#555;background:#fff;transition:all .15s;}
+.cv-pos-opt input:checked+label{border-color:#dc2626;background:#fff8f8;color:#dc2626;box-shadow:0 0 0 2px rgba(220,38,38,.1);}
+.cv-pos-opt label:hover{border-color:#fca5a5;color:#b91c1c;}
+.cv-field-row{margin-bottom:.75rem;}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="tool-header">
-  <div class="tool-icon-wrap ti-green"><i class="fa-solid fa-stamp"></i></div>
-  <div><h1 class="tool-title">Watermark Image</h1><p class="tool-desc">Add a text watermark to your image.</p></div>
-</div>
-<form id="mainForm" enctype="multipart/form-data">{% csrf_token %}
-  <div class="upload-zone" id="uploadZone">
-    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i><p class="upload-title">Drop image here</p>
-    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select Image</span>
-    <input type="file" id="fileInput" name="file" accept="image/*" style="display:none">
+<div class="cv-hero">
+  <div class="cv-hero-left">
+    <div class="cv-eyebrow"><i class="fa-solid fa-stamp"></i> Image Tools</div>
+    <h2>Watermark Image</h2>
+    <p>Add a text watermark to your image — control position, size, and opacity</p>
   </div>
-  <div class="file-list" id="fileList"></div>
-  <div class="options-panel">
-    <div class="options-panel-title"><i class="fa-solid fa-stamp"></i> Watermark Settings</div>
-    <div class="form-group" style="margin-top:.75rem;">
-      <div class="form-label">Watermark Text</div>
-      <input type="text" name="text" class="form-control" placeholder="e.g. © ZayroDocX 2024" value="CONFIDENTIAL">
+  <div class="cv-hero-pills">
+    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-font"></i></span><div class="l">Text</div></div>
+    <div class="cv-hero-pill"><span class="n">3</span><div class="l">Positions</div></div>
+    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
+  </div>
+</div>
+
+<form id="mainForm" enctype="multipart/form-data">{% csrf_token %}
+  <div class="cv-drop" id="cvDrop">
+    <input type="file" id="fileInput" name="file" accept="image/*">
+    <div class="cv-drop-icon"><i class="fa-solid fa-stamp"></i></div>
+    <h3>Drop your image here</h3>
+    <p>Configure watermark settings below</p>
+    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-folder-open"></i> Select Image
+    </button>
+    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> JPG · PNG · WebP &nbsp;·&nbsp; Private</span>
+  </div>
+  <div class="cv-file-bar" id="cvFileBar">
+    <i class="fa-solid fa-image cv-file-icon" style="color:#f87171"></i>
+    <span class="cv-file-name" id="cvFileName">—</span>
+    <span class="cv-file-size" id="cvFileSize">—</span>
+  </div>
+
+  <div class="cv-opts-card">
+    <div class="cv-opts-title"><i class="fa-solid fa-stamp"></i> Watermark Settings</div>
+    <div class="cv-field-row">
+      <div class="cv-field-label">Watermark Text</div>
+      <input type="text" name="text" class="cv-input" placeholder="e.g. © ZayroDocX 2024" value="CONFIDENTIAL">
     </div>
-    <div class="form-group">
-      <div class="form-label">Position</div>
-      <div class="toggle-group">
-        <label class="toggle-option"><input type="radio" name="position" value="center" checked><span>Center</span></label>
-        <label class="toggle-option"><input type="radio" name="position" value="bottom-right"><span>Bottom Right</span></label>
-        <label class="toggle-option"><input type="radio" name="position" value="top-left"><span>Top Left</span></label>
+    <div class="cv-field-row">
+      <div class="cv-field-label">Position</div>
+      <div class="cv-pos-grid">
+        <div class="cv-pos-opt"><input type="radio" name="position" id="pcenter" value="center" checked><label for="pcenter"><i class="fa-solid fa-crosshairs"></i> Center</label></div>
+        <div class="cv-pos-opt"><input type="radio" name="position" id="pbr" value="bottom-right"><label for="pbr"><i class="fa-solid fa-arrow-down-right"></i> Bottom Right</label></div>
+        <div class="cv-pos-opt"><input type="radio" name="position" id="ptl" value="top-left"><label for="ptl"><i class="fa-solid fa-arrow-up-left"></i> Top Left</label></div>
       </div>
     </div>
-    <div class="form-group">
-      <div class="form-label">Opacity: <span id="opVal">40</span>%</div>
-      <input type="range" name="opacity" min="10" max="100" value="40" oninput="document.getElementById('opVal').textContent=this.value" style="width:100%">
+    <div class="cv-field-row" style="margin-bottom:0;">
+      <div class="cv-field-label">Opacity: <span id="opVal">40</span>%</div>
+      <input type="range" name="opacity" class="cv-range" min="10" max="100" value="40" oninput="document.getElementById('opVal').textContent=this.value">
     </div>
   </div>
-  <div class="action-bar"><button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-stamp"></i> Add Watermark</button></div>
+
+  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-stamp"></i> Add Watermark</button>
 </form>
-<div class="progress-wrap" id="progressWrap" style="display:none;"><div class="progress-inner"><div class="progress-spinner"></div><span>Adding watermark…</span></div></div>
+
+<div class="progress-wrap" id="progressWrap" style="display:none;">
+  <div class="progress-header"><span class="progress-label">Adding watermark…</span></div>
+  <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
+</div>
+
+<div class="cv-info-strip">
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-font"></i></div><div><div class="cv-info-title">Custom Text</div><div class="cv-info-desc">Any watermark label</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-crosshairs"></i></div><div><div class="cv-info-title">3 Positions</div><div class="cv-info-desc">Center, corner, top</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
+</div>
 {% endblock %}
+
 {% block extra_js %}<script>
-const zone=document.getElementById('uploadZone'),input=document.getElementById('fileInput'),fileList=document.getElementById('fileList');
-zone.addEventListener('click',()=>input.click());zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});input.addEventListener('change',()=>setFile(input.files[0]));
-function setFile(f){if(!f)return;const dt=new DataTransfer();dt.items.add(f);input.files=dt.files;fileList.innerHTML=`<div class="file-item"><span class="file-name"><i class="fa-solid fa-image" style="color:#f87171"></i> ${f.name}</span><span class="file-size">${(f.size/1024).toFixed(1)} KB</span></div>`;}
-document.getElementById('mainForm').addEventListener('submit',async e=>{e.preventDefault();if(!input.files[0]){toast('Please select an image.','error');return;}document.getElementById('progressWrap').style.display='flex';const r=await fetch('/tools/api/img/watermark/',{method:'POST',body:new FormData(e.target)});const d=await r.json();document.getElementById('progressWrap').style.display='none';if(d.error){toast(d.error,'error');return;}const a=document.createElement('a');a.href=d.download_url;a.download=d.filename;a.click();toast('Watermark added!','success');});
+(function(){
+  const inp=document.getElementById('fileInput'),drop=document.getElementById('cvDrop'),bar=document.getElementById('cvFileBar');
+  function setFile(f){if(!f)return;document.getElementById('cvFileName').textContent=f.name;document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB';bar.classList.add('show');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;}
+  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+  inp.addEventListener('change',()=>setFile(inp.files[0]));
+})();
+document.getElementById('mainForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const inp=document.getElementById('fileInput');
+  if(!inp.files[0]){toast('Please select an image.','error');return;}
+  document.getElementById('progressWrap').style.display='block';
+  const r=await fetch('/tools/api/img/watermark/',{method:'POST',body:new FormData(e.target)});
+  const d=await r.json();
+  document.getElementById('progressWrap').style.display='none';
+  if(d.error){toast(d.error,'error');return;}
+  const a=document.createElement('a');a.href=d.download_url;a.download=d.filename;a.click();
+  toast('Watermark added!','success');
+});
 function toast(msg,type){const c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast toast-'+(type||'info');t.innerHTML=`<i class="fa-solid fa-${type==='error'?'circle-xmark':'circle-check'}"></i> ${msg}`;c.appendChild(t);setTimeout(()=>t.remove(),4000);}
 </script>{% endblock %}
