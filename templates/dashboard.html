@@ -56,7 +56,12 @@
 
 /* Hero right stats */
 .db-hero-right {
-  display: flex; gap: 1rem; flex-shrink: 0; flex-wrap: wrap; justify-content: center;
+  display: flex; gap: 1rem; flex-shrink: 0; flex-wrap: wrap; justify-content: center; align-items: center;
+}
+.db-hero-img {
+  width: 420px; max-width: 100%; object-fit: contain;
+  filter: drop-shadow(0 8px 32px rgba(0,0,0,.35));
+  border-radius: 12px;
 }
 .db-stat-pill {
   background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.18);
@@ -215,8 +220,83 @@
 .db-card-head i { color: #dc2626; margin-right: .4rem; }
 .db-card-body { padding: .5rem 0; }
 
+/* ── Feature blocks ── */
+.db-theory-label {
+  display: inline-flex; align-items: center; gap: .35rem;
+  font-size: .65rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  color: #dc2626; background: #fff5f5; border: 1px solid #fecaca;
+  border-radius: 999px; padding: .22rem .75rem; margin-bottom: .75rem;
+}
+.db-theory-label--ai { background: linear-gradient(90deg,#fff5f5,#fee2e2); }
+.db-theory-title {
+  font-size: 1.25rem; font-weight: 800; color: #111;
+  line-height: 1.3; margin-bottom: .85rem; letter-spacing: -.02em;
+}
+.db-theory-desc {
+  font-size: .875rem; color: #555; line-height: 1.75;
+  margin-bottom: 1.2rem; max-width: 680px;
+}
+.db-theory-tips { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem .5rem; }
+.db-theory-tip {
+  display: flex; align-items: flex-start; gap: .45rem;
+  font-size: .78rem; color: #444; line-height: 1.4;
+}
+.db-theory-tip i { color: #dc2626; margin-top: .1rem; flex-shrink: 0; font-size: .72rem; }
+
+/* ── Feature block card ── */
+.db-ai-block {
+  display: flex; align-items: center; gap: 3rem;
+  background: #fff; border: 1px solid #e8e8e8; border-radius: 20px;
+  padding: 2.4rem 2.8rem; margin-bottom: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,.05); transition: box-shadow .2s, transform .2s;
+}
+.db-ai-block:hover { box-shadow: 0 8px 28px rgba(220,38,38,.1); transform: translateY(-2px); }
+.db-ai-img { flex-shrink: 0; width: 440px; }
+.db-ai-img img {
+  width: 100%; object-fit: contain; display: block;
+  border-radius: 14px; background: transparent; box-shadow: none; filter: none;
+}
+.db-ai-text { flex: 1; min-width: 0; }
+@media (max-width: 1200px) { .db-ai-img { width: 360px; } }
+@media (max-width: 900px) {
+  .db-ai-block { flex-direction: column; padding: 1.8rem 1.5rem; }
+  .db-ai-img { width: 100%; }
+  .db-theory-tips { grid-template-columns: 1fr; }
+}
+
+/* ── Category grid ── */
+.db-cat-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1.1rem; margin-top: 1.5rem; margin-bottom: 2rem;
+}
+.db-cat-card {
+  background: #fff; border: 1px solid #e8e8e8; border-radius: 14px;
+  overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  transition: box-shadow .2s;
+}
+.db-cat-card:hover { box-shadow: 0 4px 18px rgba(220,38,38,.1); }
+.db-cat-head {
+  padding: .75rem 1rem; font-size: .73rem; font-weight: 800;
+  letter-spacing: .05em; text-transform: uppercase; color: #dc2626;
+  background: #fff5f5; border-bottom: 1px solid #fee2e2;
+  display: flex; align-items: center; gap: .5rem;
+}
+.db-cat-list { padding: .5rem 0; }
+.db-cat-item {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .48rem 1rem; font-size: .8rem; font-weight: 500;
+  color: #333; text-decoration: none; transition: background .15s, color .15s;
+}
+.db-cat-item i { color: #dc2626; width: 14px; text-align: center; font-size: .78rem; flex-shrink: 0; }
+.db-cat-item:hover { background: #fff5f5; color: #dc2626; text-decoration: none; }
+.db-cat-ai {
+  margin-left: auto; font-size: .52rem; font-weight: 700; letter-spacing: .04em;
+  background: #dc2626; color: #fff; padding: 1px 5px; border-radius: 3px; flex-shrink: 0;
+}
+
 /* ── Responsive ── */
 @media (max-width: 1024px) {
+  .db-cat-grid { grid-template-columns: repeat(2, 1fr); }
   .db-stats { grid-template-columns: repeat(2, 1fr); }
   .db-two-col { grid-template-columns: 1fr; }
 }
@@ -253,57 +333,11 @@
       </div>
     </div>
     <div class="db-hero-right">
-      <div class="db-stat-pill">
-        <span class="n">38</span>
-        <div class="l">Total Tools</div>
-      </div>
-      <div class="db-stat-pill">
-        <span class="n">{{ stats.total_jobs|default:"0" }}</span>
-        <div class="l">Jobs Done</div>
-      </div>
-      <div class="db-stat-pill">
-        <span class="n">AES</span>
-        <div class="l">256-bit</div>
-      </div>
+      <img src="{% static 'img/hero-banner.png' %}" alt="ZayroDocX PDF Tools" class="db-hero-img">
     </div>
   </div>
 </div>
 
-<!-- ══ STATS ROW ══ -->
-<div class="db-stats">
-  <div class="db-stat-card">
-    <div class="db-stat-icon"><i class="fa-solid fa-file-pdf"></i></div>
-    <div class="db-stat-body">
-      <div class="db-stat-val">{{ stats.total_jobs|default:"0" }}</div>
-      <div class="db-stat-lbl">Files Processed</div>
-      <div class="db-stat-sub"><i class="fa-solid fa-circle" style="font-size:.5rem"></i> Live</div>
-    </div>
-  </div>
-  <div class="db-stat-card">
-    <div class="db-stat-icon"><i class="fa-solid fa-toolbox"></i></div>
-    <div class="db-stat-body">
-      <div class="db-stat-val">26</div>
-      <div class="db-stat-lbl">PDF Tools</div>
-      <div class="db-stat-sub">All free</div>
-    </div>
-  </div>
-  <div class="db-stat-card">
-    <div class="db-stat-icon"><i class="fa-solid fa-image"></i></div>
-    <div class="db-stat-body">
-      <div class="db-stat-val">12</div>
-      <div class="db-stat-lbl">Image Tools</div>
-      <div class="db-stat-sub">All free</div>
-    </div>
-  </div>
-  <div class="db-stat-card">
-    <div class="db-stat-icon"><i class="fa-solid fa-brain"></i></div>
-    <div class="db-stat-body">
-      <div class="db-stat-val">5</div>
-      <div class="db-stat-lbl">AI Tools</div>
-      <div class="db-stat-sub">Mistral · OpenAI</div>
-    </div>
-  </div>
-</div>
 
 <!-- ══ QUICK ACCESS ══ -->
 <div class="db-sec">
@@ -345,291 +379,181 @@
   </a>
 </div>
 
-<!-- ══ ALL PDF TOOLS ══ -->
-<div class="db-sec">
-  <span class="dot"></span> Organize PDF
-  <span class="count">5</span>
-</div>
-<div class="db-tools-grid" style="margin-bottom:1.25rem">
-  <a href="{% url 'merge_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-object-group"></i></div>
-    <div class="db-tool-name">Merge PDF</div>
-  </a>
-  <a href="{% url 'split_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-scissors"></i></div>
-    <div class="db-tool-name">Split PDF</div>
-  </a>
-  <a href="{% url 'remove_pages_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-trash-can"></i></div>
-    <div class="db-tool-name">Remove Pages</div>
-  </a>
-  <a href="{% url 'extract_pages_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-file-export"></i></div>
-    <div class="db-tool-name">Extract Pages</div>
-  </a>
-  <a href="{% url 'scan_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-images"></i></div>
-    <div class="db-tool-name">Image to PDF</div>
-  </a>
+<!-- ══ TOOL FEATURE SECTIONS ══ -->
+<div class="db-sec" style="margin-top:.5rem">
+  <span class="dot"></span> How It Works
 </div>
 
-<div class="db-sec">
-  <span class="dot"></span> Optimize &amp; AI
-  <span class="count">5</span>
-</div>
-<div class="db-tools-grid" style="margin-bottom:1.25rem">
-  <a href="{% url 'compress_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-compress"></i></div>
-    <div class="db-tool-name">Compress PDF</div>
-  </a>
-  <a href="{% url 'ocr_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-eye"></i></div>
-    <div class="db-tool-name">OCR PDF</div>
-    <span class="db-tool-tag">AI</span>
-  </a>
-  <a href="{% url 'invoice_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-    <div class="db-tool-name">Invoice Extractor</div>
-    <span class="db-tool-tag">AI</span>
-  </a>
-  <a href="{% url 'ai_summarizer_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-    <div class="db-tool-name">AI Summarizer</div>
-    <span class="db-tool-tag">AI</span>
-  </a>
-  <a href="{% url 'translate_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-language"></i></div>
-    <div class="db-tool-name">Translate PDF</div>
-    <span class="db-tool-tag">AI</span>
-  </a>
-</div>
-
-<div class="db-sec">
-  <span class="dot"></span> Convert PDF
-  <span class="count">8</span>
-</div>
-<div class="db-tools-grid" style="margin-bottom:1.25rem">
-  <a href="{% url 'word_to_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-file-word"></i></div>
-    <div class="db-tool-name">Word to PDF</div>
-  </a>
-  <a href="{% url 'pptx_to_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-file-powerpoint"></i></div>
-    <div class="db-tool-name">PowerPoint to PDF</div>
-  </a>
-  <a href="{% url 'excel_to_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-file-excel"></i></div>
-    <div class="db-tool-name">Excel to PDF</div>
-  </a>
-  <a href="{% url 'html_to_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-brands fa-html5"></i></div>
-    <div class="db-tool-name">HTML to PDF</div>
-  </a>
-  <a href="{% url 'pdf_to_jpg_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-images"></i></div>
-    <div class="db-tool-name">PDF to JPG</div>
-  </a>
-  <a href="{% url 'pdf_to_word_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-file-word"></i></div>
-    <div class="db-tool-name">PDF to Word</div>
-  </a>
-  <a href="{% url 'pdf_to_pptx_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-file-powerpoint"></i></div>
-    <div class="db-tool-name">PDF to PowerPoint</div>
-  </a>
-  <a href="{% url 'pdf_to_excel_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-file-excel"></i></div>
-    <div class="db-tool-name">PDF to Excel</div>
-  </a>
-</div>
-
-<div class="db-sec">
-  <span class="dot"></span> Edit PDF
-  <span class="count">5</span>
-</div>
-<div class="db-tools-grid" style="margin-bottom:1.25rem">
-  <a href="{% url 'rotate_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-rotate-right"></i></div>
-    <div class="db-tool-name">Rotate PDF</div>
-  </a>
-  <a href="{% url 'page_numbers_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-list-ol"></i></div>
-    <div class="db-tool-name">Add Page Numbers</div>
-  </a>
-  <a href="{% url 'watermark_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-droplet"></i></div>
-    <div class="db-tool-name">Add Watermark</div>
-  </a>
-  <a href="{% url 'sign_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-signature"></i></div>
-    <div class="db-tool-name">Sign PDF</div>
-  </a>
-  <a href="{% url 'crop_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-crop-simple"></i></div>
-    <div class="db-tool-name">Crop PDF</div>
-  </a>
-</div>
-
-<div class="db-sec">
-  <span class="dot"></span> PDF Security
-  <span class="count">3</span>
-</div>
-<div class="db-tools-grid" style="margin-bottom:1.25rem">
-  <a href="{% url 'protect_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-lock"></i></div>
-    <div class="db-tool-name">Protect PDF</div>
-  </a>
-  <a href="{% url 'unlock_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-lock-open"></i></div>
-    <div class="db-tool-name">Unlock PDF</div>
-  </a>
-  <a href="{% url 'redact_pdf_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-eraser"></i></div>
-    <div class="db-tool-name">Redact PDF</div>
-  </a>
-</div>
-
-<div class="db-sec">
-  <span class="dot"></span> Image Tools
-  <span class="count">12</span>
-</div>
-<div class="db-tools-grid" style="margin-bottom:2rem">
-  <a href="{% url 'img_compress_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-compress-arrows-alt"></i></div>
-    <div class="db-tool-name">Compress Image</div>
-  </a>
-  <a href="{% url 'img_resize_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></div>
-    <div class="db-tool-name">Resize Image</div>
-  </a>
-  <a href="{% url 'img_crop_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-crop-simple"></i></div>
-    <div class="db-tool-name">Crop Image</div>
-  </a>
-  <a href="{% url 'img_rotate_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-rotate-right"></i></div>
-    <div class="db-tool-name">Rotate Image</div>
-  </a>
-  <a href="{% url 'img_to_jpg_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-file-image"></i></div>
-    <div class="db-tool-name">Convert to JPG</div>
-  </a>
-  <a href="{% url 'img_from_jpg_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-images"></i></div>
-    <div class="db-tool-name">Convert from JPG</div>
-  </a>
-  <a href="{% url 'img_watermark_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-stamp"></i></div>
-    <div class="db-tool-name">Watermark Image</div>
-  </a>
-  <a href="{% url 'img_meme_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-face-laugh-squint"></i></div>
-    <div class="db-tool-name">Meme Generator</div>
-  </a>
-  <a href="{% url 'img_upscale_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></div>
-    <div class="db-tool-name">Upscale Image</div>
-  </a>
-  <a href="{% url 'img_remove_bg_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-    <div class="db-tool-name">Remove Background</div>
-  </a>
-  <a href="{% url 'img_blur_face_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-user-secret"></i></div>
-    <div class="db-tool-name">Blur Face</div>
-  </a>
-  <a href="{% url 'img_ocr_page' %}" class="db-tool-card">
-    <div class="db-tool-icon"><i class="fa-solid fa-font"></i></div>
-    <div class="db-tool-name">Image to Text</div>
-    <span class="db-tool-tag">AI</span>
-  </a>
-</div>
-
-<!-- ══ TWO-COL: Recent Jobs + Features ══ -->
-<div class="db-two-col">
-
-  <!-- Recent Jobs -->
-  <div class="db-card">
-    <div class="db-card-head">
-      <span><i class="fa-solid fa-clock-rotate-left"></i> Recent Jobs</span>
-      <span style="font-size:.7rem;color:#888;font-weight:400">Last 10 operations</span>
+<!-- Organize PDF -->
+<div class="db-ai-block">
+  <div class="db-ai-img">
+    <img src="{% static 'img/organize-pdf.png' %}" alt="Organize PDF tools">
+  </div>
+  <div class="db-ai-text">
+    <div class="db-theory-label">Organize PDF</div>
+    <h3 class="db-theory-title">Arrange, combine and restructure your PDF documents</h3>
+    <p class="db-theory-desc">PDF organization tools give you complete control over the structure of your documents. Whether you need to combine multiple reports into a single file, split a large PDF into chapters, remove unwanted pages, or pull specific pages into a new document — these tools handle it all without any loss of quality.</p>
+    <div class="db-theory-tips">
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> Merge unlimited PDFs into one file in any order</div>
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> Split by page range, every N pages, or individual pages</div>
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> Convert JPG, PNG, BMP, TIFF and WebP images into PDF</div>
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> All processing is 100% local — files never leave your server</div>
     </div>
-    <div class="db-card-body">
-      {% if recent_jobs %}
-      <table class="db-jobs-table">
-        <thead>
-          <tr>
-            <th>Tool</th>
-            <th>Status</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for job in recent_jobs %}
-          <tr>
-            <td><span class="db-job-tool"><i class="fa-solid fa-file-pdf"></i> {{ job.tool|default:"—" }}</span></td>
-            <td>
-              {% if job.status == 'ok' or job.status == 'success' %}
-                <span class="db-job-ok"><i class="fa-solid fa-check"></i> Done</span>
-              {% else %}
-                <span class="db-job-fail"><i class="fa-solid fa-xmark"></i> Failed</span>
-              {% endif %}
-            </td>
-            <td style="color:#888;font-size:.75rem">{{ job.created_at|default:"—" }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% else %}
-      <div style="text-align:center;padding:2rem 1rem;color:#bbb;">
-        <i class="fa-solid fa-inbox" style="font-size:2rem;display:block;margin-bottom:.5rem;color:#fca5a5"></i>
-        No jobs yet — run your first tool above
-      </div>
-      {% endif %}
+  </div>
+</div>
+
+<!-- Optimize & AI -->
+<div class="db-ai-block">
+  <div class="db-ai-text">
+    <div class="db-theory-label db-theory-label--ai"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Powered</div>
+    <h3 class="db-theory-title">Intelligent PDF tools powered by Mistral &amp; OpenAI</h3>
+    <p class="db-theory-desc">Our AI tools go beyond basic editing — they understand the content of your documents. OCR converts scanned images into fully searchable and editable text. The AI Summarizer reads your entire PDF and produces a structured summary with key points. Invoice Extractor automatically pulls vendor names, amounts, dates and line items from any invoice format.</p>
+    <div class="db-theory-tips">
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> OCR supports 100+ pages with live progress streaming</div>
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> Translate PDFs into 20 languages while preserving layout</div>
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> Invoice data exported directly to Excel with one click</div>
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> Powered by Mistral AI with OpenAI GPT-4o-mini fallback</div>
+    </div>
+  </div>
+  <div class="db-ai-img">
+    <img src="{% static 'img/optimize-ai.png' %}" alt="AI PDF Tools">
+  </div>
+</div>
+
+<!-- Convert PDF -->
+<div class="db-ai-block">
+  <div class="db-ai-img">
+    <img src="{% static 'img/convert-pdf.png' %}" alt="Convert PDF formats">
+  </div>
+  <div class="db-ai-text">
+    <div class="db-theory-label">Convert PDF</div>
+    <h3 class="db-theory-title">Convert between PDF and all major document formats</h3>
+    <p class="db-theory-desc">Seamlessly convert documents in both directions — from Office formats to PDF for sharing and archiving, or from PDF back to editable formats for further editing. Supports Word (.docx), PowerPoint (.pptx), Excel (.xlsx), HTML, and image formats. Conversion preserves formatting, fonts, tables and images as faithfully as possible.</p>
+    <div class="db-theory-tips">
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> Word, PowerPoint and Excel to PDF with layout preservation</div>
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> PDF to Word with editable text and paragraph structure</div>
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> PDF to JPG with selectable DPI and quality</div>
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> HTML to PDF using wkhtmltopdf rendering engine</div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit & Security -->
+<div class="db-ai-block">
+  <div class="db-ai-text">
+    <div class="db-theory-label">Edit &amp; Security</div>
+    <h3 class="db-theory-title">Edit, sign, protect and redact your PDF documents</h3>
+    <p class="db-theory-desc">Take full control of your PDF content and security. Add digital signatures using a drawn, typed or uploaded signature. Password-protect sensitive documents with AES-256 encryption. Permanently redact confidential text — names, account numbers, addresses — before sharing. Watermark documents with custom text or images to establish ownership.</p>
+    <div class="db-theory-tips">
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> AES-256 bit encryption for password protection</div>
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> Permanent redaction — content is removed, not just hidden</div>
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> Draw, type or upload a signature image</div>
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> Add custom text or image watermarks with opacity control</div>
+    </div>
+  </div>
+  <div class="db-ai-img">
+    <img src="{% static 'img/edit-security.png' %}" alt="Edit and Security PDF tools">
+  </div>
+</div>
+
+<!-- Image Tools -->
+<div class="db-ai-block">
+  <div class="db-ai-img">
+    <img src="{% static 'img/image-tools.png' %}" alt="Image editing tools">
+  </div>
+  <div class="db-ai-text">
+    <div class="db-theory-label">Image Tools</div>
+    <h3 class="db-theory-title">Edit, enhance and convert images with professional tools</h3>
+    <p class="db-theory-desc">A complete image toolkit covering everything from basic edits to advanced AI-powered operations. Compress images without visible quality loss, resize for specific dimensions or platforms, crop to any aspect ratio, remove backgrounds automatically, and upscale low-resolution images. OCR extracts text from photos, screenshots and scanned images instantly.</p>
+    <div class="db-theory-tips">
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> Supports JPG, PNG, WebP, BMP, TIFF and GIF formats</div>
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> Blur faces automatically for privacy protection</div>
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> Extract text from any image using Tesseract OCR</div>
+      <div class="db-theory-tip"><i class="fa-solid fa-circle-check"></i> Convert between image formats in one click</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ALL TOOLS — 3-column category layout ══ -->
+<div class="db-cat-grid" style="display:none">
+
+  <!-- Organize PDF -->
+  <div class="db-cat-card">
+    <div class="db-cat-head"><i class="fa-solid fa-layer-group"></i> Organize PDF</div>
+    <div class="db-cat-list">
+      <a href="{% url 'merge_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-object-group"></i> Merge PDF</a>
+      <a href="{% url 'split_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-scissors"></i> Split PDF</a>
+      <a href="{% url 'remove_pages_page' %}" class="db-cat-item"><i class="fa-solid fa-trash-can"></i> Remove Pages</a>
+      <a href="{% url 'extract_pages_page' %}" class="db-cat-item"><i class="fa-solid fa-file-export"></i> Extract Pages</a>
+      <a href="{% url 'scan_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-images"></i> Image to PDF</a>
     </div>
   </div>
 
-  <!-- Platform Highlights -->
-  <div>
-    <div class="db-sec" style="margin-top:0">
-      <span class="dot"></span> Why ZayroDocX
+  <!-- Optimize & AI -->
+  <div class="db-cat-card">
+    <div class="db-cat-head"><i class="fa-solid fa-wand-magic-sparkles"></i> Optimize &amp; AI</div>
+    <div class="db-cat-list">
+      <a href="{% url 'compress_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-compress"></i> Compress PDF</a>
+      <a href="{% url 'ocr_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-eye"></i> OCR PDF <span class="db-cat-ai">AI</span></a>
+      <a href="{% url 'invoice_page' %}" class="db-cat-item"><i class="fa-solid fa-file-invoice-dollar"></i> Invoice Extractor <span class="db-cat-ai">AI</span></a>
+      <a href="{% url 'ai_summarizer_page' %}" class="db-cat-item"><i class="fa-solid fa-brain"></i> AI Summarizer <span class="db-cat-ai">AI</span></a>
+      <a href="{% url 'translate_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-language"></i> Translate PDF <span class="db-cat-ai">AI</span></a>
     </div>
-    <div class="db-features">
-      <div class="db-feat">
-        <div class="db-feat-icon"><i class="fa-solid fa-shield-halved"></i></div>
-        <div>
-          <div class="db-feat-title">100% Private & Local</div>
-          <div class="db-feat-desc">All files are processed on your own server. Nothing is sent to external services — ever.</div>
-        </div>
-      </div>
-      <div class="db-feat">
-        <div class="db-feat-icon"><i class="fa-solid fa-brain"></i></div>
-        <div>
-          <div class="db-feat-title">AI-Powered Tools</div>
-          <div class="db-feat-desc">OCR, invoice extraction, summarization and translation powered by Mistral &amp; OpenAI.</div>
-        </div>
-      </div>
-      <div class="db-feat">
-        <div class="db-feat-icon"><i class="fa-solid fa-lock"></i></div>
-        <div>
-          <div class="db-feat-title">AES-256 Encryption</div>
-          <div class="db-feat-desc">Password-protect your PDFs with industry-standard encryption. Unlock and redact with ease.</div>
-        </div>
-      </div>
-      <div class="db-feat">
-        <div class="db-feat-icon"><i class="fa-solid fa-bolt"></i></div>
-        <div>
-          <div class="db-feat-title">38 Tools, Zero Cost</div>
-          <div class="db-feat-desc">Every PDF and image tool is completely free. No limits, no subscriptions, no watermarks.</div>
-        </div>
-      </div>
-      <div class="db-feat">
-        <div class="db-feat-icon"><i class="fa-solid fa-language"></i></div>
-        <div>
-          <div class="db-feat-title">Translate to 20 Languages</div>
-          <div class="db-feat-desc">Translate full PDF documents while preserving layout, using AI translation.</div>
-        </div>
-      </div>
+  </div>
+
+  <!-- Convert PDF -->
+  <div class="db-cat-card">
+    <div class="db-cat-head"><i class="fa-solid fa-right-left"></i> Convert PDF</div>
+    <div class="db-cat-list">
+      <a href="{% url 'word_to_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-file-word"></i> Word to PDF</a>
+      <a href="{% url 'pptx_to_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-file-powerpoint"></i> PowerPoint to PDF</a>
+      <a href="{% url 'excel_to_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-file-excel"></i> Excel to PDF</a>
+      <a href="{% url 'html_to_pdf_page' %}" class="db-cat-item"><i class="fa-brands fa-html5"></i> HTML to PDF</a>
+      <a href="{% url 'pdf_to_jpg_page' %}" class="db-cat-item"><i class="fa-solid fa-images"></i> PDF to JPG</a>
+      <a href="{% url 'pdf_to_word_page' %}" class="db-cat-item"><i class="fa-solid fa-file-word"></i> PDF to Word</a>
+      <a href="{% url 'pdf_to_pptx_page' %}" class="db-cat-item"><i class="fa-solid fa-file-powerpoint"></i> PDF to PowerPoint</a>
+      <a href="{% url 'pdf_to_excel_page' %}" class="db-cat-item"><i class="fa-solid fa-file-excel"></i> PDF to Excel</a>
+    </div>
+  </div>
+
+  <!-- Edit PDF -->
+  <div class="db-cat-card">
+    <div class="db-cat-head"><i class="fa-solid fa-pen-to-square"></i> Edit PDF</div>
+    <div class="db-cat-list">
+      <a href="{% url 'rotate_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-rotate-right"></i> Rotate PDF</a>
+      <a href="{% url 'page_numbers_page' %}" class="db-cat-item"><i class="fa-solid fa-list-ol"></i> Add Page Numbers</a>
+      <a href="{% url 'watermark_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-droplet"></i> Add Watermark</a>
+      <a href="{% url 'sign_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-signature"></i> Sign PDF</a>
+      <a href="{% url 'crop_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-crop-simple"></i> Crop PDF</a>
+    </div>
+  </div>
+
+  <!-- PDF Security -->
+  <div class="db-cat-card">
+    <div class="db-cat-head"><i class="fa-solid fa-shield-halved"></i> PDF Security</div>
+    <div class="db-cat-list">
+      <a href="{% url 'protect_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-lock"></i> Protect PDF</a>
+      <a href="{% url 'unlock_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-lock-open"></i> Unlock PDF</a>
+      <a href="{% url 'redact_pdf_page' %}" class="db-cat-item"><i class="fa-solid fa-eraser"></i> Redact PDF</a>
+    </div>
+  </div>
+
+  <!-- Image Tools -->
+  <div class="db-cat-card">
+    <div class="db-cat-head"><i class="fa-solid fa-image"></i> Image Tools</div>
+    <div class="db-cat-list">
+      <a href="{% url 'img_compress_page' %}" class="db-cat-item"><i class="fa-solid fa-compress-arrows-alt"></i> Compress Image</a>
+      <a href="{% url 'img_resize_page' %}" class="db-cat-item"><i class="fa-solid fa-up-right-and-down-left-from-center"></i> Resize Image</a>
+      <a href="{% url 'img_crop_page' %}" class="db-cat-item"><i class="fa-solid fa-crop-simple"></i> Crop Image</a>
+      <a href="{% url 'img_rotate_page' %}" class="db-cat-item"><i class="fa-solid fa-rotate-right"></i> Rotate Image</a>
+      <a href="{% url 'img_to_jpg_page' %}" class="db-cat-item"><i class="fa-solid fa-file-image"></i> Convert to JPG</a>
+      <a href="{% url 'img_from_jpg_page' %}" class="db-cat-item"><i class="fa-solid fa-images"></i> Convert from JPG</a>
+      <a href="{% url 'img_watermark_page' %}" class="db-cat-item"><i class="fa-solid fa-stamp"></i> Watermark Image</a>
+      <a href="{% url 'img_upscale_page' %}" class="db-cat-item"><i class="fa-solid fa-magnifying-glass-plus"></i> Upscale Image</a>
+      <a href="{% url 'img_remove_bg_page' %}" class="db-cat-item"><i class="fa-solid fa-wand-magic-sparkles"></i> Remove Background</a>
+      <a href="{% url 'img_blur_face_page' %}" class="db-cat-item"><i class="fa-solid fa-user-secret"></i> Blur Face</a>
+      <a href="{% url 'img_meme_page' %}" class="db-cat-item"><i class="fa-solid fa-face-laugh-squint"></i> Meme Generator</a>
+      <a href="{% url 'img_ocr_page' %}" class="db-cat-item"><i class="fa-solid fa-font"></i> Image to Text <span class="db-cat-ai">AI</span></a>
     </div>
   </div>
 

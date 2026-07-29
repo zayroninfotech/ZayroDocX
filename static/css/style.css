@@ -1,6 +1,10 @@
 /* ── ZayroDocX — White & Red Only ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Hide scrollbar across all browsers */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar { display: none; }
+
 :root {
   --brand:        #dc2626;
   --brand-dark:   #b91c1c;
@@ -172,8 +176,8 @@ body { padding-top: var(--mh-h); }
    LAYOUT
 ══════════════════════════════════════ */
 .content-full {
-  max-width: 1000px; margin: 0 auto;
-  padding: 1.75rem 2rem; min-height: calc(100vh - var(--mh-h) - 52px);
+  max-width: 1320px; margin: 0 auto;
+  padding: 1.75rem 2.5rem; min-height: calc(100vh - var(--mh-h) - 52px);
 }
 .footer-full {
   padding: .9rem 2rem; font-size: .74rem; color: #888888;
