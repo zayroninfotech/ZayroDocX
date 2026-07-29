@@ -39,6 +39,9 @@ def split_pdf(request):
 
         if split_mode == 'all':
             page_groups = [[i] for i in range(total)]
+        elif split_mode == 'fixed':
+            n = max(1, int(ranges) if str(ranges).isdigit() else 1)
+            page_groups = [list(range(i, min(i + n, total))) for i in range(0, total, n)]
         else:
             page_groups = _parse_ranges(ranges, total)
 
@@ -55,7 +58,8 @@ def split_pdf(request):
         doc.close()
 
         # Zip all parts
-        zip_path, zip_name = get_output_path('.zip', 'split_pages')
+        zip_name = 'ZayroDocX_split_pages.zip'
+        zip_path = str(settings.OUTPUT_DIR / zip_name)
         with zipfile.ZipFile(zip_path, 'w') as zf:
             for pp, pn in part_paths:
                 zf.write(pp, pn)

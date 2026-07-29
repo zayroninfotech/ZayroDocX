@@ -16,12 +16,13 @@ from apps.pdf_tools.views.edit_pdf import rotate_pdf, add_page_numbers
 from apps.pdf_tools.views.watermark import add_watermark
 from apps.pdf_tools.views.sign_pdf import sign_pdf
 from apps.pdf_tools.views.ocr_pdf import ocr_pdf, ocr_pdf_stream, ocr_pdf_progress, extract_page, extract_page_ai, extract_statement_summary, extract_invoice, scan_to_pdf, invoice_to_excel, extract_invoice_ai, smart_split_suggest, detect_blank_pages
-from apps.pdf_tools.views.convert_to_pdf import word_to_pdf, pptx_to_pdf, excel_to_pdf, html_to_pdf
+from apps.pdf_tools.views.convert_to_pdf import word_to_pdf, pptx_to_pdf, excel_to_pdf, html_to_pdf, jpg_to_pdf
 from apps.pdf_tools.views.convert_from_pdf import pdf_to_jpg, pdf_to_word, pdf_to_pptx, pdf_to_excel
 from apps.pdf_tools.views.ai_summarizer import summarize_pdf
 from apps.pdf_tools.views.translate_pdf import translate_pdf
 from apps.pdf_tools.views.security import protect_pdf, unlock_pdf, redact_pdf
 from apps.pdf_tools.views.crop_pdf import crop_pdf
+from apps.pdf_tools.views.thumbnail import pdf_thumbnails
 from apps.pdf_tools.views.image_tools import (
     compress_image, resize_image, crop_image, rotate_image,
     convert_to_jpg, convert_from_jpg, watermark_image, meme_generator,
@@ -46,6 +47,7 @@ urlpatterns = [
     path('pptx-to-pdf/', tool_page('pptx_to_pdf.html'), name='pptx_to_pdf_page'),
     path('excel-to-pdf/', tool_page('excel_to_pdf.html'), name='excel_to_pdf_page'),
     path('html-to-pdf/', tool_page('html_to_pdf.html'), name='html_to_pdf_page'),
+    path('jpg-to-pdf/', tool_page('jpg_to_pdf.html'), name='jpg_to_pdf_page'),
     path('pdf-to-jpg/', tool_page('pdf_to_jpg.html'), name='pdf_to_jpg_page'),
     path('pdf-to-word/', tool_page('pdf_to_word.html'), name='pdf_to_word_page'),
     path('pdf-to-pptx/', tool_page('pdf_to_pptx.html'), name='pdf_to_pptx_page'),
@@ -109,6 +111,8 @@ urlpatterns = [
     path('api/protect-pdf/', protect_pdf, name='api_protect_pdf'),
     path('api/unlock-pdf/', unlock_pdf, name='api_unlock_pdf'),
     path('api/redact-pdf/', redact_pdf, name='api_redact_pdf'),
+    path('api/pdf-thumbnails/', pdf_thumbnails, name='api_pdf_thumbnails'),
+    path('api/jpg-to-pdf/', jpg_to_pdf, name='api_jpg_to_pdf'),
 
     # Image tool API endpoints
     path('api/img/compress/', compress_image, name='api_img_compress'),

@@ -5,322 +5,460 @@
 {% block content %}
 
 <style>
-/* ═══════════════════════════════════════
-   EXTRACT PAGES — White · Red · Cream
-═══════════════════════════════════════ */
+/* ══════════════════════════════════════
+   EXTRACT PAGES — iLovePDF layout
+══════════════════════════════════════ */
+.drop-zone {
+  text-align: center; padding: 6rem 2rem 5rem;
+  border: 2px dashed #e0e0e0; border-radius: 20px;
+  background: #fafafa; transition: background .2s, border-color .2s;
+}
+.drop-zone.dragging { background: #fff1f1; border-color: #dc2626; }
+.drop-zone input[type=file] { display: none; }
+.drop-zone-title { font-size: 2.2rem; font-weight: 900; color: #111; margin: 0 0 .5rem; letter-spacing: -.03em; }
+.drop-zone-sub   { font-size: 1rem; color: #888; margin: 0 0 2.2rem; }
+.drop-zone-btn {
+  display: inline-flex; align-items: center; gap: .55rem;
+  background: #dc2626; color: #fff; border: none; border-radius: 12px;
+  padding: .9rem 2.5rem; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+  transition: background .15s, transform .1s; box-shadow: 0 4px 18px rgba(220,38,38,.35);
+}
+.drop-zone-btn:hover { background: #b91c1c; transform: translateY(-1px); }
+.drop-zone-drop-hint { font-size: .9rem; color: #aaa; margin-top: 1rem; }
 
-/* ── Hero ── */
-.ep-hero {
-  background: linear-gradient(135deg,#7f1d1d 0%,#b91c1c 45%,#dc2626 80%,#ef4444 100%);
-  border-radius: 18px; padding: 2rem 2.2rem; margin-bottom: 1.6rem;
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.2rem;
-  box-shadow: 0 6px 28px rgba(220,38,38,.28); position: relative; overflow: hidden;
-}
-.ep-hero::before {
-  content:''; position:absolute; top:-60px; right:-40px;
-  width:220px; height:220px; border-radius:50%;
-  background:rgba(255,255,255,.07); pointer-events:none;
-}
-.ep-hero::after {
-  content:''; position:absolute; bottom:-50px; left:15%;
-  width:160px; height:160px; border-radius:50%;
-  background:rgba(255,255,255,.04); pointer-events:none;
-}
-.ep-hero-left { position:relative; z-index:1; }
-.ep-eyebrow {
-  display:inline-flex; align-items:center; gap:.4rem;
-  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25);
-  border-radius:999px; padding:.22rem .75rem; font-size:.68rem; font-weight:700;
-  color:#fff; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.55rem;
-}
-.ep-hero-left h2 { font-size:1.65rem; font-weight:900; color:#fff; margin:0 0 .3rem; letter-spacing:-.03em; }
-.ep-hero-left p  { font-size:.82rem; color:rgba(255,255,255,.75); margin:0 0 .9rem; }
-.ep-badges { display:flex; flex-wrap:wrap; gap:.4rem; }
-.ep-badge {
-  display:inline-flex; align-items:center; gap:.35rem;
-  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22);
-  border-radius:999px; padding:.24rem .75rem; font-size:.7rem; font-weight:600; color:#fff;
-}
-.ep-hero-pills { display:flex; gap:.75rem; flex-shrink:0; position:relative; z-index:1; }
-.ep-pill {
-  background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.18);
-  border-radius:12px; padding:.75rem 1.1rem; text-align:center; min-width:72px;
-}
-.ep-pill .n { font-size:1.1rem; font-weight:900; color:#fff; line-height:1; display:block; }
-.ep-pill .l { font-size:.58rem; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.07em; }
+.ep-layout { display: flex; gap: 0; align-items: flex-start; min-height: 480px; }
+.ep-preview-area { flex: 1; min-width: 0; padding: 1.5rem 2rem 1.5rem 0; }
+.ep-preview-hint { font-size: .8rem; color: #999; margin-bottom: 1rem; display: flex; align-items: center; gap: .45rem; }
+.ep-preview-hint i { color: #dc2626; }
 
-/* ── Upload zone ── */
-.ep-upload {
-  border: 2.5px dashed #fca5a5; border-radius: 18px;
-  padding: 3rem 2rem; text-align: center; cursor: pointer; position: relative;
-  transition: border-color .2s, background .2s; background: #fff8f8; margin-bottom: 1rem;
+.ep-pages-grid { display: flex; flex-wrap: wrap; gap: 1rem; }
+.ep-page-thumb {
+  display: flex; flex-direction: column; align-items: center; gap: .4rem;
+  cursor: pointer; position: relative;
 }
-.ep-upload:hover, .ep-upload.dragging { border-color: #dc2626; background: #fff1f1; }
-.ep-upload input[type=file] { position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer; }
-.ep-upload-icon {
-  width: 68px; height: 68px; border-radius: 18px;
-  background: linear-gradient(135deg,#b91c1c,#dc2626);
-  color: #fff; display: flex; align-items: center; justify-content: center;
-  font-size: 1.6rem; margin: 0 auto 1.1rem;
-  box-shadow: 0 4px 16px rgba(220,38,38,.3);
+.ep-page-card {
+  width: 100px; height: 130px; background: #fff;
+  border: 2px solid #e8e8e8; border-radius: 6px 14px 6px 6px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  transition: border-color .15s, transform .12s, box-shadow .15s;
 }
-.ep-upload h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 .3rem; color:#111; }
-.ep-upload p  { font-size: .85rem; color: #888; margin: 0 0 1.2rem; }
-.ep-upload-btn {
-  display: inline-flex; align-items: center; gap: .48rem;
-  background: linear-gradient(135deg,#b91c1c,#dc2626); color: #fff; border: none; border-radius: 10px;
-  padding: .7rem 1.6rem; font-size: .95rem; font-weight: 700;
-  cursor: pointer; transition: opacity .2s, transform .1s; position: relative; z-index: 1;
-  box-shadow: 0 3px 12px rgba(220,38,38,.3);
+.ep-page-card img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 4px 12px 4px 4px; }
+.ep-page-card::before {
+  content: ''; position: absolute; top: -1px; right: -1px;
+  width: 18px; height: 18px;
+  background: linear-gradient(225deg,#f0f0f0 50%,#ddd 50%,#fff 51%);
+  border-radius: 0 14px 0 0; z-index: 1;
 }
-.ep-upload-btn:hover { opacity: .88; transform: translateY(-1px); }
-.ep-upload-hint {
-  display: inline-flex; align-items:center; gap:.45rem; margin-top: .9rem;
-  background: #fff5f5; border: 1px solid #fecaca; border-radius: 8px;
-  padding: .38rem .85rem; font-size: .74rem; color: #b91c1c; font-weight:500;
+.ep-page-thumb:hover .ep-page-card { border-color: #6ee7b7; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,.15); }
+.ep-page-thumb.selected .ep-page-card { border-color: #10b981; box-shadow: 0 4px 16px rgba(16,185,129,.25); }
+.ep-page-thumb.selected .ep-page-card::after {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(16,185,129,.12); z-index: 2;
+}
+.ep-page-check {
+  display: none; position: absolute; top: 5px; left: 5px; z-index: 3;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #10b981; color: #fff;
+  align-items: center; justify-content: center; font-size: .62rem; font-weight: 900;
+  box-shadow: 0 2px 6px rgba(16,185,129,.4);
+}
+.ep-page-thumb.selected .ep-page-check { display: flex; }
+.ep-page-num { font-size: .72rem; font-weight: 700; color: #aaa; }
+.ep-page-thumb.selected .ep-page-num { color: #10b981; }
+
+.ep-placeholder {
+  width: 100%; display: flex; align-items: center; justify-content: center;
+  padding: 3rem; color: #ccc; font-size: .88rem; gap: .55rem;
 }
 
-/* ── File bar ── */
-.ep-file-bar {
-  display: none; align-items: center; gap: .85rem;
-  background: #fff; border: 1.5px solid #fca5a5;
-  border-radius: 14px; padding: .85rem 1.1rem; margin-bottom: 1rem;
-  box-shadow: 0 2px 10px rgba(220,38,38,.08);
-}
-.ep-file-bar.show { display: flex; }
-.ep-file-bar-icon {
-  width: 42px; height: 50px; border-radius: 9px;
-  background: #fee2e2; display: flex; align-items: center;
-  justify-content: center; font-size: 1.4rem; color: #dc2626; flex-shrink: 0;
-}
-.ep-file-bar-info { flex: 1; min-width: 0; }
-.ep-file-bar-name { font-size: .88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color:#111; }
-.ep-file-bar-meta { font-size: .74rem; color: #888; margin-top: .15rem; }
-.ep-file-bar-change {
-  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 9px;
-  padding: .42rem .85rem; font-size: .78rem; font-weight: 600;
-  color: #888; cursor: pointer; flex-shrink: 0; transition: all .15s;
-}
-.ep-file-bar-change:hover { border-color: #fca5a5; color: #dc2626; background: #fff8f8; }
+.ep-divider { width: 1px; background: #ebebeb; align-self: stretch; flex-shrink: 0; }
 
-/* ── Options ── */
-.ep-options {
-  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 16px;
-  padding: 1.4rem 1.5rem; margin-bottom: 1.1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+.ep-sidebar {
+  width: 300px; flex-shrink: 0; padding: 1.5rem 1.4rem;
+  display: flex; flex-direction: column; gap: 1rem;
 }
-.ep-options-title {
-  font-size: .8rem; font-weight: 800; color: #111; letter-spacing: .04em; text-transform: uppercase;
-  display: flex; align-items: center; gap: .5rem; margin-bottom: 1.1rem;
-  padding-bottom: .65rem; border-bottom: 1px solid #f0f0f0;
-}
-.ep-options-title i { color: #dc2626; }
+.ep-sidebar-title { font-size: 1.5rem; font-weight: 900; color: #111; text-align: center; letter-spacing: -.03em; }
+.ep-sidebar-divider { border: none; border-top: 1px solid #f0f0f0; margin: .1rem 0; }
 
-/* Output format toggle */
-.ep-format-row { display:flex; gap:.65rem; margin-bottom:1.1rem; }
-.ep-format-btn {
-  flex:1; padding:.62rem .5rem; border-radius:10px; border:2px solid #e8e8e8;
-  font-size:.8rem; font-weight:700; cursor:pointer; background:#fff; color:#888;
-  display:flex; align-items:center; justify-content:center; gap:.4rem;
-  transition:all .15s;
+.ep-selected-badge {
+  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 12px;
+  padding: .75rem 1rem; text-align: center;
 }
-.ep-format-btn:hover { border-color:#fca5a5; color:#dc2626; }
-.ep-format-btn.active { border-color:#dc2626; background:#fee2e2; color:#dc2626; }
+.ep-selected-count { font-size: 2rem; font-weight: 900; color: #10b981; line-height: 1; }
+.ep-selected-label { font-size: .75rem; color: #999; margin-top: .15rem; }
 
-.ep-field-label {
-  font-size: .8rem; font-weight: 700; color: #111; margin-bottom: .45rem;
-  display: flex; align-items: center; gap: .5rem;
-}
-.ep-field-hint { font-size: .72rem; color: #aaa; font-weight: 400; margin-left: .2rem; }
+.ep-input-label { font-size: .78rem; font-weight: 700; color: #555; margin-bottom: .45rem; }
 .ep-input {
-  width: 100%; padding: .7rem 1rem; box-sizing: border-box;
+  width: 100%; padding: .55rem .85rem; box-sizing: border-box;
   border: 1.5px solid #e8e8e8; border-radius: 10px;
-  font-size: .92rem; background: #fff; color: #111;
-  outline: none; transition: border-color .15s, box-shadow .15s;
-  font-family: monospace; letter-spacing: .03em;
+  font-size: .88rem; background: #fff; color: #111;
+  outline: none; transition: border-color .15s; font-family: inherit;
 }
-.ep-input:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+.ep-input:focus { border-color: #10b981; }
+.ep-input::placeholder { color: #ccc; }
 
-.ep-presets { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .7rem; }
+.ep-hint-box {
+  background: #e8f4fd; border-radius: 10px; padding: .7rem .9rem;
+  display: flex; gap: .55rem; align-items: flex-start;
+  font-size: .76rem; color: #1d6fa4; line-height: 1.5;
+}
+.ep-hint-box i { font-size: .85rem; margin-top: .12rem; flex-shrink: 0; }
+
+.ep-presets { display: flex; flex-wrap: wrap; gap: .35rem; }
 .ep-preset {
-  padding: .25rem .7rem; border-radius: 20px; font-size: .72rem; font-weight: 600;
-  background: #fff; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer; transition: all .15s;
+  padding: .22rem .65rem; border-radius: 20px; font-size: .72rem; font-weight: 700;
+  background: #fff; color: #10b981; border: 1px solid #6ee7b7; cursor: pointer; transition: all .15s;
 }
-.ep-preset:hover { background: #fee2e2; border-color: #dc2626; }
+.ep-preset:hover { background: #ecfdf5; border-color: #10b981; }
 
-.ep-field-note {
-  display: flex; align-items: flex-start; gap: .5rem;
-  background: #fff8f8; border: 1px solid #fecaca; border-radius: 9px;
-  padding: .6rem .85rem; margin-top: .85rem; font-size: .74rem; color: #b91c1c; line-height: 1.55;
+.btn-extract {
+  display: flex; align-items: center; justify-content: center; gap: .55rem;
+  background: #dc2626; color: #fff; border: none; border-radius: 14px;
+  padding: 1rem; font-size: 1rem; font-weight: 800; cursor: pointer;
+  transition: background .15s, transform .1s; box-shadow: 0 4px 18px rgba(220,38,38,.3);
+  width: 100%;
 }
-.ep-field-note i { color: #dc2626; margin-top: .1rem; flex-shrink: 0; }
+.btn-extract:hover:not(:disabled) { background: #b91c1c; transform: translateY(-1px); }
+.btn-extract:disabled { background: #e0a0a0; cursor: not-allowed; box-shadow: none; }
+.btn-clear {
+  display: flex; align-items: center; justify-content: center; gap: .4rem;
+  background: #f5f5f5; border: none; border-radius: 10px;
+  padding: .6rem; font-size: .85rem; font-weight: 600; cursor: pointer;
+  color: #888; width: 100%; transition: background .15s, color .15s;
+}
+.btn-clear:hover { background: #fee2e2; color: #dc2626; }
 
-/* ── Submit ── */
-.ep-submit {
-  width: 100%; padding: .9rem;
-  background: linear-gradient(135deg,#991b1b,#b91c1c,#dc2626);
-  color: #fff; border: none; border-radius: 14px;
-  font-size: 1rem; font-weight: 800; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: .6rem;
-  transition: opacity .2s, transform .1s;
-  box-shadow: 0 5px 20px rgba(220,38,38,.35);
-  letter-spacing: .01em;
-}
-.ep-submit:hover:not(:disabled) { opacity:.9; transform:translateY(-2px); }
-.ep-submit:disabled { opacity:.4; cursor:not-allowed; box-shadow:none; }
+.progress-wrap { display: none; margin-top: 1rem; background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 1.2rem; }
+.progress-wrap.show { display: block; }
+.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+.progress-label { font-weight: 700; font-size: .9rem; color: #111; }
+.progress-pct   { font-size: .82rem; color: #dc2626; font-weight: 700; }
+.progress-track { height: 10px; background: #f0f0f0; border-radius: 5px; overflow: hidden; }
+.progress-fill  { height: 100%; background: linear-gradient(90deg,#991b1b,#dc2626,#f87171); border-radius: 5px; transition: width .3s; }
 
-/* ── Info strip ── */
-.ep-info-strip { display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1.6rem; }
-.ep-info-card {
-  flex:1; min-width:140px; background:#fff; border:1px solid #e8e8e8; border-radius:12px;
-  padding:.9rem 1rem; display:flex; align-items:center; gap:.75rem;
-  box-shadow:0 1px 4px rgba(0,0,0,.04);
+.result-card { display: none !important; }
+.result-card.show { display: block !important; }
+.result-success-wrap { text-align: center; padding: 3rem 1rem 2rem; }
+.result-success-title { font-size: 2rem; font-weight: 900; color: #111; margin: 0 0 2rem; letter-spacing: -.03em; }
+.result-download-row { display: flex; align-items: center; justify-content: center; gap: .75rem; margin-bottom: 2.5rem; flex-wrap: wrap; }
+.btn-download-big {
+  display: inline-flex; align-items: center; gap: .75rem;
+  background: #dc2626; color: #fff; border: none; border-radius: 14px;
+  padding: 1.1rem 2.8rem; font-size: 1.2rem; font-weight: 800; text-decoration: none;
+  transition: background .15s, transform .1s; box-shadow: 0 6px 24px rgba(220,38,38,.4);
+  min-width: 300px; justify-content: center;
 }
-.ep-info-icon {
-  width:36px; height:36px; border-radius:10px; flex-shrink:0;
-  display:flex; align-items:center; justify-content:center; font-size:.88rem;
-  background:#fee2e2; color:#dc2626;
+.btn-download-big:hover { background: #b91c1c; transform: translateY(-2px); color: #fff; text-decoration: none; }
+.btn-again {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 12px;
+  padding: .85rem 1.4rem; font-size: .95rem; font-weight: 600; cursor: pointer; color: #555; transition: all .15s;
 }
-.ep-info-title { font-size:.78rem; font-weight:700; color:#111; }
-.ep-info-desc  { font-size:.68rem; color:#aaa; margin-top:.1rem; }
+.btn-again:hover { border-color: #fca5a5; color: #dc2626; }
+.continue-section { background: #fff; border: 1px solid #e8e8e8; border-radius: 16px; padding: 1.5rem 2rem; text-align: left; max-width: 900px; margin: 0 auto; }
+.continue-title { font-size: 1rem; font-weight: 700; color: #111; margin-bottom: 1.2rem; }
+.continue-grid  { display: grid; grid-template-columns: repeat(3,1fr); gap: .1rem; }
+.continue-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .75rem .5rem; border-bottom: 1px solid #f0f0f0;
+  text-decoration: none; color: #333; font-size: .88rem; font-weight: 500;
+  transition: background .15s, color .15s; border-radius: 8px;
+}
+.continue-item:hover { background: #fff5f5; color: #dc2626; text-decoration: none; }
+.continue-item-left { display: flex; align-items: center; gap: .7rem; }
+.continue-icon { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: .8rem; background: #fee2e2; color: #dc2626; }
+.continue-item i.arrow { color: #bbb; font-size: .75rem; }
+.result-error-wrap { background: #fff8f8; border: 1.5px solid #fca5a5; border-radius: 16px; padding: 1.5rem; display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
+.result-err-icon { width: 44px; height: 44px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+.result-err-title { font-size: .95rem; font-weight: 700; color: #111; }
+.result-err-msg   { font-size: .8rem; color: #888; margin-top: .2rem; }
 </style>
 
-<!-- Hero -->
-<div class="ep-hero">
-  <div class="ep-hero-left">
-    <div class="ep-eyebrow"><i class="fa-solid fa-file-export"></i> Organize PDF</div>
-    <h2>Extract Pages</h2>
-    <p>Pull out specific pages or ranges from any PDF — save as a new document</p>
-    <div class="ep-badges">
-      <span class="ep-badge"><i class="fa-solid fa-shield-halved"></i> 100% Local</span>
-      <span class="ep-badge"><i class="fa-solid fa-file-pdf"></i> PDF Output</span>
-      <span class="ep-badge"><i class="fa-solid fa-bolt"></i> Instant</span>
-    </div>
-  </div>
-  <div class="ep-hero-pills">
-    <div class="ep-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
-    <div class="ep-pill"><span class="n">Any</span><div class="l">Pages</div></div>
-    <div class="ep-pill"><span class="n">Free</span><div class="l">Forever</div></div>
-  </div>
-</div>
-
-<form id="toolForm">{% csrf_token %}
-
-  <!-- Upload zone -->
-  <div class="ep-upload" id="uploadZone">
-    <input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="ep-upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-    <h3>Drop your PDF here</h3>
-    <p>Drag &amp; drop or click to browse</p>
-    <button type="button" class="ep-upload-btn" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-folder-open"></i> Select PDF File
-    </button>
-    <br>
-    <span class="ep-upload-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; All sizes supported &nbsp;·&nbsp; 100% local</span>
-  </div>
-
-  <!-- File bar -->
-  <div class="ep-file-bar" id="fileBar">
-    <div class="ep-file-bar-icon"><i class="fa-solid fa-file-pdf"></i></div>
-    <div class="ep-file-bar-info">
-      <div class="ep-file-bar-name" id="fileBarName">—</div>
-      <div class="ep-file-bar-meta" id="fileBarMeta">—</div>
-    </div>
-    <button type="button" class="ep-file-bar-change" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-arrow-rotate-left"></i> Change
-    </button>
-  </div>
-
-  <!-- Options -->
-  <div class="ep-options">
-    <div class="ep-options-title"><i class="fa-solid fa-sliders"></i> Extract Options</div>
-
-    <div class="ep-field-label">
-      Pages to Extract <span class="ep-field-hint">(e.g. 1, 3, 5-8)</span>
-    </div>
-    <input type="text" name="pages" id="pagesInput" class="ep-input" placeholder="1, 3, 5-8" required>
-
-    <div class="ep-presets">
-      <span class="ep-preset" onclick="addPages('1')">Page 1</span>
-      <span class="ep-preset" onclick="addPages('1-3')">Pages 1–3</span>
-      <span class="ep-preset" onclick="addPages('1-5')">Pages 1–5</span>
-      <span class="ep-preset" onclick="addPages('1-10')">Pages 1–10</span>
-    </div>
-
-    <div class="ep-field-note">
-      <i class="fa-solid fa-circle-info"></i>
-      Enter page numbers separated by commas. Use a dash for ranges. Example: <strong>1, 3, 5-8</strong> extracts pages 1, 3, and 5 through 8 into a new PDF.
-    </div>
-  </div>
-
-  <!-- Submit -->
-  <button type="submit" class="ep-submit btn-submit">
-    <i class="fa-solid fa-file-export"></i> Extract Pages
+<!-- Upload zone -->
+<div class="drop-zone" id="uploadZone">
+  <input type="file" id="fileInput" name="file" accept=".pdf">
+  <h2 class="drop-zone-title">Extract PDF Pages</h2>
+  <p class="drop-zone-sub">Pick specific pages to save as a new PDF document.</p>
+  <button type="button" class="drop-zone-btn" onclick="document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-plus"></i> Select PDF File
   </button>
-
-</form>
-
-<div class="progress-wrap" style="margin-top:1rem">
-  <div class="progress-header"><span class="progress-label">Extracting pages…</span><span class="progress-pct"></span></div>
-  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+  <p class="drop-zone-drop-hint">or drop PDF here</p>
 </div>
-<div class="result-card"></div>
 
-<!-- Info strip -->
-<div class="ep-info-strip">
-  <div class="ep-info-card">
-    <div class="ep-info-icon"><i class="fa-solid fa-shield-halved"></i></div>
-    <div><div class="ep-info-title">100% Private</div><div class="ep-info-desc">Files never leave your server</div></div>
-  </div>
-  <div class="ep-info-card">
-    <div class="ep-info-icon"><i class="fa-solid fa-file-export"></i></div>
-    <div><div class="ep-info-title">Custom Pages</div><div class="ep-info-desc">Pick any pages or ranges</div></div>
-  </div>
-  <div class="ep-info-card">
-    <div class="ep-info-icon"><i class="fa-solid fa-file-pdf"></i></div>
-    <div><div class="ep-info-title">PDF Output</div><div class="ep-info-desc">Clean PDF with extracted pages</div></div>
-  </div>
-  <div class="ep-info-card">
-    <div class="ep-info-icon"><i class="fa-solid fa-bolt"></i></div>
-    <div><div class="ep-info-title">Fast & Free</div><div class="ep-info-desc">No limits, no cost, no signup</div></div>
+<!-- File panel -->
+<div id="filePanel" style="display:none;">
+  <div class="ep-layout">
+
+    <div class="ep-preview-area">
+      <div class="ep-preview-hint">
+        <i class="fa-solid fa-hand-pointer"></i> Click pages to select them for extraction
+      </div>
+      <div class="ep-pages-grid" id="pagesGrid">
+        <div class="ep-placeholder"><i class="fa-solid fa-spinner fa-spin"></i>&nbsp; Loading pages…</div>
+      </div>
+    </div>
+
+    <div class="ep-divider"></div>
+
+    <div class="ep-sidebar">
+      <div class="ep-sidebar-title">Extract Pages</div>
+      <hr class="ep-sidebar-divider">
+
+      <div class="ep-selected-badge">
+        <div class="ep-selected-count" id="selectedCount">0</div>
+        <div class="ep-selected-label">pages selected to extract</div>
+      </div>
+
+      <div>
+        <div class="ep-input-label">Or type page numbers:</div>
+        <input type="text" class="ep-input" id="pagesInput" placeholder="e.g. 1, 3, 5-8">
+      </div>
+
+      <div>
+        <div class="ep-input-label">Quick select:</div>
+        <div class="ep-presets">
+          <span class="ep-preset" onclick="addPreset('1')">Page 1</span>
+          <span class="ep-preset" onclick="addPreset('1-3')">Pages 1–3</span>
+          <span class="ep-preset" onclick="addPreset('1-5')">Pages 1–5</span>
+          <span class="ep-preset" onclick="addPreset('last')">Last page</span>
+        </div>
+      </div>
+
+      <div class="ep-hint-box">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>Selected pages will be saved as a new PDF file.</span>
+      </div>
+
+      <button type="button" class="btn-extract" id="extractBtn">
+        Extract Pages &nbsp;<i class="fa-solid fa-circle-arrow-right"></i>
+      </button>
+      <button type="button" class="btn-clear" id="clearBtn">
+        <i class="fa-solid fa-rotate-left"></i> Clear
+      </button>
+    </div>
+
   </div>
 </div>
+
+<div class="progress-wrap" id="progressWrap">
+  <div class="progress-header">
+    <span class="progress-label">Extracting pages…</span>
+    <span class="progress-pct" id="progressPct">0%</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+</div>
+<div class="result-card" id="resultCard"></div>
 
 {% endblock %}
-
 {% block extra_js %}<script>
-const fileInput  = document.getElementById('fileInput');
-const uploadZone = document.getElementById('uploadZone');
-const fileBar    = document.getElementById('fileBar');
+const fileInput    = document.getElementById('fileInput');
+const uploadZone   = document.getElementById('uploadZone');
+const filePanel    = document.getElementById('filePanel');
+const progressWrap = document.getElementById('progressWrap');
+const progressFill = document.getElementById('progressFill');
+const progressPct  = document.getElementById('progressPct');
+const resultCard   = document.getElementById('resultCard');
+
+let totalPages = 0;
+let selectedPages = new Set();
 
 function formatBytes(b) {
   if (!b) return '0 B';
   const k=1024,s=['B','KB','MB','GB'],i=Math.floor(Math.log(b)/Math.log(k));
   return +(b/Math.pow(k,i)).toFixed(1)+' '+s[i];
 }
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function getCsrf() { return (document.cookie.match(/csrftoken=([^;]+)/)||[])[1]||''; }
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+
+function showFilePanel(f) {
+  uploadZone.style.display = 'none';
+  filePanel.style.display  = 'block';
+  renderThumbnails(f);
+}
+
+async function renderThumbnails(f) {
+  const grid = document.getElementById('pagesGrid');
+  grid.innerHTML = `<div class="ep-placeholder"><i class="fa-solid fa-spinner fa-spin"></i>&nbsp; Rendering pages…</div>`;
+  try {
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', getCsrf());
+    fd.append('file', f);
+    const resp = await fetch('{% url "api_pdf_thumbnails" %}', { method:'POST', body:fd });
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    totalPages = data.count;
+    grid.innerHTML = '';
+    data.pages.forEach((src, idx) => {
+      const pageNum = idx + 1;
+      const thumb = document.createElement('div');
+      thumb.className = 'ep-page-thumb';
+      thumb.dataset.page = pageNum;
+      thumb.innerHTML = `
+        <div class="ep-page-card">
+          <img src="${src}" loading="lazy">
+          <div class="ep-page-check"><i class="fa-solid fa-check"></i></div>
+        </div>
+        <div class="ep-page-num">${pageNum}</div>`;
+      thumb.addEventListener('click', () => togglePage(pageNum, thumb));
+      grid.appendChild(thumb);
+    });
+    const infoBar = document.createElement('div');
+    infoBar.style.cssText = 'width:100%;margin-top:.75rem;font-size:.75rem;color:#aaa;display:flex;align-items:center;gap:.4rem;';
+    infoBar.innerHTML = `<i class="fa-solid fa-file-pdf" style="color:#dc2626"></i>
+      <strong style="color:#555">${escHtml(f.name)}</strong>&nbsp;·&nbsp;${formatBytes(f.size)}&nbsp;·&nbsp;${totalPages} pages
+      &nbsp;<button type="button" onclick="document.getElementById('fileInput').click()" style="background:#f5f5f5;border:none;border-radius:6px;padding:.22rem .6rem;font-size:.72rem;font-weight:600;color:#888;cursor:pointer;margin-left:.3rem;">Change</button>`;
+    grid.after(infoBar);
+  } catch(e) {
+    grid.innerHTML = `<div class="ep-placeholder"><i class="fa-solid fa-triangle-exclamation" style="color:#f87171"></i>&nbsp; ${escHtml(e.message)}</div>`;
+  }
+}
+
+function togglePage(pageNum, thumb) {
+  if (selectedPages.has(pageNum)) { selectedPages.delete(pageNum); thumb.classList.remove('selected'); }
+  else { selectedPages.add(pageNum); thumb.classList.add('selected'); }
+  syncInput(); updateCount();
+}
+
+function syncInput() {
+  document.getElementById('pagesInput').value = [...selectedPages].sort((a,b)=>a-b).join(', ');
+}
+
+function updateCount() {
+  document.getElementById('selectedCount').textContent = selectedPages.size;
+}
+
+function addPreset(val) {
+  if (val === 'last' && totalPages > 0) val = String(totalPages);
+  val.split(',').forEach(part => {
+    part = part.trim();
+    if (part.includes('-')) {
+      const [s,e] = part.split('-').map(Number);
+      for (let i=s;i<=Math.min(e,totalPages);i++) selectedPages.add(i);
+    } else if (/^\d+$/.test(part)) {
+      const n = Number(part);
+      if (n>=1 && n<=totalPages) selectedPages.add(n);
+    }
+  });
+  syncInput(); updateCount();
+  document.querySelectorAll('.ep-page-thumb').forEach(t => {
+    t.classList.toggle('selected', selectedPages.has(Number(t.dataset.page)));
+  });
+}
+
+document.getElementById('pagesInput').addEventListener('input', function() {
+  selectedPages.clear();
+  this.value.split(',').forEach(part => {
+    part = part.trim();
+    if (part.includes('-')) {
+      const [s,e] = part.split('-').map(n=>parseInt(n)||0);
+      for (let i=s;i<=Math.min(e,totalPages||9999);i++) if(i>=1) selectedPages.add(i);
+    } else if (/^\d+$/.test(part)) {
+      const n = parseInt(part); if(n>=1) selectedPages.add(n);
+    }
+  });
+  updateCount();
+  document.querySelectorAll('.ep-page-thumb').forEach(t => {
+    t.classList.toggle('selected', selectedPages.has(Number(t.dataset.page)));
+  });
+});
 
 fileInput.addEventListener('change', function() {
-  const f = this.files[0];
-  if (!f) return;
-  uploadZone.style.display = 'none';
-  document.getElementById('fileBarName').textContent = f.name;
-  document.getElementById('fileBarMeta').textContent = formatBytes(f.size) + ' · PDF';
-  fileBar.classList.add('show');
+  const f = this.files[0]; if (!f) return;
+  selectedPages.clear(); updateCount(); showFilePanel(f);
 });
 
 uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragging'); });
 uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragging'));
 uploadZone.addEventListener('drop', e => {
   e.preventDefault(); uploadZone.classList.remove('dragging');
-  const dt = e.dataTransfer.files;
-  if (dt.length) { fileInput.files = dt; fileInput.dispatchEvent(new Event('change')); }
+  const files = Array.from(e.dataTransfer.files).filter(f=>f.type==='application/pdf');
+  if (files.length) { const dt=new DataTransfer(); dt.items.add(files[0]); fileInput.files=dt.files; fileInput.dispatchEvent(new Event('change')); }
 });
 
-function addPages(val) {
-  const inp = document.getElementById('pagesInput');
-  inp.value = inp.value.trim() ? inp.value.trim() + ', ' + val : val;
-  inp.focus();
+document.getElementById('clearBtn').addEventListener('click', () => {
+  filePanel.style.display='none'; uploadZone.style.display='';
+  fileInput.value=''; selectedPages.clear(); updateCount(); resultCard.className='result-card';
+});
+
+document.getElementById('extractBtn').addEventListener('click', async () => {
+  const f = fileInput.files[0]; if (!f) return;
+  const pages = document.getElementById('pagesInput').value.trim();
+  if (!pages) { alert('Please select or enter page numbers to extract.'); return; }
+
+  resultCard.className='result-card';
+  progressWrap.classList.add('show');
+  progressFill.style.width='0%'; progressPct.textContent='0%';
+
+  async function animateTo(target,ms) {
+    const cur=parseFloat(progressFill.style.width)||0,steps=20,delay=ms/steps,inc=(target-cur)/steps;let v=cur;
+    for(let i=0;i<steps;i++){v+=inc;progressFill.style.width=Math.min(v,target)+'%';progressPct.textContent=Math.round(v)+'%';await sleep(delay);}
+  }
+  animateTo(60,600);
+
+  const fd = new FormData();
+  fd.append('csrfmiddlewaretoken', getCsrf());
+  fd.append('file', f);
+  fd.append('pages', pages);
+
+  try {
+    const resp = await fetch('{% url "api_extract_pages" %}', {method:'POST',body:fd});
+    const data = await resp.json();
+    progressFill.style.width='100%'; progressPct.textContent='100%';
+    await sleep(300);
+    progressWrap.classList.remove('show');
+    if (data.error) { showError(data.error); } else { showSuccess(data); }
+  } catch(err) {
+    progressWrap.classList.remove('show'); showError(err.message);
+  }
+});
+
+function showSuccess(data) {
+  uploadZone.style.display='none'; filePanel.style.display='none';
+  resultCard.className='result-card show';
+  resultCard.innerHTML=`
+    <div class="result-success-wrap">
+      <h2 class="result-success-title">Pages extracted successfully!</h2>
+      <div class="result-download-row">
+        <a href="${data.download_url}" class="btn-download-big" download="${data.filename}">
+          <i class="fa-solid fa-download"></i> Download PDF
+        </a>
+        <button class="btn-again" onclick="resetTool()">
+          <i class="fa-solid fa-rotate-left"></i> Extract Again
+        </button>
+      </div>
+      <div class="continue-section">
+        <div class="continue-title">Continue to…</div>
+        <div class="continue-grid">
+          <a href="/tools/merge-pdf/"     class="continue-item"><div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-object-group"></i></div> Merge PDF</div><i class="fa-solid fa-chevron-right arrow"></i></a>
+          <a href="/tools/split-pdf/"     class="continue-item"><div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-scissors"></i></div> Split PDF</div><i class="fa-solid fa-chevron-right arrow"></i></a>
+          <a href="/tools/remove-pages/"  class="continue-item"><div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-trash-can"></i></div> Remove Pages</div><i class="fa-solid fa-chevron-right arrow"></i></a>
+          <a href="/tools/compress-pdf/"  class="continue-item"><div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-compress"></i></div> Compress PDF</div><i class="fa-solid fa-chevron-right arrow"></i></a>
+          <a href="/tools/watermark-pdf/" class="continue-item"><div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-droplet"></i></div> Add Watermark</div><i class="fa-solid fa-chevron-right arrow"></i></a>
+          <a href="/tools/protect-pdf/"   class="continue-item"><div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-lock"></i></div> Protect PDF</div><i class="fa-solid fa-chevron-right arrow"></i></a>
+        </div>
+      </div>
+    </div>`;
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-submitToolForm({formId:'toolForm', apiUrl:'{% url "api_extract_pages" %}', fileInputId:'fileInput'});
+function showError(msg) {
+  resultCard.className='result-card show';
+  resultCard.innerHTML=`
+    <div class="result-error-wrap">
+      <div class="result-err-icon"><i class="fa-solid fa-xmark"></i></div>
+      <div><div class="result-err-title">Failed</div><div class="result-err-msg">${escHtml(msg)}</div></div>
+      <button class="btn-again" style="margin-left:auto" onclick="resultCard.className='result-card'">
+        <i class="fa-solid fa-rotate-left"></i> Try Again
+      </button>
+    </div>`;
+}
+
+function resetTool() {
+  fileInput.value=''; filePanel.style.display='none';
+  uploadZone.style.display=''; resultCard.className='result-card';
+  selectedPages.clear(); updateCount();
+  progressFill.style.width='0%'; progressPct.textContent='0%';
+}
 </script>{% endblock %}

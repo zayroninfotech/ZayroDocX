@@ -39,9 +39,18 @@ def jpg_to_pdf(request):
             img_paths.append(rgb_path)
             saved.append(rgb_path)
 
-        out_path, out_name = get_output_path('.pdf', 'jpg_to_pdf')
+        page_size_str = request.POST.get('page_size', 'auto')
+        if page_size_str == 'a4':
+            layout = img2pdf.get_layout_fun(img2pdf.mm_to_pt(210, 297))
+        elif page_size_str == 'letter':
+            layout = img2pdf.get_layout_fun(img2pdf.mm_to_pt(215.9, 279.4))
+        else:
+            layout = None
+
+        out_name = 'ZayroDocX_images_to_pdf.pdf'
+        out_path = str(settings.OUTPUT_DIR / out_name)
         with open(out_path, 'wb') as fp:
-            fp.write(img2pdf.convert(img_paths))
+            fp.write(img2pdf.convert(img_paths, layout_fun=layout) if layout else img2pdf.convert(img_paths))
 
         save_job('jpg_to_pdf', [f.name for f in files], [out_name])
         return JsonResponse({'download_url': media_url(out_name), 'filename': out_name})

@@ -10,51 +10,6 @@
    MERGE PDF — White · Red · Cream theme
 ═══════════════════════════════════════ */
 
-/* ── Page hero banner ── */
-.merge-hero {
-  background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 45%, #dc2626 80%, #ef4444 100%);
-  border-radius: 18px; padding: 2rem 2.2rem; margin-bottom: 1.6rem;
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.2rem;
-  box-shadow: 0 6px 28px rgba(220,38,38,.28); position: relative; overflow: hidden;
-}
-.merge-hero::before {
-  content:''; position:absolute; top:-60px; right:-40px;
-  width:220px; height:220px; border-radius:50%;
-  background:rgba(255,255,255,.07); pointer-events:none;
-}
-.merge-hero-left { position:relative; z-index:1; }
-.merge-hero-eyebrow {
-  display:inline-flex; align-items:center; gap:.4rem;
-  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25);
-  border-radius:999px; padding:.22rem .75rem; font-size:.68rem; font-weight:700;
-  color:#fff; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.55rem;
-}
-.merge-hero-left h2 { font-size:1.65rem; font-weight:900; color:#fff; margin:0 0 .3rem; letter-spacing:-.03em; }
-.merge-hero-left p  { font-size:.82rem; color:rgba(255,255,255,.75); margin:0; }
-.merge-hero-right {
-  display:flex; gap:.75rem; flex-shrink:0; position:relative; z-index:1;
-}
-.merge-pill {
-  background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.18);
-  border-radius:12px; padding:.75rem 1.1rem; text-align:center; min-width:72px;
-}
-.merge-pill .n { font-size:1.4rem; font-weight:900; color:#fff; line-height:1; display:block; }
-.merge-pill .l { font-size:.58rem; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.07em; }
-
-/* ── Steps ── */
-.steps-bar { display:flex; align-items:center; gap:0; margin-bottom:1.6rem; }
-.step { display:flex; align-items:center; gap:.55rem; font-size:.82rem; font-weight:700; color:#bbb; }
-.step.active { color:#dc2626; }
-.step.done   { color:#dc2626; }
-.step-num {
-  width:32px; height:32px; border-radius:50%; border:2px solid currentColor;
-  display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:800; flex-shrink:0;
-}
-.step.done   .step-num { background:#dc2626; border-color:#dc2626; color:#fff; }
-.step.active .step-num { background:#dc2626; border-color:#dc2626; color:#fff; }
-.step-line { flex:1; height:2px; background:#e8e8e8; margin:0 .5rem; }
-.step-line.done { background:#dc2626; }
-
 /* ── Drop zone ── */
 .drop-zone {
   text-align: center; padding: 6rem 2rem 5rem;
@@ -266,22 +221,15 @@
 .result-err-title { font-size:.95rem; font-weight:700; color:#111; }
 .result-err-msg   { font-size:.8rem; color:#888; margin-top:.2rem; }
 
-/* ── Info strip ── */
-.merge-info-strip {
-  display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1.6rem;
+/* ── PDF thumbnail in card ── */
+.pdf-thumb-img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  border-radius: 0;
 }
-.minfo-card {
-  flex:1; min-width:140px; background:#fff; border:1px solid #e8e8e8; border-radius:12px;
-  padding:.9rem 1rem; display:flex; align-items:center; gap:.75rem;
-  box-shadow:0 1px 4px rgba(0,0,0,.04);
+.pdf-thumb-loading {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%; color: #ccc; font-size: .75rem; gap: .3rem;
 }
-.minfo-icon {
-  width:36px; height:36px; border-radius:10px; flex-shrink:0;
-  display:flex; align-items:center; justify-content:center; font-size:.88rem;
-  background:#fee2e2; color:#dc2626;
-}
-.minfo-title { font-size:.78rem; font-weight:700; color:#111; }
-.minfo-desc  { font-size:.68rem; color:#aaa; margin-top:.1rem; }
 </style>
 
 
@@ -360,7 +308,8 @@
 {% block extra_js %}
 <script>
 /* ── state ── */
-let fileArray = [];   // ordered array of File objects
+let fileArray = [];        // ordered array of File objects
+let thumbCache = new Map(); // File → base64 data URL of first page
 let dragSrcIdx = null;
 
 const fileInput    = document.getElementById('fileInput');
@@ -394,10 +343,51 @@ uploadZone.addEventListener('drop', e => {
   addFiles(Array.from(e.dataTransfer.files).filter(f => f.type === 'application/pdf'));
 });
 
+/* ── drop on file panel (add more files) ── */
+document.getElementById('filePanel').addEventListener('dragover', e => e.preventDefault());
+document.getElementById('filePanel').addEventListener('drop', e => {
+  e.preventDefault();
+  addFiles(Array.from(e.dataTransfer.files).filter(f => f.type === 'application/pdf'));
+});
+
 /* ── add files ── */
 function addFiles(files) {
-  files.forEach(f => { if (f.type === 'application/pdf') fileArray.push(f); });
+  const newFiles = files.filter(f => f.type === 'application/pdf');
+  newFiles.forEach(f => fileArray.push(f));
   render();
+  /* Fetch thumbnails for new files */
+  newFiles.forEach(f => loadThumb(f));
+}
+
+/* ── fetch first-page thumbnail from backend ── */
+async function loadThumb(f) {
+  if (thumbCache.has(f)) return;
+  thumbCache.set(f, null); /* mark as loading */
+  try {
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', getCsrf());
+    fd.append('file', f);
+    const resp = await fetch('{% url "api_pdf_thumbnails" %}', { method: 'POST', body: fd });
+    const data = await resp.json();
+    if (data.pages && data.pages[0]) {
+      thumbCache.set(f, data.pages[0]);
+      /* Update card thumb if still in list */
+      const idx = fileArray.indexOf(f);
+      if (idx !== -1) {
+        const card = document.querySelector(`.file-card[data-idx="${idx}"]`);
+        if (card) {
+          const thumb = card.querySelector('.file-card-thumb');
+          thumb.innerHTML = `
+            <div class="file-card-num">${idx + 1}</div>
+            <img class="pdf-thumb-img" src="${data.pages[0]}">
+            <button class="file-card-remove" title="Remove"><i class="fa-solid fa-xmark"></i></button>`;
+          card.querySelector('.file-card-remove').addEventListener('click', e => {
+            e.stopPropagation(); fileArray.splice(idx, 1); render();
+          });
+        }
+      }
+    }
+  } catch(e) { /* keep CSS icon on error */ }
 }
 
 /* ── render ── */
@@ -418,10 +408,16 @@ function render() {
     card.className = 'file-card';
     card.draggable = true;
     card.dataset.idx = i;
+    const cached = thumbCache.get(f);
+    const thumbContent = cached
+      ? `<img class="pdf-thumb-img" src="${cached}">`
+      : (thumbCache.has(f)
+          ? `<div class="pdf-thumb-loading"><i class="fa-solid fa-spinner fa-spin"></i></div>`
+          : `<div class="pdf-doc-icon"><span class="pdf-label">PDF</span></div>`);
     card.innerHTML = `
       <div class="file-card-thumb">
         <div class="file-card-num">${i + 1}</div>
-        <div class="pdf-doc-icon"><span class="pdf-label">PDF</span></div>
+        ${thumbContent}
         <button class="file-card-remove" title="Remove"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="file-card-info">
@@ -580,8 +576,8 @@ function showMergeError(msg) {
 }
 
 function resetMerge() {
-  fileArray = []; render();
-  resultCard.style.display = 'none'; resultCard.className = 'result-card';
+  fileArray = []; thumbCache.clear(); render();
+  resultCard.className = 'result-card';
   ['ps1','ps2','ps3','ps4'].forEach(s => { const el = document.getElementById(s); if(el) el.className = 'progress-step-item'; });
   progressFill.style.width = '0%'; progressPct.textContent = '0%';
 }
