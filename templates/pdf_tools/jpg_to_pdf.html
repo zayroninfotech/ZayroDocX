@@ -9,78 +9,6 @@
    IMAGE TO PDF — Hero + Drop zone
 ══════════════════════════════════════ */
 
-/* Hero banner */
-.img2pdf-hero {
-  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 50%, #ef4444 100%);
-  border-radius: 20px;
-  padding: 2.4rem 2.5rem 2.2rem;
-  margin-bottom: 1.5rem;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-}
-.img2pdf-hero::before {
-  content: '';
-  position: absolute;
-  right: -60px; top: -60px;
-  width: 300px; height: 300px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.07);
-  pointer-events: none;
-}
-.img2pdf-hero::after {
-  content: '';
-  position: absolute;
-  right: 80px; bottom: -80px;
-  width: 200px; height: 200px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.05);
-  pointer-events: none;
-}
-.hero-left { flex: 1; min-width: 0; position: relative; z-index: 1; }
-.hero-pill {
-  display: inline-flex; align-items: center; gap: .4rem;
-  background: rgba(255,255,255,.2); border-radius: 20px;
-  padding: .28rem .9rem; font-size: .7rem; font-weight: 800;
-  color: #fff; letter-spacing: .08em; margin-bottom: .9rem;
-}
-.hero-pill i { font-size: .65rem; }
-.hero-title {
-  font-size: 2.4rem; font-weight: 900; color: #fff;
-  letter-spacing: -.04em; margin: 0 0 .5rem; line-height: 1.1;
-}
-.hero-subtitle {
-  font-size: .92rem; color: rgba(255,255,255,.82);
-  margin: 0 0 1.1rem; line-height: 1.5;
-}
-.hero-formats { display: flex; gap: .45rem; flex-wrap: wrap; }
-.hero-fmt-tag {
-  background: rgba(255,255,255,.18); color: #fff;
-  border-radius: 8px; padding: .25rem .7rem;
-  font-size: .72rem; font-weight: 800; letter-spacing: .05em;
-}
-.hero-right {
-  display: flex; gap: .75rem; flex-shrink: 0;
-  position: relative; z-index: 1;
-}
-.hero-feat-box {
-  background: rgba(0,0,0,.25); border-radius: 14px;
-  padding: .9rem 1.1rem; text-align: center;
-  min-width: 80px;
-}
-.hero-feat-val {
-  font-size: 1.5rem; font-weight: 900; color: #fff;
-  line-height: 1; margin-bottom: .3rem;
-}
-.hero-feat-val i { font-size: 1.3rem; }
-.hero-feat-lbl {
-  font-size: .62rem; font-weight: 800; color: rgba(255,255,255,.7);
-  letter-spacing: .08em; text-transform: uppercase;
-}
-
 /* Drop zone */
 .drop-zone {
   text-align: center; padding: 5rem 2rem 4.5rem;
@@ -253,37 +181,6 @@
 .result-err-title { font-size: .95rem; font-weight: 700; color: #111; }
 .result-err-msg   { font-size: .8rem; color: #888; margin-top: .2rem; }
 </style>
-
-<!-- Hero banner -->
-<div class="img2pdf-hero">
-  <div class="hero-left">
-    <div class="hero-pill"><i class="fa-solid fa-file-pdf"></i> ORGANIZE PDF</div>
-    <h1 class="hero-title">Image to PDF</h1>
-    <p class="hero-subtitle">Convert any image into a professional PDF — 100% processed on your server</p>
-    <div class="hero-formats">
-      <span class="hero-fmt-tag">JPG</span>
-      <span class="hero-fmt-tag">PNG</span>
-      <span class="hero-fmt-tag">BMP</span>
-      <span class="hero-fmt-tag">TIFF</span>
-      <span class="hero-fmt-tag">WEBP</span>
-      <span class="hero-fmt-tag">GIF</span>
-    </div>
-  </div>
-  <div class="hero-right">
-    <div class="hero-feat-box">
-      <div class="hero-feat-val"><i class="fa-solid fa-shield-halved"></i></div>
-      <div class="hero-feat-lbl">Private</div>
-    </div>
-    <div class="hero-feat-box">
-      <div class="hero-feat-val">6</div>
-      <div class="hero-feat-lbl">Formats</div>
-    </div>
-    <div class="hero-feat-box">
-      <div class="hero-feat-val">Free</div>
-      <div class="hero-feat-lbl">Forever</div>
-    </div>
-  </div>
-</div>
 
 <!-- Upload zone -->
 <div class="drop-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
