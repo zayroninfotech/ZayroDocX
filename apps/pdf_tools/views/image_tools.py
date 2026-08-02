@@ -470,16 +470,20 @@ def blur_face(request):
         if len(faces) == 0:
             return JsonResponse({'error': 'No faces detected in the image.'}, status=400)
 
+        intensity = request.POST.get('intensity', 'medium')
+        intensity_mul = {'light': 0.08, 'medium': 0.15, 'heavy': 0.25}.get(intensity, 0.15)
+
         for (x, y, w, h) in faces:
             roi = img_cv[y:y+h, x:x+w]
-            blur_strength = max(21, (min(w, h) // 5) | 1)
-            blurred = cv2.GaussianBlur(roi, (blur_strength, blur_strength), 0)
+            k = max(21, int(min(w, h) * intensity_mul))
+            k = k if k % 2 == 1 else k + 1
+            blurred = cv2.GaussianBlur(roi, (k, k), 0)
             img_cv[y:y+h, x:x+w] = blurred
 
         cv2.imwrite(out_path, img_cv)
         save_job('blur_face', [f.name], [out_name])
         return JsonResponse({'download_url': media_url(out_name), 'filename': out_name,
-                             'faces': len(faces)})
+                             'faces_found': len(faces)})
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
