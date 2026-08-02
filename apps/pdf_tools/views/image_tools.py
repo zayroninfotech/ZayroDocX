@@ -432,7 +432,37 @@ def blur_face(request):
 
         img_cv = cv2.imread(saved_path)
         gray   = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
-        cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+
+        # OpenCV 5 no longer bundles haarcascades — find or download the XML
+        cascade_path = None
+        # Try built-in data path first (OpenCV 4)
+        if hasattr(cv2, 'data') and hasattr(cv2.data, 'haarcascades'):
+            candidate = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+            if os.path.isfile(candidate):
+                cascade_path = candidate
+        # Fallback: well-known venv/system paths
+        if not cascade_path:
+            import sys, glob as _glob
+            patterns = [
+                os.path.join(os.path.dirname(cv2.__file__), '**', 'haarcascade_frontalface_default.xml'),
+                '/usr/share/opencv4/haarcascades/haarcascade_frontalface_default.xml',
+                '/usr/share/opencv/haarcascades/haarcascade_frontalface_default.xml',
+            ]
+            for pat in patterns:
+                matches = _glob.glob(pat, recursive=True)
+                if matches:
+                    cascade_path = matches[0]
+                    break
+        # Last resort: download from GitHub
+        if not cascade_path:
+            import urllib.request
+            cascade_dir = os.path.join(settings.BASE_DIR, 'haarcascades')
+            os.makedirs(cascade_dir, exist_ok=True)
+            cascade_path = os.path.join(cascade_dir, 'haarcascade_frontalface_default.xml')
+            if not os.path.isfile(cascade_path):
+                url = 'https://raw.githubusercontent.com/opencv/opencv/4.x/data/haarcascades/haarcascade_frontalface_default.xml'
+                urllib.request.urlretrieve(url, cascade_path)
+
         face_cascade = cv2.CascadeClassifier(cascade_path)
         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30,30))
 
