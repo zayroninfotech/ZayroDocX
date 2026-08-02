@@ -71,16 +71,16 @@ def word_to_pdf(request):
         return JsonResponse({'error': 'No Word file uploaded.'}, status=400)
 
     saved_path, _ = save_uploaded_file(f)
-    out_path, out_name = get_output_path('.pdf', 'word_to_pdf')
+    out_name = 'ZayroDocX_word_to_pdf.pdf'
+    out_path = str(settings.OUTPUT_DIR / out_name)
 
     try:
         validate_office(saved_path, f.name, kinds=('doc', 'docx'))
-        success = _libreoffice_convert(saved_path, out_path)
+        success = _docx2pdf_convert(saved_path, out_path)
         if not success:
-            raise RuntimeError(
-                'LibreOffice not found or conversion failed. '
-                'Run: sudo apt-get install -y libreoffice on the server.'
-            )
+            success = _libreoffice_convert(saved_path, out_path)
+        if not success:
+            raise RuntimeError('Conversion failed. Ensure Microsoft Word or LibreOffice is installed.')
         save_job('word_to_pdf', [f.name], [out_name])
         return JsonResponse({'download_url': media_url(out_name), 'filename': out_name})
     except ValueError as e:
@@ -100,7 +100,8 @@ def pptx_to_pdf(request):
         return JsonResponse({'error': 'No PowerPoint file uploaded.'}, status=400)
 
     saved_path, _ = save_uploaded_file(f)
-    out_path, out_name = get_output_path('.pdf', 'pptx_to_pdf')
+    out_name = 'ZayroDocX_pptx_to_pdf.pdf'
+    out_path = str(settings.OUTPUT_DIR / out_name)
 
     try:
         validate_office(saved_path, f.name, kinds=('ppt', 'pptx'))
@@ -126,7 +127,8 @@ def excel_to_pdf(request):
         return JsonResponse({'error': 'No Excel file uploaded.'}, status=400)
 
     saved_path, _ = save_uploaded_file(f)
-    out_path, out_name = get_output_path('.pdf', 'excel_to_pdf')
+    out_name = 'ZayroDocX_excel_to_pdf.pdf'
+    out_path = str(settings.OUTPUT_DIR / out_name)
 
     try:
         validate_office(saved_path, f.name, kinds=('xls', 'xlsx'))
@@ -248,6 +250,17 @@ def _validate_url(url):
                 or addr.is_reserved or addr.is_multicast
                 or addr.is_unspecified):
             raise ValueError('URL resolves to a private or reserved address.')
+
+
+def _docx2pdf_convert(input_path, output_path):
+    """Convert Word document to PDF using docx2pdf (requires Microsoft Word on Windows)."""
+    try:
+        from docx2pdf import convert as _convert
+        _convert(input_path, output_path)
+        return os.path.exists(output_path)
+    except Exception as e:
+        logger.warning('docx2pdf failed: %s', e)
+        return False
 
 
 def _libreoffice_convert(input_path, output_path):

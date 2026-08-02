@@ -1372,7 +1372,9 @@ def scan_to_pdf(request):
                 new_doc.insert_pdf(tmp_doc)
                 tmp_doc.close()
 
-        out_path, out_name = get_output_path('.pdf', 'scanned')
+        from django.conf import settings
+        out_name = 'ZayroDocX_images_to_pdf.pdf'
+        out_path = str(settings.OUTPUT_DIR / out_name)
         new_doc.save(out_path, deflate=True)
         new_doc.close()
 

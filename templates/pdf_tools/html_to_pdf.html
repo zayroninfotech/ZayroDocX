@@ -29,19 +29,6 @@
 {% endblock %}
 
 {% block content %}
-<div class="cv-hero">
-  <div class="cv-hero-left">
-    <div class="cv-eyebrow"><i class="fa-brands fa-html5"></i> Convert to PDF</div>
-    <h2>HTML to PDF</h2>
-    <p>Convert HTML files, URLs, or pasted code to PDF — full layout support</p>
-  </div>
-  <div class="cv-hero-pills">
-    <div class="cv-hero-pill"><span class="n">File</span><div class="l">Upload</div></div>
-    <div class="cv-hero-pill"><span class="n">URL</span><div class="l">Website</div></div>
-    <div class="cv-hero-pill"><span class="n">Code</span><div class="l">Paste</div></div>
-  </div>
-</div>
-
 <form id="toolForm">{% csrf_token %}
 
   <!-- Source panel -->
@@ -60,8 +47,9 @@
         <h3>Drop HTML file here</h3>
         <p>Supports .html and .htm files</p>
         <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
-          <i class="fa-solid fa-folder-open"></i> Select HTML File
+          <i class="fa-solid fa-plus"></i> Select HTML File
         </button>
+        <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> All processing done locally — never uploaded</span>
       </div>
       <div class="cv-file-bar" id="cvFileBar" style="margin-top:.5rem;">
         <i class="fa-brands fa-html5 cv-file-icon" style="color:#e44d26"></i>
@@ -106,13 +94,6 @@
   <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
 </div>
 <div class="result-card"></div>
-
-<div class="cv-info-strip">
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-link"></i></div><div><div class="cv-info-title">3 Sources</div><div class="cv-info-desc">File, URL or Code</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-ruler-combined"></i></div><div><div class="cv-info-title">Page Size</div><div class="cv-info-desc">A4 or Letter</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast rendering</div></div></div>
-</div>
 {% endblock %}
 
 {% block extra_js %}<script>

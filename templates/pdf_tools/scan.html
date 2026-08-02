@@ -5,413 +5,416 @@
 {% block content %}
 
 <style>
-/* ═══════════════════════════════════════
-   IMAGE TO PDF — White · Red · Cream
-═══════════════════════════════════════ */
+/* ══════════════════════════════════════
+   SCAN TO PDF — iLovePDF layout
+══════════════════════════════════════ */
 
-/* ── Hero ── */
-.sc-hero {
-  background: linear-gradient(135deg,#7f1d1d 0%,#b91c1c 45%,#dc2626 80%,#ef4444 100%);
-  border-radius: 18px; padding: 2rem 2.2rem; margin-bottom: 1.6rem;
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.2rem;
-  box-shadow: 0 6px 28px rgba(220,38,38,.28); position: relative; overflow: hidden;
+/* Drop zone */
+.drop-zone {
+  text-align: center; padding: 4rem 2rem 3.5rem;
+  border: 2.5px dashed #f0a0a0; border-radius: 20px;
+  background: #fff9f9; transition: background .2s, border-color .2s;
+  cursor: pointer;
 }
-.sc-hero::before {
-  content:''; position:absolute; top:-60px; right:-40px;
-  width:240px; height:240px; border-radius:50%;
-  background:rgba(255,255,255,.07); pointer-events:none;
+.drop-zone.dragging { background: #fff1f1; border-color: #dc2626; }
+.drop-zone input[type=file] { display: none; }
+.drop-zone-icon-wrap {
+  width: 80px; height: 80px; border-radius: 20px;
+  background: #dc2626; display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1.4rem; box-shadow: 0 8px 24px rgba(220,38,38,.35);
 }
-.sc-hero::after {
-  content:''; position:absolute; bottom:-50px; left:10%;
-  width:160px; height:160px; border-radius:50%;
-  background:rgba(255,255,255,.04); pointer-events:none;
+.drop-zone-icon-wrap i { font-size: 2rem; color: #fff; }
+.drop-zone-title { font-size: 1.8rem; font-weight: 900; color: #111; margin: 0 0 .45rem; letter-spacing: -.03em; }
+.drop-zone-formats { font-size: .9rem; color: #888; margin: 0 0 2rem; }
+.drop-zone-btn {
+  display: inline-flex; align-items: center; gap: .6rem;
+  background: #dc2626; color: #fff; border: none; border-radius: 12px;
+  padding: .9rem 2.5rem; font-size: 1.05rem; font-weight: 800; cursor: pointer;
+  transition: background .15s, transform .1s; box-shadow: 0 4px 18px rgba(220,38,38,.35);
 }
-.sc-hero-left { position:relative; z-index:1; }
-.sc-eyebrow {
-  display:inline-flex; align-items:center; gap:.4rem;
-  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25);
-  border-radius:999px; padding:.22rem .75rem; font-size:.68rem; font-weight:700;
-  color:#fff; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.55rem;
+.drop-zone-btn:hover { background: #b91c1c; transform: translateY(-1px); }
+.drop-zone-privacy {
+  display: inline-flex; align-items: center; gap: .45rem;
+  margin-top: 1.3rem; background: rgba(220,38,38,.08);
+  border-radius: 20px; padding: .35rem 1rem;
+  font-size: .78rem; font-weight: 700; color: #b91c1c;
 }
-.sc-hero-left h2 { font-size:1.65rem; font-weight:900; color:#fff; margin:0 0 .3rem; letter-spacing:-.03em; }
-.sc-hero-left p  { font-size:.82rem; color:rgba(255,255,255,.75); margin:0 0 .85rem; }
-.sc-hero-formats { display:flex; flex-wrap:wrap; gap:.38rem; }
-.sc-hfmt {
-  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22);
-  border-radius:6px; padding:.18rem .55rem; font-size:.68rem; font-weight:700; color:#fff;
-}
-.sc-hero-pills { display:flex; gap:.75rem; flex-shrink:0; position:relative; z-index:1; }
-.sc-pill {
-  background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.18);
-  border-radius:12px; padding:.75rem 1.1rem; text-align:center; min-width:72px;
-}
-.sc-pill .n { font-size:1.1rem; font-weight:900; color:#fff; line-height:1; display:block; }
-.sc-pill .l { font-size:.58rem; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.07em; }
+.drop-zone-privacy i { font-size: .8rem; }
 
-/* ── Drop zone ── */
-.sc-drop {
-  border: 2.5px dashed #fca5a5; border-radius: 18px;
-  padding: 3rem 2rem; text-align: center; position: relative;
-  cursor: pointer; transition: border-color .2s, background .2s;
-  background: #fff8f8; margin-bottom: 1rem;
-}
-.sc-drop:hover, .sc-drop.dragging { border-color: #dc2626; background: #fff1f1; }
-.sc-drop input[type=file] { position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer; }
-.sc-drop-icon {
-  width: 68px; height: 68px; border-radius: 18px;
-  background: linear-gradient(135deg,#b91c1c,#dc2626);
-  color: #fff; display: flex; align-items: center; justify-content: center;
-  font-size: 1.6rem; margin: 0 auto 1.1rem;
-  box-shadow: 0 4px 16px rgba(220,38,38,.3);
-}
-.sc-drop h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 .3rem; color:#111; }
-.sc-drop p  { font-size: .85rem; color: #888; margin: 0 0 1.2rem; }
-.sc-drop-btn {
-  display: inline-flex; align-items: center; gap: .48rem;
-  background: linear-gradient(135deg,#b91c1c,#dc2626); color: #fff; border: none; border-radius: 10px;
-  padding: .7rem 1.6rem; font-size: .95rem; font-weight: 700;
-  cursor: pointer; transition: opacity .2s, transform .1s; position: relative; z-index: 1;
-  box-shadow: 0 3px 12px rgba(220,38,38,.3);
-}
-.sc-drop-btn:hover { opacity: .88; transform: translateY(-1px); }
-.sc-drop-hint {
-  display: inline-flex; align-items:center; gap:.45rem; margin-top: .9rem;
-  background: #fff5f5; border: 1px solid #fecaca; border-radius: 8px;
-  padding: .38rem .85rem; font-size: .74rem; color: #b91c1c; font-weight:500;
+/* ── File panel two-column layout ── */
+.fp-layout  { display: flex; gap: 1.5rem; align-items: flex-start; }
+.fp-main    { flex: 1; min-width: 0; }
+.fp-sidebar {
+  width: 280px; flex-shrink: 0; position: sticky; top: 1.5rem;
+  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 16px;
+  padding: 1.4rem 1.2rem; display: flex; flex-direction: column; gap: 1rem;
 }
 
-/* ── Format badges row ── */
-.sc-formats {
-  display: flex; justify-content: center; gap: .5rem; margin-bottom: 1.1rem; flex-wrap: wrap;
+/* ── Top bar ── */
+.fp-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem; flex-wrap: wrap; gap: .65rem;
 }
-.sc-fmt {
-  padding: .28rem .75rem; border-radius: 8px; font-size: .72rem; font-weight: 700;
-  border: 1px solid #fca5a5; color: #dc2626; background: #fff8f8;
-  letter-spacing: .04em;
+.fp-topbar-count { font-size: .82rem; font-weight: 700; color: #888; }
+.fp-topbar-count span { color: #dc2626; }
+.btn-add-more {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: #fff; border: 1.5px solid #e0e0e0; border-radius: 10px;
+  padding: .42rem .9rem; font-size: .8rem; font-weight: 700; color: #666; cursor: pointer;
+  transition: all .15s;
 }
+.btn-add-more:hover { border-color: #fca5a5; color: #dc2626; }
 
-/* ── Stats bar ── */
-.sc-stats {
-  display: none; align-items: center; gap: 1rem;
-  background: #fff; border: 1.5px solid #fca5a5;
-  border-radius: 14px; padding: .8rem 1.1rem; margin-bottom: .85rem; flex-wrap: wrap;
-  box-shadow: 0 2px 10px rgba(220,38,38,.07);
+/* ── Image card grid ── */
+.img-card-grid { display: flex; flex-wrap: wrap; gap: .9rem; }
+.img-card {
+  width: 110px; display: flex; flex-direction: column; align-items: center;
+  gap: .4rem; position: relative; cursor: grab;
 }
-.sc-stats.show { display: flex; }
-.sc-stat { display: flex; align-items: center; gap: .4rem; font-size: .84rem; color: #888; }
-.sc-stat strong { color: #111; font-weight: 700; }
-.sc-stats-actions { margin-left: auto; display: flex; gap: .5rem; }
-.sc-btn-add, .sc-btn-clear {
-  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 9px;
-  padding: .38rem .8rem; font-size: .78rem; font-weight: 600;
-  color: #888; cursor: pointer; transition: all .15s;
-  display: flex; align-items: center; gap: .35rem;
-}
-.sc-btn-add:hover, .sc-btn-clear:hover { border-color: #fca5a5; color: #dc2626; background: #fff8f8; }
-
-/* ── Image preview grid ── */
-.sc-preview-grid {
-  display: none;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: .65rem; margin-bottom: 1rem;
-}
-.sc-preview-grid.show { display: grid; }
-.sc-thumb {
-  position: relative; border-radius: 12px; overflow: hidden;
-  border: 1.5px solid #e8e8e8; aspect-ratio: 3/4; background: #f7f7f7;
+.img-card:active { cursor: grabbing; }
+.img-card.drag-over .img-card-thumb { border-color: #dc2626; background: #fff5f5; }
+.img-card-thumb {
+  width: 110px; height: 130px; border-radius: 10px;
+  border: 2px solid #e8e8e8; background: #f9f9f9;
+  overflow: hidden; position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
   transition: border-color .15s, box-shadow .15s;
 }
-.sc-thumb:hover { border-color: #fca5a5; box-shadow: 0 3px 12px rgba(220,38,38,.12); }
-.sc-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.sc-thumb-overlay {
-  position: absolute; inset: 0; background: rgba(0,0,0,.55);
-  display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-  padding: .4rem; opacity: 0; transition: opacity .18s;
+.img-card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.img-card-num {
+  position: absolute; top: 5px; left: 5px;
+  background: rgba(0,0,0,.55); color: #fff;
+  font-size: .62rem; font-weight: 900; border-radius: 5px;
+  padding: .1rem .38rem; line-height: 1.4; z-index: 2;
 }
-.sc-thumb:hover .sc-thumb-overlay { opacity: 1; }
-.sc-thumb-name { font-size: .6rem; color: #fff; text-align: center; word-break: break-all; margin-bottom: .2rem; }
-.sc-thumb-remove {
-  background: rgba(220,38,38,.9); border: none; border-radius: 6px;
-  color: #fff; font-size: .65rem; padding: .2rem .5rem; cursor: pointer; font-weight: 600;
+.img-card-remove {
+  position: absolute; top: 4px; right: 4px; z-index: 3;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #dc2626; color: #fff; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: .6rem;
+  opacity: 0; transition: opacity .15s;
 }
-.sc-thumb-num {
-  position: absolute; top: .35rem; left: .35rem;
-  background: linear-gradient(135deg,#b91c1c,#dc2626); color: #fff; font-size: .6rem; font-weight: 800;
-  width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+.img-card:hover .img-card-remove { opacity: 1; }
+.img-card-name {
+  font-size: .68rem; color: #aaa; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 110px; text-align: center;
 }
 
-/* ── Options card ── */
-.sc-options {
-  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 16px;
-  padding: 1.3rem 1.4rem; margin-bottom: 1.1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+/* ── Sidebar ── */
+.sidebar-title { font-size: 1.25rem; font-weight: 900; color: #111; text-align: center; letter-spacing: -.02em; }
+.sidebar-divider { border: none; border-top: 1px solid #f0f0f0; margin: .1rem 0; }
+.sidebar-field-label { font-size: .78rem; font-weight: 700; color: #555; margin-bottom: .4rem; }
+.sidebar-toggle { display: flex; gap: .4rem; }
+.sidebar-toggle-btn {
+  flex: 1; padding: .45rem .3rem; border-radius: 8px;
+  border: 1.5px solid #e8e8e8; background: #fff;
+  font-size: .76rem; font-weight: 700; color: #aaa; cursor: pointer;
+  text-align: center; transition: all .15s;
 }
-.sc-options-title {
-  font-size: .8rem; font-weight: 800; color: #111; letter-spacing: .04em; text-transform: uppercase;
-  display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem;
-  padding-bottom: .65rem; border-bottom: 1px solid #f0f0f0;
+.sidebar-toggle-btn.active { border-color: #dc2626; color: #dc2626; background: #fff5f5; }
+.sidebar-hint {
+  background: #e8f4fd; border-radius: 10px; padding: .7rem .9rem;
+  display: flex; gap: .55rem; align-items: flex-start;
+  font-size: .76rem; color: #1d6fa4; line-height: 1.5;
 }
-.sc-options-title i { color: #dc2626; }
-.sc-option-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-.sc-option-label { font-size: .84rem; font-weight: 700; color: #111; }
-.sc-option-desc  { font-size: .72rem; color: #888; margin-top: .1rem; }
-.sc-select {
-  padding: .5rem .85rem; border: 1.5px solid #e8e8e8; border-radius: 9px;
-  background: #fff; color: #111; font-size: .84rem; cursor: pointer; outline: none;
-  transition: border-color .15s, box-shadow .15s; font-weight: 600; min-width: 130px;
+.sidebar-hint i { font-size: .85rem; margin-top: .12rem; flex-shrink: 0; }
+.btn-convert {
+  display: flex; align-items: center; justify-content: center; gap: .55rem;
+  background: #dc2626; color: #fff; border: none; border-radius: 12px;
+  padding: .9rem; font-size: 1rem; font-weight: 800; cursor: pointer;
+  transition: background .15s, transform .1s; box-shadow: 0 4px 18px rgba(220,38,38,.3);
+  width: 100%;
 }
-.sc-select:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+.btn-convert:hover:not(:disabled) { background: #b91c1c; transform: translateY(-1px); }
+.btn-convert:disabled { background: #e0a0a0; cursor: not-allowed; box-shadow: none; }
+.btn-clear-all {
+  display: flex; align-items: center; justify-content: center; gap: .4rem;
+  background: #f5f5f5; border: none; border-radius: 10px;
+  padding: .6rem; font-size: .85rem; font-weight: 600; cursor: pointer;
+  color: #888; width: 100%; transition: background .15s, color .15s;
+}
+.btn-clear-all:hover { background: #fee2e2; color: #dc2626; }
 
-/* ── Submit ── */
-.sc-submit {
-  width: 100%; padding: .9rem;
-  background: linear-gradient(135deg,#991b1b,#b91c1c,#dc2626);
-  color: #fff; border: none; border-radius: 14px;
-  font-size: 1rem; font-weight: 800; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: .6rem;
-  transition: opacity .2s, transform .1s;
-  box-shadow: 0 5px 20px rgba(220,38,38,.35); letter-spacing: .01em;
-}
-.sc-submit:hover:not(:disabled) { opacity:.9; transform:translateY(-2px); }
-.sc-submit:disabled { opacity:.4; cursor:not-allowed; box-shadow:none; }
+/* ── Progress & Result ── */
+.progress-wrap { display: none; margin-top: 1rem; background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 1.2rem; }
+.progress-wrap.show { display: block; }
+.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+.progress-label { font-weight: 700; font-size: .9rem; color: #111; }
+.progress-pct   { font-size: .82rem; color: #dc2626; font-weight: 700; }
+.progress-track { height: 10px; background: #f0f0f0; border-radius: 5px; overflow: hidden; }
+.progress-fill  { height: 100%; background: linear-gradient(90deg,#991b1b,#dc2626,#f87171); border-radius: 5px; transition: width .3s; }
 
-/* ── Info strip ── */
-.sc-info-strip { display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1.6rem; }
-.sc-info-card {
-  flex:1; min-width:140px; background:#fff; border:1px solid #e8e8e8; border-radius:12px;
-  padding:.9rem 1rem; display:flex; align-items:center; gap:.75rem;
-  box-shadow:0 1px 4px rgba(0,0,0,.04);
+.result-card { display: none !important; }
+.result-card.show { display: block !important; }
+.result-success-wrap { text-align: center; padding: 3rem 1rem 2rem; }
+.result-success-title { font-size: 2rem; font-weight: 900; color: #111; margin: 0 0 2rem; letter-spacing: -.03em; }
+.result-download-row { display: flex; align-items: center; justify-content: center; gap: .75rem; margin-bottom: 2.5rem; flex-wrap: wrap; }
+.btn-download-big {
+  display: inline-flex; align-items: center; gap: .75rem;
+  background: #dc2626; color: #fff; border: none; border-radius: 14px;
+  padding: 1.1rem 2.8rem; font-size: 1.2rem; font-weight: 800; text-decoration: none;
+  transition: background .15s, transform .1s; box-shadow: 0 6px 24px rgba(220,38,38,.4);
+  min-width: 300px; justify-content: center;
 }
-.sc-info-icon {
-  width:36px; height:36px; border-radius:10px; flex-shrink:0;
-  display:flex; align-items:center; justify-content:center; font-size:.88rem;
-  background:#fee2e2; color:#dc2626;
+.btn-download-big:hover { background: #b91c1c; transform: translateY(-2px); color: #fff; text-decoration: none; }
+.btn-again {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 12px;
+  padding: .85rem 1.4rem; font-size: .95rem; font-weight: 600; cursor: pointer; color: #555; transition: all .15s;
 }
-.sc-info-title { font-size:.78rem; font-weight:700; color:#111; }
-.sc-info-desc  { font-size:.68rem; color:#aaa; margin-top:.1rem; }
+.btn-again:hover { border-color: #fca5a5; color: #dc2626; }
+.result-error-wrap { background: #fff8f8; border: 1.5px solid #fca5a5; border-radius: 16px; padding: 1.5rem; display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
+.result-err-icon { width: 44px; height: 44px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+.result-err-title { font-size: .95rem; font-weight: 700; color: #111; }
+.result-err-msg   { font-size: .8rem; color: #888; margin-top: .2rem; }
 </style>
 
-<!-- Hero -->
-<div class="sc-hero">
-  <div class="sc-hero-left">
-    <div class="sc-eyebrow"><i class="fa-solid fa-images"></i> Organize PDF</div>
-    <h2>Image to PDF</h2>
-    <p>Convert any image into a professional PDF — 100% processed on your server</p>
-    <div class="sc-hero-formats">
-      <span class="sc-hfmt">JPG</span>
-      <span class="sc-hfmt">PNG</span>
-      <span class="sc-hfmt">BMP</span>
-      <span class="sc-hfmt">TIFF</span>
-      <span class="sc-hfmt">WEBP</span>
-      <span class="sc-hfmt">GIF</span>
-    </div>
+<!-- Upload zone -->
+<div class="drop-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+  <input type="file" id="fileInput" name="files" accept="image/*" multiple>
+  <div class="drop-zone-icon-wrap">
+    <i class="fa-solid fa-images"></i>
   </div>
-  <div class="sc-hero-pills">
-    <div class="sc-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
-    <div class="sc-pill"><span class="n">6</span><div class="l">Formats</div></div>
-    <div class="sc-pill"><span class="n">Free</span><div class="l">Forever</div></div>
-  </div>
-</div>
-
-<form id="toolForm">{% csrf_token %}
-
-  <!-- Drop zone -->
-  <div class="sc-drop" id="dropZone">
-    <input type="file" id="fileInput" name="files" accept="image/*" multiple>
-    <div class="sc-drop-icon"><i class="fa-solid fa-images"></i></div>
-    <h3>Drop images here</h3>
-    <p>JPG, PNG, BMP, TIFF, WEBP, GIF — combine into one PDF</p>
-    <button type="button" class="sc-drop-btn" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-plus"></i> Select Images
-    </button>
-    <br>
-    <span class="sc-drop-hint"><i class="fa-solid fa-shield-halved"></i> All processing done locally — never uploaded</span>
-  </div>
-
-  <!-- Format tags -->
-  <div class="sc-formats">
-    <span class="sc-fmt">JPG</span>
-    <span class="sc-fmt">PNG</span>
-    <span class="sc-fmt">BMP</span>
-    <span class="sc-fmt">TIFF</span>
-    <span class="sc-fmt">WEBP</span>
-    <span class="sc-fmt">GIF</span>
-  </div>
-
-  <!-- Stats bar -->
-  <div class="sc-stats" id="scStats">
-    <div class="sc-stat"><i class="fa-solid fa-image" style="color:#dc2626"></i> <strong id="scCount">0</strong>&nbsp;images</div>
-    <div class="sc-stat"><i class="fa-solid fa-weight-hanging"></i> <strong id="scSize">0 KB</strong></div>
-    <div class="sc-stats-actions">
-      <button type="button" class="sc-btn-add" onclick="document.getElementById('fileInput').click()">
-        <i class="fa-solid fa-plus"></i> Add More
-      </button>
-      <button type="button" class="sc-btn-clear" id="clearBtn">
-        <i class="fa-solid fa-xmark"></i> Clear
-      </button>
-    </div>
-  </div>
-
-  <!-- Image preview grid -->
-  <div class="sc-preview-grid" id="previewGrid"></div>
-
-  <!-- Options -->
-  <div class="sc-options" id="scOptions" style="display:none">
-    <div class="sc-options-title"><i class="fa-solid fa-sliders"></i> Output Options</div>
-    <div class="sc-option-row">
-      <div>
-        <div class="sc-option-label">Page Size</div>
-        <div class="sc-option-desc">Fit images to a standard page size</div>
-      </div>
-      <select name="page_size" class="sc-select">
-        <option value="fit" selected>Fit to image</option>
-        <option value="a4">A4</option>
-        <option value="letter">Letter</option>
-        <option value="a3">A3</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- Submit -->
-  <button type="submit" class="sc-submit btn-submit" id="submitBtn" disabled>
-    <i class="fa-solid fa-file-pdf"></i> Convert to PDF
+  <h2 class="drop-zone-title">Drop images here</h2>
+  <p class="drop-zone-formats">JPG, PNG, BMP, TIFF, WEBP, GIF — combine into one PDF</p>
+  <button type="button" class="drop-zone-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-plus"></i> Select Images
   </button>
+  <div><div class="drop-zone-privacy">
+    <i class="fa-solid fa-shield-halved"></i> All processing done locally — never uploaded
+  </div></div>
+</div>
 
-</form>
+<!-- File panel -->
+<div id="filePanel" style="display:none;">
+  <div class="fp-layout">
 
-<div class="progress-wrap" style="margin-top:1rem">
+    <!-- Left: image grid -->
+    <div class="fp-main">
+      <div class="fp-topbar">
+        <div class="fp-topbar-count"><span id="imgCount">0</span> image(s) — drag to reorder</div>
+        <button type="button" class="btn-add-more" onclick="document.getElementById('fileInput').click()">
+          <i class="fa-solid fa-plus"></i> Add more images
+        </button>
+      </div>
+      <div class="img-card-grid" id="imgGrid"></div>
+    </div>
+
+    <!-- Right: sidebar -->
+    <div class="fp-sidebar">
+      <div class="sidebar-title">Image to PDF</div>
+      <hr class="sidebar-divider">
+
+      <div>
+        <div class="sidebar-field-label">Page size:</div>
+        <div class="sidebar-toggle">
+          <button type="button" class="sidebar-toggle-btn active" data-size="fit">Auto</button>
+          <button type="button" class="sidebar-toggle-btn" data-size="a4">A4</button>
+          <button type="button" class="sidebar-toggle-btn" data-size="letter">Letter</button>
+        </div>
+      </div>
+
+      <div class="sidebar-hint">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>Images will be converted in the order shown. Drag to reorder.</span>
+      </div>
+
+      <button type="button" class="btn-convert" id="convertBtn">
+        Convert to PDF &nbsp;<i class="fa-solid fa-circle-arrow-right"></i>
+      </button>
+      <button type="button" class="btn-clear-all" id="clearAllBtn">
+        <i class="fa-solid fa-rotate-left"></i> Clear All
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Progress -->
+<div class="progress-wrap" id="progressWrap">
   <div class="progress-header">
-    <span class="progress-label">Converting images…</span>
-    <span class="progress-pct"></span>
+    <span class="progress-label">Converting to PDF…</span>
+    <span class="progress-pct" id="progressPct">0%</span>
   </div>
-  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
 </div>
-<div class="result-card"></div>
 
-<!-- Info strip -->
-<div class="sc-info-strip">
-  <div class="sc-info-card">
-    <div class="sc-info-icon"><i class="fa-solid fa-shield-halved"></i></div>
-    <div><div class="sc-info-title">100% Private</div><div class="sc-info-desc">Files never leave your server</div></div>
-  </div>
-  <div class="sc-info-card">
-    <div class="sc-info-icon"><i class="fa-solid fa-images"></i></div>
-    <div><div class="sc-info-title">6 Formats</div><div class="sc-info-desc">JPG, PNG, BMP, TIFF, WEBP, GIF</div></div>
-  </div>
-  <div class="sc-info-card">
-    <div class="sc-info-icon"><i class="fa-solid fa-layer-group"></i></div>
-    <div><div class="sc-info-title">Multi-Image</div><div class="sc-info-desc">Combine many images into one PDF</div></div>
-  </div>
-  <div class="sc-info-card">
-    <div class="sc-info-icon"><i class="fa-solid fa-expand"></i></div>
-    <div><div class="sc-info-title">Page Size</div><div class="sc-info-desc">A4, A3, Letter or fit to image</div></div>
-  </div>
-</div>
+<!-- Result -->
+<div class="result-card" id="resultCard"></div>
 
 {% endblock %}
-
 {% block extra_js %}<script>
-let imageFiles = [];
+const fileInput    = document.getElementById('fileInput');
+const uploadZone   = document.getElementById('uploadZone');
+const filePanel    = document.getElementById('filePanel');
+const progressWrap = document.getElementById('progressWrap');
+const progressFill = document.getElementById('progressFill');
+const progressPct  = document.getElementById('progressPct');
+const resultCard   = document.getElementById('resultCard');
+const imgGrid      = document.getElementById('imgGrid');
 
-const fileInput   = document.getElementById('fileInput');
-const dropZone    = document.getElementById('dropZone');
-const previewGrid = document.getElementById('previewGrid');
-const scStats     = document.getElementById('scStats');
-const scOptions   = document.getElementById('scOptions');
-const submitBtn   = document.getElementById('submitBtn');
-const scCount     = document.getElementById('scCount');
-const scSize      = document.getElementById('scSize');
+let files = [];
+let pageSize = 'fit';
+let dragSrcIdx = null;
 
-function fmtBytes(b) {
-  if (!b) return '0 B';
-  const k=1024,s=['B','KB','MB','GB'],i=Math.floor(Math.log(b)/Math.log(k));
-  return +(b/Math.pow(k,i)).toFixed(1)+' '+s[i];
-}
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function getCsrf() { return (document.cookie.match(/csrftoken=([^;]+)/)||[])[1]||''; }
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
 
+/* Page size toggle */
+document.querySelectorAll('.sidebar-toggle-btn[data-size]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.sidebar-toggle-btn[data-size]').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    pageSize = this.dataset.size;
+  });
+});
+
+/* Add files */
 fileInput.addEventListener('change', function() {
-  addImages(Array.from(this.files));
+  const newFiles = Array.from(this.files).filter(f => f.type.startsWith('image/'));
+  if (!newFiles.length) return;
+  files = files.concat(newFiles);
   this.value = '';
+  showFilePanel();
+  renderGrid();
 });
 
-document.getElementById('clearBtn').addEventListener('click', () => {
-  imageFiles = []; render();
-});
-
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragging'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragging'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault(); dropZone.classList.remove('dragging');
-  addImages(Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')));
-});
-
-function addImages(files) {
-  files.filter(f => f.type.startsWith('image/')).forEach(f => imageFiles.push(f));
-  render();
+function showFilePanel() {
+  uploadZone.style.display = 'none';
+  filePanel.style.display  = 'block';
 }
 
-function render() {
-  const has = imageFiles.length > 0;
-  dropZone.style.display  = has ? 'none' : '';
-  scStats.classList.toggle('show', has);
-  previewGrid.classList.toggle('show', has);
-  scOptions.style.display = has ? 'block' : 'none';
-  submitBtn.disabled = !has;
+/* Render grid */
+function renderGrid() {
+  document.getElementById('imgCount').textContent = files.length;
+  imgGrid.innerHTML = '';
+  files.forEach((f, idx) => {
+    const card = document.createElement('div');
+    card.className = 'img-card';
+    card.draggable = true;
+    card.dataset.idx = idx;
 
-  scCount.textContent = imageFiles.length;
-  scSize.textContent  = fmtBytes(imageFiles.reduce((s,f) => s+f.size, 0));
+    const url = URL.createObjectURL(f);
+    card.innerHTML = `
+      <div class="img-card-thumb">
+        <img src="${url}" onload="URL.revokeObjectURL(this.src)" loading="lazy">
+        <div class="img-card-num">${idx + 1}</div>
+        <button class="img-card-remove" onclick="removeFile(${idx})" title="Remove">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="img-card-name">${escHtml(f.name)}</div>`;
 
-  previewGrid.innerHTML = '';
-  imageFiles.forEach((f, i) => {
-    const wrap = document.createElement('div');
-    wrap.className = 'sc-thumb';
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(f);
-    img.onload = () => URL.revokeObjectURL(img.src);
-
-    const num = document.createElement('div');
-    num.className = 'sc-thumb-num';
-    num.textContent = i + 1;
-
-    const overlay = document.createElement('div');
-    overlay.className = 'sc-thumb-overlay';
-    overlay.innerHTML = `<div class="sc-thumb-name">${f.name}</div>
-      <button class="sc-thumb-remove" data-i="${i}"><i class="fa-solid fa-xmark"></i> Remove</button>`;
-    overlay.querySelector('.sc-thumb-remove').addEventListener('click', e => {
-      e.stopPropagation();
-      imageFiles.splice(i, 1); render();
+    card.addEventListener('dragstart', e => { dragSrcIdx = idx; e.dataTransfer.effectAllowed = 'move'; });
+    card.addEventListener('dragover',  e => { e.preventDefault(); card.classList.add('drag-over'); });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('drop', e => {
+      e.preventDefault(); card.classList.remove('drag-over');
+      if (dragSrcIdx === null || dragSrcIdx === idx) return;
+      const moved = files.splice(dragSrcIdx, 1)[0];
+      files.splice(idx, 0, moved);
+      renderGrid();
     });
+    card.addEventListener('dragend', () => { dragSrcIdx = null; imgGrid.querySelectorAll('.drag-over').forEach(c=>c.classList.remove('drag-over')); });
 
-    wrap.appendChild(img); wrap.appendChild(num); wrap.appendChild(overlay);
-    previewGrid.appendChild(wrap);
+    imgGrid.appendChild(card);
   });
 }
 
-document.getElementById('toolForm').addEventListener('submit', async function(e) {
+function removeFile(idx) {
+  files.splice(idx, 1);
+  if (!files.length) { filePanel.style.display='none'; uploadZone.style.display=''; return; }
+  renderGrid();
+}
+
+/* Drop on upload zone */
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); uploadZone.classList.add('dragging'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragging'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault(); e.stopPropagation(); uploadZone.classList.remove('dragging');
+  const imgs = Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
+  if (imgs.length) { files = files.concat(imgs); showFilePanel(); renderGrid(); }
+});
+
+/* Drop on file panel */
+filePanel.addEventListener('dragover', e => e.preventDefault());
+filePanel.addEventListener('drop', e => {
   e.preventDefault();
-  if (!imageFiles.length) return;
-  const resultCard = document.querySelector('.result-card');
-  if (resultCard) resultCard.className = 'result-card';
+  const imgs = Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
+  if (imgs.length) { files = files.concat(imgs); renderGrid(); }
+});
 
-  submitBtn.disabled = true;
-  showProgress(true, 'Converting images…', 10);
+/* Clear all */
+document.getElementById('clearAllBtn').addEventListener('click', () => {
+  files = []; filePanel.style.display='none'; uploadZone.style.display='';
+  resultCard.className='result-card';
+});
 
-  const fd = new FormData(this);
-  fd.delete('files');
-  imageFiles.forEach(f => fd.append('files', f));
+/* Convert */
+document.getElementById('convertBtn').addEventListener('click', async () => {
+  if (!files.length) return;
+
+  resultCard.className='result-card';
+  progressWrap.classList.add('show');
+  progressFill.style.width='0%'; progressPct.textContent='0%';
+
+  async function animateTo(target,ms) {
+    const cur=parseFloat(progressFill.style.width)||0,steps=20,delay=ms/steps,inc=(target-cur)/steps;let v=cur;
+    for(let i=0;i<steps;i++){v+=inc;progressFill.style.width=Math.min(v,target)+'%';progressPct.textContent=Math.round(v)+'%';await sleep(delay);}
+  }
+  animateTo(60,800);
+
+  const fd = new FormData();
+  fd.append('csrfmiddlewaretoken', getCsrf());
+  files.forEach(f => fd.append('files', f));
+  fd.append('page_size', pageSize);
 
   try {
-    await fakeProgress(10, 80, 800);
-    const resp = await fetch('{% url "api_scan_pdf" %}', { method: 'POST', body: fd });
+    const resp = await fetch('{% url "api_scan_pdf" %}', {method:'POST',body:fd});
     const data = await resp.json();
-    setProgress(100);
-    await new Promise(r => setTimeout(r, 200));
-    showProgress(false);
-    if (data.error) showError(data.error);
-    else showDownload(data);
+    progressFill.style.width='100%'; progressPct.textContent='100%';
+    await sleep(300);
+    progressWrap.classList.remove('show');
+    if (data.error) { showError(data.error); } else { showSuccess(data); }
   } catch(err) {
-    showProgress(false); showError(err.message);
-  } finally {
-    submitBtn.disabled = false;
+    progressWrap.classList.remove('show'); showError(err.message);
   }
 });
+
+function showSuccess(data) {
+  uploadZone.style.display='none'; filePanel.style.display='none';
+  resultCard.className='result-card show';
+  resultCard.innerHTML=`
+    <div class="result-success-wrap">
+      <h2 class="result-success-title">Images converted to PDF!</h2>
+      <div class="result-download-row">
+        <a href="${data.download_url}" class="btn-download-big" download="${data.filename}">
+          <i class="fa-solid fa-download"></i> Download PDF
+        </a>
+        <button class="btn-again" onclick="resetTool()">
+          <i class="fa-solid fa-rotate-left"></i> Convert Again
+        </button>
+      </div>
+    </div>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showError(msg) {
+  resultCard.className='result-card show';
+  resultCard.innerHTML=`
+    <div class="result-error-wrap">
+      <div class="result-err-icon"><i class="fa-solid fa-xmark"></i></div>
+      <div><div class="result-err-title">Conversion Failed</div><div class="result-err-msg">${escHtml(msg)}</div></div>
+      <button class="btn-again" style="margin-left:auto" onclick="resultCard.className='result-card'">
+        <i class="fa-solid fa-rotate-left"></i> Try Again
+      </button>
+    </div>`;
+}
+
+function resetTool() {
+  files = []; filePanel.style.display='none';
+  uploadZone.style.display=''; resultCard.className='result-card';
+  progressFill.style.width='0%'; progressPct.textContent='0%';
+}
 </script>{% endblock %}

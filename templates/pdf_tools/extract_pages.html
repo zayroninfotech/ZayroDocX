@@ -9,22 +9,35 @@
    EXTRACT PAGES — iLovePDF layout
 ══════════════════════════════════════ */
 .drop-zone {
-  text-align: center; padding: 6rem 2rem 5rem;
-  border: 2px dashed #e0e0e0; border-radius: 20px;
-  background: #fafafa; transition: background .2s, border-color .2s;
+  text-align: center; padding: 4rem 2rem 3.5rem;
+  border: 2.5px dashed #f0a0a0; border-radius: 20px;
+  background: #fff9f9; transition: background .2s, border-color .2s;
+  cursor: pointer;
 }
 .drop-zone.dragging { background: #fff1f1; border-color: #dc2626; }
 .drop-zone input[type=file] { display: none; }
-.drop-zone-title { font-size: 2.2rem; font-weight: 900; color: #111; margin: 0 0 .5rem; letter-spacing: -.03em; }
-.drop-zone-sub   { font-size: 1rem; color: #888; margin: 0 0 2.2rem; }
+.drop-zone-icon-wrap {
+  width: 80px; height: 80px; border-radius: 20px;
+  background: #dc2626; display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1.4rem; box-shadow: 0 8px 24px rgba(220,38,38,.35);
+}
+.drop-zone-icon-wrap i { font-size: 2rem; color: #fff; }
+.drop-zone-title { font-size: 1.8rem; font-weight: 900; color: #111; margin: 0 0 .45rem; letter-spacing: -.03em; }
+.drop-zone-sub   { font-size: .9rem; color: #888; margin: 0 0 2rem; }
 .drop-zone-btn {
-  display: inline-flex; align-items: center; gap: .55rem;
+  display: inline-flex; align-items: center; gap: .6rem;
   background: #dc2626; color: #fff; border: none; border-radius: 12px;
-  padding: .9rem 2.5rem; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+  padding: .9rem 2.5rem; font-size: 1.05rem; font-weight: 800; cursor: pointer;
   transition: background .15s, transform .1s; box-shadow: 0 4px 18px rgba(220,38,38,.35);
 }
 .drop-zone-btn:hover { background: #b91c1c; transform: translateY(-1px); }
-.drop-zone-drop-hint { font-size: .9rem; color: #aaa; margin-top: 1rem; }
+.drop-zone-privacy {
+  display: inline-flex; align-items: center; gap: .45rem;
+  margin-top: 1.3rem; background: rgba(220,38,38,.08);
+  border-radius: 20px; padding: .35rem 1rem;
+  font-size: .78rem; font-weight: 700; color: #b91c1c;
+}
+.drop-zone-privacy i { font-size: .8rem; }
 
 .ep-layout { display: flex; gap: 0; align-items: flex-start; min-height: 480px; }
 .ep-preview-area { flex: 1; min-width: 0; padding: 1.5rem 2rem 1.5rem 0; }
@@ -176,14 +189,19 @@
 </style>
 
 <!-- Upload zone -->
-<div class="drop-zone" id="uploadZone">
+<div class="drop-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
   <input type="file" id="fileInput" name="file" accept=".pdf">
+  <div class="drop-zone-icon-wrap">
+    <i class="fa-solid fa-file-pdf"></i>
+  </div>
   <h2 class="drop-zone-title">Extract PDF Pages</h2>
   <p class="drop-zone-sub">Pick specific pages to save as a new PDF document.</p>
-  <button type="button" class="drop-zone-btn" onclick="document.getElementById('fileInput').click()">
+  <button type="button" class="drop-zone-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
     <i class="fa-solid fa-plus"></i> Select PDF File
   </button>
-  <p class="drop-zone-drop-hint">or drop PDF here</p>
+  <div><div class="drop-zone-privacy">
+    <i class="fa-solid fa-shield-halved"></i> All processing done locally — never uploaded
+  </div></div>
 </div>
 
 <!-- File panel -->

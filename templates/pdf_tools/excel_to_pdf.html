@@ -3,37 +3,60 @@
 {% block active_excel2pdf %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Excel to PDF</span>{% endblock %}
 
-{% block content %}
-<div class="cv-hero">
-  <div class="cv-hero-left">
-    <div class="cv-eyebrow"><i class="fa-solid fa-file-excel"></i> Convert to PDF</div>
-    <h2>Excel to PDF</h2>
-    <p>Convert XLS &amp; XLSX spreadsheets to PDF — tables and data preserved</p>
-  </div>
-  <div class="cv-hero-pills">
-    <div class="cv-hero-pill"><span class="n">.XLS</span><div class="l">Format</div></div>
-    <div class="cv-hero-pill"><span class="n">.XLSX</span><div class="l">Format</div></div>
-    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
-  </div>
-</div>
+{% block extra_head %}<style>
+.file-selected-card {
+  display: none; background: #fff; border: 1.5px solid #fca5a5;
+  border-radius: 16px; padding: 1.4rem 1.6rem;
+  align-items: center; gap: 1.2rem;
+  box-shadow: 0 2px 12px rgba(220,38,38,.08);
+}
+.file-selected-card.show { display: flex; }
+.fsc-icon {
+  width: 56px; height: 56px; border-radius: 14px;
+  background: #f0fdf4; display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; color: #1d6f42; flex-shrink: 0;
+}
+.fsc-info { flex: 1; min-width: 0; }
+.fsc-name { font-size: 1rem; font-weight: 700; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fsc-size { font-size: .8rem; color: #aaa; margin-top: .2rem; }
+.fsc-change {
+  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 10px;
+  padding: .5rem 1rem; font-size: .82rem; font-weight: 600; color: #666;
+  cursor: pointer; transition: all .15s; white-space: nowrap; flex-shrink: 0;
+}
+.fsc-change:hover { border-color: #fca5a5; color: #dc2626; }
+</style>{% endblock %}
 
+{% block content %}
 <form id="toolForm">{% csrf_token %}
-  <div class="cv-drop" id="cvDrop">
-    <input type="file" id="fileInput" name="file" accept=".xls,.xlsx">
+  <input type="file" id="fileInput" name="file" accept=".xls,.xlsx" style="display:none">
+
+  <!-- Drop zone -->
+  <div class="cv-drop" id="cvDrop" onclick="document.getElementById('fileInput').click()">
     <div class="cv-drop-icon"><i class="fa-solid fa-file-excel"></i></div>
     <h3>Drop your Excel file here</h3>
     <p>Supports .xls and .xlsx formats</p>
-    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-folder-open"></i> Select Excel File
+    <button type="button" class="cv-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-plus"></i> Select Excel File
     </button>
-    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> XLS / XLSX &nbsp;·&nbsp; Private &nbsp;·&nbsp; Free</span>
+    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> All processing done locally — never uploaded</span>
   </div>
-  <div class="cv-file-bar" id="cvFileBar">
-    <i class="fa-solid fa-file-excel cv-file-icon" style="color:#1d6f42"></i>
-    <span class="cv-file-name" id="cvFileName">—</span>
-    <span class="cv-file-size" id="cvFileSize">—</span>
+
+  <!-- File selected card -->
+  <div class="file-selected-card" id="fileCard">
+    <div class="fsc-icon"><i class="fa-solid fa-file-excel"></i></div>
+    <div class="fsc-info">
+      <div class="fsc-name" id="fscName">—</div>
+      <div class="fsc-size" id="fscSize">—</div>
+    </div>
+    <button type="button" class="fsc-change" onclick="changeFile()">
+      <i class="fa-solid fa-rotate-left"></i> Change
+    </button>
   </div>
-  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-file-excel"></i> Convert Excel to PDF</button>
+
+  <button type="submit" class="cv-submit btn-submit" id="convertBtn" style="display:none; margin-top:1rem;">
+    <i class="fa-solid fa-file-pdf"></i> Convert Excel to PDF
+  </button>
 </form>
 
 <div class="progress-wrap">
@@ -41,25 +64,39 @@
   <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
 </div>
 <div class="result-card"></div>
-
-<div class="cv-info-strip">
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-file-excel"></i></div><div><div class="cv-info-title">XLS & XLSX</div><div class="cv-info-desc">All Excel formats</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-table"></i></div><div><div class="cv-info-title">Tables</div><div class="cv-info-desc">Data layout kept</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast conversion</div></div></div>
-</div>
 {% endblock %}
 
 {% block extra_js %}<script>
-(function(){
-  const inp = document.getElementById('fileInput');
-  const drop = document.getElementById('cvDrop');
-  const bar  = document.getElementById('cvFileBar');
-  function setFile(f){ if(!f) return; document.getElementById('cvFileName').textContent=f.name; document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB'; bar.classList.add('show'); const dt=new DataTransfer(); dt.items.add(f); inp.files=dt.files; }
-  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
-  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
-  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
-  inp.addEventListener('change',()=>setFile(inp.files[0]));
-})();
-submitToolForm({formId:'toolForm',apiUrl:'{% url "api_excel_to_pdf" %}',fileInputId:'fileInput'});
+const fileInput  = document.getElementById('fileInput');
+const cvDrop     = document.getElementById('cvDrop');
+const fileCard   = document.getElementById('fileCard');
+const convertBtn = document.getElementById('convertBtn');
+
+function setFile(f) {
+  if (!f) return;
+  document.getElementById('fscName').textContent = f.name;
+  document.getElementById('fscSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
+  const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
+  cvDrop.style.display = 'none';
+  fileCard.classList.add('show');
+  convertBtn.style.display = 'flex';
+}
+
+function changeFile() {
+  fileInput.value = '';
+  cvDrop.style.display = '';
+  fileCard.classList.remove('show');
+  convertBtn.style.display = 'none';
+  document.querySelector('.result-card').className = 'result-card';
+}
+
+fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+cvDrop.addEventListener('dragover',  e => { e.preventDefault(); cvDrop.classList.add('drag-over'); });
+cvDrop.addEventListener('dragleave', () => cvDrop.classList.remove('drag-over'));
+cvDrop.addEventListener('drop', e => {
+  e.preventDefault(); cvDrop.classList.remove('drag-over');
+  setFile(e.dataTransfer.files[0]);
+});
+
+submitToolForm({ formId:'toolForm', apiUrl:'{% url "api_excel_to_pdf" %}', fileInputId:'fileInput' });
 </script>{% endblock %}
