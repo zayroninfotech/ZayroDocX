@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from apps.pdf_tools.utils import save_uploaded_file, get_output_path, media_url, cleanup_file, validate_image
+from django.conf import settings
 from apps.pdf_tools.mongo_db import save_job
 
 logger = logging.getLogger(__name__)
