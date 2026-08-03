@@ -158,6 +158,48 @@ body { padding-top: var(--mh-h); }
 }
 .mh-login-btn:hover { opacity: .88; color: #fff; }
 .mh-logout-btn { background: #6b7280; }
+.mh-admin-btn {
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: .32rem .85rem; border-radius: 20px; font-size: .75rem; font-weight: 700;
+  background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;
+  text-decoration: none; white-space: nowrap; transition: opacity .15s;
+}
+.mh-admin-btn:hover { opacity: .85; color: #92400e; }
+/* User dropdown */
+.mh-user-drop { position: relative; }
+.mh-user-name {
+  font-size: .78rem; font-weight: 600; color: #444; cursor: pointer;
+  display: inline-flex; align-items: center; gap: .3rem;
+  background: none; border: none; padding: .3rem .5rem; border-radius: 8px;
+}
+.mh-user-name:hover { background: #f3f4f6; }
+.mh-user-menu {
+  display: none; position: absolute; right: 0; top: calc(100% + 8px);
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.1); min-width: 200px; z-index: 999; overflow: hidden;
+}
+.mh-user-drop.open .mh-user-menu { display: block; }
+.mh-user-info {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .9rem 1rem; border-bottom: 1px solid #f3f4f6;
+}
+.mh-user-avatar {
+  width: 36px; height: 36px; border-radius: 50%; background: #fee2e2;
+  display: flex; align-items: center; justify-content: center;
+  color: #dc2626; font-weight: 800; font-size: .9rem; flex-shrink: 0;
+}
+.mh-user-uname { font-size: .85rem; font-weight: 700; color: #111; }
+.mh-user-role { font-size: .7rem; color: #6b7280; margin-top: 1px; }
+.mh-user-item {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .6rem 1rem; font-size: .82rem; color: #374151;
+  text-decoration: none; transition: background .12s;
+}
+.mh-user-item:hover { background: #f9fafb; color: #111; }
+.mh-user-item i { width: 16px; text-align: center; color: #9ca3af; font-size: .8rem; }
+.mh-user-divider { height: 1px; background: #f3f4f6; margin: .3rem 0; }
+.mh-user-logout { color: #dc2626 !important; }
+.mh-user-logout i { color: #dc2626 !important; }
 .mh-user-name {
   font-size: .78rem; font-weight: 600; color: #444;
   display: inline-flex; align-items: center; gap: .3rem;

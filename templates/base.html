@@ -236,8 +236,31 @@
       <div class="mh-actions">
 
         {% if request.user.is_authenticated %}
-          <span class="mh-user-name"><i class="fa-solid fa-circle-user"></i> {{ request.user.username }}</span>
-          <a href="{% url 'logout' %}" class="mh-login-btn mh-logout-btn">Logout</a>
+          {% if request.user.is_superuser %}
+            <a href="/zayro-admin/" class="mh-admin-btn" title="Admin Panel">
+              <i class="fa-solid fa-shield-halved"></i> Admin
+            </a>
+          {% endif %}
+          <div class="mh-user-drop">
+            <button class="mh-user-name" onclick="this.parentElement.classList.toggle('open')">
+              <i class="fa-solid fa-circle-user"></i> {{ request.user.username }} <i class="fa-solid fa-chevron-down" style="font-size:.6rem"></i>
+            </button>
+            <div class="mh-user-menu">
+              <div class="mh-user-info">
+                <div class="mh-user-avatar">{{ request.user.username|slice:":1"|upper }}</div>
+                <div>
+                  <div class="mh-user-uname">{{ request.user.username }}</div>
+                  <div class="mh-user-role">{% if request.user.is_superuser %}Superadmin{% else %}User{% endif %}</div>
+                </div>
+              </div>
+              {% if request.user.is_superuser %}
+              <a href="/zayro-admin/" class="mh-user-item"><i class="fa-solid fa-shield-halved"></i> Admin Panel</a>
+              <a href="/zayro-admin/?tab=users" class="mh-user-item"><i class="fa-solid fa-users"></i> Manage Users</a>
+              <div class="mh-user-divider"></div>
+              {% endif %}
+              <a href="{% url 'logout' %}" class="mh-user-item mh-user-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+          </div>
         {% else %}
           <a href="{% url 'login' %}" class="mh-login-btn">Login</a>
         {% endif %}
@@ -280,6 +303,9 @@
   // Close nav when clicking outside
   document.addEventListener('click',function(e){
     if(!e.target.closest('.main-header')) nav.classList.remove('mobile-open');
+    if(!e.target.closest('.mh-user-drop')) {
+      document.querySelectorAll('.mh-user-drop.open').forEach(function(d){d.classList.remove('open');});
+    }
   });
   </script>
   {% block extra_js %}{% endblock %}
