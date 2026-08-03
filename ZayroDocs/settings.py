@@ -179,3 +179,7 @@ MISTRAL_API_KEY = os.getenv('MISTRAL_API_KEY', '')
 
 # wkhtmltopdf path (Windows) for pdfkit
 WKHTMLTOPDF_CMD = os.getenv('WKHTMLTOPDF_CMD', r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = '/login/'
