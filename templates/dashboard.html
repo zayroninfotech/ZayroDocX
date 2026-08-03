@@ -377,9 +377,9 @@
   </a>
   <a href="{% url 'split_pdf_page' %}" class="qa-card">
     <span class="qa-badge-free">Free</span>
-    <div class="qa-icon"><i class="fa-solid fa-scissors"></i></div>
+    <div class="qa-icon" style="background:#ede9fe;width:80px;height:80px;border-radius:18px;"><img src="{% static 'img/split-pdf-icon.png' %}" alt="Split PDF" style="width:64px;height:64px;object-fit:contain;"></div>
     <div class="qa-lbl">Split PDF</div>
-    <div class="qa-desc">Separate pages into files</div>
+    <div class="qa-desc">Split PDF pages into multiple files</div>
   </a>
   <a href="{% url 'compress_pdf_page' %}" class="qa-card{% if not request.user.is_authenticated %} locked{% endif %}">
     {% if request.user.is_authenticated %}<span class="qa-badge-free">Free</span>{% else %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% endif %}
@@ -395,15 +395,15 @@
   </a>
   <a href="{% url 'pdf_to_word_page' %}" class="qa-card{% if not request.user.is_authenticated %} locked{% endif %}">
     {% if request.user.is_authenticated %}<span class="qa-badge-free">Free</span>{% else %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% endif %}
-    <div class="qa-icon"><i class="fa-solid fa-file-word"></i></div>
+    <div class="qa-icon" style="background:#dbeafe;width:80px;height:80px;border-radius:18px;"><img src="{% static 'img/pdf-to-word-icon.png' %}" alt="PDF to Word" style="width:64px;height:64px;object-fit:contain;"></div>
     <div class="qa-lbl">PDF to Word</div>
-    <div class="qa-desc">Convert PDF to editable Word</div>
+    <div class="qa-desc">Convert PDF files to Word documents</div>
   </a>
   <a href="{% url 'word_to_pdf_page' %}" class="qa-card">
     <span class="qa-badge-free">Free</span>
-    <div class="qa-icon"><i class="fa-solid fa-file-pdf"></i></div>
+    <div class="qa-icon" style="background:#dcfce7;width:80px;height:80px;border-radius:18px;"><img src="{% static 'img/word-to-pdf-icon.png' %}" alt="Word to PDF" style="width:64px;height:64px;object-fit:contain;"></div>
     <div class="qa-lbl">Word to PDF</div>
-    <div class="qa-desc">Convert Word doc to PDF</div>
+    <div class="qa-desc">Convert Word documents to PDF files</div>
   </a>
   <a href="{% url 'sign_pdf_page' %}" class="qa-card{% if not request.user.is_authenticated %} locked{% endif %}">
     {% if request.user.is_authenticated %}<span class="qa-badge-free">Free</span>{% else %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% endif %}
