@@ -117,6 +117,15 @@
 }
 .db-sec-action:hover { text-decoration: underline; }
 
+/* ── Quick Access Blue Header ── */
+.db-sec-blue { margin-bottom: 1rem; }
+.db-sec-blue-title {
+  font-size: 1.2rem; font-weight: 700; color: #1a1a1a;
+  display: flex; align-items: center; gap: .45rem;
+}
+.db-sec-blue-title i { color: #3b82f6; font-size: 1.1rem; }
+.db-sec-blue-sub { font-size: .82rem; color: #6b7280; margin-top: .2rem; }
+
 /* ── Quick Access ── */
 .qa-grid {
   display: grid; grid-template-columns: repeat(4, 1fr);
@@ -342,9 +351,9 @@
 
 
 <!-- ══ QUICK ACCESS ══ -->
-<div class="db-sec">
-  <span class="dot"></span> Quick Access
-  <span class="count">8</span>
+<div class="db-sec-blue">
+  <div class="db-sec-blue-title"><i class="fa-solid fa-bolt"></i> Quick Access</div>
+  <div class="db-sec-blue-sub">Access your most used PDF tools quickly</div>
 </div>
 <div class="qa-grid">
   <a href="{% url 'merge_pdf_page' %}" class="qa-card">
