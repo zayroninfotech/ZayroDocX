@@ -18,7 +18,7 @@ def dashboard(request):
     # Build a slug→requires_login map for template use
     try:
         from apps.dashboard.models import ToolPrivilege
-        tool_privs = {t.slug: t.requires_login for t in ToolPrivilege.objects.all()}
+        tool_privs = {t.slug.replace('-', '_'): t.requires_login for t in ToolPrivilege.objects.all()}
     except Exception:
         tool_privs = {}
 
