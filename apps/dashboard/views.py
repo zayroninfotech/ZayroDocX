@@ -15,9 +15,17 @@ def dashboard(request):
         stats = {'total_jobs': 0, 'by_tool': []}
         recent_jobs = []
 
+    # Build a slug→requires_login map for template use
+    try:
+        from apps.dashboard.models import ToolPrivilege
+        tool_privs = {t.slug: t.requires_login for t in ToolPrivilege.objects.all()}
+    except Exception:
+        tool_privs = {}
+
     context = {
         'stats': stats,
         'recent_jobs': recent_jobs,
+        'tool_privs': tool_privs,
     }
     return render(request, 'dashboard.html', context)
 

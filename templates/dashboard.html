@@ -368,55 +368,76 @@
   <div class="db-sec-blue-title"><i class="fa-solid fa-bolt"></i> Quick Access</div>
   <div class="db-sec-blue-sub">Access your most used PDF tools quickly</div>
 </div>
+{% comment %}Macro: show correct badge based on DB privilege{% endcomment %}
+{% with slug="merge-pdf" %}{% if tool_privs|default_if_none:"" %}{% if tool_privs.merge-pdf %}{% endif %}{% endif %}{% endwith %}
 <div class="qa-grid">
-  <a href="{% url 'merge_pdf_page' %}" class="qa-card">
-    <span class="qa-badge-free">Free</span>
-    <div class="qa-icon"><img src="{% static 'img/merge-pdf-icon.png' %}" alt="Merge PDF"></div>
+
+  {# ── Merge PDF ── #}
+  {% with locked=tool_privs|default_if_none:"" %}
+  <a href="{% url 'merge_pdf_page' %}" class="qa-card{% if tool_privs.merge-pdf and not request.user.is_authenticated %} locked{% endif %}">
+    {% if tool_privs.merge-pdf and not request.user.is_authenticated %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% else %}<span class="qa-badge-free">Free</span>{% endif %}
+    <div class="qa-icon" style="background:#fee2e2;width:80px;height:80px;border-radius:18px;"><img src="{% static 'img/merge-pdf-icon.png' %}" alt="Merge PDF" style="width:64px;height:64px;object-fit:contain;"></div>
     <div class="qa-lbl">Merge PDF</div>
     <div class="qa-desc">Combine multiple PDF files into one</div>
   </a>
-  <a href="{% url 'split_pdf_page' %}" class="qa-card">
-    <span class="qa-badge-free">Free</span>
+  {% endwith %}
+
+  {# ── Split PDF ── #}
+  <a href="{% url 'split_pdf_page' %}" class="qa-card{% if tool_privs.split-pdf and not request.user.is_authenticated %} locked{% endif %}">
+    {% if tool_privs.split-pdf and not request.user.is_authenticated %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% else %}<span class="qa-badge-free">Free</span>{% endif %}
     <div class="qa-icon" style="background:#ede9fe;width:80px;height:80px;border-radius:18px;"><img src="{% static 'img/split-pdf-icon.png' %}" alt="Split PDF" style="width:64px;height:64px;object-fit:contain;"></div>
     <div class="qa-lbl">Split PDF</div>
     <div class="qa-desc">Split PDF pages into multiple files</div>
   </a>
-  <a href="{% url 'compress_pdf_page' %}" class="qa-card{% if not request.user.is_authenticated %} locked{% endif %}">
-    {% if request.user.is_authenticated %}<span class="qa-badge-free">Free</span>{% else %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% endif %}
-    <div class="qa-icon"><i class="fa-solid fa-compress"></i></div>
+
+  {# ── Compress PDF ── #}
+  <a href="{% url 'compress_pdf_page' %}" class="qa-card{% if tool_privs.compress-pdf and not request.user.is_authenticated %} locked{% endif %}">
+    {% if tool_privs.compress-pdf and not request.user.is_authenticated %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% else %}<span class="qa-badge-free">Free</span>{% endif %}
+    <div class="qa-icon" style="background:#ccfbf1;width:80px;height:80px;border-radius:18px;"><i class="fa-solid fa-compress" style="font-size:1.6rem;color:#0d9488;"></i></div>
     <div class="qa-lbl">Compress PDF</div>
     <div class="qa-desc">Reduce PDF file size</div>
   </a>
-  <a href="{% url 'ocr_pdf_page' %}" class="qa-card{% if not request.user.is_authenticated %} locked{% endif %}">
-    {% if request.user.is_authenticated %}<span class="qa-badge-free">Free</span>{% else %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% endif %}
-    <div class="qa-icon"><i class="fa-solid fa-eye"></i></div>
+
+  {# ── OCR PDF ── #}
+  <a href="{% url 'ocr_pdf_page' %}" class="qa-card{% if tool_privs.ocr-pdf and not request.user.is_authenticated %} locked{% endif %}">
+    {% if tool_privs.ocr-pdf and not request.user.is_authenticated %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% else %}<span class="qa-badge-free">Free</span>{% endif %}
+    <div class="qa-icon" style="background:#dbeafe;width:80px;height:80px;border-radius:18px;"><i class="fa-solid fa-eye" style="font-size:1.6rem;color:#2563eb;"></i></div>
     <div class="qa-lbl">OCR PDF</div>
     <div class="qa-desc">Make scans searchable</div>
   </a>
-  <a href="{% url 'pdf_to_word_page' %}" class="qa-card{% if not request.user.is_authenticated %} locked{% endif %}">
-    {% if request.user.is_authenticated %}<span class="qa-badge-free">Free</span>{% else %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% endif %}
+
+  {# ── PDF to Word ── #}
+  <a href="{% url 'pdf_to_word_page' %}" class="qa-card{% if tool_privs.pdf-to-word and not request.user.is_authenticated %} locked{% endif %}">
+    {% if tool_privs.pdf-to-word and not request.user.is_authenticated %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% else %}<span class="qa-badge-free">Free</span>{% endif %}
     <div class="qa-icon" style="background:#dbeafe;width:80px;height:80px;border-radius:18px;"><img src="{% static 'img/pdf-to-word-icon.png' %}" alt="PDF to Word" style="width:64px;height:64px;object-fit:contain;"></div>
     <div class="qa-lbl">PDF to Word</div>
     <div class="qa-desc">Convert PDF files to Word documents</div>
   </a>
-  <a href="{% url 'word_to_pdf_page' %}" class="qa-card">
-    <span class="qa-badge-free">Free</span>
+
+  {# ── Word to PDF ── #}
+  <a href="{% url 'word_to_pdf_page' %}" class="qa-card{% if tool_privs.word-to-pdf and not request.user.is_authenticated %} locked{% endif %}">
+    {% if tool_privs.word-to-pdf and not request.user.is_authenticated %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% else %}<span class="qa-badge-free">Free</span>{% endif %}
     <div class="qa-icon" style="background:#dcfce7;width:80px;height:80px;border-radius:18px;"><img src="{% static 'img/word-to-pdf-icon.png' %}" alt="Word to PDF" style="width:64px;height:64px;object-fit:contain;"></div>
     <div class="qa-lbl">Word to PDF</div>
     <div class="qa-desc">Convert Word documents to PDF files</div>
   </a>
-  <a href="{% url 'sign_pdf_page' %}" class="qa-card{% if not request.user.is_authenticated %} locked{% endif %}">
-    {% if request.user.is_authenticated %}<span class="qa-badge-free">Free</span>{% else %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% endif %}
-    <div class="qa-icon"><i class="fa-solid fa-signature"></i></div>
+
+  {# ── Sign PDF ── #}
+  <a href="{% url 'sign_pdf_page' %}" class="qa-card{% if tool_privs.sign-pdf and not request.user.is_authenticated %} locked{% endif %}">
+    {% if tool_privs.sign-pdf and not request.user.is_authenticated %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% else %}<span class="qa-badge-free">Free</span>{% endif %}
+    <div class="qa-icon" style="background:#fef9c3;width:80px;height:80px;border-radius:18px;"><i class="fa-solid fa-signature" style="font-size:1.6rem;color:#d97706;"></i></div>
     <div class="qa-lbl">Sign PDF</div>
     <div class="qa-desc">Add signature to PDF</div>
   </a>
-  <a href="{% url 'invoice_page' %}" class="qa-card{% if not request.user.is_authenticated %} locked{% endif %}">
-    {% if request.user.is_authenticated %}<span class="qa-badge-free">Free</span>{% else %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% endif %}
-    <div class="qa-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+
+  {# ── Invoice Extractor ── #}
+  <a href="{% url 'invoice_page' %}" class="qa-card{% if tool_privs.invoice-extractor and not request.user.is_authenticated %} locked{% endif %}">
+    {% if tool_privs.invoice-extractor and not request.user.is_authenticated %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% else %}<span class="qa-badge-free">Free</span>{% endif %}
+    <div class="qa-icon" style="background:#ffedd5;width:80px;height:80px;border-radius:18px;"><i class="fa-solid fa-file-invoice-dollar" style="font-size:1.6rem;color:#ea580c;"></i></div>
     <div class="qa-lbl">Invoice Extractor</div>
     <div class="qa-desc">Extract invoice data with AI</div>
   </a>
+
 </div>
 
 <!-- ══ TOOL FEATURE SECTIONS ══ -->
