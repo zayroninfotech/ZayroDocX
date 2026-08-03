@@ -54,7 +54,8 @@
           </div>
         </div>
 
-        <!-- Optimize & AI -->
+        <!-- Optimize & AI (login required) -->
+        {% if request.user.is_authenticated %}
         <div class="mh-item has-drop">
           <span class="mh-link">Optimize &amp; AI <i class="fa-solid fa-chevron-down mh-caret"></i></span>
           <div class="mh-drop">
@@ -80,6 +81,7 @@
             </a>
           </div>
         </div>
+        {% endif %}
 
         <!-- Convert PDF -->
         <div class="mh-item has-drop">
@@ -235,6 +237,13 @@
 
       <!-- Right actions -->
       <div class="mh-actions">
+
+        {% if request.user.is_authenticated %}
+          <span class="mh-user-name"><i class="fa-solid fa-circle-user"></i> {{ request.user.username }}</span>
+          <a href="{% url 'logout' %}" class="mh-login-btn mh-logout-btn">Logout</a>
+        {% else %}
+          <a href="{% url 'login' %}" class="mh-login-btn">Login</a>
+        {% endif %}
 
         <!-- Mobile hamburger -->
         <button class="mh-hamburger" id="mhHamburger" aria-label="Menu">

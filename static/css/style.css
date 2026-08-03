@@ -150,6 +150,18 @@ body { padding-top: var(--mh-h); }
   color: var(--brand); background: var(--brand-light); border: 1px solid #fca5a5;
   white-space: nowrap;
 }
+.mh-login-btn {
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: .35rem .9rem; border-radius: 20px; font-size: .78rem; font-weight: 600;
+  background: var(--brand); color: #fff; border: none; cursor: pointer;
+  text-decoration: none; white-space: nowrap; transition: opacity .15s;
+}
+.mh-login-btn:hover { opacity: .88; color: #fff; }
+.mh-logout-btn { background: #6b7280; }
+.mh-user-name {
+  font-size: .78rem; font-weight: 600; color: #444;
+  display: inline-flex; align-items: center; gap: .3rem;
+}
 .mh-dark-toggle {
   width: 34px; height: 34px; border-radius: 8px; border: 1px solid #e8e8e8;
   background: #f7f7f7; cursor: pointer;

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+.login-wrap {
+  min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem;
+}
+.login-card {
+  background: #fff; border: 1px solid #ebebeb; border-radius: 18px;
+  padding: 2.5rem 2rem; width: 100%; max-width: 400px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.07);
+}
+.login-logo { text-align: center; margin-bottom: 1.5rem; }
+.login-logo i { font-size: 2.2rem; color: var(--brand); }
+.login-title { font-size: 1.4rem; font-weight: 700; color: #1a1a1a; text-align: center; margin-bottom: .3rem; }
+.login-sub { font-size: .85rem; color: #888; text-align: center; margin-bottom: 1.8rem; }
+.login-field { margin-bottom: 1.1rem; }
+.login-field label { display: block; font-size: .8rem; font-weight: 600; color: #444; margin-bottom: .4rem; }
+.login-field input {
+  width: 100%; padding: .65rem .9rem; border: 1px solid #ddd; border-radius: 10px;
+  font-size: .92rem; outline: none; transition: border-color .15s; box-sizing: border-box;
+}
+.login-field input:focus { border-color: var(--brand); }
+.login-btn {
+  width: 100%; padding: .75rem; background: var(--brand); color: #fff;
+  border: none; border-radius: 10px; font-size: .95rem; font-weight: 600;
+  cursor: pointer; transition: opacity .15s; margin-top: .5rem;
+}
+.login-btn:hover { opacity: .88; }
+.login-error { background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c;
+  border-radius: 8px; padding: .6rem .9rem; font-size: .82rem; margin-bottom: 1rem; }
+</style>
+
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo"><i class="fa-solid fa-shield-halved"></i></div>
+    <div class="login-title">Welcome Back</div>
+    <div class="login-sub">Sign in to access AI-powered tools</div>
+
+    {% if form.errors %}
+      <div class="login-error"><i class="fa-solid fa-circle-xmark"></i> Invalid username or password.</div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <div class="login-field">
+        <label for="id_username">Username</label>
+        <input type="text" name="username" id="id_username" placeholder="Enter username" autofocus>
+      </div>
+      <div class="login-field">
+        <label for="id_password">Password</label>
+        <input type="password" name="password" id="id_password" placeholder="Enter password">
+      </div>
+      <button type="submit" class="login-btn"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
