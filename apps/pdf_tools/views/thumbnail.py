@@ -18,15 +18,16 @@ def pdf_thumbnails(request):
         path, _ = save_uploaded_file(f)
         validate_pdf(path, f.name)
         doc = fitz.open(path)
+        total = len(doc)
         pages = []
-        for i in range(len(doc)):
+        mat = fitz.Matrix(0.5, 0.5)  # ~36 DPI — fastest thumbnail
+        for i in range(total):
             page = doc[i]
-            mat = fitz.Matrix(0.8, 0.8)  # ~58 DPI — fast thumbnail
             pix = page.get_pixmap(matrix=mat, colorspace=fitz.csRGB)
-            img_b64 = base64.b64encode(pix.tobytes('png')).decode()
-            pages.append('data:image/png;base64,' + img_b64)
+            img_b64 = base64.b64encode(pix.tobytes('jpeg', jpg_quality=70)).decode()
+            pages.append('data:image/jpeg;base64,' + img_b64)
         doc.close()
-        return JsonResponse({'pages': pages, 'count': len(pages)})
+        return JsonResponse({'pages': pages, 'count': total})
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
