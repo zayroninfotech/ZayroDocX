@@ -91,23 +91,37 @@
 .cp-submit:disabled { opacity:.4; cursor:not-allowed; box-shadow:none; }
 
 /* Result card */
-.cp-result {
-  display:none; border-radius:16px; overflow:hidden;
-  border:1.5px solid #fca5a5; background:linear-gradient(135deg,#fff8f8,#fff1f1);
-  margin-top:1rem;
-}
+.cp-result { display:none; margin-top:1rem; }
 .cp-result.show { display:block; }
-.cp-result-top { padding:1.2rem 1.4rem; display:flex; align-items:center; gap:1rem; }
-.cp-result-ico { width:50px; height:50px; border-radius:14px; flex-shrink:0; background:#dc2626; display:flex; align-items:center; justify-content:center; font-size:1.3rem; color:#fff; box-shadow:0 4px 14px rgba(220,38,38,.3); }
-.cp-result-title { font-size:1rem; font-weight:800; color:#111; }
-.cp-result-sub { font-size:.8rem; color:#dc2626; margin-top:.1rem; font-weight:600; }
-.cp-result-stats { display:flex; gap:1.5rem; padding:.85rem 1.4rem; border-top:1px solid #fecaca; flex-wrap:wrap; background:#fff5f5; }
-.cp-stat { font-size:.8rem; color:#888; display:flex; align-items:center; gap:.4rem; }
-.cp-stat strong { color:#dc2626; font-weight:700; }
-.cp-result-footer { padding:.85rem 1.4rem; border-top:1px solid #fecaca; display:flex; gap:.75rem; align-items:center; }
-.cp-dl-btn { display:inline-flex; align-items:center; gap:.5rem; background:#dc2626; color:#fff; border:none; border-radius:10px; padding:.7rem 1.5rem; font-size:.9rem; font-weight:800; cursor:pointer; text-decoration:none; transition:opacity .2s; box-shadow:0 3px 12px rgba(220,38,38,.3); }
-.cp-dl-btn:hover { opacity:.88; text-decoration:none; color:#fff; }
-.cp-recompress-hint { font-size:.74rem; color:#888; display:flex; align-items:center; gap:.4rem; margin-left:auto; }
+.cp-result-box {
+  background:#fff; border:1.5px solid #e8e8e8; border-radius:16px;
+  overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.06);
+}
+.cp-result-hero {
+  padding:1.8rem 1.6rem; text-align:center;
+  background:linear-gradient(135deg,#fff8f8,#fff1f1);
+  border-bottom:1px solid #fecaca;
+}
+.cp-result-title { font-size:1.4rem; font-weight:900; color:#111; margin:0 0 .2rem; }
+.cp-result-sub { font-size:.88rem; color:#dc2626; font-weight:700; margin-bottom:1.2rem; }
+.cp-dl-btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:.6rem;
+  background:#dc2626; color:#fff; border:none; border-radius:14px;
+  padding:.95rem 2.5rem; font-size:1rem; font-weight:800; cursor:pointer;
+  text-decoration:none; transition:opacity .2s,transform .1s;
+  box-shadow:0 5px 20px rgba(220,38,38,.35); width:100%; max-width:400px;
+}
+.cp-dl-btn:hover { opacity:.9; transform:translateY(-1px); text-decoration:none; color:#fff; }
+.cp-result-stats {
+  display:flex; gap:0; border-top:1px solid #f0f0f0;
+}
+.cp-stat {
+  flex:1; padding:.9rem 1rem; text-align:center;
+  border-right:1px solid #f0f0f0; font-size:.78rem; color:#888;
+}
+.cp-stat:last-child { border-right:none; }
+.cp-stat strong { display:block; font-size:1rem; font-weight:800; color:#dc2626; margin-bottom:.1rem; }
+.cp-recompress-hint { font-size:.72rem; color:#aaa; text-align:center; padding:.6rem; display:flex; align-items:center; justify-content:center; gap:.35rem; }
 
 /* Progress */
 .cp-progress-wrap { display:none; margin-top:1rem; }
@@ -164,23 +178,20 @@
 
       <!-- Result card -->
       <div class="cp-result" id="cpResult">
-        <div class="cp-result-top">
-          <div class="cp-result-ico"><i class="fa-solid fa-check"></i></div>
-          <div>
-            <div class="cp-result-title">Compressed Successfully</div>
+        <div class="cp-result-box">
+          <div class="cp-result-hero">
+            <div class="cp-result-title">Compressed Successfully!</div>
             <div class="cp-result-sub" id="cpResultSub">—</div>
+            <a id="cpDlBtn" href="#" class="cp-dl-btn" download>
+              <i class="fa-solid fa-download"></i> Download compressed PDF
+            </a>
           </div>
-        </div>
-        <div class="cp-result-stats">
-          <div class="cp-stat"><i class="fa-solid fa-file"></i> Original: <strong id="cpOrigSize">—</strong></div>
-          <div class="cp-stat"><i class="fa-solid fa-compress"></i> Compressed: <strong id="cpNewSize">—</strong></div>
-          <div class="cp-stat"><i class="fa-solid fa-arrow-down"></i> Saved: <strong id="cpSaved">—</strong></div>
-        </div>
-        <div class="cp-result-footer">
-          <a id="cpDlBtn" href="#" class="cp-dl-btn" download>
-            <i class="fa-solid fa-download"></i> Download
-          </a>
-          <span class="cp-recompress-hint"><i class="fa-solid fa-rotate"></i> Change level to re-compress</span>
+          <div class="cp-result-stats">
+            <div class="cp-stat"><strong id="cpOrigSize">—</strong>Original</div>
+            <div class="cp-stat"><strong id="cpNewSize">—</strong>Compressed</div>
+            <div class="cp-stat"><strong id="cpSaved">—</strong>Saved</div>
+          </div>
+          <div class="cp-recompress-hint"><i class="fa-solid fa-rotate"></i> Change compression level to re-compress</div>
         </div>
       </div>
     </div>
