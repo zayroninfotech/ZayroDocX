@@ -96,32 +96,34 @@
 .cp-result-box {
   background:#fff; border:1.5px solid #e8e8e8; border-radius:16px;
   overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.06);
+  padding:1.5rem 1.6rem; text-align:center;
 }
-.cp-result-hero {
-  padding:1.8rem 1.6rem; text-align:center;
-  background:linear-gradient(135deg,#fff8f8,#fff1f1);
-  border-bottom:1px solid #fecaca;
-}
-.cp-result-title { font-size:1.4rem; font-weight:900; color:#111; margin:0 0 .2rem; }
-.cp-result-sub { font-size:.88rem; color:#dc2626; font-weight:700; margin-bottom:1.2rem; }
 .cp-dl-btn {
-  display:inline-flex; align-items:center; justify-content:center; gap:.6rem;
+  display:flex; align-items:center; justify-content:center; gap:.6rem;
   background:#dc2626; color:#fff; border:none; border-radius:14px;
-  padding:.95rem 2.5rem; font-size:1rem; font-weight:800; cursor:pointer;
+  padding:1rem 2rem; font-size:1.05rem; font-weight:800; cursor:pointer;
   text-decoration:none; transition:opacity .2s,transform .1s;
-  box-shadow:0 5px 20px rgba(220,38,38,.35); width:100%; max-width:400px;
+  box-shadow:0 5px 20px rgba(220,38,38,.35); width:100%;
 }
 .cp-dl-btn:hover { opacity:.9; transform:translateY(-1px); text-decoration:none; color:#fff; }
-.cp-result-stats {
-  display:flex; gap:0; border-top:1px solid #f0f0f0;
+/* Circle badge */
+.cp-result-body { display:flex; align-items:center; gap:1.4rem; margin-top:1.2rem; }
+.cp-circle-wrap { position:relative; width:90px; height:90px; flex-shrink:0; }
+.cp-circle-svg { width:90px; height:90px; transform:rotate(-90deg); }
+.cp-circle-bg { fill:none; stroke:#f0f0f0; stroke-width:9; }
+.cp-circle-fg { fill:none; stroke:#dc2626; stroke-width:9; stroke-linecap:round;
+  stroke-dasharray:314; stroke-dashoffset:314; transition:stroke-dashoffset .7s ease; }
+.cp-circle-text {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
 }
-.cp-stat {
-  flex:1; padding:.9rem 1rem; text-align:center;
-  border-right:1px solid #f0f0f0; font-size:.78rem; color:#888;
-}
-.cp-stat:last-child { border-right:none; }
-.cp-stat strong { display:block; font-size:1rem; font-weight:800; color:#dc2626; margin-bottom:.1rem; }
-.cp-recompress-hint { font-size:.72rem; color:#aaa; text-align:center; padding:.6rem; display:flex; align-items:center; justify-content:center; gap:.35rem; }
+.cp-circle-text strong { font-size:.95rem; font-weight:900; color:#111; line-height:1; }
+.cp-circle-text span { font-size:.5rem; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-top:.1rem; }
+.cp-result-info { flex:1; text-align:left; }
+.cp-result-msg { font-size:.95rem; font-weight:800; color:#111; margin-bottom:.3rem; }
+.cp-result-sizes { font-size:.82rem; color:#888; font-weight:500; }
+.cp-result-sizes strong { color:#dc2626; }
+.cp-recompress-hint { font-size:.72rem; color:#aaa; text-align:center; margin-top:.9rem; display:flex; align-items:center; justify-content:center; gap:.35rem; }
 
 /* Compress loader overlay */
 .cp-loader {
@@ -192,17 +194,24 @@
       <!-- Result card -->
       <div class="cp-result" id="cpResult">
         <div class="cp-result-box">
-          <div class="cp-result-hero">
-            <div class="cp-result-title">Compressed Successfully!</div>
-            <div class="cp-result-sub" id="cpResultSub">—</div>
-            <a id="cpDlBtn" href="#" class="cp-dl-btn" download>
-              <i class="fa-solid fa-download"></i> Download compressed PDF
-            </a>
-          </div>
-          <div class="cp-result-stats">
-            <div class="cp-stat"><strong id="cpOrigSize">—</strong>Original</div>
-            <div class="cp-stat"><strong id="cpNewSize">—</strong>Compressed</div>
-            <div class="cp-stat"><strong id="cpSaved">—</strong>Saved</div>
+          <a id="cpDlBtn" href="#" class="cp-dl-btn" download>
+            <i class="fa-solid fa-download"></i> Download compressed PDF
+          </a>
+          <div class="cp-result-body">
+            <div class="cp-circle-wrap">
+              <svg viewBox="0 0 120 120" class="cp-circle-svg">
+                <circle cx="60" cy="60" r="50" class="cp-circle-bg"/>
+                <circle cx="60" cy="60" r="50" class="cp-circle-fg" id="cpCircleFg"/>
+              </svg>
+              <div class="cp-circle-text">
+                <strong id="cpCirclePct">0%</strong>
+                <span>SAVED</span>
+              </div>
+            </div>
+            <div class="cp-result-info">
+              <div class="cp-result-msg" id="cpResultMsg">Your PDF is now smaller!</div>
+              <div class="cp-result-sizes" id="cpResultSizes">— → —</div>
+            </div>
           </div>
           <div class="cp-recompress-hint"><i class="fa-solid fa-rotate"></i> Change compression level to re-compress</div>
         </div>
@@ -306,6 +315,7 @@ async function loadThumbnails(file) {
   grid.innerHTML = '';
   wrap.style.display = 'none';
   loader.style.display = 'block';
+  cpSubmit.disabled = true;
 
   try {
     const fd = new FormData();
@@ -314,7 +324,7 @@ async function loadThumbnails(file) {
     const resp = await fetch('{% url "api_pdf_thumbnails" %}', { method: 'POST', body: fd });
     const data = await resp.json();
     loader.style.display = 'none';
-    if (!data.pages || !data.pages.length) return;
+    if (!data.pages || !data.pages.length) { cpSubmit.disabled = false; return; }
     data.pages.forEach((src, i) => {
       const card = document.createElement('div');
       card.style.cssText = 'background:#fff;border:1px solid #e8e8e8;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);';
@@ -326,6 +336,8 @@ async function loadThumbnails(file) {
     wrap.style.display = 'block';
   } catch(e) {
     loader.style.display = 'none';
+  } finally {
+    cpSubmit.disabled = false;
   }
 }
 
@@ -391,10 +403,14 @@ async function doCompress() {
 
     if (data.error) { showError(data.error); compressed = false; }
     else {
-      document.getElementById('cpResultSub').textContent = data.reduction_pct + '% smaller';
-      document.getElementById('cpOrigSize').textContent  = fmtBytes(data.original_size);
-      document.getElementById('cpNewSize').textContent   = fmtBytes(data.compressed_size);
-      document.getElementById('cpSaved').textContent     = data.reduction_pct + '%';
+      const pct = data.reduction_pct;
+      const circumference = 314;
+      const offset = circumference * (1 - pct / 100);
+      document.getElementById('cpCircleFg').style.strokeDashoffset = offset;
+      document.getElementById('cpCirclePct').textContent = pct + '%';
+      document.getElementById('cpResultMsg').textContent = 'Your PDF is now ' + pct + '% smaller!';
+      document.getElementById('cpResultSizes').innerHTML =
+        '<strong>' + fmtBytes(data.original_size) + '</strong> → <strong>' + fmtBytes(data.compressed_size) + '</strong>';
       const dlBtn = document.getElementById('cpDlBtn');
       dlBtn.href = data.download_url;
       dlBtn.download = data.filename;
