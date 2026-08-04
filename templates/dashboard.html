@@ -397,7 +397,7 @@
   {# ── OCR PDF ── #}
   <a href="{% url 'ocr_pdf_page' %}" class="qa-card{% if tool_privs.ocr_pdf and not request.user.is_authenticated %} locked{% endif %}">
     {% if tool_privs.ocr_pdf and not request.user.is_authenticated %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% else %}<span class="qa-badge-free">Free</span>{% endif %}
-    <div class="qa-icon" style="background:#dbeafe;width:80px;height:80px;border-radius:18px;"><i class="fa-solid fa-eye" style="font-size:1.6rem;color:#2563eb;"></i></div>
+    <div class="qa-icon" style="background:#f3f0ff;width:80px;height:80px;border-radius:18px;"><img src="{% static 'img/ocr-pdf-icon.png' %}" alt="OCR PDF" style="width:64px;height:64px;object-fit:contain;"></div>
     <div class="qa-lbl">OCR PDF</div>
     <div class="qa-desc">Make scans searchable</div>
   </a>
