@@ -330,6 +330,9 @@
     if(btn) ZLoader.show(btn.dataset.loaderMsg||'Processing…');
   });
 
+  // Disable right-click context menu
+  document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+
   // Show loader on page refresh / navigation away
   window.addEventListener('beforeunload', function(){
     ZLoader.show('Loading…');
