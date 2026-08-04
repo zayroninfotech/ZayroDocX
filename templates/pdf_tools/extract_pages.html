@@ -27,11 +27,11 @@
 .drop-zone-sub   { font-size: .9rem; color: #888; margin: 0 0 2rem; }
 .drop-zone-btn {
   display: inline-flex; align-items: center; gap: .6rem;
-  background: #dc2626; color: #fff; border: none; border-radius: 12px;
+  background: #2563eb; color: #fff; border: none; border-radius: 12px;
   padding: .9rem 2.5rem; font-size: 1.05rem; font-weight: 800; cursor: pointer;
-  transition: background .15s, transform .1s; box-shadow: 0 4px 18px rgba(220,38,38,.35);
+  transition: background .15s, transform .1s; box-shadow: 0 4px 18px rgba(37,99,235,.35);
 }
-.drop-zone-btn:hover { background: #b91c1c; transform: translateY(-1px); }
+.drop-zone-btn:hover { background: #1d4ed8; transform: translateY(-1px); }
 .drop-zone-privacy {
   display: inline-flex; align-items: center; gap: .45rem;
   margin-top: 1.3rem; background: rgba(220,38,38,.08);
@@ -202,9 +202,6 @@
   <button type="button" class="drop-zone-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
     <i class="fa-solid fa-plus"></i> Select PDF File
   </button>
-  <div><div class="drop-zone-privacy">
-    <i class="fa-solid fa-shield-halved"></i> All processing done locally — never uploaded
-  </div></div>
 </div>
 
 <!-- File panel -->
