@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 {% block title %}Compress PDF — ZayroDocX{% endblock %}
 {% block active_compress %}active{% endblock %}
@@ -7,166 +7,130 @@
 
 <style>
 /* ═══════════════════════════════════════
-   COMPRESS PDF — White · Red · Cream
+   COMPRESS PDF — ilovepdf-style 2-column
 ═══════════════════════════════════════ */
 
-/* ── Hero ── */
-.cp-hero {
-  background: linear-gradient(135deg,#7f1d1d 0%,#b91c1c 45%,#dc2626 80%,#ef4444 100%);
-  border-radius: 18px; padding: 2rem 2.2rem; margin-bottom: 1.6rem;
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.2rem;
-  box-shadow: 0 6px 28px rgba(220,38,38,.28); position: relative; overflow: hidden;
-}
-.cp-hero::before { content:''; position:absolute; top:-60px; right:-40px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,.07); pointer-events:none; }
-.cp-hero-left { position:relative; z-index:1; }
-.cp-eyebrow { display:inline-flex; align-items:center; gap:.4rem; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); border-radius:999px; padding:.22rem .75rem; font-size:.68rem; font-weight:700; color:#fff; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.55rem; }
-.cp-hero-left h2 { font-size:1.65rem; font-weight:900; color:#fff; margin:0 0 .3rem; letter-spacing:-.03em; }
-.cp-hero-left p  { font-size:.82rem; color:rgba(255,255,255,.75); margin:0; }
-.cp-hero-pills { display:flex; gap:.75rem; flex-shrink:0; position:relative; z-index:1; }
-.cp-pill { background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.18); border-radius:12px; padding:.75rem 1.1rem; text-align:center; min-width:72px; }
-.cp-pill .n { font-size:1.1rem; font-weight:900; color:#fff; line-height:1; display:block; }
-.cp-pill .l { font-size:.58rem; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.07em; }
-
-/* ── Drop zone ── */
+/* Drop zone (initial state) */
 .cp-drop {
   border: 2.5px dashed #fca5a5; border-radius: 18px;
-  padding: 3rem 2rem; text-align: center; position: relative;
+  padding: 4rem 2rem; text-align: center; position: relative;
   cursor: pointer; transition: border-color .2s, background .2s;
   background: #fff8f8; margin-bottom: 1rem;
 }
 .cp-drop:hover, .cp-drop.dragging { border-color: #dc2626; background: #fff1f1; }
 .cp-drop input[type=file] { position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer; }
-.cp-drop-icon {
-  width: 68px; height: 68px; border-radius: 18px;
-  background: linear-gradient(135deg,#b91c1c,#dc2626);
-  color: #fff; display: flex; align-items: center; justify-content: center;
-  font-size: 1.6rem; margin: 0 auto 1.1rem;
-  box-shadow: 0 4px 16px rgba(220,38,38,.3);
-}
-.cp-drop h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 .3rem; color:#111; }
-.cp-drop p  { font-size: .85rem; color: #888; margin: 0 0 1.2rem; }
+.cp-drop h3 { font-size:1.2rem; font-weight:800; margin:0 0 .3rem; color:#111; }
+.cp-drop p  { font-size:.88rem; color:#888; margin:0 0 1.4rem; }
 .cp-drop-btn {
-  display: inline-flex; align-items: center; gap: .48rem;
-  background: linear-gradient(135deg,#b91c1c,#dc2626); color: #fff; border: none; border-radius: 10px;
-  padding: .7rem 1.6rem; font-size: .95rem; font-weight: 700;
-  cursor: pointer; transition: opacity .2s, transform .1s; position: relative; z-index: 1;
-  box-shadow: 0 3px 12px rgba(220,38,38,.3);
+  display:inline-flex; align-items:center; gap:.48rem;
+  background:#dc2626; color:#fff; border:none; border-radius:10px;
+  padding:.75rem 1.8rem; font-size:.95rem; font-weight:700;
+  cursor:pointer; transition:opacity .2s,transform .1s; position:relative; z-index:1;
+  box-shadow:0 3px 12px rgba(220,38,38,.3);
 }
-.cp-drop-btn:hover { opacity: .88; transform: translateY(-1px); }
+.cp-drop-btn:hover { opacity:.88; transform:translateY(-1px); }
 
-/* ── File info bar ── */
-.cp-file-bar {
-  display: none; align-items: center; gap: .85rem;
-  background: #fff; border: 1.5px solid #fca5a5;
-  border-radius: 14px; padding: .85rem 1.1rem; margin-bottom: 1rem;
-  box-shadow: 0 2px 10px rgba(220,38,38,.08);
-}
-.cp-file-bar.show { display: flex; }
-.cp-file-icon { color: #dc2626; font-size: 1.4rem; flex-shrink: 0; }
-.cp-file-name { font-size: .88rem; font-weight: 700; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color:#111; }
-.cp-file-size { font-size: .76rem; color: #888; flex-shrink: 0; background:#fee2e2; padding:.18rem .55rem; border-radius:6px; font-weight:600; color:#dc2626; }
-.cp-file-remove {
-  background: none; border: none; color: #ccc; cursor: pointer;
-  width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center;
-  transition: background .15s, color .15s; flex-shrink: 0;
-}
-.cp-file-remove:hover { background: #fee2e2; color: #dc2626; }
+/* 2-column work area (shown after file selected) */
+.cp-workspace { display:none; gap:1.2rem; }
+.cp-workspace.show { display:flex; align-items:flex-start; }
+.cp-left { flex:1; min-width:0; }
+.cp-right { width:280px; flex-shrink:0; }
 
-/* ── Compression Level ── */
-.cp-level-card {
-  background: #fff; border: 1.5px solid #e8e8e8;
-  border-radius: 16px; padding: 1.3rem 1.4rem; margin-bottom: 1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+/* File card */
+.cp-file-card {
+  background:#fff; border:1.5px solid #e8e8e8; border-radius:16px;
+  padding:1.1rem 1.2rem; display:flex; align-items:center; gap:.85rem;
+  box-shadow:0 2px 8px rgba(0,0,0,.05); margin-bottom:1rem;
 }
-.cp-level-title {
-  font-size: .8rem; font-weight: 800; margin-bottom: 1rem; color:#111; letter-spacing:.04em; text-transform:uppercase;
-  display: flex; align-items: center; gap: .45rem; padding-bottom:.65rem; border-bottom:1px solid #f0f0f0;
-}
-.cp-level-title i { color:#dc2626; }
-.cp-levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
-.cp-level-btn {
-  position: relative; cursor: pointer; border-radius: 14px;
-  border: 2px solid #e8e8e8; padding: 1.1rem .9rem 1rem;
-  background: #fff; transition: all .18s; text-align: center;
-  box-shadow: 0 1px 4px rgba(0,0,0,.04);
-}
-.cp-level-btn input { position: absolute; opacity: 0; pointer-events: none; }
-.cp-level-btn:hover { border-color: #fca5a5; box-shadow: 0 4px 14px rgba(220,38,38,.1); }
-.cp-level-btn:has(input:checked) { border-color: #dc2626; background: #fff8f8; box-shadow: 0 4px 18px rgba(220,38,38,.15); }
-.cp-level-btn:has(input:checked)::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#991b1b,#dc2626); border-radius:14px 14px 0 0; }
-.cp-level-icon { font-size: 1.5rem; margin-bottom: .5rem; display: block; }
-.cp-level-name { font-size: .9rem; font-weight: 800; display: block; margin-bottom: .2rem; color:#111; }
-.cp-level-desc { font-size: .72rem; color: #888; display: block; }
-.cp-level-bars { display: flex; gap: 3px; justify-content: center; margin-top: .6rem; }
-.cp-bar { width: 12px; height: 16px; border-radius: 4px; background: #e8e8e8; transition: background .18s; }
-.cp-level-btn:has(input:checked) .cp-bar-fill { background: #dc2626; }
-.lvl-low .cp-bar-fill   { background: #fca5a5; }
-.lvl-med .cp-bar-fill   { background: #fca5a5; }
-.lvl-high .cp-bar-fill  { background: #fca5a5; }
-.cp-level-btn:has(input:checked).lvl-low  .cp-bar-2,
-.cp-level-btn:has(input:checked).lvl-low  .cp-bar-3 { background: #e8e8e8 !important; }
-.cp-level-btn:has(input:checked).lvl-med  .cp-bar-3 { background: #e8e8e8 !important; }
+.cp-file-ico { color:#dc2626; font-size:1.6rem; flex-shrink:0; }
+.cp-file-name { font-size:.88rem; font-weight:700; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#111; }
+.cp-file-size { font-size:.74rem; background:#fee2e2; color:#dc2626; padding:.18rem .55rem; border-radius:6px; font-weight:600; flex-shrink:0; }
+.cp-file-remove { background:none; border:none; color:#ccc; cursor:pointer; width:30px; height:30px; border-radius:7px; display:flex; align-items:center; justify-content:center; transition:background .15s,color .15s; flex-shrink:0; }
+.cp-file-remove:hover { background:#fee2e2; color:#dc2626; }
 
-/* ── Submit ── */
+/* Compression level sidebar */
+.cp-level-box {
+  background:#fff; border:1.5px solid #e8e8e8; border-radius:16px;
+  overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.05); margin-bottom:1rem;
+}
+.cp-level-head {
+  padding:.85rem 1.1rem; border-bottom:1px solid #f0f0f0;
+  font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#555;
+  display:flex; align-items:center; gap:.45rem;
+}
+.cp-level-item {
+  display:flex; align-items:center; gap:.85rem;
+  padding:.9rem 1.1rem; border-bottom:1px solid #f5f5f5; cursor:pointer;
+  transition:background .15s; position:relative;
+}
+.cp-level-item:last-child { border-bottom:none; }
+.cp-level-item:hover { background:#fafafa; }
+.cp-level-item.active { background:#fff8f8; }
+.cp-level-item.active::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:#dc2626; border-radius:0 2px 2px 0; }
+.cp-level-item input[type=radio] { position:absolute; opacity:0; pointer-events:none; }
+.cp-level-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.cp-level-dot.extreme { background:#dc2626; }
+.cp-level-dot.recommended { background:#f59e0b; }
+.cp-level-dot.less { background:#22c55e; }
+.cp-level-texts { flex:1; }
+.cp-level-texts strong { font-size:.82rem; font-weight:800; color:#111; text-transform:uppercase; letter-spacing:.03em; display:block; }
+.cp-level-texts span { font-size:.73rem; color:#888; }
+.cp-level-check { color:#dc2626; font-size:.85rem; opacity:0; transition:opacity .15s; }
+.cp-level-item.active .cp-level-check { opacity:1; }
+
+/* Submit button */
 .cp-submit {
-  width: 100%; padding: .9rem;
-  background: linear-gradient(135deg,#991b1b,#b91c1c,#dc2626);
-  color: #fff; border: none; border-radius: 14px;
-  font-size: 1rem; font-weight: 800; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: .6rem;
-  transition: opacity .2s, transform .1s;
-  box-shadow: 0 5px 20px rgba(220,38,38,.35); margin-bottom: 1rem;
+  width:100%; padding:1rem;
+  background:#dc2626; color:#fff; border:none; border-radius:14px;
+  font-size:1rem; font-weight:800; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:.6rem;
+  transition:opacity .2s,transform .1s;
+  box-shadow:0 5px 20px rgba(220,38,38,.35);
 }
-.cp-submit:hover:not(:disabled) { opacity:.9; transform:translateY(-2px); }
+.cp-submit:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
 .cp-submit:disabled { opacity:.4; cursor:not-allowed; box-shadow:none; }
 
-/* ── Result card ── */
+/* Result card */
 .cp-result {
-  display: none; border-radius: 16px; overflow: hidden;
-  border: 1.5px solid #fca5a5; background: linear-gradient(135deg,#fff8f8,#fff1f1);
+  display:none; border-radius:16px; overflow:hidden;
+  border:1.5px solid #fca5a5; background:linear-gradient(135deg,#fff8f8,#fff1f1);
+  margin-top:1rem;
 }
-.cp-result.show { display: block; }
-.cp-result-top { padding: 1.2rem 1.4rem; display: flex; align-items: center; gap: 1rem; }
-.cp-result-ico {
-  width: 50px; height: 50px; border-radius: 14px; flex-shrink: 0;
-  background: linear-gradient(135deg,#b91c1c,#dc2626);
-  display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: #fff;
-  box-shadow: 0 4px 14px rgba(220,38,38,.3);
-}
-.cp-result-title { font-size: 1rem; font-weight: 800; color: #111; }
-.cp-result-sub   { font-size: .8rem; color: #dc2626; margin-top: .1rem; font-weight:600; }
-.cp-result-stats {
-  display: flex; gap: 1.5rem; padding: .85rem 1.4rem;
-  border-top: 1px solid #fecaca; flex-wrap: wrap; background:#fff5f5;
-}
-.cp-stat { font-size: .8rem; color: #888; display: flex; align-items: center; gap: .4rem; }
-.cp-stat strong { color: #dc2626; font-weight:700; }
-.cp-result-footer { padding: .85rem 1.4rem; border-top: 1px solid #fecaca; display: flex; gap: .75rem; align-items:center; }
-.cp-dl-btn {
-  display: inline-flex; align-items: center; gap: .5rem;
-  background: linear-gradient(135deg,#991b1b,#dc2626); color: #fff;
-  border: none; border-radius: 10px; padding: .7rem 1.5rem;
-  font-size: .9rem; font-weight: 800; cursor: pointer; text-decoration: none;
-  transition: opacity .2s; box-shadow:0 3px 12px rgba(220,38,38,.3);
-}
+.cp-result.show { display:block; }
+.cp-result-top { padding:1.2rem 1.4rem; display:flex; align-items:center; gap:1rem; }
+.cp-result-ico { width:50px; height:50px; border-radius:14px; flex-shrink:0; background:#dc2626; display:flex; align-items:center; justify-content:center; font-size:1.3rem; color:#fff; box-shadow:0 4px 14px rgba(220,38,38,.3); }
+.cp-result-title { font-size:1rem; font-weight:800; color:#111; }
+.cp-result-sub { font-size:.8rem; color:#dc2626; margin-top:.1rem; font-weight:600; }
+.cp-result-stats { display:flex; gap:1.5rem; padding:.85rem 1.4rem; border-top:1px solid #fecaca; flex-wrap:wrap; background:#fff5f5; }
+.cp-stat { font-size:.8rem; color:#888; display:flex; align-items:center; gap:.4rem; }
+.cp-stat strong { color:#dc2626; font-weight:700; }
+.cp-result-footer { padding:.85rem 1.4rem; border-top:1px solid #fecaca; display:flex; gap:.75rem; align-items:center; }
+.cp-dl-btn { display:inline-flex; align-items:center; gap:.5rem; background:#dc2626; color:#fff; border:none; border-radius:10px; padding:.7rem 1.5rem; font-size:.9rem; font-weight:800; cursor:pointer; text-decoration:none; transition:opacity .2s; box-shadow:0 3px 12px rgba(220,38,38,.3); }
 .cp-dl-btn:hover { opacity:.88; text-decoration:none; color:#fff; }
-.cp-recompress-hint { font-size: .74rem; color: #888; display: flex; align-items: center; gap: .4rem; margin-left: auto; }
+.cp-recompress-hint { font-size:.74rem; color:#888; display:flex; align-items:center; gap:.4rem; margin-left:auto; }
 
-/* ── Info strip ── */
+/* Progress */
+.cp-progress-wrap { display:none; margin-top:1rem; }
+.cp-progress-wrap.show { display:block; }
+
+/* Info strip */
 .cp-info-strip { display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1.6rem; }
 .cp-info-card { flex:1; min-width:140px; background:#fff; border:1px solid #e8e8e8; border-radius:12px; padding:.9rem 1rem; display:flex; align-items:center; gap:.75rem; box-shadow:0 1px 4px rgba(0,0,0,.04); }
 .cp-info-icon { width:36px; height:36px; border-radius:10px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:.88rem; background:#fee2e2; color:#dc2626; }
 .cp-info-title { font-size:.78rem; font-weight:700; color:#111; }
 .cp-info-desc  { font-size:.68rem; color:#aaa; margin-top:.1rem; }
-</style>
 
+@media(max-width:640px){
+  .cp-workspace { flex-direction:column; }
+  .cp-right { width:100%; }
+}
+</style>
 
 <form id="toolForm">{% csrf_token %}
 
-  <!-- Drop zone -->
+  <!-- Drop zone (initial) -->
   <div class="cp-drop" id="cpDrop">
     <input type="file" id="fileInput" name="file" accept=".pdf">
-
     <h3>Drop your PDF here</h3>
     <p>Select a PDF to reduce its file size</p>
     <button type="button" class="cp-drop-btn" onclick="document.getElementById('fileInput').click()">
@@ -174,96 +138,95 @@
     </button>
   </div>
 
-  <!-- File info bar (shown after selection) -->
-  <div class="cp-file-bar" id="cpFileBar">
-    <i class="fa-solid fa-file-pdf cp-file-icon"></i>
-    <span class="cp-file-name" id="cpFileName">—</span>
-    <span class="cp-file-size" id="cpFileSize">—</span>
-    <button type="button" class="cp-file-remove" id="cpRemoveFile" title="Remove file">
-      <i class="fa-solid fa-xmark"></i>
-    </button>
-  </div>
+  <!-- 2-column workspace (shown after file selected) -->
+  <div class="cp-workspace" id="cpWorkspace">
 
-  <!-- Compression Level -->
-  <div class="cp-level-card">
-    <div class="cp-level-title"><i class="fa-solid fa-sliders" style="color:#3b82f6"></i> Compression Level</div>
-    <div class="cp-levels">
+    <!-- Left: file info -->
+    <div class="cp-left">
+      <div class="cp-file-card">
+        <i class="fa-solid fa-file-pdf cp-file-ico"></i>
+        <span class="cp-file-name" id="cpFileName">—</span>
+        <span class="cp-file-size" id="cpFileSize">—</span>
+        <button type="button" class="cp-file-remove" id="cpRemoveFile" title="Remove file">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
 
-      <label class="cp-level-btn lvl-low">
-        <input type="radio" name="level" value="low">
-        <span class="cp-level-icon">🟢</span>
-        <span class="cp-level-name">Low</span>
-        <span class="cp-level-desc">Best quality</span>
-        <div class="cp-level-bars">
-          <div class="cp-bar cp-bar-fill cp-bar-1"></div>
-          <div class="cp-bar cp-bar-2"></div>
-          <div class="cp-bar cp-bar-3"></div>
+      <!-- Result card -->
+      <div class="cp-result" id="cpResult">
+        <div class="cp-result-top">
+          <div class="cp-result-ico"><i class="fa-solid fa-check"></i></div>
+          <div>
+            <div class="cp-result-title">Compressed Successfully</div>
+            <div class="cp-result-sub" id="cpResultSub">—</div>
+          </div>
         </div>
-      </label>
-
-      <label class="cp-level-btn lvl-med">
-        <input type="radio" name="level" value="medium" checked>
-        <span class="cp-level-icon">🟡</span>
-        <span class="cp-level-name">Medium</span>
-        <span class="cp-level-desc">Balanced</span>
-        <div class="cp-level-bars">
-          <div class="cp-bar cp-bar-fill cp-bar-1"></div>
-          <div class="cp-bar cp-bar-fill cp-bar-2"></div>
-          <div class="cp-bar cp-bar-3"></div>
+        <div class="cp-result-stats">
+          <div class="cp-stat"><i class="fa-solid fa-file"></i> Original: <strong id="cpOrigSize">—</strong></div>
+          <div class="cp-stat"><i class="fa-solid fa-compress"></i> Compressed: <strong id="cpNewSize">—</strong></div>
+          <div class="cp-stat"><i class="fa-solid fa-arrow-down"></i> Saved: <strong id="cpSaved">—</strong></div>
         </div>
-      </label>
-
-      <label class="cp-level-btn lvl-high">
-        <input type="radio" name="level" value="high">
-        <span class="cp-level-icon">🔴</span>
-        <span class="cp-level-name">High</span>
-        <span class="cp-level-desc">Smallest file</span>
-        <div class="cp-level-bars">
-          <div class="cp-bar cp-bar-fill cp-bar-1"></div>
-          <div class="cp-bar cp-bar-fill cp-bar-2"></div>
-          <div class="cp-bar cp-bar-fill cp-bar-3"></div>
+        <div class="cp-result-footer">
+          <a id="cpDlBtn" href="#" class="cp-dl-btn" download>
+            <i class="fa-solid fa-download"></i> Download
+          </a>
+          <span class="cp-recompress-hint"><i class="fa-solid fa-rotate"></i> Change level to re-compress</span>
         </div>
-      </label>
-
+      </div>
     </div>
-  </div>
 
-  <!-- Submit -->
-  <button type="submit" class="cp-submit" id="cpSubmit" disabled>
-    <i class="fa-solid fa-compress"></i> Compress PDF
-  </button>
+    <!-- Right: compression options + submit -->
+    <div class="cp-right">
+      <div class="cp-level-box">
+        <div class="cp-level-head"><i class="fa-solid fa-sliders" style="color:#dc2626"></i> Compression level</div>
+
+        <label class="cp-level-item" id="lvl-extreme">
+          <input type="radio" name="level" value="high">
+          <div class="cp-level-dot extreme"></div>
+          <div class="cp-level-texts">
+            <strong>Extreme compression</strong>
+            <span>Less quality, high compression</span>
+          </div>
+          <i class="fa-solid fa-circle-check cp-level-check"></i>
+        </label>
+
+        <label class="cp-level-item active" id="lvl-recommended">
+          <input type="radio" name="level" value="medium" checked>
+          <div class="cp-level-dot recommended"></div>
+          <div class="cp-level-texts">
+            <strong>Recommended compression</strong>
+            <span>Good quality, good compression</span>
+          </div>
+          <i class="fa-solid fa-circle-check cp-level-check"></i>
+        </label>
+
+        <label class="cp-level-item" id="lvl-less">
+          <input type="radio" name="level" value="low">
+          <div class="cp-level-dot less"></div>
+          <div class="cp-level-texts">
+            <strong>Less compression</strong>
+            <span>High quality, less compression</span>
+          </div>
+          <i class="fa-solid fa-circle-check cp-level-check"></i>
+        </label>
+      </div>
+
+      <button type="submit" class="cp-submit" id="cpSubmit">
+        <i class="fa-solid fa-compress"></i> Compress PDF
+      </button>
+    </div>
+
+  </div>
 
 </form>
 
 <!-- Progress -->
-<div class="progress-wrap">
+<div class="progress-wrap cp-progress-wrap" id="cpProgress">
   <div class="progress-header">
     <span class="progress-label">Compressing PDF…</span>
     <span class="progress-pct"></span>
   </div>
   <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
-</div>
-
-<!-- Result -->
-<div class="cp-result" id="cpResult">
-  <div class="cp-result-top">
-    <div class="cp-result-ico"><i class="fa-solid fa-check"></i></div>
-    <div>
-      <div class="cp-result-title">Compressed Successfully</div>
-      <div class="cp-result-sub" id="cpResultSub">—</div>
-    </div>
-  </div>
-  <div class="cp-result-stats">
-    <div class="cp-stat"><i class="fa-solid fa-file"></i> Original: <strong id="cpOrigSize">—</strong></div>
-    <div class="cp-stat"><i class="fa-solid fa-compress"></i> Compressed: <strong id="cpNewSize">—</strong></div>
-    <div class="cp-stat"><i class="fa-solid fa-arrow-down"></i> Saved: <strong id="cpSaved">—</strong></div>
-  </div>
-  <div class="cp-result-footer">
-    <a id="cpDlBtn" href="#" class="cp-dl-btn" download>
-      <i class="fa-solid fa-download"></i> Download
-    </a>
-    <span class="cp-recompress-hint"><i class="fa-solid fa-rotate"></i> Change level above to re-compress</span>
-  </div>
 </div>
 
 <!-- Info strip -->
@@ -276,15 +239,15 @@
 
 {% endblock %}
 {% block extra_js %}<script>
-const fileInput   = document.getElementById('fileInput');
-const cpDrop      = document.getElementById('cpDrop');
-const cpFileBar   = document.getElementById('cpFileBar');
-const cpFileName  = document.getElementById('cpFileName');
-const cpFileSize  = document.getElementById('cpFileSize');
-const cpSubmit    = document.getElementById('cpSubmit');
-const cpResult    = document.getElementById('cpResult');
-let currentFile   = null;
-let compressed    = false;
+const fileInput  = document.getElementById('fileInput');
+const cpDrop     = document.getElementById('cpDrop');
+const cpWorkspace= document.getElementById('cpWorkspace');
+const cpFileName = document.getElementById('cpFileName');
+const cpFileSize = document.getElementById('cpFileSize');
+const cpSubmit   = document.getElementById('cpSubmit');
+const cpResult   = document.getElementById('cpResult');
+let currentFile  = null;
+let compressed   = false;
 
 function fmtBytes(b) {
   if (!b) return '0 B';
@@ -296,10 +259,9 @@ function setFile(file) {
   if (!file || file.type !== 'application/pdf') return;
   currentFile = file;
   cpDrop.style.display = 'none';
-  cpFileBar.classList.add('show');
+  cpWorkspace.classList.add('show');
   cpFileName.textContent = file.name;
   cpFileSize.textContent = fmtBytes(file.size);
-  cpSubmit.disabled = false;
   cpResult.classList.remove('show');
   compressed = false;
 }
@@ -312,8 +274,7 @@ fileInput.addEventListener('change', function() {
 document.getElementById('cpRemoveFile').addEventListener('click', () => {
   currentFile = null;
   cpDrop.style.display = '';
-  cpFileBar.classList.remove('show');
-  cpSubmit.disabled = true;
+  cpWorkspace.classList.remove('show');
   cpResult.classList.remove('show');
   compressed = false;
 });
@@ -326,9 +287,11 @@ cpDrop.addEventListener('drop', e => {
   if (f) setFile(f);
 });
 
-/* Re-compress automatically when level changes after first compress */
-document.querySelectorAll('input[name="level"]').forEach(r => {
-  r.addEventListener('change', () => {
+/* Level item active highlight */
+document.querySelectorAll('.cp-level-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.cp-level-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
     if (compressed && currentFile) doCompress();
   });
 });
@@ -368,7 +331,7 @@ async function doCompress() {
   } catch(err) {
     showProgress(false); showError(err.message); compressed = false;
   } finally {
-    cpSubmit.disabled = !currentFile;
+    cpSubmit.disabled = false;
   }
 }
 
