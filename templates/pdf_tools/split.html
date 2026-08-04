@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Split PDF — ZayroDocX{% endblock %}
 {% block active_split %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Split PDF</span>{% endblock %}
@@ -21,11 +22,11 @@
 .drop-zone-sub   { font-size: 1rem; color: #888; margin: 0 0 2.2rem; }
 .drop-zone-btn {
   display: inline-flex; align-items: center; gap: .55rem;
-  background: #dc2626; color: #fff; border: none; border-radius: 12px;
+  background: #2563eb; color: #fff; border: none; border-radius: 12px;
   padding: .9rem 2.5rem; font-size: 1.1rem; font-weight: 700; cursor: pointer;
-  transition: background .15s, transform .1s; box-shadow: 0 4px 18px rgba(220,38,38,.35);
+  transition: background .15s, transform .1s; box-shadow: 0 4px 18px rgba(37,99,235,.35);
 }
-.drop-zone-btn:hover { background: #b91c1c; transform: translateY(-1px); }
+.drop-zone-btn:hover { background: #1d4ed8; transform: translateY(-1px); }
 .drop-zone-drop-hint { font-size: .9rem; color: #aaa; margin-top: 1rem; }
 
 /* ── Main two-column layout ── */
@@ -274,6 +275,11 @@
 <!-- Upload zone -->
 <div class="drop-zone" id="uploadZone">
   <input type="file" id="fileInput" name="file" accept=".pdf">
+  <div style="margin-bottom:1.2rem;">
+    <div style="display:inline-flex;align-items:center;justify-content:center;background:#f3f0ff;border-radius:20px;padding:16px;">
+      <img src="{% static 'img/split-pdf-icon.png' %}" alt="Split PDF" style="width:90px;height:90px;object-fit:contain;">
+    </div>
+  </div>
   <h2 class="drop-zone-title">Split PDF File</h2>
   <p class="drop-zone-sub">Separate a PDF into individual pages or custom ranges.</p>
   <button type="button" class="drop-zone-btn" onclick="document.getElementById('fileInput').click()">
