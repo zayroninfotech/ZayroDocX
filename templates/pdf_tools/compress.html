@@ -90,40 +90,49 @@
 .cp-submit:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
 .cp-submit:disabled { opacity:.4; cursor:not-allowed; box-shadow:none; }
 
-/* Result card */
-.cp-result { display:none; margin-top:1rem; }
-.cp-result.show { display:block; }
+/* Result page (full-page takeover after compression) */
+.cp-result-page { display:none; }
+.cp-result-page.show { display:block; }
 .cp-result-box {
-  background:#fff; border:1.5px solid #e8e8e8; border-radius:16px;
-  overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.06);
-  padding:1.5rem 1.6rem; text-align:center;
+  background:#fff; border:1.5px solid #e8e8e8; border-radius:20px;
+  overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.08);
+  padding:2rem 2rem 1.5rem; text-align:center; max-width:560px; margin:2rem auto 0;
 }
+.cp-result-title-row { font-size:1.5rem; font-weight:900; color:#111; margin-bottom:1.2rem; }
 .cp-dl-btn {
   display:flex; align-items:center; justify-content:center; gap:.6rem;
   background:#dc2626; color:#fff; border:none; border-radius:14px;
-  padding:1rem 2rem; font-size:1.05rem; font-weight:800; cursor:pointer;
+  padding:1.1rem 2rem; font-size:1.05rem; font-weight:800; cursor:pointer;
   text-decoration:none; transition:opacity .2s,transform .1s;
   box-shadow:0 5px 20px rgba(220,38,38,.35); width:100%;
 }
 .cp-dl-btn:hover { opacity:.9; transform:translateY(-1px); text-decoration:none; color:#fff; }
 /* Circle badge */
-.cp-result-body { display:flex; align-items:center; gap:1.4rem; margin-top:1.2rem; }
-.cp-circle-wrap { position:relative; width:90px; height:90px; flex-shrink:0; }
-.cp-circle-svg { width:90px; height:90px; transform:rotate(-90deg); }
+.cp-result-body { display:flex; align-items:center; gap:1.6rem; margin-top:1.4rem; text-align:left; }
+.cp-circle-wrap { position:relative; width:100px; height:100px; flex-shrink:0; }
+.cp-circle-svg { width:100px; height:100px; transform:rotate(-90deg); }
 .cp-circle-bg { fill:none; stroke:#f0f0f0; stroke-width:9; }
 .cp-circle-fg { fill:none; stroke:#dc2626; stroke-width:9; stroke-linecap:round;
-  stroke-dasharray:314; stroke-dashoffset:314; transition:stroke-dashoffset .7s ease; }
+  stroke-dasharray:314; stroke-dashoffset:314; transition:stroke-dashoffset .8s ease; }
 .cp-circle-text {
   position:absolute; inset:0; display:flex; flex-direction:column;
   align-items:center; justify-content:center;
 }
-.cp-circle-text strong { font-size:.95rem; font-weight:900; color:#111; line-height:1; }
-.cp-circle-text span { font-size:.5rem; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-top:.1rem; }
-.cp-result-info { flex:1; text-align:left; }
-.cp-result-msg { font-size:.95rem; font-weight:800; color:#111; margin-bottom:.3rem; }
-.cp-result-sizes { font-size:.82rem; color:#888; font-weight:500; }
+.cp-circle-text strong { font-size:1.05rem; font-weight:900; color:#111; line-height:1; }
+.cp-circle-text span { font-size:.52rem; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-top:.15rem; }
+.cp-result-info { flex:1; }
+.cp-result-msg { font-size:1rem; font-weight:800; color:#111; margin-bottom:.4rem; }
+.cp-result-sizes { font-size:.85rem; color:#888; font-weight:500; }
 .cp-result-sizes strong { color:#dc2626; }
-.cp-recompress-hint { font-size:.72rem; color:#aaa; text-align:center; margin-top:.9rem; display:flex; align-items:center; justify-content:center; gap:.35rem; }
+/* Back button */
+.cp-back-btn {
+  display:inline-flex; align-items:center; gap:.45rem;
+  background:none; border:1.5px solid #e0e0e0; border-radius:10px;
+  padding:.6rem 1.2rem; font-size:.82rem; font-weight:700; color:#666;
+  cursor:pointer; margin-top:1.2rem; transition:border-color .15s,color .15s;
+  text-decoration:none;
+}
+.cp-back-btn:hover { border-color:#dc2626; color:#dc2626; text-decoration:none; }
 
 /* Compress loader overlay */
 .cp-loader {
@@ -191,31 +200,6 @@
         Loading pages…
       </div>
 
-      <!-- Result card -->
-      <div class="cp-result" id="cpResult">
-        <div class="cp-result-box">
-          <a id="cpDlBtn" href="#" class="cp-dl-btn" download>
-            <i class="fa-solid fa-download"></i> Download compressed PDF
-          </a>
-          <div class="cp-result-body">
-            <div class="cp-circle-wrap">
-              <svg viewBox="0 0 120 120" class="cp-circle-svg">
-                <circle cx="60" cy="60" r="50" class="cp-circle-bg"/>
-                <circle cx="60" cy="60" r="50" class="cp-circle-fg" id="cpCircleFg"/>
-              </svg>
-              <div class="cp-circle-text">
-                <strong id="cpCirclePct">0%</strong>
-                <span>SAVED</span>
-              </div>
-            </div>
-            <div class="cp-result-info">
-              <div class="cp-result-msg" id="cpResultMsg">Your PDF is now smaller!</div>
-              <div class="cp-result-sizes" id="cpResultSizes">— → —</div>
-            </div>
-          </div>
-          <div class="cp-recompress-hint"><i class="fa-solid fa-rotate"></i> Change compression level to re-compress</div>
-        </div>
-      </div>
     </div>
 
     <!-- Right: compression options + submit -->
@@ -269,8 +253,37 @@
   <div class="cp-loader-text">Compressing PDF…</div>
 </div>
 
+<!-- Standalone result page (shown after compression, replaces workspace) -->
+<div class="cp-result-page" id="cpResultPage">
+  <div class="cp-result-box">
+    <div class="cp-result-title-row">PDFs have been compressed!</div>
+    <a id="cpDlBtn" href="#" class="cp-dl-btn" download>
+      <i class="fa-solid fa-download"></i> Download compressed PDF
+    </a>
+    <div class="cp-result-body">
+      <div class="cp-circle-wrap">
+        <svg viewBox="0 0 120 120" class="cp-circle-svg">
+          <circle cx="60" cy="60" r="50" class="cp-circle-bg"/>
+          <circle cx="60" cy="60" r="50" class="cp-circle-fg" id="cpCircleFg"/>
+        </svg>
+        <div class="cp-circle-text">
+          <strong id="cpCirclePct">0%</strong>
+          <span>SAVED</span>
+        </div>
+      </div>
+      <div class="cp-result-info">
+        <div class="cp-result-msg" id="cpResultMsg">Your PDF is now smaller!</div>
+        <div class="cp-result-sizes" id="cpResultSizes">— → —</div>
+      </div>
+    </div>
+    <button type="button" class="cp-back-btn" id="cpBackBtn">
+      <i class="fa-solid fa-arrow-left"></i> Compress another PDF
+    </button>
+  </div>
+</div>
+
 <!-- Info strip -->
-<div class="cp-info-strip">
+<div class="cp-info-strip" id="cpInfoStrip">
   <div class="cp-info-card"><div class="cp-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cp-info-title">100% Private</div><div class="cp-info-desc">Files never leave your server</div></div></div>
   <div class="cp-info-card"><div class="cp-info-icon"><i class="fa-solid fa-sliders"></i></div><div><div class="cp-info-title">3 Levels</div><div class="cp-info-desc">Low, Medium, High compression</div></div></div>
   <div class="cp-info-card"><div class="cp-info-icon"><i class="fa-solid fa-arrow-trend-down"></i></div><div><div class="cp-info-title">Reduce Size</div><div class="cp-info-desc">Up to 80% smaller output</div></div></div>
@@ -279,20 +292,28 @@
 
 {% endblock %}
 {% block extra_js %}<script>
-const fileInput  = document.getElementById('fileInput');
-const cpDrop     = document.getElementById('cpDrop');
-const cpWorkspace= document.getElementById('cpWorkspace');
-const cpFileName = document.getElementById('cpFileName');
-const cpFileSize = document.getElementById('cpFileSize');
-const cpSubmit   = document.getElementById('cpSubmit');
-const cpResult   = document.getElementById('cpResult');
-let currentFile  = null;
-let compressed   = false;
+const fileInput   = document.getElementById('fileInput');
+const cpDrop      = document.getElementById('cpDrop');
+const cpWorkspace = document.getElementById('cpWorkspace');
+const cpFileName  = document.getElementById('cpFileName');
+const cpFileSize  = document.getElementById('cpFileSize');
+const cpSubmit    = document.getElementById('cpSubmit');
+const cpResultPage= document.getElementById('cpResultPage');
+const cpInfoStrip = document.getElementById('cpInfoStrip');
+const toolForm    = document.getElementById('toolForm');
+let currentFile   = null;
+let compressed    = false;
 
 function fmtBytes(b) {
   if (!b) return '0 B';
   const k=1024, s=['B','KB','MB','GB'], i=Math.floor(Math.log(b)/Math.log(k));
   return +(b/Math.pow(k,i)).toFixed(1)+' '+s[i];
+}
+
+function showWorkspace() {
+  toolForm.style.display = '';
+  cpInfoStrip.style.display = '';
+  cpResultPage.classList.remove('show');
 }
 
 function setFile(file) {
@@ -302,7 +323,6 @@ function setFile(file) {
   cpWorkspace.classList.add('show');
   cpFileName.textContent = file.name;
   cpFileSize.textContent = fmtBytes(file.size);
-  cpResult.classList.remove('show');
   compressed = false;
   loadThumbnails(file);
   updateEstSize();
@@ -350,10 +370,22 @@ document.getElementById('cpRemoveFile').addEventListener('click', () => {
   currentFile = null;
   cpDrop.style.display = '';
   cpWorkspace.classList.remove('show');
-  cpResult.classList.remove('show');
   compressed = false;
   document.getElementById('cpThumbGrid').innerHTML = '';
   document.getElementById('cpThumbWrap').style.display = 'none';
+});
+
+document.getElementById('cpBackBtn').addEventListener('click', () => {
+  cpResultPage.classList.remove('show');
+  toolForm.style.display = '';
+  cpInfoStrip.style.display = '';
+  currentFile = null;
+  compressed = false;
+  cpDrop.style.display = '';
+  cpWorkspace.classList.remove('show');
+  document.getElementById('cpThumbGrid').innerHTML = '';
+  document.getElementById('cpThumbWrap').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 cpDrop.addEventListener('dragover', e => { e.preventDefault(); cpDrop.classList.add('dragging'); });
@@ -386,7 +418,6 @@ document.querySelectorAll('.cp-level-item').forEach(item => {
 
 async function doCompress() {
   if (!currentFile) return;
-  cpResult.classList.remove('show');
   cpSubmit.disabled = true;
   const loader = document.getElementById('cpLoader');
   loader.classList.add('show');
@@ -414,8 +445,11 @@ async function doCompress() {
       const dlBtn = document.getElementById('cpDlBtn');
       dlBtn.href = data.download_url;
       dlBtn.download = data.filename;
-      cpResult.classList.add('show');
-      cpResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      /* Hide workspace, show result as new page */
+      toolForm.style.display = 'none';
+      cpInfoStrip.style.display = 'none';
+      cpResultPage.classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       compressed = true;
     }
   } catch(err) {
