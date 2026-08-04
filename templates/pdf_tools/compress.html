@@ -123,9 +123,22 @@
 .cp-stat strong { display:block; font-size:1rem; font-weight:800; color:#dc2626; margin-bottom:.1rem; }
 .cp-recompress-hint { font-size:.72rem; color:#aaa; text-align:center; padding:.6rem; display:flex; align-items:center; justify-content:center; gap:.35rem; }
 
-/* Progress */
-.cp-progress-wrap { display:none; margin-top:1rem; }
-.cp-progress-wrap.show { display:block; }
+/* Compress loader overlay */
+.cp-loader {
+  display:none; position:fixed; inset:0; z-index:9000;
+  background:rgba(255,255,255,.82); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center; flex-direction:column; gap:1.2rem;
+}
+.cp-loader.show { display:flex; }
+.cp-loader-ring {
+  width:72px; height:72px;
+  border:6px solid #fee2e2;
+  border-top-color:#dc2626;
+  border-radius:50%;
+  animation:cpSpin .75s linear infinite;
+}
+@keyframes cpSpin { to { transform:rotate(360deg); } }
+.cp-loader-text { font-size:1rem; font-weight:700; color:#dc2626; }
 
 /* Info strip */
 .cp-info-strip { display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1.6rem; }
@@ -241,13 +254,10 @@
 
 </form>
 
-<!-- Progress -->
-<div class="progress-wrap cp-progress-wrap" id="cpProgress">
-  <div class="progress-header">
-    <span class="progress-label">Compressing PDF…</span>
-    <span class="progress-pct"></span>
-  </div>
-  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+<!-- Loader overlay -->
+<div class="cp-loader" id="cpLoader">
+  <div class="cp-loader-ring"></div>
+  <div class="cp-loader-text">Compressing PDF…</div>
 </div>
 
 <!-- Info strip -->
@@ -366,7 +376,8 @@ async function doCompress() {
   if (!currentFile) return;
   cpResult.classList.remove('show');
   cpSubmit.disabled = true;
-  showProgress(true, 'Compressing PDF…', 10);
+  const loader = document.getElementById('cpLoader');
+  loader.classList.add('show');
 
   const fd = new FormData();
   fd.append('file', currentFile);
@@ -374,12 +385,9 @@ async function doCompress() {
   fd.append('csrfmiddlewaretoken', (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '');
 
   try {
-    await fakeProgress(10, 80, 800);
     const resp = await fetch('{% url "api_compress_pdf" %}', { method: 'POST', body: fd });
     const data = await resp.json();
-    setProgress(100);
-    await new Promise(r => setTimeout(r, 200));
-    showProgress(false);
+    loader.classList.remove('show');
 
     if (data.error) { showError(data.error); compressed = false; }
     else {
@@ -395,7 +403,7 @@ async function doCompress() {
       compressed = true;
     }
   } catch(err) {
-    showProgress(false); showError(err.message); compressed = false;
+    loader.classList.remove('show'); showError(err.message); compressed = false;
   } finally {
     cpSubmit.disabled = false;
   }
