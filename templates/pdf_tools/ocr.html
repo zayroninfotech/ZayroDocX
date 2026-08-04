@@ -1,4 +1,5 @@
 ﻿{% extends 'base.html' %}
+{% load static %}
 {% block title %}PDF Viewer — ZayroDocX{% endblock %}
 {% block active_ocr %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">PDF Viewer</span>{% endblock %}
@@ -261,7 +262,7 @@
 <!-- Drop zone -->
 <div class="ocr-drop" id="uploadZone">
   <input type="file" id="fileInput" accept=".pdf">
-  <div class="ocr-drop-icon"><i class="fa-solid fa-eye"></i></div>
+  <div class="ocr-drop-icon"><img src="{% static 'img/ocr-pdf-icon.png' %}" alt="OCR PDF" style="width:72px;height:72px;object-fit:contain;"></div>
   <h3>Drop your PDF here</h3>
   <p>Upload a PDF — all pages are processed and displayed with OCR text extraction</p>
   <button type="button" class="ocr-drop-btn" onclick="document.getElementById('fileInput').click()">
