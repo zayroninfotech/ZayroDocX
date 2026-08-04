@@ -338,7 +338,7 @@ function updateEstSize() {
   if (!currentFile) return;
   const level = document.querySelector('input[name="level"]:checked').value;
   const est = currentFile.size * EST_RATIO[level];
-  document.getElementById('cpFileSize').textContent = '~' + fmtBytes(est) + ' est.';
+  document.getElementById('cpFileSize').textContent = fmtBytes(est);
 }
 
 /* Level item active highlight */
