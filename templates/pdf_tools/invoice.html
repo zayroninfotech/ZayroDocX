@@ -33,20 +33,16 @@
 
 .inv-upload-zone {
   position:relative; cursor:pointer; border-radius:20px; overflow:hidden;
-  background:linear-gradient(145deg,#fef2f2 0%,#fff5f5 40%,#fdf4ff 100%);
-  border:2.5px dashed #fca5a5;
+  background:#fafafa;
+  border:2px dashed #e0e0e0;
   padding:52px 32px; text-align:center;
   transition:border-color .2s, background .2s, transform .15s, box-shadow .2s;
-  box-shadow:0 4px 24px rgba(220,38,38,.06);
 }
 .inv-upload-zone:hover, .inv-upload-zone.dragging {
-  border-color:#dc2626; background:linear-gradient(145deg,#fee2e2,#fdf4ff);
-  transform:translateY(-2px); box-shadow:0 8px 32px rgba(220,38,38,.13);
+  border-color:#2563eb; background:#f0f6ff;
+  transform:translateY(-2px);
 }
-.inv-upload-glow {
-  position:absolute; inset:0; pointer-events:none; border-radius:18px;
-  background:radial-gradient(ellipse at 50% 0%,rgba(220,38,38,.07) 0%,transparent 70%);
-}
+.inv-upload-glow { display:none; }
 .inv-upload-icon-ring {
   width:76px; height:76px; border-radius:50%; margin:0 auto 18px;
   background:linear-gradient(135deg,#dc2626,#ef4444);
