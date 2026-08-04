@@ -1,4 +1,5 @@
 ﻿{% extends 'base.html' %}
+{% load static %}
 {% block title %}Compress PDF — ZayroDocX{% endblock %}
 {% block active_compress %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Compress PDF</span>{% endblock %}
@@ -178,7 +179,7 @@
   <!-- Drop zone -->
   <div class="cp-drop" id="cpDrop">
     <input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="cp-drop-icon"><i class="fa-solid fa-compress"></i></div>
+    <div class="cp-drop-icon"><img src="{% static 'img/compress-pdf-icon.png' %}" alt="Compress PDF" style="width:72px;height:72px;object-fit:contain;"></div>
     <h3>Drop your PDF here</h3>
     <p>Select a PDF to reduce its file size</p>
     <button type="button" class="cp-drop-btn" onclick="document.getElementById('fileInput').click()">

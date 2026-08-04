@@ -47,8 +47,7 @@ def jpg_to_pdf(request):
         else:
             layout = None
 
-        out_name = 'ZayroDocX_images_to_pdf.pdf'
-        out_path = str(settings.OUTPUT_DIR / out_name)
+        out_path, out_name = get_output_path('.pdf', 'images_to_pdf')
         with open(out_path, 'wb') as fp:
             fp.write(img2pdf.convert(img_paths, layout_fun=layout) if layout else img2pdf.convert(img_paths))
 
@@ -71,8 +70,7 @@ def word_to_pdf(request):
         return JsonResponse({'error': 'No Word file uploaded.'}, status=400)
 
     saved_path, _ = save_uploaded_file(f)
-    out_name = 'ZayroDocX_word_to_pdf.pdf'
-    out_path = str(settings.OUTPUT_DIR / out_name)
+    out_path, out_name = get_output_path('.pdf', 'word_to_pdf')
 
     try:
         validate_office(saved_path, f.name, kinds=('doc', 'docx'))
@@ -100,8 +98,7 @@ def pptx_to_pdf(request):
         return JsonResponse({'error': 'No PowerPoint file uploaded.'}, status=400)
 
     saved_path, _ = save_uploaded_file(f)
-    out_name = 'ZayroDocX_pptx_to_pdf.pdf'
-    out_path = str(settings.OUTPUT_DIR / out_name)
+    out_path, out_name = get_output_path('.pdf', 'pptx_to_pdf')
 
     try:
         validate_office(saved_path, f.name, kinds=('ppt', 'pptx'))
@@ -127,8 +124,7 @@ def excel_to_pdf(request):
         return JsonResponse({'error': 'No Excel file uploaded.'}, status=400)
 
     saved_path, _ = save_uploaded_file(f)
-    out_name = 'ZayroDocX_excel_to_pdf.pdf'
-    out_path = str(settings.OUTPUT_DIR / out_name)
+    out_path, out_name = get_output_path('.pdf', 'excel_to_pdf')
 
     try:
         validate_office(saved_path, f.name, kinds=('xls', 'xlsx'))

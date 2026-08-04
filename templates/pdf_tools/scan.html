@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Image to PDF — ZayroDocX{% endblock %}
 {% block active_scan %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Image to PDF</span>{% endblock %}
@@ -172,8 +173,10 @@
 <!-- Upload zone -->
 <div class="drop-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
   <input type="file" id="fileInput" name="files" accept="image/*" multiple>
-  <div class="drop-zone-icon-wrap">
-    <i class="fa-solid fa-images"></i>
+  <div style="margin-bottom:1.4rem;">
+    <div style="display:inline-flex;align-items:center;justify-content:center;background:#fff0f0;border-radius:20px;padding:16px;">
+      <img src="{% static 'img/image-to-pdf-icon.png' %}" alt="Image to PDF" style="width:90px;height:90px;object-fit:contain;">
+    </div>
   </div>
   <h2 class="drop-zone-title">Drop images here</h2>
   <p class="drop-zone-formats">JPG, PNG, BMP, TIFF, WEBP, GIF — combine into one PDF</p>
