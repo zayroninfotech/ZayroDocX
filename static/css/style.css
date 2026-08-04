@@ -74,6 +74,7 @@ body { padding-top: var(--mh-h); }
 .mh-nav { display: flex; align-items: center; gap: 0; flex: 1; }
 .mh-item { position: relative; display: flex; align-items: center; }
 
+.mh-nav-icon { font-size: .78rem; opacity: .75; }
 .mh-link {
   display: inline-flex; align-items: center; gap: .35rem;
   padding: 0 .85rem; height: var(--mh-h); line-height: var(--mh-h);

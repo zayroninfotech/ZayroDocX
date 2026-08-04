@@ -29,7 +29,7 @@
 
         <!-- Organize PDF -->
         <div class="mh-item has-drop">
-          <span class="mh-link">Organize PDF <i class="fa-solid fa-chevron-down mh-caret"></i></span>
+          <span class="mh-link"><i class="fa-solid fa-layer-group mh-nav-icon"></i> Organize PDF <i class="fa-solid fa-chevron-down mh-caret"></i></span>
           <div class="mh-drop">
             <a href="{% url 'merge_pdf_page' %}" class="mh-drop-item {% block active_merge %}{% endblock %}">
               <span class="mhd-icon"><img src="{% static 'img/merge-pdf-icon.png' %}" alt="Merge PDF" style="width:24px;height:24px;object-fit:contain;"></span>
@@ -56,7 +56,7 @@
 
         <!-- Optimize & AI -->
         <div class="mh-item has-drop">
-          <span class="mh-link">Optimize &amp; AI <i class="fa-solid fa-chevron-down mh-caret"></i></span>
+          <span class="mh-link"><i class="fa-solid fa-wand-magic-sparkles mh-nav-icon"></i> Optimize &amp; AI <i class="fa-solid fa-chevron-down mh-caret"></i></span>
           <div class="mh-drop">
             <a href="{% url 'compress_pdf_page' %}" class="mh-drop-item {% block active_compress %}{% endblock %}">
               <span class="mhd-icon"><i class="fa-solid fa-compress"></i></span>
@@ -83,7 +83,7 @@
 
         <!-- Convert PDF -->
         <div class="mh-item has-drop">
-          <span class="mh-link">Convert PDF <i class="fa-solid fa-chevron-down mh-caret"></i></span>
+          <span class="mh-link"><i class="fa-solid fa-right-left mh-nav-icon"></i> Convert PDF <i class="fa-solid fa-chevron-down mh-caret"></i></span>
           <div class="mh-drop mh-drop-wide">
             <div class="mhd-group-label">To PDF</div>
             <a href="{% url 'word_to_pdf_page' %}" class="mh-drop-item {% block active_word2pdf %}{% endblock %}">
@@ -125,7 +125,7 @@
 
         <!-- Edit PDF -->
         <div class="mh-item has-drop">
-          <span class="mh-link">Edit PDF <i class="fa-solid fa-chevron-down mh-caret"></i></span>
+          <span class="mh-link"><i class="fa-solid fa-pen-to-square mh-nav-icon"></i> Edit PDF <i class="fa-solid fa-chevron-down mh-caret"></i></span>
           <div class="mh-drop">
             <a href="{% url 'rotate_pdf_page' %}" class="mh-drop-item {% block active_rotate %}{% endblock %}">
               <span class="mhd-icon"><i class="fa-solid fa-rotate-right"></i></span>
@@ -152,7 +152,7 @@
 
         <!-- PDF Security -->
         <div class="mh-item has-drop">
-          <span class="mh-link">PDF Security <i class="fa-solid fa-chevron-down mh-caret"></i></span>
+          <span class="mh-link"><i class="fa-solid fa-shield-halved mh-nav-icon"></i> PDF Security <i class="fa-solid fa-chevron-down mh-caret"></i></span>
           <div class="mh-drop">
             <a href="{% url 'protect_pdf_page' %}" class="mh-drop-item {% block active_protect %}{% endblock %}">
               <span class="mhd-icon"><i class="fa-solid fa-lock"></i></span>
@@ -171,7 +171,7 @@
 
         <!-- Image Tools -->
         <div class="mh-item has-drop">
-          <span class="mh-link">Image Tools <i class="fa-solid fa-chevron-down mh-caret"></i></span>
+          <span class="mh-link"><i class="fa-solid fa-image mh-nav-icon"></i> Image Tools <i class="fa-solid fa-chevron-down mh-caret"></i></span>
           <div class="mh-drop mh-drop-mega">
             <div class="mhd-mega-grid">
               <a href="{% url 'img_compress_page' %}" class="mh-drop-item {% block active_img_compress %}{% endblock %}">
