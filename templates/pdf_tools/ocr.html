@@ -48,11 +48,11 @@
 .ocr-drop p  { font-size: .84rem; color: var(--text-muted); margin: 0 0 1.2rem; }
 .ocr-drop-btn {
   display: inline-flex; align-items: center; gap: .5rem;
-  background: linear-gradient(135deg,#b91c1c,#dc2626);
+  background: #2563eb;
   color: #fff; border: none; border-radius: 9px;
   padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600;
   cursor: pointer; position: relative; z-index: 1; transition: opacity .2s;
-  box-shadow: 0 4px 14px rgba(220,38,38,.35);
+  box-shadow: 0 4px 14px rgba(37,99,235,.35);
 }
 .ocr-drop-btn:hover { opacity: .88; }
 .ocr-drop-hint { display: block; margin-top: .7rem; font-size: .74rem; color: var(--text-muted); }
@@ -250,6 +250,7 @@
 <div class="ocr-drop" id="uploadZone">
   <input type="file" id="fileInput" accept=".pdf">
 
+  <h2 style="font-size:2rem;font-weight:900;color:#111;margin:0 0 .3rem;letter-spacing:-.03em;">OCR PDF</h2>
   <h3>Drop your PDF here</h3>
   <p>Upload a PDF — all pages are processed and displayed with OCR text extraction</p>
   <button type="button" class="ocr-drop-btn" onclick="document.getElementById('fileInput').click()">
