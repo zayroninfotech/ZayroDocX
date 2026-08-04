@@ -429,7 +429,7 @@
   {# ── Invoice Extractor ── #}
   <a href="{% url 'invoice_page' %}" class="qa-card{% if tool_privs.invoice_extractor and not request.user.is_authenticated %} locked{% endif %}">
     {% if tool_privs.invoice_extractor and not request.user.is_authenticated %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% else %}<span class="qa-badge-free">Free</span>{% endif %}
-    <div class="qa-icon" style="background:#ffedd5;width:80px;height:80px;border-radius:18px;"><i class="fa-solid fa-file-invoice-dollar" style="font-size:1.6rem;color:#ea580c;"></i></div>
+    <div class="qa-icon" style="background:#fff7ed;width:80px;height:80px;border-radius:18px;"><img src="{% static 'img/invoice-extractor-icon.png' %}" alt="Invoice Extractor" style="width:64px;height:64px;object-fit:contain;"></div>
     <div class="qa-lbl">Invoice Extractor</div>
     <div class="qa-desc">Extract invoice data with AI</div>
   </a>
