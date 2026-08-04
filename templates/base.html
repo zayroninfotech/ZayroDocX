@@ -329,6 +329,16 @@
     var btn = e.target.closest('button[data-loader],a[data-loader]');
     if(btn) ZLoader.show(btn.dataset.loaderMsg||'Processing…');
   });
+
+  // Show loader on page refresh / navigation away
+  window.addEventListener('beforeunload', function(){
+    ZLoader.show('Loading…');
+  });
+
+  // Hide loader once page is fully loaded
+  window.addEventListener('load', function(){
+    ZLoader.hide();
+  });
   </script>
 
   <script src="{% static 'js/main.js' %}"></script>
