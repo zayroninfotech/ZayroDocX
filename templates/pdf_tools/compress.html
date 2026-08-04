@@ -142,7 +142,7 @@
   <!-- 2-column workspace (shown after file selected) -->
   <div class="cp-workspace" id="cpWorkspace">
 
-    <!-- Left: file info -->
+    <!-- Left: file info + thumbnails -->
     <div class="cp-left">
       <div class="cp-file-card">
         <i class="fa-solid fa-file-pdf cp-file-ico"></i>
@@ -151,6 +151,15 @@
         <button type="button" class="cp-file-remove" id="cpRemoveFile" title="Remove file">
           <i class="fa-solid fa-xmark"></i>
         </button>
+      </div>
+
+      <!-- Thumbnail grid -->
+      <div id="cpThumbWrap" style="display:none;">
+        <div id="cpThumbGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:1rem;"></div>
+      </div>
+      <div id="cpThumbLoader" style="display:none;text-align:center;padding:2rem;color:#888;font-size:.85rem;">
+        <i class="fa-solid fa-spinner fa-spin" style="color:#dc2626;font-size:1.4rem;margin-bottom:.5rem;display:block;"></i>
+        Loading pages…
       </div>
 
       <!-- Result card -->
@@ -265,6 +274,37 @@ function setFile(file) {
   cpFileSize.textContent = fmtBytes(file.size);
   cpResult.classList.remove('show');
   compressed = false;
+  loadThumbnails(file);
+}
+
+async function loadThumbnails(file) {
+  const grid   = document.getElementById('cpThumbGrid');
+  const wrap   = document.getElementById('cpThumbWrap');
+  const loader = document.getElementById('cpThumbLoader');
+  grid.innerHTML = '';
+  wrap.style.display = 'none';
+  loader.style.display = 'block';
+
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('csrfmiddlewaretoken', (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '');
+    const resp = await fetch('{% url "api_pdf_thumbnails" %}', { method: 'POST', body: fd });
+    const data = await resp.json();
+    loader.style.display = 'none';
+    if (!data.pages || !data.pages.length) return;
+    data.pages.forEach((src, i) => {
+      const card = document.createElement('div');
+      card.style.cssText = 'background:#fff;border:1px solid #e8e8e8;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);';
+      card.innerHTML = `
+        <img src="${src}" style="width:100%;display:block;border-radius:10px 10px 0 0;">
+        <div style="text-align:center;font-size:.7rem;color:#888;padding:.35rem;border-top:1px solid #f0f0f0;">Page ${i+1}</div>`;
+      grid.appendChild(card);
+    });
+    wrap.style.display = 'block';
+  } catch(e) {
+    loader.style.display = 'none';
+  }
 }
 
 fileInput.addEventListener('change', function() {
@@ -278,6 +318,8 @@ document.getElementById('cpRemoveFile').addEventListener('click', () => {
   cpWorkspace.classList.remove('show');
   cpResult.classList.remove('show');
   compressed = false;
+  document.getElementById('cpThumbGrid').innerHTML = '';
+  document.getElementById('cpThumbWrap').style.display = 'none';
 });
 
 cpDrop.addEventListener('dragover', e => { e.preventDefault(); cpDrop.classList.add('dragging'); });
