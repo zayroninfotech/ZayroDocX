@@ -179,7 +179,7 @@
   <!-- Drop zone -->
   <div class="cp-drop" id="cpDrop">
     <input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="cp-drop-icon"><img src="{% static 'img/compress-pdf-icon.png' %}" alt="Compress PDF" style="width:72px;height:72px;object-fit:contain;"></div>
+    <div class="cp-drop-icon" style="background:transparent;box-shadow:none;"><img src="{% static 'img/compress-pdf-icon.png' %}" alt="Compress PDF" style="width:72px;height:72px;object-fit:contain;"></div>
     <h3>Drop your PDF here</h3>
     <p>Select a PDF to reduce its file size</p>
     <button type="button" class="cp-drop-btn" onclick="document.getElementById('fileInput').click()">
