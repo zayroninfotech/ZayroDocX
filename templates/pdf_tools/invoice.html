@@ -58,12 +58,12 @@
 .inv-upload-sub   { font-size:.88rem; color:#64748b; margin-bottom:20px; }
 .inv-upload-cta {
   display:inline-flex; align-items:center; gap:8px;
-  background:linear-gradient(135deg,#dc2626,#b91c1c);
+  background:#2563eb;
   color:#fff; padding:10px 24px; border-radius:10px; font-size:.88rem; font-weight:700;
-  box-shadow:0 4px 14px rgba(220,38,38,.35); letter-spacing:.02em;
+  box-shadow:0 4px 14px rgba(37,99,235,.35); letter-spacing:.02em;
   transition:box-shadow .15s, transform .15s;
 }
-.inv-upload-zone:hover .inv-upload-cta { transform:scale(1.03); box-shadow:0 6px 20px rgba(220,38,38,.45); }
+.inv-upload-zone:hover .inv-upload-cta { transform:scale(1.03); box-shadow:0 6px 20px rgba(37,99,235,.45); }
 .inv-upload-hint  { margin-top:14px; font-size:.75rem; color:#94a3b8; }
 
 /* ── Settings bar ── */
@@ -381,6 +381,7 @@
     <div class="inv-upload-zone" id="uploadZone">
       <div class="inv-upload-glow"></div>
       <div class="inv-upload-icon-ring"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+      <h2 style="font-size:2rem;font-weight:900;color:#111;margin:0 0 .3rem;letter-spacing:-.03em;">Invoice Extractor</h2>
       <div class="inv-upload-title">Drop your Invoice PDF here</div>
       <div class="inv-upload-sub">Supports normal PDFs and scanned invoices — drop or click to upload, and we'll extract all key fields instantly</div>
       <span class="inv-upload-cta"><i class="fa-solid fa-folder-open"></i> Select Invoice PDF</span>
