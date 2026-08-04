@@ -292,6 +292,45 @@
   <!-- Toast container -->
   <div class="toast-container" id="toastContainer"></div>
 
+  <!-- Global Page Loader -->
+  <div id="globalLoader" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(255,255,255,0.75);backdrop-filter:blur(3px);align-items:center;justify-content:center;flex-direction:column;gap:1rem;">
+    <div style="width:56px;height:56px;border:5px solid #fee2e2;border-top-color:#dc2626;border-radius:50%;animation:glSpin .8s linear infinite;"></div>
+    <div id="globalLoaderMsg" style="font-size:.95rem;font-weight:600;color:#dc2626;letter-spacing:.01em;">Processing…</div>
+  </div>
+  <style>
+    @keyframes glSpin { to { transform: rotate(360deg); } }
+    .btn-loading { position:relative; pointer-events:none; opacity:.85; }
+    .btn-loading::after {
+      content:''; position:absolute; right:14px; top:50%; margin-top:-9px;
+      width:18px; height:18px; border:3px solid rgba(255,255,255,.4);
+      border-top-color:#fff; border-radius:50%; animation:glSpin .7s linear infinite;
+    }
+    /* Success flash */
+    .btn-success-flash { background:#16a34a !important; box-shadow:0 4px 18px rgba(22,163,74,.4) !important; transition:background .2s !important; }
+    /* Error flash */
+    .btn-error-flash { background:#dc2626 !important; box-shadow:0 4px 18px rgba(220,38,38,.4) !important; animation:errShake .3s ease; }
+    @keyframes errShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  </style>
+  <script>
+  // ── Global loader helpers ──
+  window.ZLoader = {
+    show: function(msg){ var l=document.getElementById('globalLoader'); l.style.display='flex'; if(msg) document.getElementById('globalLoaderMsg').textContent=msg; },
+    hide: function(){ document.getElementById('globalLoader').style.display='none'; },
+    btnLoad: function(btn){ btn.classList.add('btn-loading'); btn.disabled=true; },
+    btnDone: function(btn, status){
+      btn.classList.remove('btn-loading');
+      if(status===200){ btn.classList.add('btn-success-flash'); setTimeout(function(){ btn.classList.remove('btn-success-flash'); btn.disabled=false; },1200); }
+      else if(status===400||status>=400){ btn.classList.add('btn-error-flash'); setTimeout(function(){ btn.classList.remove('btn-error-flash'); btn.disabled=false; },1200); }
+      else { btn.disabled=false; }
+    }
+  };
+  // Auto-attach to any button with data-loader="true"
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-loader],a[data-loader]');
+    if(btn) ZLoader.show(btn.dataset.loaderMsg||'Processing…');
+  });
+  </script>
+
   <script src="{% static 'js/main.js' %}"></script>
   <script>
   // Mobile nav hamburger

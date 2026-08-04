@@ -467,6 +467,7 @@ mergeBtn.addEventListener('click', async () => {
   if (fileArray.length < 2) return;
   resultCard.style.display = 'none'; resultCard.className = 'result-card';
   progressWrap.classList.add('show'); mergeBtn.disabled = true;
+  ZLoader.show('Merging PDFs…'); ZLoader.btnLoad(mergeBtn);
 
   const steps = ['ps1','ps2','ps3','ps4'];
   const labels = ['Validating files…','Merging pages…','Optimising output…','Preparing download…'];
@@ -502,13 +503,11 @@ mergeBtn.addEventListener('click', async () => {
     steps.forEach(s => document.getElementById(s).className = 'progress-step-item done');
     await sleep(300);
     progressWrap.classList.remove('show');
-
-    if (data.error) {
-      showMergeError(data.error);
-    } else {
-      showMergeSuccess(data);
-    }
+    ZLoader.hide();
+    if (data.error) { ZLoader.btnDone(mergeBtn, 400); showMergeError(data.error); }
+    else { ZLoader.btnDone(mergeBtn, 200); showMergeSuccess(data); }
   } catch(err) {
+    ZLoader.hide(); ZLoader.btnDone(mergeBtn, 400);
     progressWrap.classList.remove('show');
     showMergeError(err.message);
   } finally {

@@ -580,6 +580,8 @@ function getRangesString() {
 /* ── Split ── */
 document.getElementById('splitBtn').addEventListener('click', async () => {
   const f = fileInput.files[0]; if (!f) return;
+  const btn = document.getElementById('splitBtn');
+  ZLoader.show('Splitting PDF…'); ZLoader.btnLoad(btn);
 
   /* Determine active mode */
   const rangeActive = document.getElementById('rangePanel').classList.contains('active');
@@ -629,8 +631,11 @@ document.getElementById('splitBtn').addEventListener('click', async () => {
     progressFill.style.width='100%'; progressPct.textContent='100%';
     await sleep(300);
     progressWrap.classList.remove('show');
-    if (data.error) { showError(data.error); } else { showSuccess(data, f); }
+    ZLoader.hide();
+    if (data.error) { ZLoader.btnDone(btn, 400); showError(data.error); }
+    else { ZLoader.btnDone(btn, 200); showSuccess(data, f); }
   } catch(err) {
+    ZLoader.hide(); ZLoader.btnDone(btn, 400);
     progressWrap.classList.remove('show'); showError(err.message);
   }
 });
