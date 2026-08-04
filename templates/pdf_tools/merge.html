@@ -236,6 +236,10 @@
 <!-- Upload zone (hidden once files selected) -->
 <div class="drop-zone" id="uploadZone">
   <input type="file" id="fileInput" name="files" multiple accept=".pdf">
+  <div style="margin-bottom:1.2rem;">
+    <img src="{% static 'img/merge-pdf-icon.png' %}" alt="Merge PDF"
+      style="width:90px;height:90px;object-fit:contain;filter:hue-rotate(200deg) saturate(1.5) brightness(0.9);">
+  </div>
   <h2 class="drop-zone-title">Merge PDF Files</h2>
   <p class="drop-zone-sub">Combine PDFs in the order you want with ease.</p>
   <div class="drop-zone-actions">
