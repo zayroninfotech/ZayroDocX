@@ -389,7 +389,7 @@
   {# ── Compress PDF ── #}
   <a href="{% url 'compress_pdf_page' %}" class="qa-card{% if tool_privs.compress_pdf and not request.user.is_authenticated %} locked{% endif %}">
     {% if tool_privs.compress_pdf and not request.user.is_authenticated %}<span class="qa-badge-lock"><i class="fa-solid fa-lock"></i> Login</span>{% else %}<span class="qa-badge-free">Free</span>{% endif %}
-    <div class="qa-icon" style="background:#ccfbf1;width:80px;height:80px;border-radius:18px;"><i class="fa-solid fa-compress" style="font-size:1.6rem;color:#0d9488;"></i></div>
+    <div class="qa-icon" style="background:#f0fdf4;width:80px;height:80px;border-radius:18px;"><img src="{% static 'img/compress-pdf-icon.png' %}" alt="Compress PDF" style="width:64px;height:64px;object-fit:contain;"></div>
     <div class="qa-lbl">Compress PDF</div>
     <div class="qa-desc">Reduce PDF file size</div>
   </a>
