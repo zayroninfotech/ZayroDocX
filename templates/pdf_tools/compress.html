@@ -275,6 +275,7 @@ function setFile(file) {
   cpResult.classList.remove('show');
   compressed = false;
   loadThumbnails(file);
+  updateEstSize();
 }
 
 async function loadThumbnails(file) {
@@ -330,11 +331,22 @@ cpDrop.addEventListener('drop', e => {
   if (f) setFile(f);
 });
 
+/* Estimated size ratios per level */
+const EST_RATIO = { high: 0.25, medium: 0.50, low: 0.80 };
+
+function updateEstSize() {
+  if (!currentFile) return;
+  const level = document.querySelector('input[name="level"]:checked').value;
+  const est = currentFile.size * EST_RATIO[level];
+  document.getElementById('cpFileSize').textContent = '~' + fmtBytes(est) + ' est.';
+}
+
 /* Level item active highlight */
 document.querySelectorAll('.cp-level-item').forEach(item => {
   item.addEventListener('click', () => {
     document.querySelectorAll('.cp-level-item').forEach(i => i.classList.remove('active'));
     item.classList.add('active');
+    updateEstSize();
     if (compressed && currentFile) doCompress();
   });
 });
