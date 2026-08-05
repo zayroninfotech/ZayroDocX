@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,57 +18,54 @@
 /* ═══ LEFT ═══ */
 .lp-left {
   position: relative; overflow: hidden;
-  background: radial-gradient(ellipse at 35% 45%, #0e1f45 0%, #07102a 55%, #030917 100%);
+  background: #050816;
+}
+
+/* Full-cover background video */
+.lp-video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+  pointer-events: none;
+}
+
+/* Dark gradient overlay — keeps text legible */
+.lp-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(5,8,22,.25) 0%,
+    rgba(5,8,22,.45) 55%,
+    rgba(5,8,22,.72) 100%
+  );
+  pointer-events: none;
+}
+
+/* Content sits above video + overlay */
+.lp-content {
+  position: relative; z-index: 2;
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 1.5rem 2rem 2rem; gap: 1rem;
-}
-#bgCanvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:.45; }
-
-/* Yeti container */
-.yeti-wrap {
-  position: relative; z-index: 2;
-  animation: yeti-float 3.8s ease-in-out infinite;
-  filter: drop-shadow(0 24px 48px rgba(80,160,255,.22)) drop-shadow(0 4px 12px rgba(0,0,0,.6));
-  cursor: default; user-select: none;
-}
-@keyframes yeti-float {
-  0%,100% { transform: translateY(0) rotate(-.4deg); }
-  50%      { transform: translateY(-16px) rotate(.4deg); }
-}
-#yetiSvg { width: 260px; height: 300px; overflow: visible; display: block; }
-
-.yeti-glow {
-  position: relative; z-index: 2;
-  width: 140px; height: 12px; margin-top: -6px;
-  background: radial-gradient(ellipse, rgba(120,180,255,.2) 0%, transparent 70%);
-  border-radius: 50%;
-  animation: glow-sz 3.8s ease-in-out infinite;
-}
-@keyframes glow-sz { 0%,100%{transform:scaleX(1);opacity:.9} 50%{transform:scaleX(.7);opacity:.4} }
-
-/* Mood text */
-.yeti-mood {
-  position: relative; z-index: 2;
-  font-size: .72rem; color: rgba(255,255,255,.3);
-  font-style: italic; min-height: 1rem;
-  transition: color .3s;
+  align-items: center; justify-content: flex-end;
+  height: 100%; padding: 2.5rem 2rem;
+  gap: 1rem;
 }
 
 /* Brand */
-.lp-brand { position:relative; z-index:2; text-align:center; }
+.lp-brand { text-align: center; }
 .lp-brand h2 {
-  font-size: 1.7rem; font-weight: 800; letter-spacing: -.04em; margin-bottom: .3rem;
-  background: linear-gradient(120deg, #e0e7ff 0%, #93c5fd 55%, #67e8f9 100%);
+  font-size: 1.9rem; font-weight: 800; letter-spacing: -.04em; margin-bottom: .4rem;
+  background: linear-gradient(120deg, #ffffff 0%, #c7d8ff 55%, #93c5fd 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  text-shadow: none;
 }
-.lp-brand p { font-size: .78rem; color: rgba(255,255,255,.33); }
+.lp-brand p { font-size: .82rem; color: rgba(255,255,255,.55); }
 
-.lp-pills { position:relative; z-index:2; display:flex; flex-wrap:wrap; gap:7px; justify-content:center; }
+.lp-pills { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .lp-pill {
-  background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
-  border-radius: 999px; padding: .22rem .7rem;
-  font-size: .66rem; font-weight:600; color:rgba(255,255,255,.48);
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18);
+  backdrop-filter: blur(6px);
+  border-radius: 999px; padding: .28rem .82rem;
+  font-size: .68rem; font-weight: 600; color: rgba(255,255,255,.75);
   letter-spacing: .05em; text-transform: uppercase;
 }
 
@@ -129,124 +127,29 @@
 <div class="lp-wrap">
   <!-- ═══ LEFT ═══ -->
   <div class="lp-left">
-    <canvas id="bgCanvas"></canvas>
 
-    <div class="yeti-wrap" id="yetiWrap">
-      <!-- SVG built by JS below -->
-      <svg id="yetiSvg" viewBox="0 0 400 430" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <!-- Body gradient — white core shading to light blue-white -->
-          <radialGradient id="bodyG" cx="40%" cy="32%" r="68%">
-            <stop offset="0%"   stop-color="#ffffff"/>
-            <stop offset="65%"  stop-color="#f0f5ff"/>
-            <stop offset="100%" stop-color="#d8e8ff"/>
-          </radialGradient>
-          <!-- Fur strand gradient — white tip, slightly off at base -->
-          <linearGradient id="furG" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%"   stop-color="#ffffff"/>
-            <stop offset="100%" stop-color="#dce8ff"/>
-          </linearGradient>
-          <!-- Eye iris -->
-          <radialGradient id="irisG" cx="35%" cy="30%" r="70%">
-            <stop offset="0%"   stop-color="#b3e5fc"/>
-            <stop offset="40%"  stop-color="#29b6f6"/>
-            <stop offset="85%"  stop-color="#0277bd"/>
-            <stop offset="100%" stop-color="#01579b"/>
-          </radialGradient>
-          <!-- Cheek -->
-          <radialGradient id="cheekG" cx="50%" cy="50%">
-            <stop offset="0%"   stop-color="#ffab91" stop-opacity=".75"/>
-            <stop offset="100%" stop-color="#ffab91" stop-opacity="0"/>
-          </radialGradient>
-          <!-- Mouth clip happy -->
-          <clipPath id="mClipH">
-            <path d="M 148 252 Q 200 306 252 252 L 252 274 Q 200 320 148 274 Z"/>
-          </clipPath>
-          <!-- Mouth clip sad -->
-          <clipPath id="mClipS">
-            <path d="M 150 278 Q 200 248 250 278 L 250 294 Q 200 264 150 294 Z"/>
-          </clipPath>
-        </defs>
+    <!-- Background video (full-cover, muted, looping) -->
+    <video class="lp-video" autoplay muted loop playsinline preload="auto">
+      <source src="{% static 'videos/login_bg.mp4' %}" type="video/mp4">
+    </video>
 
-        <!-- ── Fur strands (generated by JS, inserted here) ── -->
-        <g id="furLayer"></g>
+    <!-- Dark gradient overlay so text is always readable -->
+    <div class="lp-overlay"></div>
 
-        <!-- ── Smooth body core ── -->
-        <circle id="bodyCore" cx="200" cy="215" r="130" fill="url(#bodyG)"/>
-
-        <!-- ── Arms ── -->
-        <g id="armLayer"></g>
-
-        <!-- ── Feet ── -->
-        <g id="feetLayer"></g>
-
-        <!-- ── Face ── -->
-        <!-- Cheeks -->
-        <ellipse id="cheekL" cx="128" cy="238" rx="28" ry="17" fill="url(#cheekG)" opacity="0" style="transition:opacity .4s"/>
-        <ellipse id="cheekR" cx="272" cy="238" rx="28" ry="17" fill="url(#cheekG)" opacity="0" style="transition:opacity .4s"/>
-
-        <!-- Left eye -->
-        <g id="eyeL">
-          <circle cx="163" cy="205" r="36" fill="white"/>
-          <circle cx="163" cy="205" r="30" fill="url(#irisG)"/>
-          <circle cx="163" cy="205" r="16" fill="#0a1628" id="pupilL"/>
-          <circle cx="153" cy="194" r="8"  fill="white"/>
-          <circle cx="169" cy="212" r="4"  fill="white" opacity=".5"/>
-          <!-- Blink lid -->
-          <ellipse id="blinkL" cx="163" cy="205" rx="36" ry="36" fill="#dce8ff"
-                   style="transform:scaleY(0);transform-box:fill-box;transform-origin:50% 50%;transition:transform .08s ease"/>
-        </g>
-
-        <!-- Right eye -->
-        <g id="eyeR">
-          <circle cx="237" cy="205" r="36" fill="white"/>
-          <circle cx="237" cy="205" r="30" fill="url(#irisG)"/>
-          <circle cx="237" cy="205" r="16" fill="#0a1628" id="pupilR"/>
-          <circle cx="227" cy="194" r="8"  fill="white"/>
-          <circle cx="243" cy="212" r="4"  fill="white" opacity=".5"/>
-          <!-- Blink lid -->
-          <ellipse id="blinkR" cx="237" cy="205" rx="36" ry="36" fill="#dce8ff"
-                   style="transform:scaleY(0);transform-box:fill-box;transform-origin:50% 50%;transition:transform .08s ease"/>
-        </g>
-
-        <!-- Nose -->
-        <ellipse cx="200" cy="235" rx="13" ry="9" fill="#b8cde8" opacity=".85"/>
-
-        <!-- Happy mouth -->
-        <g id="mHappy">
-          <path d="M 148 252 Q 200 306 252 252 L 252 274 Q 200 320 148 274 Z" fill="#c2185b" opacity=".88"/>
-          <g clip-path="url(#mClipH)">
-            <rect x="168" y="252" width="22" height="24" rx="5" fill="white"/>
-            <rect x="192" y="252" width="22" height="24" rx="5" fill="white"/>
-          </g>
-          <ellipse cx="200" cy="288" rx="22" ry="13" fill="#e91e63" opacity=".5" clip-path="url(#mClipH)"/>
-        </g>
-
-        <!-- Sad mouth (hidden) -->
-        <g id="mSad" opacity="0" style="transition:opacity .3s">
-          <path d="M 150 278 Q 200 248 250 278 L 250 294 Q 200 264 150 294 Z" fill="#c2185b" opacity=".88"/>
-          <g clip-path="url(#mClipS)">
-            <rect x="170" y="268" width="20" height="18" rx="4" fill="white"/>
-            <rect x="192" y="268" width="20" height="18" rx="4" fill="white"/>
-          </g>
-        </g>
-
-        <!-- Neutral mouth (hidden) -->
-        <path id="mNeutral" d="M 168 268 Q 200 276 232 268"
-              fill="none" stroke="#c2185b" stroke-width="4" stroke-linecap="round"
-              opacity="0" style="transition:opacity .3s"/>
-      </svg>
+    <!-- Branding on top of video -->
+    <div class="lp-content">
+      <div class="lp-brand">
+        <h2>ZayroDocX</h2>
+        <p>AI-powered document tools for modern teams</p>
+      </div>
+      <div class="lp-pills">
+        <span class="lp-pill">OCR</span>
+        <span class="lp-pill">AI Extract</span>
+        <span class="lp-pill">PDF Tools</span>
+        <span class="lp-pill">Image AI</span>
+      </div>
     </div>
 
-    <div class="yeti-glow"></div>
-    <div class="yeti-mood" id="yetiMood">👀 watching you type…</div>
-    <div class="lp-brand"><h2>ZayroDocX</h2><p>AI-powered document tools for modern teams</p></div>
-    <div class="lp-pills">
-      <span class="lp-pill">OCR</span>
-      <span class="lp-pill">AI Extract</span>
-      <span class="lp-pill">PDF Tools</span>
-      <span class="lp-pill">Image AI</span>
-    </div>
   </div>
 
   <!-- ═══ RIGHT ═══ -->
@@ -284,262 +187,12 @@
 (function () {
   'use strict';
 
-  /* ── Seeded PRNG ── */
-  let _seed = 98765;
-  function rnd() { _seed ^= _seed << 13; _seed ^= _seed >> 17; _seed ^= _seed << 5; return (_seed >>> 0) / 0xFFFFFFFF; }
-
-  const SVG_NS = 'http://www.w3.org/2000/svg';
-  function el(tag, attrs) {
-    const e = document.createElementNS(SVG_NS, tag);
-    Object.entries(attrs).forEach(([k,v]) => e.setAttribute(k, v));
-    return e;
-  }
-
-  /* ════════════════════════════════════════
-     BUILD FUR STRANDS
-     Many individual pointy strands radiating
-     outward — each a thin rotated ellipse
-  ════════════════════════════════════════ */
-  const CX = 200, CY = 215;
-  const BODY_R = 128;
-  const furLayer = document.getElementById('furLayer');
-  const armLayer = document.getElementById('armLayer');
-  const feetLayer = document.getElementById('feetLayer');
-
-  /* Helper: add a fur strand (thin ellipse pointing outward) */
-  function addStrand(angle, baseR, len, w, fill, opacity) {
-    // Place strand starting at body surface, pointing outward
-    const tipR = baseR + len;
-    const midR = baseR + len * 0.5;
-    const mx   = CX + midR * Math.cos(angle);
-    const my   = CY + midR * Math.sin(angle);
-    const deg  = angle * 180 / Math.PI + 90; // rotate so rx is along radial direction
-    const e = el('ellipse', {
-      cx: mx.toFixed(2), cy: my.toFixed(2),
-      rx: (len / 2).toFixed(1), ry: (w / 2).toFixed(1),
-      fill: fill, opacity: opacity.toFixed(2),
-      transform: `rotate(${deg.toFixed(1)} ${mx.toFixed(2)} ${my.toFixed(2)})`
-    });
-    furLayer.appendChild(e);
-  }
-
-  /* Layer 1 — back shadow fur (slightly tinted, placed first = behind) */
-  const BACK_STRANDS = 72;
-  for (let i = 0; i < BACK_STRANDS; i++) {
-    const angle  = (i / BACK_STRANDS) * Math.PI * 2 - Math.PI / 2 + (rnd() - .5) * 0.18;
-    const len    = 22 + rnd() * 30;
-    const w      = 5  + rnd() * 7;
-    addStrand(angle, BODY_R - 4, len, w, '#c8d8f0', 0.55 + rnd() * 0.3);
-  }
-
-  /* Layer 2 — main white fur */
-  const FRONT_STRANDS = 90;
-  for (let i = 0; i < FRONT_STRANDS; i++) {
-    const angle  = (i / FRONT_STRANDS) * Math.PI * 2 - Math.PI / 2 + (rnd() - .5) * 0.14;
-    const len    = 18 + rnd() * 34;
-    const w      = 5  + rnd() * 9;
-    addStrand(angle, BODY_R - 2, len, w, '#ffffff', 0.7 + rnd() * 0.3);
-  }
-
-  /* Layer 3 — top extra-fluffy tufts (top 60° arc, denser) */
-  const TOP_STRANDS = 35;
-  const TOP_START = -Math.PI / 2 - Math.PI / 3;
-  const TOP_END   = -Math.PI / 2 + Math.PI / 3;
-  for (let i = 0; i < TOP_STRANDS; i++) {
-    const angle = TOP_START + (i / TOP_STRANDS) * (TOP_END - TOP_START) + (rnd() - .5) * 0.1;
-    const len   = 20 + rnd() * 38;
-    const w     = 5  + rnd() * 8;
-    addStrand(angle, BODY_R, len, w, '#ffffff', 0.8 + rnd() * 0.2);
-  }
-
-  /* ── Arms ── */
-  function addArm(cx, cy, rx, ry, angle) {
-    // Base arm ellipse
-    const a = el('ellipse', { cx, cy, rx, ry, fill: '#f0f5ff' });
-    // Arm fur (small strands)
-    const g = document.createElementNS(SVG_NS, 'g');
-    g.appendChild(a);
-    const ARM_FUR = 18;
-    for (let i = 0; i < ARM_FUR; i++) {
-      const ang = (i / ARM_FUR) * Math.PI * 2 + (rnd() - .5) * 0.2;
-      const len2 = 8 + rnd() * 12;
-      const w2   = 3 + rnd() * 5;
-      const br   = Math.min(rx, ry) - 2;
-      const mx2  = cx + br * Math.cos(ang);
-      const my2  = cy + br * Math.sin(ang) * (ry / rx); // ellipse correction
-      const deg  = ang * 180 / Math.PI + 90;
-      g.appendChild(el('ellipse', {
-        cx: (mx2 + Math.cos(ang) * len2 / 2).toFixed(1),
-        cy: (my2 + Math.sin(ang) * len2 / 2).toFixed(1),
-        rx: (len2 / 2).toFixed(1), ry: (w2 / 2).toFixed(1),
-        fill: '#ffffff', opacity: (0.6 + rnd() * .35).toFixed(2),
-        transform: `rotate(${deg.toFixed(1)} ${(mx2 + Math.cos(ang)*len2/2).toFixed(1)} ${(my2 + Math.sin(ang)*len2/2).toFixed(1)})`
-      }));
-    }
-    armLayer.appendChild(g);
-  }
-  addArm(68, 258, 34, 28, 0);   // left arm
-  addArm(332, 258, 34, 28, 0);  // right arm
-
-  /* ── Feet ── */
-  function addFoot(cx, cy) {
-    feetLayer.appendChild(el('ellipse', { cx, cy, rx: 36, ry: 20, fill: '#f0f5ff' }));
-    const FOOT_FUR = 14;
-    for (let i = 0; i < FOOT_FUR; i++) {
-      const ang = (i / FOOT_FUR) * Math.PI * 2 + (rnd() - .5) * .2;
-      const len2 = 8 + rnd() * 12;
-      const w2   = 3 + rnd() * 5;
-      const mx2  = cx + 34 * Math.cos(ang);
-      const my2  = cy + 18 * Math.sin(ang);
-      const deg  = ang * 180 / Math.PI + 90;
-      feetLayer.appendChild(el('ellipse', {
-        cx: (mx2 + Math.cos(ang) * len2 / 2).toFixed(1),
-        cy: (my2 + Math.sin(ang) * len2 / 2).toFixed(1),
-        rx: (len2 / 2).toFixed(1), ry: (w2 / 2).toFixed(1),
-        fill: '#ffffff', opacity: (.6 + rnd() * .35).toFixed(2),
-        transform: `rotate(${(ang * 180 / Math.PI + 90).toFixed(1)} ${(mx2 + Math.cos(ang)*len2/2).toFixed(1)} ${(my2 + Math.sin(ang)*len2/2).toFixed(1)})`
-      }));
-    }
-  }
-  addFoot(155, 372);
-  addFoot(245, 372);
-
-  /* ════════════════════════════════════════
-     PARTICLE BACKGROUND
-  ════════════════════════════════════════ */
-  const cv = document.getElementById('bgCanvas');
-  const ctx = cv.getContext('2d');
-  function rsz() { cv.width = cv.offsetWidth; cv.height = cv.offsetHeight; }
-  rsz(); window.addEventListener('resize', rsz);
-  const PTS = Array.from({length:36}, () => ({
-    x: Math.random() * cv.width, y: Math.random() * cv.height,
-    vx: (Math.random()-.5)*.3, vy: (Math.random()-.5)*.3,
-    r: 1 + Math.random()*1.8, a: .2 + Math.random()*.35,
-    c: [[80,100,220],[100,80,200],[6,160,200]][Math.floor(Math.random()*3)]
-  }));
-  (function drawBg() {
-    ctx.clearRect(0,0,cv.width,cv.height);
-    PTS.forEach(p => { p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>cv.width)p.vx*=-1; if(p.y<0||p.y>cv.height)p.vy*=-1; });
-    for(let i=0;i<PTS.length;i++) for(let j=i+1;j<PTS.length;j++){
-      const dx=PTS[i].x-PTS[j].x,dy=PTS[i].y-PTS[j].y,d=Math.sqrt(dx*dx+dy*dy);
-      if(d<95){ctx.beginPath();ctx.strokeStyle=`rgba(${PTS[i].c},.2)`;ctx.lineWidth=.4;ctx.moveTo(PTS[i].x,PTS[i].y);ctx.lineTo(PTS[j].x,PTS[j].y);ctx.stroke();}
-    }
-    PTS.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(${p.c},${p.a})`;ctx.fill();});
-    requestAnimationFrame(drawBg);
-  })();
-
-  /* ════════════════════════════════════════
-     EYE TRACKING
-  ════════════════════════════════════════ */
-  const pupilL = document.getElementById('pupilL');
-  const pupilR = document.getElementById('pupilR');
-  const blinkL = document.getElementById('blinkL');
-  const blinkR = document.getElementById('blinkR');
-  const svgEl  = document.getElementById('yetiSvg');
-  const MAX_P  = 6;
-  const EYES   = [{ el: pupilL, bx: 163, by: 205 }, { el: pupilR, bx: 237, by: 205 }];
-
-  document.addEventListener('mousemove', e => {
-    const r = svgEl.getBoundingClientRect();
-    const sx = r.width / 400, sy = r.height / 430;
-    EYES.forEach(eye => {
-      const ex = r.left + eye.bx * sx, ey = r.top + eye.by * sy;
-      const dx = e.clientX - ex, dy = e.clientY - ey;
-      const d  = Math.sqrt(dx*dx + dy*dy) || 1;
-      const nx = (dx/d) * Math.min(d/26, MAX_P);
-      const ny = (dy/d) * Math.min(d/26, MAX_P);
-      eye.el.setAttribute('cx', (eye.bx + nx).toFixed(2));
-      eye.el.setAttribute('cy', (eye.by + ny).toFixed(2));
-    });
-  });
-
-  /* ── Blink ── */
-  let lastMove2 = Date.now();
-  document.addEventListener('mousemove', () => lastMove2 = Date.now());
-  function doBlink() {
-    [blinkL, blinkR].forEach(lid => {
-      lid.style.transition = 'transform .06s ease-in'; lid.style.transform = 'scaleY(1)';
-      setTimeout(() => { lid.style.transition = 'transform .09s ease-out'; lid.style.transform = 'scaleY(0)'; }, 85);
-    });
-    setTimeout(doBlink, 2500 + Math.random() * 4500);
-  }
-  setTimeout(doBlink, 1400);
-
-  /* Idle look-around */
-  setInterval(() => {
-    if (Date.now() - lastMove2 < 2800) return;
-    const ax = (Math.random()-.5)*MAX_P*1.6, ay = (Math.random()-.5)*MAX_P*1.6;
-    EYES.forEach(eye => { eye.el.setAttribute('cx', eye.bx + ax); eye.el.setAttribute('cy', eye.by + ay); });
-  }, 3200);
-
-  /* ── Mouth/mood helpers ── */
-  const mHappy   = document.getElementById('mHappy');
-  const mSad     = document.getElementById('mSad');
-  const mNeutral = document.getElementById('mNeutral');
-  const cheekL   = document.getElementById('cheekL');
-  const cheekR   = document.getElementById('cheekR');
-  const moodEl   = document.getElementById('yetiMood');
-  const yetiWrap = document.getElementById('yetiWrap');
-
-  function setMood(m) {
-    mHappy.style.opacity   = m === 'happy'   ? '1' : '0';
-    mSad.style.opacity     = m === 'sad'     ? '1' : '0';
-    mNeutral.style.opacity = m === 'neutral' ? '1' : '0';
-    cheekL.style.opacity   = m === 'happy'   ? '0.9' : '0';
-    cheekR.style.opacity   = m === 'happy'   ? '0.9' : '0';
-  }
-  setMood('happy');
-
-  /* ── Input focus reactions ── */
-  document.getElementById('id_username').addEventListener('focus', () => {
-    moodEl.textContent = '😊 hi there! nice to see you…'; setMood('happy');
-  });
-  document.getElementById('id_password').addEventListener('focus', () => {
-    EYES.forEach(eye => { eye.el.setAttribute('cx', eye.bx); eye.el.setAttribute('cy', eye.by + 4); });
-    moodEl.textContent = '🙈 not peeking at your password…'; setMood('neutral');
-    cheekL.style.opacity = cheekR.style.opacity = '0';
-  });
-  document.getElementById('id_password').addEventListener('blur', () => {
-    moodEl.textContent = '👀 watching you type…'; setMood('happy');
-  });
-
-  /* ── Error reaction on load ── */
-  {% if form.errors %}
-  setTimeout(() => {
-    setMood('sad'); moodEl.textContent = '😢 oops… that didn\'t work…';
-    cheekL.style.opacity = cheekR.style.opacity = '0';
-    let s = 0; const shk = [-10,10,-8,8,-5,5,-2,2,0];
-    yetiWrap.style.animation = 'none';
-    const iv = setInterval(() => {
-      yetiWrap.style.transform = `translateX(${shk[s]}px)`;
-      if (++s >= shk.length) { clearInterval(iv); yetiWrap.style.animation = ''; yetiWrap.style.transform = ''; }
-    }, 55);
-  }, 320);
-  {% endif %}
-
-  /* ── Form submit ── */
+  /* ── Form submit spinner ── */
   document.getElementById('loginForm').addEventListener('submit', () => {
     const btn = document.getElementById('loginBtn');
     btn.disabled = true;
     btn.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:_spin .65s linear infinite;vertical-align:middle;margin-right:6px"></span>Signing in…`;
-    setMood('happy'); moodEl.textContent = '🎉 yay, let\'s go!';
   });
-
-  /* ── Confetti ── */
-  const CC = ['#6366f1','#f97316','#34d399','#f59e0b','#ec4899','#22d3ee'];
-  window.confetti = function () {
-    for (let i = 0; i < 80; i++) setTimeout(() => {
-      const el2 = document.createElement('div');
-      el2.className = 'cfti';
-      const sz=5+Math.random()*9, dur=1.5+Math.random()*1.8;
-      Object.assign(el2.style, { left:(10+Math.random()*80)+'vw', top:'-10px',
-        width:sz+'px', height:sz+'px', background:CC[Math.floor(Math.random()*CC.length)],
-        borderRadius:Math.random()>.45?'50%':'2px', animationDuration:dur+'s',
-        animationDelay:(Math.random()*.5)+'s' });
-      document.body.appendChild(el2);
-      setTimeout(() => el2.remove(), (dur+.5)*1000+300);
-    }, i*18);
-  };
 
 })();
 </script>
