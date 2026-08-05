@@ -753,13 +753,37 @@ Rules:
             api_key = settings.GEMINI_API_KEY
             if not api_key:
                 return JsonResponse({'error': 'Gemini API key not configured in .env'}, status=500)
-            raw_json = _gemini_vision_b64(api_key, img_b64, prompt)
+            try:
+                raw_json = _gemini_vision_b64(api_key, img_b64, prompt)
+            except Exception as _e:
+                # 429 quota → auto-fallback to Groq
+                import urllib.error as _ue
+                if isinstance(_e, _ue.HTTPError) and _e.code == 429:
+                    groq_key = settings.GROQ_API_KEY
+                    if groq_key:
+                        raw_json = _groq_vision_b64(groq_key, img_b64, prompt)
+                    else:
+                        return JsonResponse({'error': 'Gemini quota exceeded. Add GROQ_API_KEY in .env as backup.'}, status=429)
+                else:
+                    raise
 
         elif provider == 'groq':
             api_key = settings.GROQ_API_KEY
             if not api_key:
                 return JsonResponse({'error': 'Groq API key not configured in .env'}, status=500)
-            raw_json = _groq_vision_b64(api_key, img_b64, prompt)
+            try:
+                raw_json = _groq_vision_b64(api_key, img_b64, prompt)
+            except Exception as _e:
+                import urllib.error as _ue
+                if isinstance(_e, _ue.HTTPError) and _e.code == 429:
+                    # Groq rate limit → fallback to Gemini
+                    gem_key = settings.GEMINI_API_KEY
+                    if gem_key:
+                        raw_json = _gemini_vision_b64(gem_key, img_b64, prompt)
+                    else:
+                        return JsonResponse({'error': 'Groq quota exceeded. Add GEMINI_API_KEY in .env as backup.'}, status=429)
+                else:
+                    raise
 
         elif provider == 'claude-haiku':
             api_key = settings.ANTHROPIC_API_KEY
