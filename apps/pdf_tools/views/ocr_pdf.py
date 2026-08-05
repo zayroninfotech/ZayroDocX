@@ -774,17 +774,11 @@ Rules:
             raw_json = _claude_vision_b64(api_key, img_b64, prompt, model='claude-sonnet-4-6')
 
         else:
-            # Default: Mistral AI
+            # Default: Mistral Pixtral vision
             api_key = settings.MISTRAL_API_KEY
             if not api_key:
                 return JsonResponse({'error': 'Mistral API key not configured in .env'}, status=500)
-            raw_json = _mistral_api(api_key, [{
-                'role': 'user',
-                'content': [
-                    {'type': 'text', 'text': prompt},
-                    {'type': 'image_url', 'image_url': f'data:image/jpeg;base64,{img_b64}'},
-                ]
-            }])
+            raw_json = _mistral_vision_b64(img_b64, prompt)
 
         # Strip markdown code fences if present
         raw_json = re.sub(r'^```(?:json)?\s*', '', raw_json)
@@ -925,6 +919,13 @@ Rules:
         })
 
     except Exception as e:
+        import urllib.error as _ue
+        if isinstance(e, _ue.HTTPError):
+            try:
+                body = e.read().decode()
+            except Exception:
+                body = ''
+            return JsonResponse({'error': f'AI API {e.code}: {body[:300] or str(e)}'}, status=500)
         return JsonResponse({'error': str(e)}, status=500)
 
 
@@ -1851,7 +1852,7 @@ def _gemini_vision_b64(api_key, img_b64, prompt, model='gemini-2.0-flash'):
     return data['candidates'][0]['content']['parts'][0]['text'].strip()
 
 
-def _groq_vision_b64(api_key, img_b64, prompt, model='meta-llama/llama-4-scout-17b-16e-instruct'):
+def _groq_vision_b64(api_key, img_b64, prompt, model='llama-3.2-11b-vision-preview'):
     """Call Groq vision via REST — free tier available."""
     import urllib.request as _ur
     payload = json.dumps({
@@ -1900,7 +1901,7 @@ def _claude_vision_b64(api_key, img_b64, prompt, model='claude-haiku-4-5-2025100
     return data['content'][0]['text'].strip()
 
 
-def _mistral_api(api_key, messages, model='mistral-small-latest'):
+def _mistral_api(api_key, messages, model='pixtral-12b-2409'):
     """Call Mistral chat completions via raw HTTP — no SDK needed."""
     import urllib.request
     payload = json.dumps({'model': model, 'messages': messages}).encode()
@@ -1919,7 +1920,7 @@ def _mistral_text(prompt):
     api_key = settings.MISTRAL_API_KEY
     if not api_key:
         raise ValueError('Mistral API key not configured in .env')
-    return _mistral_api(api_key, [{'role': 'user', 'content': prompt}])
+    return _mistral_api(api_key, [{'role': 'user', 'content': prompt}], model='mistral-small-latest')
 
 
 def _mistral_vision_b64(img_b64, prompt):
