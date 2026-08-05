@@ -14,128 +14,110 @@
   .lp-left { display: none; }
 }
 
-/* ═══════════════════════════════════════════
-   LEFT — immersive animated panel
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   LEFT — yeti stage
+═══════════════════════════════════════ */
 .lp-left {
   position: relative; overflow: hidden;
-  background: #050816;
+  background: radial-gradient(ellipse at 30% 40%, #0d1a3a 0%, #060d1f 60%, #020810 100%);
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  padding: 3rem 2.5rem; gap: 2rem;
+  padding: 2rem 2rem 2.5rem; gap: 1.4rem;
 }
 
-/* Full-panel canvas */
 #bgCanvas {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  pointer-events: none;
+  pointer-events: none; opacity: .5;
 }
 
-/* Glassmorphism feature cards */
-.lp-cards {
+/* Yeti SVG wrapper */
+.yeti-wrap {
   position: relative; z-index: 2;
-  display: flex; flex-direction: column; gap: 14px;
-  width: 100%; max-width: 360px;
+  animation: yeti-float 3.6s ease-in-out infinite;
+  cursor: default; user-select: none;
+  filter: drop-shadow(0 20px 40px rgba(100,180,255,.18)) drop-shadow(0 6px 16px rgba(0,0,0,.5));
+}
+@keyframes yeti-float {
+  0%,100% { transform: translateY(0px) rotate(-.5deg); }
+  50%      { transform: translateY(-14px) rotate(.5deg); }
+}
+.yeti-wrap svg { width: 240px; height: 290px; overflow: visible; }
+
+/* Ground glow */
+.yeti-glow {
+  position: relative; z-index: 2;
+  width: 160px; height: 14px;
+  background: radial-gradient(ellipse, rgba(140,190,255,.22) 0%, transparent 70%);
+  border-radius: 50%;
+  margin-top: -12px;
+  animation: glow-pulse 3.6s ease-in-out infinite;
+}
+@keyframes glow-pulse {
+  0%,100% { opacity: 1; transform: scaleX(1); }
+  50%      { opacity: .5; transform: scaleX(.75); }
 }
 
-.lp-card {
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.1);
-  backdrop-filter: blur(12px);
-  border-radius: 16px;
-  padding: 1rem 1.3rem;
-  display: flex; align-items: center; gap: 1rem;
-  animation: card-float linear infinite;
-  transition: background .3s;
-}
-.lp-card:hover { background: rgba(255,255,255,.09); }
-
-.lp-card:nth-child(1) { animation-duration: 6s;   animation-delay: 0s; }
-.lp-card:nth-child(2) { animation-duration: 7.5s; animation-delay: -2s; }
-.lp-card:nth-child(3) { animation-duration: 5.5s; animation-delay: -4s; }
-
-@keyframes card-float {
-  0%,100% { transform: translateY(0px); }
-  50%      { transform: translateY(-7px); }
-}
-
-.lp-card-icon {
-  width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.1rem; color: #fff;
-}
-.ic-indigo  { background: linear-gradient(135deg, #4f46e5, #7c3aed); box-shadow: 0 4px 16px rgba(79,70,229,.4); }
-.ic-orange  { background: linear-gradient(135deg, #f97316, #ea580c); box-shadow: 0 4px 16px rgba(249,115,22,.4); }
-.ic-emerald { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 16px rgba(16,185,129,.4); }
-
-.lp-card-text strong {
-  display: block; color: #f1f5f9; font-size: .88rem; font-weight: 600;
-  margin-bottom: .15rem;
-}
-.lp-card-text span { color: rgba(255,255,255,.45); font-size: .76rem; }
-
-/* Stat bar inside card */
-.lp-stat-row {
-  margin-top: .55rem; display: flex; align-items: center; gap: .6rem;
-}
-.lp-stat-bar {
-  flex: 1; height: 4px; background: rgba(255,255,255,.1); border-radius: 99px; overflow: hidden;
-}
-.lp-stat-fill {
-  height: 100%; border-radius: 99px;
-  animation: bar-grow 2s ease-out forwards;
-}
-@keyframes bar-grow { from { width: 0; } }
-.lp-stat-val { font-size: .72rem; color: rgba(255,255,255,.55); white-space: nowrap; }
-
-/* Brand block */
-.lp-brand {
-  position: relative; z-index: 2; text-align: center;
-}
+/* Brand text */
+.lp-brand { position: relative; z-index: 2; text-align: center; }
 .lp-brand h2 {
-  font-size: 2rem; font-weight: 800; letter-spacing: -.04em;
-  background: linear-gradient(120deg, #e0e7ff 0%, #a5b4fc 50%, #818cf8 100%);
+  font-size: 1.75rem; font-weight: 800; letter-spacing: -.04em;
+  background: linear-gradient(120deg, #e0e7ff 0%, #93c5fd 55%, #67e8f9 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text; margin-bottom: .4rem;
+  background-clip: text; margin-bottom: .3rem;
 }
-.lp-brand p { font-size: .82rem; color: rgba(255,255,255,.38); }
+.lp-brand p { font-size: .79rem; color: rgba(255,255,255,.35); }
 
-/* ═══════════════════════════════════════════
-   RIGHT — form panel
-═══════════════════════════════════════════ */
+/* Feature pills */
+.lp-pills { position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.lp-pill {
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 999px; padding: .25rem .75rem;
+  font-size: .68rem; font-weight: 600; color: rgba(255,255,255,.5);
+  letter-spacing: .05em; text-transform: uppercase;
+  transition: background .2s;
+}
+.lp-pill:hover { background: rgba(255,255,255,.11); }
+
+/* Mood label */
+.yeti-mood {
+  position: relative; z-index: 2;
+  font-size: .72rem; color: rgba(255,255,255,.3);
+  min-height: 1.1rem; transition: color .3s;
+  font-style: italic;
+}
+
+/* ═══════════════════════════════════════
+   RIGHT — form
+═══════════════════════════════════════ */
 .lp-right {
   display: flex; align-items: center; justify-content: center;
   padding: 2.5rem 2rem; background: #f8fafc;
 }
-
 .login-card {
   background: #fff; width: 100%; max-width: 400px;
   border: 1px solid #e2e8f0; border-radius: 24px;
   padding: 2.8rem 2.5rem;
   box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 12px 48px rgba(0,0,0,.08);
 }
-
 .lc-top { text-align: center; margin-bottom: 2rem; }
 .lc-logo-wrap {
-  width: 56px; height: 56px; margin: 0 auto 1.4rem;
+  width: 54px; height: 54px; margin: 0 auto 1.4rem;
   background: linear-gradient(140deg, #4f46e5, #7c3aed);
-  border-radius: 17px; display: flex; align-items: center; justify-content: center;
+  border-radius: 16px; display: flex; align-items: center; justify-content: center;
   font-size: 1.5rem; color: #fff;
-  box-shadow: 0 8px 24px rgba(79,70,229,.38);
-  animation: logo-pulse 3s ease-in-out infinite;
+  box-shadow: 0 6px 22px rgba(79,70,229,.4);
+  animation: logo-glow 3s ease-in-out infinite;
 }
-@keyframes logo-pulse {
-  0%,100% { box-shadow: 0 8px 24px rgba(79,70,229,.38); }
-  50%      { box-shadow: 0 8px 32px rgba(79,70,229,.6); }
+@keyframes logo-glow {
+  0%,100% { box-shadow: 0 6px 22px rgba(79,70,229,.4); }
+  50%      { box-shadow: 0 6px 32px rgba(79,70,229,.65); }
 }
-
-.lc-title { font-size: 1.4rem; font-weight: 700; color: #0f172a; margin-bottom: .3rem; letter-spacing: -.025em; }
-.lc-sub   { font-size: .83rem; color: #94a3b8; }
-
+.lc-title { font-size: 1.38rem; font-weight: 700; color: #0f172a; margin-bottom: .3rem; letter-spacing: -.025em; }
+.lc-sub   { font-size: .82rem; color: #94a3b8; }
 .lc-field { margin-bottom: 1.1rem; }
 .lc-label {
-  display: block; font-size: .73rem; font-weight: 600;
+  display: block; font-size: .72rem; font-weight: 600;
   color: #475569; margin-bottom: .42rem;
   letter-spacing: .06em; text-transform: uppercase;
 }
@@ -145,33 +127,26 @@
   font-size: .9rem; color: #0f172a; background: #fff;
   outline: none; transition: border-color .15s, box-shadow .15s;
 }
-.lc-input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 4px rgba(99,102,241,.1);
-}
+.lc-input:focus { border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99,102,241,.1); }
 .lc-input::placeholder { color: #c4cad3; }
-
 .lc-btn {
   width: 100%; padding: .82rem 1rem; margin-top: .5rem;
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: #fff; border: none; border-radius: 12px;
   font-size: .93rem; font-weight: 600; cursor: pointer;
   box-shadow: 0 4px 18px rgba(79,70,229,.4);
-  transition: transform .12s, box-shadow .15s, opacity .1s;
+  transition: transform .12s, box-shadow .15s;
   letter-spacing: .01em; position: relative; overflow: hidden;
 }
 .lc-btn::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.12) 50%, transparent 100%);
-  transform: translateX(-100%);
-  transition: transform .5s;
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
+  transform: translateX(-100%); transition: transform .5s;
 }
-.lc-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 26px rgba(79,70,229,.5); }
+.lc-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(79,70,229,.52); }
 .lc-btn:hover::after { transform: translateX(100%); }
 .lc-btn:active { transform: translateY(0); }
 .lc-btn:disabled { opacity: .65; cursor: not-allowed; transform: none; }
-
 .lc-err {
   background: #fef2f2; border: 1.5px solid #fecaca; color: #dc2626;
   border-radius: 12px; padding: .7rem 1rem; font-size: .8rem;
@@ -182,85 +157,161 @@
   0%,100%{transform:translateX(0)} 20%{transform:translateX(-5px)}
   40%{transform:translateX(5px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(3px)}
 }
-
 .lc-footer {
   display: flex; align-items: center; justify-content: center; gap: .5rem;
   margin-top: 1.5rem; font-size: .74rem; color: #cbd5e1;
 }
-.lc-footer i { font-size: .7rem; }
 
 /* Confetti */
-.cfti {
-  position: fixed; pointer-events: none; z-index: 9999;
-  border-radius: 2px; animation: cfti-fall linear forwards;
-}
+.cfti { position:fixed; pointer-events:none; z-index:9999; border-radius:2px; animation:cfti-fall linear forwards; }
 @keyframes cfti-fall {
-  0%   { opacity: 1; transform: translateY(-20px) rotate(0deg) scale(1); }
-  80%  { opacity: .8; }
-  100% { opacity: 0; transform: translateY(105vh) rotate(900deg) scale(.5); }
+  0%  { opacity:1; transform:translateY(-20px) rotate(0); }
+  100%{ opacity:0; transform:translateY(105vh) rotate(900deg); }
 }
-@keyframes _spin { to { transform: rotate(360deg); } }
+@keyframes _spin { to { transform:rotate(360deg); } }
 </style>
 
 <div class="lp-wrap">
 
-  <!-- ═══ LEFT PANEL ═══ -->
+  <!-- ═══ LEFT ═══ -->
   <div class="lp-left">
     <canvas id="bgCanvas"></canvas>
+
+    <!-- Yeti SVG -->
+    <div class="yeti-wrap" id="yetiWrap">
+      <svg id="yetiSvg" viewBox="0 0 320 390" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Fluffy fur displacement filter -->
+          <filter id="fur" x="-18%" y="-18%" width="136%" height="136%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.055 0.065" numOctaves="5" seed="12" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="13" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+          <!-- Soft inner shadow for body depth -->
+          <radialGradient id="bodyGrad" cx="38%" cy="28%" r="72%">
+            <stop offset="0%"   stop-color="#ffffff"/>
+            <stop offset="75%"  stop-color="#eef2ff"/>
+            <stop offset="100%" stop-color="#d8e4ff"/>
+          </radialGradient>
+          <!-- Eye iris gradient -->
+          <radialGradient id="iris" cx="36%" cy="32%" r="68%">
+            <stop offset="0%"   stop-color="#b3e5fc"/>
+            <stop offset="45%"  stop-color="#29b6f6"/>
+            <stop offset="100%" stop-color="#0277bd"/>
+          </radialGradient>
+          <!-- Cheek pink -->
+          <radialGradient id="cheekGrad" cx="50%" cy="50%">
+            <stop offset="0%"   stop-color="#ff8a80" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#ff8a80" stop-opacity="0"/>
+          </radialGradient>
+          <!-- Mouth clip (happy) -->
+          <clipPath id="mouthHappy">
+            <path d="M 112 195 Q 160 244 208 195 L 208 214 Q 160 258 112 214 Z"/>
+          </clipPath>
+          <!-- Mouth clip (sad) -->
+          <clipPath id="mouthSad">
+            <path d="M 116 218 Q 160 192 204 218 L 204 232 Q 160 206 116 232 Z"/>
+          </clipPath>
+        </defs>
+
+        <!-- ── Fluffy body (filter applied) ── -->
+        <g filter="url(#fur)" id="furGroup">
+          <!-- Body mass -->
+          <circle cx="160" cy="272" r="108" fill="url(#bodyGrad)"/>
+          <!-- Head -->
+          <circle cx="160" cy="152" r="94"  fill="url(#bodyGrad)"/>
+          <!-- Head top fur tufts -->
+          <circle cx="136" cy="70"  r="30"  fill="url(#bodyGrad)"/>
+          <circle cx="160" cy="62"  r="26"  fill="url(#bodyGrad)"/>
+          <circle cx="184" cy="70"  r="28"  fill="url(#bodyGrad)"/>
+          <circle cx="118" cy="82"  r="22"  fill="url(#bodyGrad)"/>
+          <circle cx="202" cy="82"  r="22"  fill="url(#bodyGrad)"/>
+          <circle cx="148" cy="56"  r="18"  fill="url(#bodyGrad)"/>
+          <circle cx="172" cy="56"  r="18"  fill="url(#bodyGrad)"/>
+          <!-- Left arm -->
+          <ellipse cx="56"  cy="262" rx="38" ry="32" fill="url(#bodyGrad)"/>
+          <!-- Right arm -->
+          <ellipse cx="264" cy="262" rx="38" ry="32" fill="url(#bodyGrad)"/>
+          <!-- Left foot -->
+          <ellipse cx="116" cy="368" rx="44" ry="24" fill="url(#bodyGrad)"/>
+          <!-- Right foot -->
+          <ellipse cx="204" cy="368" rx="44" ry="24" fill="url(#bodyGrad)"/>
+        </g>
+
+        <!-- ── Face (no filter — crisp) ── -->
+
+        <!-- Cheeks (opacity animated via JS) -->
+        <ellipse id="cheekL" cx="90"  cy="182" rx="26" ry="16" fill="url(#cheekGrad)" opacity="0"/>
+        <ellipse id="cheekR" cx="230" cy="182" rx="26" ry="16" fill="url(#cheekGrad)" opacity="0"/>
+
+        <!-- Left eye -->
+        <g id="eyeGroupL">
+          <circle cx="122" cy="147" r="33"  fill="white"/>
+          <circle cx="122" cy="147" r="28"  fill="url(#iris)"/>
+          <circle cx="122" cy="147" r="15"  fill="#0a1628" id="pupilL"/>
+          <circle cx="112" cy="137" r="7.5" fill="white"/>
+          <circle cx="128" cy="153" r="3.5" fill="white" opacity=".55"/>
+          <!-- Blink lid (scaleY 0→1 = closed) -->
+          <ellipse id="blinkL" cx="122" cy="147" rx="33" ry="33" fill="#dce8ff" transform="scale(1,0)" style="transform-box:fill-box;transform-origin:50% 50%"/>
+        </g>
+
+        <!-- Right eye -->
+        <g id="eyeGroupR">
+          <circle cx="198" cy="147" r="33"  fill="white"/>
+          <circle cx="198" cy="147" r="28"  fill="url(#iris)"/>
+          <circle cx="198" cy="147" r="15"  fill="#0a1628" id="pupilR"/>
+          <circle cx="188" cy="137" r="7.5" fill="white"/>
+          <circle cx="204" cy="153" r="3.5" fill="white" opacity=".55"/>
+          <!-- Blink lid -->
+          <ellipse id="blinkR" cx="198" cy="147" rx="33" ry="33" fill="#dce8ff" transform="scale(1,0)" style="transform-box:fill-box;transform-origin:50% 50%"/>
+        </g>
+
+        <!-- Nose -->
+        <ellipse cx="160" cy="176" rx="12" ry="8" fill="#c0cfe8" opacity=".9"/>
+
+        <!-- Mouth — HAPPY (default) -->
+        <g id="mouthHappyG" opacity="1">
+          <path d="M 112 195 Q 160 244 208 195 L 208 214 Q 160 258 112 214 Z" fill="#c2185b" opacity=".85"/>
+          <g clip-path="url(#mouthHappy)">
+            <rect x="130" y="195" width="19" height="20" rx="4" fill="white"/>
+            <rect x="151" y="195" width="19" height="20" rx="4" fill="white"/>
+          </g>
+          <!-- Tongue -->
+          <ellipse cx="160" cy="228" rx="20" ry="12" fill="#e91e63" opacity=".55" clip-path="url(#mouthHappy)"/>
+        </g>
+
+        <!-- Mouth — SAD (hidden by default) -->
+        <g id="mouthSadG" opacity="0">
+          <path d="M 116 218 Q 160 192 204 218 L 204 232 Q 160 206 116 232 Z" fill="#c2185b" opacity=".85"/>
+          <g clip-path="url(#mouthSad)">
+            <rect x="134" y="210" width="17" height="16" rx="3" fill="white"/>
+            <rect x="153" y="210" width="17" height="16" rx="3" fill="white"/>
+          </g>
+        </g>
+
+        <!-- Neutral mouth (straight line — idle) -->
+        <path id="mouthNeutral" d="M 130 210 Q 160 218 190 210" fill="none" stroke="#c2185b" stroke-width="3.5" stroke-linecap="round" opacity="0"/>
+
+      </svg>
+    </div>
+
+    <div class="yeti-glow"></div>
+
+    <div class="yeti-mood" id="yetiMood">👀 watching you type…</div>
 
     <div class="lp-brand">
       <h2>ZayroDocX</h2>
       <p>AI-powered document tools for modern teams</p>
     </div>
 
-    <div class="lp-cards">
-
-      <div class="lp-card">
-        <div class="lp-card-icon ic-indigo">
-          <i class="fa-solid fa-wand-magic-sparkles"></i>
-        </div>
-        <div class="lp-card-text">
-          <strong>AI Extraction</strong>
-          <span>Extract structured data from any document</span>
-          <div class="lp-stat-row">
-            <div class="lp-stat-bar"><div class="lp-stat-fill" style="width:82%;background:linear-gradient(90deg,#6366f1,#818cf8)"></div></div>
-            <span class="lp-stat-val">98% accuracy</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="lp-card">
-        <div class="lp-card-icon ic-orange">
-          <i class="fa-solid fa-file-pdf"></i>
-        </div>
-        <div class="lp-card-text">
-          <strong>PDF Tools Suite</strong>
-          <span>Merge, split, compress, OCR and more</span>
-          <div class="lp-stat-row">
-            <div class="lp-stat-bar"><div class="lp-stat-fill" style="width:76%;background:linear-gradient(90deg,#f97316,#fb923c)"></div></div>
-            <span class="lp-stat-val">30+ tools</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="lp-card">
-        <div class="lp-card-icon ic-emerald">
-          <i class="fa-solid fa-image"></i>
-        </div>
-        <div class="lp-card-text">
-          <strong>Image Processing</strong>
-          <span>OCR, compress, resize, remove background</span>
-          <div class="lp-stat-row">
-            <div class="lp-stat-bar"><div class="lp-stat-fill" style="width:91%;background:linear-gradient(90deg,#10b981,#34d399)"></div></div>
-            <span class="lp-stat-val">10× faster</span>
-          </div>
-        </div>
-      </div>
-
+    <div class="lp-pills">
+      <span class="lp-pill">OCR</span>
+      <span class="lp-pill">AI Extract</span>
+      <span class="lp-pill">PDF Tools</span>
+      <span class="lp-pill">Image AI</span>
     </div>
   </div>
 
-  <!-- ═══ RIGHT PANEL ═══ -->
+  <!-- ═══ RIGHT ═══ -->
   <div class="lp-right">
     <div class="login-card">
       <div class="lc-top">
@@ -272,24 +323,21 @@
       {% if form.errors %}
         <div class="lc-err">
           <i class="fa-solid fa-circle-xmark"></i>
-          Incorrect username or password — please try again.
+          Incorrect username or password — try again.
         </div>
       {% endif %}
 
       <form method="post" id="loginForm">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next }}">
-
         <div class="lc-field">
           <label class="lc-label" for="id_username">Username</label>
-          <input class="lc-input" type="text" name="username" id="id_username" placeholder="Enter your username" autofocus>
+          <input class="lc-input" type="text" name="username" id="id_username" placeholder="your-username" autofocus>
         </div>
-
         <div class="lc-field">
           <label class="lc-label" for="id_password">Password</label>
           <input class="lc-input" type="password" name="password" id="id_password" placeholder="••••••••••">
         </div>
-
         <button class="lc-btn" type="submit" id="loginBtn">
           <i class="fa-solid fa-right-to-bracket"></i>&nbsp; Sign In
         </button>
@@ -307,172 +355,170 @@
 (function () {
   'use strict';
 
-  /* ═══════════════════════════════════════════
-     CANVAS — particle network
-  ═══════════════════════════════════════════ */
-  const canvas = document.getElementById('bgCanvas');
-  const ctx    = canvas.getContext('2d');
-
-  function resize() {
-    canvas.width  = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  /* Colour palette */
-  const COLS = [
-    [99,102,241],   // indigo
-    [139,92,246],   // violet
-    [6,182,212],    // cyan
-    [249,115,22],   // orange
-    [16,185,129],   // emerald
-  ];
-
-  /* Particles */
-  const COUNT = 55;
-  const pts = Array.from({ length: COUNT }, () => {
-    const col = COLS[Math.floor(Math.random() * COLS.length)];
-    return {
-      x:  Math.random() * canvas.width,
-      y:  Math.random() * canvas.height,
-      vx: (Math.random() - .5) * .45,
-      vy: (Math.random() - .5) * .45,
-      r:  1.2 + Math.random() * 2.2,
-      col,
-      alpha: .35 + Math.random() * .45,
-    };
+  /* ─── Particle canvas (subtle bg) ─── */
+  const cv  = document.getElementById('bgCanvas');
+  const ctx = cv.getContext('2d');
+  function resizeCv() { cv.width = cv.offsetWidth; cv.height = cv.offsetHeight; }
+  resizeCv(); window.addEventListener('resize', resizeCv);
+  const PTS = Array.from({length:38}, () => {
+    const c = [[99,102,241],[139,92,246],[6,182,212]][Math.floor(Math.random()*3)];
+    return { x:Math.random()*cv.width, y:Math.random()*cv.height,
+             vx:(Math.random()-.5)*.35, vy:(Math.random()-.5)*.35,
+             r:1+Math.random()*2, col:c, a:.25+Math.random()*.4 };
   });
-
-  /* Mouse influence */
-  let mx = -9999, my = -9999;
-  canvas.parentElement.addEventListener('mousemove', e => {
-    const r = canvas.getBoundingClientRect();
-    mx = e.clientX - r.left;
-    my = e.clientY - r.top;
-  });
-  canvas.parentElement.addEventListener('mouseleave', () => { mx = -9999; my = -9999; });
-
-  /* Draw glowing orbs (static colour zones) */
-  const orbs = [
-    { x:.2, y:.2, r:250, col:[79,70,229], a:.12 },
-    { x:.85, y:.75, r:200, col:[124,58,237], a:.1 },
-    { x:.6,  y:.15, r:140, col:[6,182,212], a:.08 },
-  ];
-
-  function drawOrbs() {
-    orbs.forEach(o => {
-      const grd = ctx.createRadialGradient(
-        o.x * canvas.width, o.y * canvas.height, 0,
-        o.x * canvas.width, o.y * canvas.height, o.r
-      );
-      grd.addColorStop(0, `rgba(${o.col},${o.a})`);
-      grd.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.beginPath();
-      ctx.arc(o.x * canvas.width, o.y * canvas.height, o.r, 0, Math.PI * 2);
-      ctx.fillStyle = grd;
-      ctx.fill();
+  (function drawPts() {
+    ctx.clearRect(0,0,cv.width,cv.height);
+    PTS.forEach(p => {
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>cv.width)  p.vx*=-1;
+      if(p.y<0||p.y>cv.height) p.vy*=-1;
     });
-  }
-
-  function tick() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawOrbs();
-
-    /* Update + draw connections */
-    pts.forEach(p => {
-      /* Mouse repel */
-      const mdx = p.x - mx, mdy = p.y - my;
-      const md  = Math.sqrt(mdx*mdx + mdy*mdy);
-      if (md < 90) {
-        const force = (90 - md) / 90 * .8;
-        p.vx += (mdx / md) * force;
-        p.vy += (mdy / md) * force;
-      }
-      /* Speed cap */
-      const spd = Math.sqrt(p.vx*p.vx + p.vy*p.vy);
-      if (spd > 1.5) { p.vx *= 1.5/spd; p.vy *= 1.5/spd; }
-
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < 0 || p.x > canvas.width)  p.vx *= -1;
-      if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-    });
-
-    /* Lines */
-    const LINK = 110;
-    for (let i = 0; i < pts.length; i++) {
-      for (let j = i + 1; j < pts.length; j++) {
-        const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
-        const d  = Math.sqrt(dx*dx + dy*dy);
-        if (d < LINK) {
-          const a = (1 - d/LINK) * .35;
-          ctx.beginPath();
-          ctx.strokeStyle = `rgba(${pts[i].col},${a})`;
-          ctx.lineWidth = .6;
-          ctx.moveTo(pts[i].x, pts[i].y);
-          ctx.lineTo(pts[j].x, pts[j].y);
-          ctx.stroke();
-        }
-      }
+    for(let i=0;i<PTS.length;i++) for(let j=i+1;j<PTS.length;j++){
+      const dx=PTS[i].x-PTS[j].x, dy=PTS[i].y-PTS[j].y, d=Math.sqrt(dx*dx+dy*dy);
+      if(d<100){ ctx.beginPath(); ctx.strokeStyle=`rgba(${PTS[i].col},${(1-d/100)*.25})`; ctx.lineWidth=.5;
+        ctx.moveTo(PTS[i].x,PTS[i].y); ctx.lineTo(PTS[j].x,PTS[j].y); ctx.stroke(); }
     }
+    PTS.forEach(p => { ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${p.col},${p.a})`; ctx.fill(); });
+    requestAnimationFrame(drawPts);
+  })();
 
-    /* Dots */
-    pts.forEach(p => {
-      /* Glow */
-      const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 3);
-      grd.addColorStop(0, `rgba(${p.col},${p.alpha})`);
-      grd.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
-      ctx.fillStyle = grd;
-      ctx.fill();
-      /* Core */
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${p.col},${p.alpha + .3})`;
-      ctx.fill();
+  /* ─── Yeti refs ─── */
+  const pupilL   = document.getElementById('pupilL');
+  const pupilR   = document.getElementById('pupilR');
+  const blinkL   = document.getElementById('blinkL');
+  const blinkR   = document.getElementById('blinkR');
+  const cheekL   = document.getElementById('cheekL');
+  const cheekR   = document.getElementById('cheekR');
+  const moodEl   = document.getElementById('yetiMood');
+  const happyMth = document.getElementById('mouthHappyG');
+  const sadMth   = document.getElementById('mouthSadG');
+  const neutMth  = document.getElementById('mouthNeutral');
+  const yetiWrap = document.getElementById('yetiWrap');
+  const svgEl    = document.getElementById('yetiSvg');
+
+  /* Eye tracking */
+  const MAX_P = 5.5;
+  document.addEventListener('mousemove', e => {
+    [{ el: pupilL, bx: 122, by: 147 }, { el: pupilR, bx: 198, by: 147 }].forEach(eye => {
+      const svgRect = svgEl.getBoundingClientRect();
+      const scaleX  = svgRect.width  / 320;
+      const scaleY  = svgRect.height / 390;
+      const ex = svgRect.left + eye.bx * scaleX;
+      const ey = svgRect.top  + eye.by * scaleY;
+      const dx = e.clientX - ex, dy = e.clientY - ey;
+      const d  = Math.sqrt(dx*dx + dy*dy) || 1;
+      const nx = (dx/d) * Math.min(d/28, MAX_P);
+      const ny = (dy/d) * Math.min(d/28, MAX_P);
+      eye.el.setAttribute('cx', eye.bx + nx);
+      eye.el.setAttribute('cy', eye.by + ny);
     });
+  });
 
-    requestAnimationFrame(tick);
+  /* Blinking */
+  function doBlink() {
+    [blinkL, blinkR].forEach(lid => {
+      lid.style.transition = 'transform .07s ease-in';
+      lid.style.transform  = 'scale(1,1)';
+      setTimeout(() => {
+        lid.style.transition = 'transform .1s ease-out';
+        lid.style.transform  = 'scale(1,0)';
+      }, 90);
+    });
+    setTimeout(doBlink, 2600 + Math.random() * 4000);
   }
-  tick();
+  setTimeout(doBlink, 1200);
 
-  /* ═══════════════════════════════════════════
-     FORM — loading state + confetti on success
-  ═══════════════════════════════════════════ */
+  /* Idle look-around (when no mouse) */
+  let lastMove = Date.now();
+  document.addEventListener('mousemove', () => lastMove = Date.now());
+  setInterval(() => {
+    if (Date.now() - lastMove < 3000) return;
+    const ax = (Math.random()-.5) * MAX_P * 1.4;
+    const ay = (Math.random()-.5) * MAX_P * 1.4;
+    pupilL.setAttribute('cx', 122 + ax); pupilL.setAttribute('cy', 147 + ay);
+    pupilR.setAttribute('cx', 198 + ax); pupilR.setAttribute('cy', 147 + ay);
+  }, 3500);
+
+  /* ─── Mouth/mood helpers ─── */
+  function setMood(mood) {
+    happyMth.style.opacity = mood === 'happy'   ? '1' : '0';
+    sadMth.style.opacity   = mood === 'sad'     ? '1' : '0';
+    neutMth.style.opacity  = mood === 'neutral' ? '1' : '0';
+  }
+
+  /* ─── Password shy mode ─── */
+  const pwdInput = document.getElementById('id_password');
+  const usrInput = document.getElementById('id_username');
+
+  pwdInput.addEventListener('focus', () => {
+    /* Look straight down */
+    pupilL.setAttribute('cx', 122); pupilL.setAttribute('cy', 152);
+    pupilR.setAttribute('cx', 198); pupilR.setAttribute('cy', 152);
+    moodEl.textContent = '🙈 not peeking at your password…';
+    setMood('neutral');
+  });
+  pwdInput.addEventListener('blur', () => {
+    moodEl.textContent = '👀 watching you type…';
+    setMood('happy');
+  });
+  usrInput.addEventListener('focus', () => {
+    moodEl.textContent = '😊 hi there! nice to see you…';
+    setMood('happy');
+  });
+
+  /* ─── Error state on page load (wrong password) ─── */
+  {% if form.errors %}
+  setTimeout(() => {
+    setMood('sad');
+    cheekL.style.transition = cheekR.style.transition = 'opacity .4s';
+    cheekL.style.opacity = cheekR.style.opacity = '0';
+    moodEl.textContent = '😢 oops… that didn\'t work…';
+    yetiWrap.style.animation = 'none';
+    yetiWrap.style.transform = 'translateX(0)';
+    /* Shake */
+    let s = 0;
+    const shakes = [-10,10,-8,8,-5,5,-2,2,0];
+    const shakeInterval = setInterval(() => {
+      yetiWrap.style.transform = `translateX(${shakes[s]}px)`;
+      if (++s >= shakes.length) {
+        clearInterval(shakeInterval);
+        yetiWrap.style.animation = '';
+        yetiWrap.style.transform = '';
+      }
+    }, 55);
+  }, 350);
+  {% endif %}
+
+  /* ─── Form submit ─── */
   document.getElementById('loginForm').addEventListener('submit', function () {
     const btn = document.getElementById('loginBtn');
     btn.disabled = true;
-    btn.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:_spin .65s linear infinite;vertical-align:middle;margin-right:6px"></span>Signing in…`;
+    btn.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:_spin .65s linear infinite;vertical-align:middle;margin-right:6px"></span>Signing in…`;
+    setMood('happy');
+    cheekL.style.transition = cheekR.style.transition = 'opacity .3s';
+    cheekL.style.opacity = cheekR.style.opacity = '0.9';
+    moodEl.textContent = '🎉 yay, logging you in!';
   });
 
-  /* Confetti helper (fires on successful load after redirect — hook if needed) */
-  const CFTI_COLS = ['#6366f1','#f97316','#34d399','#f59e0b','#ec4899','#22d3ee','#a78bfa'];
-  function launchConfetti() {
-    for (let i = 0; i < 80; i++) {
-      setTimeout(() => {
-        const el = document.createElement('div');
-        el.className = 'cfti';
-        const sz  = 5 + Math.random() * 9;
-        const dur = 1.5 + Math.random() * 1.8;
-        Object.assign(el.style, {
-          left:              (10 + Math.random() * 80) + 'vw',
-          top:               '-10px',
-          width:             sz + 'px',
-          height:            sz + 'px',
-          background:        CFTI_COLS[Math.floor(Math.random() * CFTI_COLS.length)],
-          borderRadius:      Math.random() > .45 ? '50%' : '2px',
-          animationDuration: dur + 's',
-          animationDelay:    (Math.random() * .5) + 's',
-        });
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), (dur + .5) * 1000 + 300);
-      }, i * 18);
-    }
-  }
+  /* ─── Confetti (call window.confetti() for success) ─── */
+  const CC = ['#6366f1','#f97316','#34d399','#f59e0b','#ec4899','#22d3ee'];
+  window.confetti = function () {
+    for (let i = 0; i < 80; i++) setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'cfti';
+      const sz = 5 + Math.random()*9, dur = 1.5 + Math.random()*1.8;
+      Object.assign(el.style, { left:(10+Math.random()*80)+'vw', top:'-10px',
+        width:sz+'px', height:sz+'px', background:CC[Math.floor(Math.random()*CC.length)],
+        borderRadius:Math.random()>.45?'50%':'2px',
+        animationDuration:dur+'s', animationDelay:(Math.random()*.5)+'s' });
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), (dur+.5)*1000+300);
+    }, i*18);
+  };
 
-  /* Expose for testing: window.confetti() */
-  window.confetti = launchConfetti;
+  /* Init mood */
+  setMood('happy');
 
 })();
 </script>
