@@ -816,7 +816,13 @@ Rules:
         try:
             extracted = json.loads(raw_json)
         except json.JSONDecodeError:
-            return JsonResponse({'error': 'GPT returned invalid JSON.', 'raw': raw_json[:500]}, status=500)
+            # AI returned plain text instead of JSON — show it directly as extracted text
+            return JsonResponse({
+                'text':       raw_json.strip() or '(No content extracted)',
+                'excel_url':  '',
+                'excel_name': '',
+                'fields':     {},
+            })
 
         # â"€â"€ Build Excel â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
         import openpyxl
