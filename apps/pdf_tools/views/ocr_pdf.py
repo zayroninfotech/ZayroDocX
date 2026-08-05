@@ -944,7 +944,7 @@ Rules:
             lines.append('')
             for k, v in sfields.items():
                 lines.append(f'{k}: {v}')
-        display_text = '\n'.join(lines) or extracted.get('raw_text', '(No data extracted)')
+        display_text = extracted.get('raw_text', '').strip() or '\n'.join(lines) or '(No data extracted)'
 
         return JsonResponse({
             'text':       display_text,
