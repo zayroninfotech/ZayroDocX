@@ -735,26 +735,46 @@ Rules:
             api_key = settings.OPENAI_API_KEY
             if not api_key:
                 return JsonResponse({'error': 'OpenAI API key not configured in .env'}, status=500)
-            from openai import OpenAI
-            client = OpenAI(api_key=api_key)
-            response = client.chat.completions.create(
-                model='gpt-4o-mini',
-                messages=[{
-                    'role': 'user',
-                    'content': [
-                        {'type': 'text', 'text': prompt},
-                        {'type': 'image_url', 'image_url': {
-                            'url': f'data:image/jpeg;base64,{img_b64}',
-                            'detail': 'high'
-                        }}
-                    ]
-                }],
-                max_tokens=4096,
-                temperature=0,
-            )
-            raw_json = response.choices[0].message.content.strip()
+            import urllib.request as _ur
+            payload = json.dumps({
+                'model': 'gpt-4o-mini',
+                'messages': [{'role': 'user', 'content': [
+                    {'type': 'text', 'text': prompt},
+                    {'type': 'image_url', 'image_url': {'url': f'data:image/jpeg;base64,{img_b64}', 'detail': 'high'}},
+                ]}],
+                'max_tokens': 4096, 'temperature': 0,
+            }).encode()
+            req = _ur.Request('https://api.openai.com/v1/chat/completions', data=payload,
+                headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}, method='POST')
+            with _ur.urlopen(req, timeout=60) as r:
+                raw_json = json.loads(r.read().decode())['choices'][0]['message']['content'].strip()
+
+        elif provider == 'gemini':
+            api_key = settings.GEMINI_API_KEY
+            if not api_key:
+                return JsonResponse({'error': 'Gemini API key not configured in .env'}, status=500)
+            raw_json = _gemini_vision_b64(api_key, img_b64, prompt)
+
+        elif provider == 'groq':
+            api_key = settings.GROQ_API_KEY
+            if not api_key:
+                return JsonResponse({'error': 'Groq API key not configured in .env'}, status=500)
+            raw_json = _groq_vision_b64(api_key, img_b64, prompt)
+
+        elif provider == 'claude-haiku':
+            api_key = settings.ANTHROPIC_API_KEY
+            if not api_key:
+                return JsonResponse({'error': 'Anthropic API key not configured in .env'}, status=500)
+            raw_json = _claude_vision_b64(api_key, img_b64, prompt, model='claude-haiku-4-5-20251001')
+
+        elif provider == 'claude-sonnet':
+            api_key = settings.ANTHROPIC_API_KEY
+            if not api_key:
+                return JsonResponse({'error': 'Anthropic API key not configured in .env'}, status=500)
+            raw_json = _claude_vision_b64(api_key, img_b64, prompt, model='claude-sonnet-4-6')
+
         else:
-            # Default: Mistral AI via direct HTTP (no SDK dependency)
+            # Default: Mistral AI
             api_key = settings.MISTRAL_API_KEY
             if not api_key:
                 return JsonResponse({'error': 'Mistral API key not configured in .env'}, status=500)
@@ -1169,12 +1189,8 @@ def extract_all_pages_excel(request):
         ws = wb.create_sheet(title=f'Page {page_no}')
         img = Image.open(str(img_path)).convert('RGB')
 
-        if provider == 'ai':
+        if provider in ('ai', 'gemini', 'groq', 'claude-haiku', 'claude-sonnet', 'gpt', 'mistral'):
             # ── AI extraction ──────────────────────────────────────────────
-            api_key = settings.MISTRAL_API_KEY
-            if not api_key:
-                return JsonResponse({'error': 'Mistral API key not configured.'}, status=500)
-
             with open(str(img_path), 'rb') as f_:
                 img_b64 = base64.b64encode(f_.read()).decode()
 
@@ -1186,7 +1202,39 @@ def extract_all_pages_excel(request):
                 'Return ONLY valid JSON, no markdown.'
             )
             try:
-                raw_json = _mistral_vision_b64(img_b64, ai_prompt)
+                if provider == 'gpt':
+                    k = settings.OPENAI_API_KEY
+                    if not k: raise ValueError('OpenAI API key not configured.')
+                    import urllib.request as _ur2
+                    pl = json.dumps({'model': 'gpt-4o-mini', 'messages': [{'role': 'user', 'content': [
+                        {'type': 'text', 'text': ai_prompt},
+                        {'type': 'image_url', 'image_url': {'url': f'data:image/jpeg;base64,{img_b64}', 'detail': 'high'}},
+                    ]}], 'max_tokens': 4096, 'temperature': 0}).encode()
+                    rq = _ur2.Request('https://api.openai.com/v1/chat/completions', data=pl,
+                        headers={'Authorization': f'Bearer {k}', 'Content-Type': 'application/json'}, method='POST')
+                    with _ur2.urlopen(rq, timeout=60) as r2:
+                        raw_json = json.loads(r2.read().decode())['choices'][0]['message']['content'].strip()
+                elif provider == 'gemini':
+                    k = settings.GEMINI_API_KEY
+                    if not k: raise ValueError('Gemini API key not configured.')
+                    raw_json = _gemini_vision_b64(k, img_b64, ai_prompt)
+                elif provider == 'groq':
+                    k = settings.GROQ_API_KEY
+                    if not k: raise ValueError('Groq API key not configured.')
+                    raw_json = _groq_vision_b64(k, img_b64, ai_prompt)
+                elif provider == 'claude-haiku':
+                    k = settings.ANTHROPIC_API_KEY
+                    if not k: raise ValueError('Anthropic API key not configured.')
+                    raw_json = _claude_vision_b64(k, img_b64, ai_prompt, 'claude-haiku-4-5-20251001')
+                elif provider == 'claude-sonnet':
+                    k = settings.ANTHROPIC_API_KEY
+                    if not k: raise ValueError('Anthropic API key not configured.')
+                    raw_json = _claude_vision_b64(k, img_b64, ai_prompt, 'claude-sonnet-4-6')
+                else:  # mistral / 'ai'
+                    k = settings.MISTRAL_API_KEY
+                    if not k: raise ValueError('Mistral API key not configured.')
+                    raw_json = _mistral_vision_b64(img_b64, ai_prompt)
+
                 raw_json = re.sub(r'^```(?:json)?\s*', '', raw_json)
                 raw_json = re.sub(r'\s*```$', '', raw_json)
                 extracted = json.loads(raw_json)
@@ -1739,6 +1787,71 @@ def invoice_to_excel(request):
 # â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 #  AI helpers (Mistral Vision / Text)
 # â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+
+def _gemini_vision_b64(api_key, img_b64, prompt, model='gemini-2.0-flash'):
+    """Call Google Gemini vision via REST — no SDK. Free tier: 500 req/day."""
+    import urllib.request as _ur
+    payload = json.dumps({
+        'contents': [{'parts': [
+            {'text': prompt},
+            {'inline_data': {'mime_type': 'image/jpeg', 'data': img_b64}},
+        ]}]
+    }).encode()
+    url = f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}'
+    req = _ur.Request(url, data=payload, headers={'Content-Type': 'application/json'}, method='POST')
+    with _ur.urlopen(req, timeout=60) as resp:
+        data = json.loads(resp.read().decode())
+    return data['candidates'][0]['content']['parts'][0]['text'].strip()
+
+
+def _groq_vision_b64(api_key, img_b64, prompt, model='meta-llama/llama-4-scout-17b-16e-instruct'):
+    """Call Groq vision via REST — free tier available."""
+    import urllib.request as _ur
+    payload = json.dumps({
+        'model': model,
+        'messages': [{'role': 'user', 'content': [
+            {'type': 'text', 'text': prompt},
+            {'type': 'image_url', 'image_url': {'url': f'data:image/jpeg;base64,{img_b64}'}},
+        ]}],
+        'max_tokens': 4096,
+        'temperature': 0,
+    }).encode()
+    req = _ur.Request(
+        'https://api.groq.com/openai/v1/chat/completions',
+        data=payload,
+        headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'},
+        method='POST',
+    )
+    with _ur.urlopen(req, timeout=60) as resp:
+        data = json.loads(resp.read().decode())
+    return data['choices'][0]['message']['content'].strip()
+
+
+def _claude_vision_b64(api_key, img_b64, prompt, model='claude-haiku-4-5-20251001'):
+    """Call Anthropic Claude vision via REST — supports haiku-4-5 and sonnet models."""
+    import urllib.request as _ur
+    payload = json.dumps({
+        'model': model,
+        'max_tokens': 4096,
+        'messages': [{'role': 'user', 'content': [
+            {'type': 'image', 'source': {'type': 'base64', 'media_type': 'image/jpeg', 'data': img_b64}},
+            {'type': 'text', 'text': prompt},
+        ]}],
+    }).encode()
+    req = _ur.Request(
+        'https://api.anthropic.com/v1/messages',
+        data=payload,
+        headers={
+            'x-api-key': api_key,
+            'anthropic-version': '2023-06-01',
+            'Content-Type': 'application/json',
+        },
+        method='POST',
+    )
+    with _ur.urlopen(req, timeout=60) as resp:
+        data = json.loads(resp.read().decode())
+    return data['content'][0]['text'].strip()
+
 
 def _mistral_api(api_key, messages, model='mistral-small-latest'):
     """Call Mistral chat completions via raw HTTP — no SDK needed."""

@@ -173,9 +173,11 @@ LOGGING = {
 
 # Tesseract OCR path (Windows)
 TESSERACT_CMD  = os.getenv('TESSERACT_CMD', r'C:\Program Files\Tesseract-OCR\tesseract.exe')
-OPENAI_API_KEY  = os.getenv('OPENAI_API_KEY', '')
-GEMINI_API_KEY  = os.getenv('GEMINI_API_KEY', '')
-MISTRAL_API_KEY = os.getenv('MISTRAL_API_KEY', '')
+OPENAI_API_KEY    = os.getenv('OPENAI_API_KEY', '')
+GEMINI_API_KEY    = os.getenv('GEMINI_API_KEY', '')
+MISTRAL_API_KEY   = os.getenv('MISTRAL_API_KEY', '')
+GROQ_API_KEY      = os.getenv('GROQ_API_KEY', '')
+ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY', '')
 
 # wkhtmltopdf path (Windows) for pdfkit
 WKHTMLTOPDF_CMD = os.getenv('WKHTMLTOPDF_CMD', r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
