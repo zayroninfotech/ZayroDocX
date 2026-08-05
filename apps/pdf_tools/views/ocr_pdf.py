@@ -756,14 +756,19 @@ Rules:
             try:
                 raw_json = _gemini_vision_b64(api_key, img_b64, prompt)
             except Exception as _e:
-                # 429 quota → auto-fallback to Groq
-                import urllib.error as _ue
+                import urllib.error as _ue, time as _t
                 if isinstance(_e, _ue.HTTPError) and _e.code == 429:
-                    groq_key = settings.GROQ_API_KEY
-                    if groq_key:
-                        raw_json = _groq_vision_b64(groq_key, img_b64, prompt)
-                    else:
-                        return JsonResponse({'error': 'Gemini quota exceeded. Add GROQ_API_KEY in .env as backup.'}, status=429)
+                    # Rate limit: wait 5s and retry once
+                    _t.sleep(5)
+                    try:
+                        raw_json = _gemini_vision_b64(api_key, img_b64, prompt)
+                    except Exception:
+                        # Still failing → fallback to Mistral
+                        mis_key = settings.MISTRAL_API_KEY
+                        if mis_key:
+                            raw_json = _mistral_vision_b64(img_b64, prompt)
+                        else:
+                            return JsonResponse({'error': 'Gemini quota exceeded and no Mistral fallback configured.'}, status=429)
                 else:
                     raise
 
@@ -775,13 +780,13 @@ Rules:
                 raw_json = _groq_vision_b64(api_key, img_b64, prompt)
             except Exception as _e:
                 import urllib.error as _ue
-                if isinstance(_e, _ue.HTTPError) and _e.code == 429:
-                    # Groq rate limit → fallback to Gemini
+                # 403/1010 = Cloudflare VPS block, 429 = rate limit → both fallback to Gemini
+                if isinstance(_e, _ue.HTTPError) and _e.code in (403, 429):
                     gem_key = settings.GEMINI_API_KEY
                     if gem_key:
                         raw_json = _gemini_vision_b64(gem_key, img_b64, prompt)
                     else:
-                        return JsonResponse({'error': 'Groq quota exceeded. Add GEMINI_API_KEY in .env as backup.'}, status=429)
+                        return JsonResponse({'error': 'Groq blocked on this server. Add GEMINI_API_KEY in .env as backup.'}, status=500)
                 else:
                     raise
 
