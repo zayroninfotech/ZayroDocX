@@ -264,6 +264,13 @@
       <i class="fa-solid fa-arrow-left"></i> New PDF
     </button>
     <div class="ocr-toolbar">
+      <!-- Extract All buttons -->
+      <button class="ocr-action-btn" id="extractAllOcrBtn" onclick="extractAllPages('ocr')" title="OCR all pages → one Excel">
+        <i class="fa-solid fa-file-excel"></i> All Pages OCR
+      </button>
+      <button class="ocr-action-btn ocr-btn-stmt" id="extractAllAiBtn" onclick="extractAllPages('ai')" title="AI extract all pages → one Excel">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> All Pages AI
+      </button>
       <!-- Zoom -->
       <div class="ocr-zoom-group">
         <button class="zoom-btn" onclick="setZoom('sm')" id="zoomSm" title="Small"><i class="fa-solid fa-grip"></i></button>
@@ -729,6 +736,39 @@ async function extractAllExcel() {
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="fa-solid fa-file-excel"></i> All Pages Excel';
+  }
+}
+
+// ── Extract ALL pages → one Excel ──
+async function extractAllPages(provider) {
+  if (!_stem || !_imgs.length) { showToast('Please upload a PDF first.', 'error'); return; }
+
+  const btn = provider === 'ai'
+    ? document.getElementById('extractAllAiBtn')
+    : document.getElementById('extractAllOcrBtn');
+  const origHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="btn-spin"></span> Processing…';
+
+  const fd = new FormData();
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fd.append('stem', _stem);
+  fd.append('provider', provider);
+
+  try {
+    const res  = await fetch('{% url "api_all_pages_excel" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) { showToast(data.error, 'error'); return; }
+    const a = document.createElement('a');
+    a.href = data.excel_url;
+    a.download = data.excel_name || 'all_pages.xlsx';
+    a.click();
+    showToast(`Downloaded ${data.pages}-page Excel!`, 'success');
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origHtml;
   }
 }
 

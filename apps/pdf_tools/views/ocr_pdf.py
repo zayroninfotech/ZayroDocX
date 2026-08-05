@@ -1108,6 +1108,193 @@ def extract_statement_summary(request):
     return JsonResponse({'fields': fields_out, 'excel_url': media_url(out_name), 'excel_name': out_name})
 
 
+@ip_ratelimit(limit=5)
+@csrf_exempt
+@require_POST
+def extract_all_pages_excel(request):
+    """
+    Extract ALL pages of a processed PDF into one combined Excel workbook.
+    POST: stem, provider ('ocr' | 'ai')
+    Returns: { excel_url, excel_name, pages }
+    """
+    stem     = request.POST.get('stem', '').strip()
+    provider = request.POST.get('provider', 'ocr').lower()
+
+    if not stem:
+        return JsonResponse({'error': 'Missing stem.'}, status=400)
+
+    img_dir = Path(settings.OUTPUT_DIR) / stem
+    if not img_dir.exists():
+        return JsonResponse({'error': 'Image folder not found.'}, status=404)
+
+    all_imgs = sorted(img_dir.glob('page_*.jpg'))
+    if not all_imgs:
+        return JsonResponse({'error': 'No page images found.'}, status=404)
+
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+
+    wb = openpyxl.Workbook()
+    wb.remove(wb.active)
+
+    thin     = Side(style='thin', color='E2E8F0')
+    bdr      = Border(left=thin, right=thin, top=thin, bottom=thin)
+    red_fill = PatternFill('solid', fgColor='DC2626')
+    nav_fill = PatternFill('solid', fgColor='1E3A5F')
+    even_f   = PatternFill('solid', fgColor='FEF2F2')
+    white_f  = PatternFill('solid', fgColor='FFFFFF')
+    lbl_f    = PatternFill('solid', fgColor='DBEAFE')
+    inf_f    = PatternFill('solid', fgColor='EFF6FF')
+
+    def _hcell(ws, r, c, v, fill=red_fill, color='FFFFFF', size=9, bold=True, align='center'):
+        cell = ws.cell(row=r, column=c, value=v)
+        cell.font      = Font(bold=bold, color=color, size=size)
+        cell.fill      = fill
+        cell.alignment = Alignment(horizontal=align, vertical='center', wrap_text=True)
+        cell.border    = bdr
+        return cell
+
+    def _dcell(ws, r, c, v, fill=white_f, color='1E293B', align='left', fmt=None, bold=False):
+        cell = ws.cell(row=r, column=c, value=v)
+        cell.font      = Font(size=9, color=color, bold=bold)
+        cell.fill      = fill
+        cell.alignment = Alignment(horizontal=align, vertical='center', wrap_text=True)
+        cell.border    = bdr
+        if fmt:
+            cell.number_format = fmt
+        return cell
+
+    for i, img_path in enumerate(all_imgs):
+        page_no = i + 1
+        ws = wb.create_sheet(title=f'Page {page_no}')
+        img = Image.open(str(img_path)).convert('RGB')
+
+        if provider == 'ai':
+            # ── AI extraction ──────────────────────────────────────────────
+            api_key = settings.MISTRAL_API_KEY
+            if not api_key:
+                return JsonResponse({'error': 'Mistral API key not configured.'}, status=500)
+
+            with open(str(img_path), 'rb') as f_:
+                img_b64 = base64.b64encode(f_.read()).decode()
+
+            ai_prompt = (
+                'Extract ALL data from this document page as JSON:\n'
+                '{"header":{"fields":{}},"rows":[{"col1":"","col2":""}],"raw_text":""}\n'
+                'For tables: put column headers as keys in first rows entry, fill subsequent rows.\n'
+                'For invoices: put fields in header.fields, line items in rows.\n'
+                'Return ONLY valid JSON, no markdown.'
+            )
+            try:
+                raw_json = _mistral_vision_b64(img_b64, ai_prompt)
+                raw_json = re.sub(r'^```(?:json)?\s*', '', raw_json)
+                raw_json = re.sub(r'\s*```$', '', raw_json)
+                extracted = json.loads(raw_json)
+            except Exception:
+                extracted = {'raw_text': pytesseract.image_to_string(img, lang='eng')}
+
+            cur_row = 1
+            # Title
+            ws.merge_cells(f'A1:F1')
+            _hcell(ws, 1, 1, f'Page {page_no}', fill=nav_fill, size=11)
+            ws.row_dimensions[1].height = 22
+            cur_row = 2
+
+            hfields = (extracted.get('header') or {}).get('fields', {})
+            if hfields:
+                for key, val in hfields.items():
+                    ws.merge_cells(f'B{cur_row}:F{cur_row}')
+                    _hcell(ws, cur_row, 1, key, fill=lbl_f, color='1E3A5F', align='left')
+                    _dcell(ws, cur_row, 2, val, fill=inf_f)
+                    ws.row_dimensions[cur_row].height = 18
+                    cur_row += 1
+                cur_row += 1
+
+            rows = extracted.get('rows', [])
+            if rows and isinstance(rows[0], dict):
+                col_keys = list(rows[0].keys())
+                for ci, key in enumerate(col_keys, 1):
+                    _hcell(ws, cur_row, ci, key.replace('_', ' ').title())
+                    ws.column_dimensions[ws.cell(cur_row, ci).column_letter].width = 18
+                ws.row_dimensions[cur_row].height = 20
+                cur_row += 1
+                for ri, row in enumerate(rows):
+                    fill = even_f if ri % 2 == 0 else white_f
+                    for ci, key in enumerate(col_keys, 1):
+                        _dcell(ws, cur_row, ci, row.get(key, ''), fill=fill)
+                    ws.row_dimensions[cur_row].height = 18
+                    cur_row += 1
+            elif not rows:
+                raw = extracted.get('raw_text', '')
+                lines = [l for l in raw.splitlines() if l.strip()]
+                _hcell(ws, cur_row, 1, 'Extracted Text', fill=nav_fill)
+                ws.column_dimensions['A'].width = 90
+                ws.row_dimensions[cur_row].height = 20
+                cur_row += 1
+                for li, line in enumerate(lines):
+                    fill = even_f if li % 2 == 0 else white_f
+                    c = ws.cell(row=cur_row, column=1, value=line)
+                    c.font = Font(size=9); c.fill = fill; c.border = bdr
+                    c.alignment = Alignment(horizontal='left', vertical='top', wrap_text=True)
+                    ws.row_dimensions[cur_row].height = 16
+                    cur_row += 1
+
+        else:
+            # ── OCR extraction ─────────────────────────────────────────────
+            img_sharp = img.filter(ImageFilter.SHARPEN)
+            img_sharp = ImageEnhance.Contrast(img_sharp).enhance(1.4)
+            raw_text  = pytesseract.image_to_string(img_sharp, lang='eng')
+            rows      = _extract_bank_table_by_coords(img_sharp, 'eng')
+
+            cur_row = 1
+            ws.merge_cells('A1:G1')
+            _hcell(ws, 1, 1, f'Page {page_no}', fill=nav_fill, size=11)
+            ws.row_dimensions[1].height = 22
+            cur_row = 2
+
+            if rows:
+                HEADERS = ['Tran Date', 'Chq No', 'Particulars', 'Debit', 'Credit', 'Balance', 'Branch']
+                WIDTHS  = [13, 13, 48, 12, 12, 14, 8]
+                for ci, (h, w_) in enumerate(zip(HEADERS, WIDTHS), 1):
+                    _hcell(ws, cur_row, ci, h)
+                    ws.column_dimensions[ws.cell(cur_row, ci).column_letter].width = w_
+                ws.row_dimensions[cur_row].height = 20
+                cur_row += 1
+                for ri, row in enumerate(rows):
+                    fill = even_f if ri % 2 == 0 else white_f
+                    _dcell(ws, cur_row, 1, row.get('date', ''),        fill=fill, align='center')
+                    _dcell(ws, cur_row, 2, row.get('chq', ''),         fill=fill, align='center')
+                    _dcell(ws, cur_row, 3, row.get('particulars', ''), fill=fill)
+                    _dcell(ws, cur_row, 4, row.get('debit')   or '', fill=fill, align='right', fmt='#,##0.00')
+                    _dcell(ws, cur_row, 5, row.get('credit')  or '', fill=fill, align='right', fmt='#,##0.00')
+                    _dcell(ws, cur_row, 6, row.get('balance') or '', fill=fill, align='right', fmt='#,##0.00')
+                    _dcell(ws, cur_row, 7, row.get('branch', ''),      fill=fill, align='center')
+                    ws.row_dimensions[cur_row].height = 18
+                    cur_row += 1
+            else:
+                lines = [l for l in raw_text.splitlines() if l.strip()]
+                _hcell(ws, cur_row, 1, 'Extracted Text', fill=nav_fill)
+                ws.column_dimensions['A'].width = 90
+                ws.row_dimensions[cur_row].height = 20
+                cur_row += 1
+                for li, line in enumerate(lines):
+                    fill = even_f if li % 2 == 0 else white_f
+                    c = ws.cell(row=cur_row, column=1, value=line)
+                    c.font = Font(size=9); c.fill = fill; c.border = bdr
+                    c.alignment = Alignment(horizontal='left', vertical='top', wrap_text=True)
+                    ws.row_dimensions[cur_row].height = 16
+                    cur_row += 1
+
+    suffix = 'ai' if provider == 'ai' else 'ocr'
+    out_path, out_name = get_output_path('.xlsx', f'all_pages_{suffix}')
+    wb.save(out_path)
+    return JsonResponse({
+        'excel_url':  media_url(out_name),
+        'excel_name': out_name,
+        'pages':      len(all_imgs),
+    })
+
+
 @csrf_exempt
 @require_POST
 def crop_extract(request):
