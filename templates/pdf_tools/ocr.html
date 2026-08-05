@@ -387,12 +387,6 @@ function buildGrid() {
           <button class="pdf-card-btn" title="View &amp; Extract Text" onclick="openModal(${i})">
             <i class="fa-solid fa-eye"></i>
           </button>
-          <button class="pdf-card-btn" title="AI Extract" onclick="aiExtractCard(event,${i})" style="color:#dc2626;border-color:#dc2626">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
-          </button>
-          <button class="pdf-card-btn" title="Download Excel" onclick="downloadPageExcel(event,${i})">
-            <i class="fa-solid fa-file-excel"></i>
-          </button>
         </div>
       </div>`;
     card.querySelector('.pdf-card-img-wrap').addEventListener('click', () => openModal(i));
