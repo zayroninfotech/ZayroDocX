@@ -256,6 +256,9 @@
       <span id="viewerTitle">Document</span>
       <span class="pdf-pages-count" id="pagesCount">0 pages</span>
     </div>
+    <button onclick="resetOcr()" style="display:inline-flex;align-items:center;gap:.4rem;background:none;border:1.5px solid #e0e0e0;border-radius:8px;padding:.4rem 1rem;font-size:.78rem;font-weight:700;color:#666;cursor:pointer;margin-right:.5rem;">
+      <i class="fa-solid fa-arrow-left"></i> New PDF
+    </button>
     <div class="ocr-toolbar">
       <!-- Zoom -->
       <div class="ocr-zoom-group">
@@ -349,6 +352,15 @@ let _stem      = '';
 function imgSrc(src) {
   if (src.startsWith('data:') || src.startsWith('http') || src.startsWith('/media/')) return src;
   return 'data:image/jpeg;base64,' + src;
+}
+
+// ── Reset ──
+function resetOcr() {
+  _imgs = []; _texts = {}; _imgPaths = {}; _stem = '';
+  document.getElementById('pdfViewer').style.display = 'none';
+  document.getElementById('pagesGrid').innerHTML = '';
+  document.getElementById('uploadZone').style.display = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ── Progress ──
@@ -793,8 +805,9 @@ document.getElementById('fileInput').addEventListener('change', async function (
             document.getElementById('pagesCount').textContent  = _imgs.length + ' page' + (_imgs.length===1?'':'s');
             buildGrid();
             stopLoader();
+            document.getElementById('uploadZone').style.display = 'none';
             document.getElementById('pdfViewer').style.display = '';
-            document.getElementById('pdfViewer').scrollIntoView({ behavior:'smooth', block:'start' });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }, 400);
         }
       } catch(e) { showError('Polling error: ' + e.message); stopLoader(); }
