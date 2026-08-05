@@ -2,8 +2,102 @@
 {% block content %}
 <style>
 .login-wrap {
-  min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem;
+  min-height: 70vh; display: flex; align-items: center; justify-content: center;
+  padding: 2rem 1rem; gap: 4rem; flex-wrap: wrap;
 }
+
+/* ── Mascot scene ── */
+.login-mascot {
+  display: flex; align-items: flex-end; justify-content: center;
+  gap: 10px; height: 160px; flex-shrink: 0;
+}
+
+/* Shared shape base */
+.msc { position: relative; border-radius: 18px; }
+
+/* Orange blob (short, fat) */
+.msc-orange {
+  width: 72px; height: 72px; background: #F97316;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  animation: msc-bob 2.1s ease-in-out infinite;
+}
+/* Eye dots on orange */
+.msc-orange::before, .msc-orange::after {
+  content: ''; position: absolute; width: 7px; height: 7px;
+  background: #fff; border-radius: 50%; top: 38%;
+}
+.msc-orange::before { left: 28%; }
+.msc-orange::after  { right: 28%; }
+
+/* Purple tall rectangle */
+.msc-purple {
+  width: 52px; height: 120px; background: #7C3AED;
+  border-radius: 22px 22px 14px 14px;
+  animation: msc-bob 1.8s ease-in-out infinite 0.3s;
+}
+/* Eye on purple */
+.msc-purple::before {
+  content: ''; position: absolute;
+  width: 6px; height: 12px; background: #fff;
+  border-radius: 3px; top: 28%; left: 50%; transform: translateX(-50%);
+}
+
+/* Black medium rectangle */
+.msc-black {
+  width: 48px; height: 90px; background: #1a1a1a;
+  border-radius: 16px 16px 10px 10px;
+  animation: msc-bob 2.4s ease-in-out infinite 0.6s;
+}
+/* Eyes on black */
+.msc-black::before, .msc-black::after {
+  content: ''; position: absolute; width: 8px; height: 8px;
+  background: #fff; border-radius: 50%; top: 30%;
+}
+.msc-black::before { left: 18%; }
+.msc-black::after  { right: 18%; }
+
+/* Yellow small duck-beak shape */
+.msc-yellow {
+  width: 54px; height: 64px; background: #EAB308;
+  border-radius: 50% 50% 40% 40% / 55% 55% 45% 45%;
+  animation: msc-bob 2.0s ease-in-out infinite 0.9s;
+}
+/* Beak (triangle via border) */
+.msc-yellow::before {
+  content: ''; position: absolute;
+  width: 0; height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 12px solid #EAB308;
+  top: 42%; right: -10px;
+}
+/* Eye on yellow */
+.msc-yellow::after {
+  content: ''; position: absolute; width: 7px; height: 7px;
+  background: #1a1a1a; border-radius: 50%; top: 28%; left: 28%;
+}
+
+/* Ground shadow */
+.msc-ground {
+  position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+  width: 80%; height: 6px; background: rgba(0,0,0,.08);
+  border-radius: 50%; animation: msc-shadow 2.1s ease-in-out infinite;
+}
+
+@keyframes msc-bob {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  30%       { transform: translateY(-10px) rotate(-2deg); }
+  60%       { transform: translateY(-6px) rotate(1deg); }
+}
+@keyframes msc-shadow {
+  0%, 100% { transform: translateX(-50%) scaleX(1); opacity: .08; }
+  50%       { transform: translateX(-50%) scaleX(.8); opacity: .04; }
+}
+
+/* container for each character + its shadow */
+.msc-unit { position: relative; display: flex; flex-direction: column; align-items: center; }
+
+/* ── Login card ── */
 .login-card {
   background: #fff; border: 1px solid #ebebeb; border-radius: 18px;
   padding: 2.5rem 2rem; width: 100%; max-width: 400px;
@@ -28,9 +122,34 @@
 .login-btn:hover { opacity: .88; }
 .login-error { background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c;
   border-radius: 8px; padding: .6rem .9rem; font-size: .82rem; margin-bottom: 1rem; }
+
+/* Hide mascot on very small screens */
+@media (max-width: 600px) { .login-mascot { display: none; } }
 </style>
 
 <div class="login-wrap">
+
+  <!-- Animated mascot characters -->
+  <div class="login-mascot">
+    <div class="msc-unit">
+      <div class="msc msc-orange"></div>
+      <div class="msc-ground"></div>
+    </div>
+    <div class="msc-unit">
+      <div class="msc msc-purple"></div>
+      <div class="msc-ground"></div>
+    </div>
+    <div class="msc-unit">
+      <div class="msc msc-black"></div>
+      <div class="msc-ground"></div>
+    </div>
+    <div class="msc-unit">
+      <div class="msc msc-yellow"></div>
+      <div class="msc-ground"></div>
+    </div>
+  </div>
+
+  <!-- Login card -->
   <div class="login-card">
     <div class="login-logo"><i class="fa-solid fa-shield-halved"></i></div>
     <div class="login-title">Welcome Back</div>
