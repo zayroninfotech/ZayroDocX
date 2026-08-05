@@ -327,6 +327,9 @@
       <button class="btn btn-sm" onclick="copyModalText()" style="background:var(--surface-alt);border:1px solid var(--border);color:var(--text)">
         <i class="fa-solid fa-copy"></i> Copy
       </button>
+      <a class="btn btn-sm" id="cropExcelBtn" href="#" style="display:none;background:#059669;color:#fff;border:none;text-decoration:none">
+        <i class="fa-solid fa-file-excel"></i> Download Region Excel
+      </a>
       <select id="aiProviderSelect" style="font-size:11px;padding:3px 6px;border:1px solid #dc2626;border-radius:6px;color:#dc2626;background:#fff8f8;cursor:pointer;margin-right:2px;max-width:130px">
         <option value="gemini">🆓 Gemini Flash</option>
         <option value="groq">🆓 Groq Llama</option>
@@ -846,6 +849,15 @@ async function extractAllPages(provider) {
       document.getElementById('modalTxt').textContent = data.text;
       updateModalWordCount(data.text);
       _texts[_modalIdx] = data.text;
+      // Show crop Excel download button
+      const cropBtn = document.getElementById('cropExcelBtn');
+      if (data.excel_url) {
+        cropBtn.href     = data.excel_url;
+        cropBtn.download = data.excel_name || 'crop_region.xlsx';
+        cropBtn.style.display = '';
+      } else {
+        cropBtn.style.display = 'none';
+      }
     } catch(e) {
       document.getElementById('modalTxt').textContent = 'Error: ' + e.message;
     }

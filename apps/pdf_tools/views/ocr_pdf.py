@@ -1389,7 +1389,54 @@ def crop_extract(request):
         crop = ImageEnhance.Contrast(crop).enhance(1.4)
         crop = crop.filter(ImageFilter.SHARPEN)
         text = pytesseract.image_to_string(crop, lang='eng').strip()
-        return JsonResponse({'text': text or '(No text found in this region)'})
+        if not text:
+            return JsonResponse({'text': '(No text found in this region)'})
+
+        # Build Excel from the extracted crop text
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = 'Crop Extract'
+
+        thin      = Side(style='thin', color='E2E8F0')
+        bdr       = Border(left=thin, right=thin, top=thin, bottom=thin)
+        navy_fill = PatternFill('solid', fgColor='1E3A5F')
+        even_fill = PatternFill('solid', fgColor='EFF6FF')
+        white_f   = PatternFill('solid', fgColor='FFFFFF')
+
+        # Title row
+        ws.merge_cells('A1:B1')
+        tc = ws.cell(row=1, column=1, value='Extracted Region')
+        tc.font      = Font(bold=True, size=11, color='FFFFFF')
+        tc.fill      = navy_fill
+        tc.alignment = Alignment(horizontal='center', vertical='center')
+        tc.border    = bdr
+        ws.row_dimensions[1].height = 22
+
+        lines = [l for l in text.splitlines() if l.strip()]
+        ws.column_dimensions['A'].width = 6
+        ws.column_dimensions['B'].width = 80
+
+        for li, line in enumerate(lines, start=1):
+            ri   = li + 1
+            fill = even_fill if li % 2 == 0 else white_f
+            nc = ws.cell(row=ri, column=1, value=li)
+            nc.font = Font(size=8, color='6B7280'); nc.fill = fill; nc.border = bdr
+            nc.alignment = Alignment(horizontal='center', vertical='top')
+            lc = ws.cell(row=ri, column=2, value=line)
+            lc.font = Font(size=9); lc.fill = fill; lc.border = bdr
+            lc.alignment = Alignment(horizontal='left', vertical='top', wrap_text=True)
+            ws.row_dimensions[ri].height = 16
+
+        out_path, out_name = get_output_path('.xlsx', 'crop_region')
+        wb.save(out_path)
+
+        return JsonResponse({
+            'text':       text,
+            'excel_url':  media_url(out_name),
+            'excel_name': out_name,
+        })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
