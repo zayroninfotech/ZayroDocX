@@ -417,8 +417,8 @@ async function openModal(idx) {
     document.getElementById('modalTxt').textContent = _texts[idx] || '(No text found on this page)';
     updateModalWordCount(_texts[idx]);
   } else {
-    document.getElementById('modalTxt').innerHTML = '<span class="btn-spin"></span> Extracting text…';
-    await extractPage(idx);
+    document.getElementById('modalTxt').innerHTML = '<span style="color:#aaa;font-size:.82rem;">Click <strong>Extract Text</strong> to extract text from this page.</span>';
+    document.getElementById('modalWordCount').textContent = '';
   }
 }
 
