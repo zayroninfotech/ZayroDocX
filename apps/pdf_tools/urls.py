@@ -41,7 +41,7 @@ from apps.pdf_tools.views.compress import compress_pdf
 from apps.pdf_tools.views.edit_pdf import rotate_pdf, add_page_numbers
 from apps.pdf_tools.views.watermark import add_watermark
 from apps.pdf_tools.views.sign_pdf import sign_pdf
-from apps.pdf_tools.views.ocr_pdf import ocr_pdf, ocr_pdf_stream, ocr_pdf_progress, extract_page, extract_page_ai, extract_statement_summary, extract_invoice, scan_to_pdf, invoice_to_excel, extract_invoice_ai, smart_split_suggest, detect_blank_pages
+from apps.pdf_tools.views.ocr_pdf import ocr_pdf, ocr_pdf_stream, ocr_pdf_progress, extract_page, extract_page_ai, extract_statement_summary, extract_invoice, scan_to_pdf, invoice_to_excel, extract_invoice_ai, smart_split_suggest, detect_blank_pages, crop_extract
 from apps.pdf_tools.views.convert_to_pdf import word_to_pdf, pptx_to_pdf, excel_to_pdf, html_to_pdf, jpg_to_pdf
 from apps.pdf_tools.views.convert_from_pdf import pdf_to_jpg, pdf_to_word, pdf_to_pptx, pdf_to_excel
 from apps.pdf_tools.views.ai_summarizer import summarize_pdf
@@ -124,6 +124,7 @@ urlpatterns = [
     path('api/extract-invoice-ai/',         protected_api(_tag(extract_invoice_ai,        'invoice-extractor')),   name='api_invoice_ai'),
     path('api/smart-split-suggest/',        protected_api(_tag(smart_split_suggest,       'split-pdf')),           name='api_smart_split'),
     path('api/detect-blank-pages/',         protected_api(_tag(detect_blank_pages,        'ocr-pdf')),             name='api_detect_blank'),
+    path('api/ocr-crop-extract/',           protected_api(_tag(crop_extract,              'ocr-pdf')),             name='api_crop_extract_region'),
     path('api/scan-to-pdf/',    protected_api(_tag(scan_to_pdf,    'scan-to-pdf')),     name='api_scan_pdf'),
     path('api/word-to-pdf/',    protected_api(_tag(word_to_pdf,    'word-to-pdf')),     name='api_word_to_pdf'),
     path('api/pptx-to-pdf/',    protected_api(_tag(pptx_to_pdf,   'pptx-to-pdf')),     name='api_pptx_to_pdf'),

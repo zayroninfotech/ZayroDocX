@@ -1110,6 +1110,57 @@ def extract_statement_summary(request):
 
 @csrf_exempt
 @require_POST
+def crop_extract(request):
+    """
+    OCR a user-selected rectangular region of a saved page image.
+    POST: stem, img_url, x_pct, y_pct, w_pct, h_pct  (all 0.0–1.0 fractions of image size)
+    Returns: { text }
+    """
+    stem    = request.POST.get('stem', '')
+    img_url = request.POST.get('img_url', '')
+    try:
+        x_pct = float(request.POST.get('x_pct', 0))
+        y_pct = float(request.POST.get('y_pct', 0))
+        w_pct = float(request.POST.get('w_pct', 0))
+        h_pct = float(request.POST.get('h_pct', 0))
+    except ValueError:
+        return JsonResponse({'error': 'Invalid crop coordinates.'}, status=400)
+
+    if not stem or not img_url:
+        return JsonResponse({'error': 'Missing stem or img_url.'}, status=400)
+    if w_pct < 0.005 or h_pct < 0.005:
+        return JsonResponse({'error': 'Selection too small.'}, status=400)
+
+    img_name = img_url.split('/')[-1]
+    img_path = Path(settings.OUTPUT_DIR) / stem / img_name
+    if not img_path.exists():
+        return JsonResponse({'error': f'Image not found: {img_name}'}, status=404)
+
+    try:
+        img = Image.open(str(img_path)).convert('RGB')
+        iw, ih = img.size
+        left   = max(0, int(x_pct * iw))
+        top    = max(0, int(y_pct * ih))
+        right  = min(iw, int((x_pct + w_pct) * iw))
+        bottom = min(ih, int((y_pct + h_pct) * ih))
+
+        crop = img.crop((left, top, right, bottom))
+        cw, ch = crop.size
+        # Scale up tiny crops so Tesseract has enough pixels
+        if cw < 400 or ch < 80:
+            scale = max(400 / max(cw, 1), 80 / max(ch, 1), 2.0)
+            crop = crop.resize((int(cw * scale), int(ch * scale)), Image.LANCZOS)
+
+        crop = ImageEnhance.Contrast(crop).enhance(1.4)
+        crop = crop.filter(ImageFilter.SHARPEN)
+        text = pytesseract.image_to_string(crop, lang='eng').strip()
+        return JsonResponse({'text': text or '(No text found in this region)'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_POST
 def extract_invoice(request):
     """
     Invoice data extractor from PDF.
