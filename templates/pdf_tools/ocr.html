@@ -259,6 +259,23 @@
   <span class="ocr-drop-hint">Supports multi-page PDFs · Bank statements · Scanned documents</span>
 </div>
 
+<!-- Ready card (shown after processing — user clicks to open new tab) -->
+<div id="ocrReadyCard" style="display:none;flex-direction:column;align-items:center;justify-content:center;gap:1.2rem;padding:3.5rem 2rem;text-align:center;background:#fafafa;border:2px dashed #e0e0e0;border-radius:18px;margin-bottom:1rem;">
+  <div style="width:64px;height:64px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#16a34a;">
+    <i class="fa-solid fa-circle-check"></i>
+  </div>
+  <div>
+    <div style="font-size:1.4rem;font-weight:900;color:#111;margin-bottom:.3rem;">OCR Complete!</div>
+    <div style="font-size:.88rem;color:#888;">Your PDF has been processed. Open results in a new tab.</div>
+  </div>
+  <button class="ocr-open-btn" style="display:inline-flex;align-items:center;gap:.6rem;background:#2563eb;color:#fff;border:none;border-radius:12px;padding:1rem 2.2rem;font-size:1rem;font-weight:800;cursor:pointer;box-shadow:0 4px 18px rgba(37,99,235,.35);transition:opacity .2s;">
+    <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Results in New Tab
+  </button>
+  <button class="ocr-again-btn" style="background:none;border:1.5px solid #e0e0e0;border-radius:10px;padding:.55rem 1.2rem;font-size:.82rem;font-weight:700;color:#666;cursor:pointer;transition:border-color .15s;">
+    <i class="fa-solid fa-rotate-left"></i> Process another PDF
+  </button>
+</div>
+
 <!-- Processing card -->
 <div class="ocr-processing" id="pdfLoader">
   <div class="ocr-proc-top">
@@ -358,6 +375,26 @@
 {% endblock %}
 
 {% block extra_js %}<script>
+/* ── New-tab result loader ──
+   If URL has ?r=KEY, read from localStorage and show viewer directly */
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const rKey   = params.get('r');
+  if (!rKey) return;
+  try {
+    const stored = localStorage.getItem(rKey);
+    if (!stored) return;
+    const { imgs, stem, filename, pages } = JSON.parse(stored);
+    localStorage.removeItem(rKey);          // clean up
+    /* Hide drop zone, show viewer after DOM ready */
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('uploadZone').style.display  = 'none';
+      document.getElementById('ocrReadyCard').style.display = 'none';
+      window._ocr_autoload = { imgs, stem, filename };
+    });
+  } catch(e) {}
+})();
+
 // Override global showError — ocr page has no .result-card, show inline banner instead
 function showError(msg) {
   const errDiv = document.getElementById('ocrErr');
@@ -819,12 +856,27 @@ document.getElementById('fileInput').addEventListener('change', async function (
           clearInterval(pollTimer);
           setProgress(100, data.total, data.total);
           setTimeout(() => {
-            document.getElementById('viewerTitle').textContent = file.name;
-            document.getElementById('pagesCount').textContent  = _imgs.length + ' page' + (_imgs.length===1?'':'s');
-            buildGrid();
             stopLoader();
-            document.getElementById('pdfViewer').style.display = '';
-            document.getElementById('pdfViewer').scrollIntoView({ behavior:'smooth', block:'start' });
+            /* Save result to localStorage so the new tab can read it */
+            const resultKey = 'ocr_result_' + Date.now();
+            try {
+              localStorage.setItem(resultKey, JSON.stringify({
+                imgs: _imgs, stem: _stem, filename: file.name,
+                pages: _imgs.length
+              }));
+            } catch(e) {}
+            /* Show "ready" card with open-in-new-tab button */
+            document.getElementById('uploadZone').style.display = 'none';
+            const readyCard = document.getElementById('ocrReadyCard');
+            readyCard.style.display = 'flex';
+            readyCard.querySelector('.ocr-open-btn').onclick = function() {
+              window.open(window.location.pathname + '?r=' + resultKey, '_blank');
+            };
+            readyCard.querySelector('.ocr-again-btn').onclick = function() {
+              readyCard.style.display = 'none';
+              document.getElementById('uploadZone').style.display = '';
+              _imgs = []; _texts = {}; _stem = '';
+            };
           }, 400);
         }
       } catch(e) { showError('Polling error: ' + e.message); stopLoader(); }
@@ -834,4 +886,21 @@ document.getElementById('fileInput').addEventListener('change', async function (
     showError(err.message); stopLoader();
   }
 });
+
+/* ── Auto-load when opened as result tab ── */
+(function() {
+  if (!window._ocr_autoload) return;
+  const { imgs, stem, filename } = window._ocr_autoload;
+  _imgs = imgs; _stem = stem;
+  document.getElementById('viewerTitle').textContent = filename;
+  document.getElementById('pagesCount').textContent  = imgs.length + ' page' + (imgs.length===1?'':'s');
+  buildGrid();
+  document.getElementById('pdfViewer').style.display = '';
+  /* Add "← Process another PDF" back link */
+  const backBtn = document.createElement('button');
+  backBtn.innerHTML = '<i class="fa-solid fa-arrow-left"></i> Process another PDF';
+  backBtn.style.cssText = 'display:inline-flex;align-items:center;gap:.45rem;background:none;border:1.5px solid #e0e0e0;border-radius:10px;padding:.55rem 1.2rem;font-size:.82rem;font-weight:700;color:#666;cursor:pointer;margin-bottom:.8rem;';
+  backBtn.onclick = () => window.close();
+  document.getElementById('pdfViewer').insertAdjacentElement('beforebegin', backBtn);
+})();
 </script>{% endblock %}
