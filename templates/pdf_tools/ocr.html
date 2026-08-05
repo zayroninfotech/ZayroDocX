@@ -57,39 +57,21 @@
 .ocr-drop-btn:hover { opacity: .88; }
 .ocr-drop-hint { display: block; margin-top: .7rem; font-size: .74rem; color: var(--text-muted); }
 
-/* ── Processing card ── */
-.ocr-processing {
-  display: none; background: var(--surface); border: 1px solid var(--border);
-  border-radius: 14px; padding: 2rem 1.5rem; margin-bottom: 1.2rem;
+/* ── Fullscreen loader overlay ── */
+.ocr-loader {
+  display: none; position: fixed; inset: 0; z-index: 9000;
+  background: rgba(255,255,255,.85); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center; flex-direction: column; gap: 1.2rem;
 }
-.ocr-processing.show { display: block; }
-.ocr-proc-top {
-  display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;
+.ocr-loader.show { display: flex; }
+.ocr-loader-ring {
+  width: 72px; height: 72px;
+  border: 6px solid #fee2e2; border-top-color: #dc2626;
+  border-radius: 50%; animation: ocrSpin .75s linear infinite;
 }
-.ocr-proc-icon {
-  width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
-  background: linear-gradient(135deg,#b91c1c,#dc2626);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.2rem; color: #fff; animation: pulse-dot 2s infinite;
-}
-.ocr-proc-title { font-size: .95rem; font-weight: 700; }
-.ocr-proc-sub   { font-size: .78rem; color: var(--text-muted); margin-top: .2rem; }
-.ocr-proc-bar-wrap {
-  background: var(--bg); border-radius: 99px; height: 8px; overflow: hidden;
-  border: 1px solid var(--border); margin-bottom: .65rem; position: relative;
-}
-.ocr-proc-bar {
-  height: 100%; width: 0%; border-radius: 99px;
-  background: linear-gradient(90deg,#b91c1c,#dc2626,#f87171);
-  background-size: 400px 100%;
-  animation: shimmer 1.8s infinite linear;
-  transition: width .4s ease;
-}
-.ocr-proc-footer {
-  display: flex; align-items: center; justify-content: space-between;
-  font-size: .78rem; color: var(--text-muted);
-}
-.ocr-proc-pct { font-weight: 700; color: #dc2626; font-size: .88rem; }
+@keyframes ocrSpin { to { transform: rotate(360deg); } }
+.ocr-loader-text { font-size: 1rem; font-weight: 700; color: #dc2626; }
+.ocr-loader-sub  { font-size: .78rem; color: #888; margin-top: -.6rem; }
 
 /* ── Pages header ── */
 .pdf-pages-header {
@@ -276,21 +258,11 @@
   </button>
 </div>
 
-<!-- Processing card -->
-<div class="ocr-processing" id="pdfLoader">
-  <div class="ocr-proc-top">
-    <div class="ocr-proc-icon"><i class="fa-solid fa-eye"></i></div>
-    <div>
-      <div class="ocr-proc-title">Processing PDF with OCR…</div>
-      <div class="ocr-proc-sub" id="loaderSub">Starting…</div>
-    </div>
-    <div style="margin-left:auto;font-size:1.4rem;font-weight:800;color:#dc2626" id="loaderPct">0%</div>
-  </div>
-  <div class="ocr-proc-bar-wrap"><div class="ocr-proc-bar" id="loaderBar"></div></div>
-  <div class="ocr-proc-footer">
-    <span><i class="fa-solid fa-lock" style="color:#dc2626"></i> All processing done locally</span>
-    <span class="ocr-proc-pct" id="loaderPctSmall"></span>
-  </div>
+<!-- Fullscreen loader overlay -->
+<div class="ocr-loader" id="pdfLoader">
+  <div class="ocr-loader-ring"></div>
+  <div class="ocr-loader-text">Processing PDF with OCR…</div>
+  <div class="ocr-loader-sub" id="loaderSub">Starting…</div>
 </div>
 
 <!-- Pages viewer -->
@@ -418,10 +390,8 @@ function imgSrc(src) {
 
 // ── Progress ──
 function setProgress(pct, page, total) {
-  document.getElementById('loaderPct').textContent = pct + '%';
-  document.getElementById('loaderBar').style.width = pct + '%';
-  document.getElementById('loaderSub').textContent =
-    (page && total) ? 'Page ' + page + ' of ' + total : 'Starting…';
+  const sub = document.getElementById('loaderSub');
+  if (sub) sub.textContent = (page && total) ? 'Page ' + page + ' of ' + total + ' — ' + pct + '%' : 'Starting…';
 }
 
 // ── Build Grid ──
