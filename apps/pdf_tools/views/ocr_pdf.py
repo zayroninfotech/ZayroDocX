@@ -929,22 +929,48 @@ Rules:
         out_path, out_name = get_output_path('.xlsx', f'ai_page_{page_no}')
         wb.save(out_path)
 
-        # â"€â"€ Display text â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+        # ── Display text — clean readable format ────────────────────────────
+        def _flat(val, indent=0):
+            """Recursively flatten dicts/lists to readable lines."""
+            prefix = '  ' * indent
+            if isinstance(val, dict):
+                return '\n'.join(f'{prefix}{k.replace("_"," ").title()}: {_flat(v, indent+1)}' for k, v in val.items() if v not in (None, '', [], {}))
+            if isinstance(val, list):
+                return ('\n' + prefix).join(_flat(i, indent) for i in val if i not in (None, '', {}, []))
+            return str(val)
+
         lines = []
+        page_type = extracted.get('page_type', '').replace('_', ' ').upper()
+        if page_type:
+            lines += [f'{'─'*50}', f'  {page_type}', f'{'─'*50}', '']
+
         if hfields:
+            htitle = (extracted.get('header') or {}).get('title', '')
+            if htitle:
+                lines += [f'  {htitle}', '']
             for k, v in hfields.items():
-                lines.append(f'{k}: {v}')
+                lines.append(_flat({k: v}))
             lines.append('')
+
         if transactions:
-            lines.append('\t'.join(col_labels))
-            lines.append('-' * 100)
-            for txn in transactions:
-                lines.append('\t'.join(str(txn.get(k, '') or '') for k in col_keys))
-        if sfields:
+            lines += ['─'*50, '  LINE ITEMS', '─'*50]
+            for i, txn in enumerate(transactions, 1):
+                lines.append(f'\n  [{i}]')
+                for k in col_keys:
+                    v = txn.get(k)
+                    if v not in (None, '', 0, 0.0):
+                        lines.append(f'  {k.replace("_"," ").title()}: {v}')
             lines.append('')
+
+        if sfields:
+            lines += ['─'*50, '  SUMMARY', '─'*50]
             for k, v in sfields.items():
-                lines.append(f'{k}: {v}')
-        display_text = extracted.get('raw_text', '').strip() or '\n'.join(lines) or '(No data extracted)'
+                if v not in (None, '', [], {}):
+                    lines.append(f'  {k.replace("_"," ").title()}: {v}')
+
+        fallback = '\n'.join(lines).strip()
+        raw = extracted.get('raw_text', '').strip()
+        display_text = raw if raw else (fallback or '(No data extracted)')
 
         return JsonResponse({
             'text':       display_text,
