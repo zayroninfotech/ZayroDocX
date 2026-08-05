@@ -970,6 +970,8 @@ Rules:
 
         fallback = '\n'.join(lines).strip()
         raw = extracted.get('raw_text', '').strip()
+        # Strip stray JSON closing characters Gemini sometimes appends to raw_text
+        raw = re.sub(r'[\s"{}]+$', '', raw).strip()
         display_text = raw if raw else (fallback or '(No data extracted)')
 
         return JsonResponse({

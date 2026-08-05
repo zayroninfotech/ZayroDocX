@@ -603,7 +603,9 @@ async function aiExtractModal() {
       const dlBtn = document.getElementById('modalExcelBtn');
       dlBtn.href = data.excel_url;
       dlBtn.download = data.excel_name || 'ai_page.xlsx';
-      dlBtn.style.display = '';
+      dlBtn.style.display = 'inline-flex';
+      dlBtn.style.alignItems = 'center';
+      dlBtn.style.gap = '5px';
     }
   } catch(e) {
     document.getElementById('modalTxt').textContent = 'AI extraction failed: ' + e.message;
