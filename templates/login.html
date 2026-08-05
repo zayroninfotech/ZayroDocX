@@ -4,10 +4,15 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Prevent page scroll on login */
+html, body { overflow: hidden; height: 100%; }
+
 .lp-wrap {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
-  min-height: calc(100vh - 68px);
+  height: calc(100vh - 68px);
+  max-height: calc(100vh - 68px);
+  overflow: hidden;
   margin: -1.5rem -1.5rem 0;
 }
 @media (max-width: 860px) {
@@ -70,7 +75,7 @@
 }
 
 /* ═══ RIGHT ═══ */
-.lp-right { display:flex; align-items:center; justify-content:center; padding:2.5rem 2rem; background:#f8fafc; }
+.lp-right { display:flex; align-items:center; justify-content:center; padding:2.5rem 2rem; background:#f8fafc; overflow:hidden; }
 .login-card {
   background:#fff; width:100%; max-width:400px;
   border:1px solid #e2e8f0; border-radius:24px; padding:2.8rem 2.5rem;
