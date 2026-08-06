@@ -4,99 +4,302 @@
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">PowerPoint to PDF</span>{% endblock %}
 
 {% block extra_head %}<style>
-.file-selected-card {
-  display: none; background: #fff; border: 1.5px solid #fca5a5;
-  border-radius: 16px; padding: 1.4rem 1.6rem;
-  align-items: center; gap: 1.2rem;
-  box-shadow: 0 2px 12px rgba(220,38,38,.08);
+/* ── Drop zone ── */
+.p2p-drop {
+  border: 2.5px dashed #cbd5e1; border-radius: 20px;
+  padding: 3rem 2rem; text-align: center; cursor: pointer;
+  transition: border-color .2s, background .2s;
+  background: #f8fafc;
 }
-.file-selected-card.show { display: flex; }
-.fsc-icon {
-  width: 56px; height: 56px; border-radius: 14px;
+.p2p-drop:hover, .p2p-drop.drag-over {
+  border-color: #d04a02; background: #fff3ee;
+}
+.p2p-drop-icon { font-size: 3rem; color: #d04a02; margin-bottom: .8rem; }
+.p2p-drop h3   { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
+.p2p-drop p    { color: #64748b; margin: 0 0 1.2rem; }
+.p2p-drop-btn {
+  background: #d04a02; color: #fff; border: none; border-radius: 10px;
+  padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer;
+  transition: background .15s;
+}
+.p2p-drop-btn:hover { background: #b54200; }
+
+/* ── Split ── */
+.p2p-split {
+  display: none;
+  grid-template-columns: 1fr 420px;
+  gap: 20px;
+  align-items: start;
+}
+.p2p-split.show { display: grid; }
+
+/* ── Viewer ── */
+.p2p-viewer {
+  background: #0f172a; border-radius: 16px; padding: 16px;
+  min-height: 400px; display: flex; align-items: flex-start;
+  justify-content: center; overflow: auto; scroll-behavior: smooth;
+}
+.p2p-viewer-pages {
+  display: flex; flex-direction: column; gap: 12px;
+  align-items: center; width: 100%;
+}
+.p2p-viewer-pages img {
+  width: 100%; max-width: 680px; border-radius: 6px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block;
+}
+.p2p-viewer-loading {
+  color: #94a3b8; font-size: .9rem; padding: 2rem;
+  display: flex; flex-direction: column; align-items: center; gap: .8rem;
+}
+.p2p-viewer-loading i { font-size: 2rem; }
+
+/* ── Right panel ── */
+.p2p-right {
+  display: flex; flex-direction: column; gap: 16px;
+  position: sticky; top: 16px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto; padding-right: 4px; scrollbar-width: thin;
+}
+.p2p-card {
+  background: #fff; border: 1.5px solid #e8e8e8;
+  border-radius: 14px; padding: 1.1rem 1.3rem;
+}
+.p2p-file-row { display: flex; align-items: center; gap: .9rem; }
+.p2p-file-icon {
+  width: 48px; height: 48px; border-radius: 12px;
   background: #fff3ee; display: flex; align-items: center; justify-content: center;
-  font-size: 1.6rem; color: #d04a02; flex-shrink: 0;
+  font-size: 1.5rem; color: #d04a02; flex-shrink: 0;
 }
-.fsc-info { flex: 1; min-width: 0; }
-.fsc-name { font-size: 1rem; font-weight: 700; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.fsc-size { font-size: .8rem; color: #aaa; margin-top: .2rem; }
-.fsc-change {
-  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 10px;
-  padding: .5rem 1rem; font-size: .82rem; font-weight: 600; color: #666;
-  cursor: pointer; transition: all .15s; white-space: nowrap; flex-shrink: 0;
+.p2p-file-name { font-size: .9rem; font-weight: 700; color: #111; word-break: break-all; }
+.p2p-file-size { font-size: .78rem; color: #aaa; margin-top: .15rem; }
+.p2p-change-btn {
+  margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8;
+  border-radius: 8px; padding: .4rem .85rem; font-size: .78rem; font-weight: 600;
+  color: #666; cursor: pointer; transition: all .15s; white-space: nowrap; flex-shrink: 0;
 }
-.fsc-change:hover { border-color: #fca5a5; color: #dc2626; }
+.p2p-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
+
+.p2p-convert-btn {
+  width: 100%; padding: .85rem;
+  background: linear-gradient(135deg, #d04a02, #b54200);
+  color: #fff; border: none; border-radius: 12px;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  transition: opacity .15s;
+}
+.p2p-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.p2p-loading-card {
+  display: none;
+  background: #fff3ee; border: 1.5px solid #fdba74;
+  border-radius: 14px; padding: 1.2rem 1.3rem;
+  align-items: center; gap: 1rem;
+}
+.p2p-loading-card.show { display: flex; }
+.p2p-spin { animation: spin 1s linear infinite; font-size: 1.4rem; color: #d04a02; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.p2p-loading-text { font-size: .9rem; font-weight: 600; color: #9a3412; }
+
+.p2p-result-card {
+  display: none;
+  background: #f0fdf4; border: 1.5px solid #86efac;
+  border-radius: 14px; padding: 1.2rem 1.3rem;
+}
+.p2p-result-card.show { display: block; }
+.p2p-result-title {
+  font-size: .85rem; font-weight: 700; color: #166534;
+  display: flex; align-items: center; gap: .4rem; margin-bottom: .8rem;
+}
+.p2p-dl-btn {
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  width: 100%; padding: .7rem;
+  background: #16a34a; color: #fff; border: none; border-radius: 10px;
+  font-size: .9rem; font-weight: 700; cursor: pointer; text-decoration: none;
+  transition: background .15s;
+}
+.p2p-dl-btn:hover { background: #15803d; }
+
+.p2p-error-card {
+  display: none;
+  background: #fff1f2; border: 1.5px solid #fca5a5;
+  border-radius: 14px; padding: 1.1rem 1.3rem;
+}
+.p2p-error-card.show { display: block; }
+.p2p-error-msg { font-size: .85rem; color: #dc2626; }
+
+@media (max-width: 1000px) {
+  .p2p-split { grid-template-columns: 1fr; }
+  .p2p-right { position: static; max-height: none; }
+}
 </style>{% endblock %}
 
 {% block content %}
-<form id="toolForm">{% csrf_token %}
-  <input type="file" id="fileInput" name="file" accept=".ppt,.pptx" style="display:none">
+<input type="file" id="fileInput" name="file" accept=".ppt,.pptx" style="display:none">
 
-  <!-- Drop zone -->
-  <div class="cv-drop" id="cvDrop" onclick="document.getElementById('fileInput').click()">
-    <div class="cv-drop-icon"><i class="fa-solid fa-file-powerpoint"></i></div>
-    <h3>Drop your PowerPoint file here</h3>
-    <p>Supports .ppt and .pptx formats</p>
-    <button type="button" class="cv-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-plus"></i> Select PowerPoint File
-    </button>
-    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> All processing done locally — never uploaded</span>
-  </div>
-
-  <!-- File selected card -->
-  <div class="file-selected-card" id="fileCard">
-    <div class="fsc-icon"><i class="fa-solid fa-file-powerpoint"></i></div>
-    <div class="fsc-info">
-      <div class="fsc-name" id="fscName">—</div>
-      <div class="fsc-size" id="fscSize">—</div>
-    </div>
-    <button type="button" class="fsc-change" onclick="changeFile()">
-      <i class="fa-solid fa-rotate-left"></i> Change
-    </button>
-  </div>
-
-  <button type="submit" class="cv-submit btn-submit" id="convertBtn" style="display:none; margin-top:1rem;">
-    <i class="fa-solid fa-file-pdf"></i> Convert PowerPoint to PDF
+<!-- Step 1: Drop zone -->
+<div class="p2p-drop" id="p2pDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="p2p-drop-icon"><i class="fa-solid fa-file-powerpoint"></i></div>
+  <h3>Drop your PowerPoint file here</h3>
+  <p>Supports .ppt and .pptx formats</p>
+  <button type="button" class="p2p-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-plus"></i> Select PowerPoint File
   </button>
-</form>
-
-<div class="progress-wrap">
-  <div class="progress-header"><span class="progress-label">Converting…</span></div>
-  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
 </div>
-<div class="result-card"></div>
+
+<!-- Step 2: Split view -->
+<div class="p2p-split" id="p2pSplit">
+  <!-- Left: page viewer -->
+  <div class="p2p-viewer" id="p2pViewer">
+    <div class="p2p-viewer-loading" id="p2pViewerLoading">
+      <i class="fa-solid fa-spinner p2p-spin"></i>
+      <span>Generating preview…</span>
+    </div>
+    <div class="p2p-viewer-pages" id="p2pPages" style="display:none"></div>
+  </div>
+
+  <!-- Right: controls -->
+  <div class="p2p-right">
+    <!-- File info card -->
+    <div class="p2p-card">
+      <div class="p2p-file-row">
+        <div class="p2p-file-icon"><i class="fa-solid fa-file-powerpoint"></i></div>
+        <div>
+          <div class="p2p-file-name" id="p2pFileName">—</div>
+          <div class="p2p-file-size" id="p2pFileSize">—</div>
+        </div>
+        <button type="button" class="p2p-change-btn" onclick="resetTool()">
+          <i class="fa-solid fa-rotate-left"></i> Change
+        </button>
+      </div>
+    </div>
+
+    <!-- Convert button -->
+    <button type="button" class="p2p-convert-btn" id="p2pConvertBtn" onclick="doConvert()">
+      <i class="fa-solid fa-file-pdf"></i> Convert PowerPoint to PDF
+    </button>
+
+    <!-- Loading card -->
+    <div class="p2p-loading-card" id="p2pLoadingCard">
+      <i class="fa-solid fa-spinner p2p-spin"></i>
+      <span class="p2p-loading-text">Converting, please wait…</span>
+    </div>
+
+    <!-- Result card -->
+    <div class="p2p-result-card" id="p2pResultCard">
+      <div class="p2p-result-title"><i class="fa-solid fa-circle-check"></i> PDF ready!</div>
+      <a class="p2p-dl-btn" id="p2pDlBtn" href="#" download>
+        <i class="fa-solid fa-download"></i> Download PDF
+      </a>
+    </div>
+
+    <!-- Error card -->
+    <div class="p2p-error-card" id="p2pErrorCard">
+      <div class="p2p-error-msg" id="p2pErrorMsg"></div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}<script>
-const fileInput  = document.getElementById('fileInput');
-const cvDrop     = document.getElementById('cvDrop');
-const fileCard   = document.getElementById('fileCard');
-const convertBtn = document.getElementById('convertBtn');
+const fileInput      = document.getElementById('fileInput');
+const p2pDrop        = document.getElementById('p2pDrop');
+const p2pSplit       = document.getElementById('p2pSplit');
+const p2pPages       = document.getElementById('p2pPages');
+const p2pViewerLoad  = document.getElementById('p2pViewerLoading');
+const p2pConvertBtn  = document.getElementById('p2pConvertBtn');
+const p2pLoadingCard = document.getElementById('p2pLoadingCard');
+const p2pResultCard  = document.getElementById('p2pResultCard');
+const p2pErrorCard   = document.getElementById('p2pErrorCard');
+
+let currentFile = null;
+
+function resetTool() {
+  fileInput.value = '';
+  currentFile = null;
+  p2pDrop.style.display = '';
+  p2pSplit.classList.remove('show');
+  p2pPages.innerHTML = '';
+  p2pPages.style.display = 'none';
+  p2pViewerLoad.style.display = 'flex';
+  p2pConvertBtn.disabled = false;
+  p2pLoadingCard.classList.remove('show');
+  p2pResultCard.classList.remove('show');
+  p2pErrorCard.classList.remove('show');
+}
+
+async function loadPreview(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+  try {
+    const res = await fetch('{% url "api_render_pptx_pages" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    p2pPages.innerHTML = '';
+    data.page_images.forEach((b64, i) => {
+      const img = document.createElement('img');
+      img.src = 'data:image/jpeg;base64,' + b64;
+      img.alt = 'Slide ' + (i + 1);
+      p2pPages.appendChild(img);
+    });
+    p2pViewerLoad.style.display = 'none';
+    p2pPages.style.display = 'flex';
+  } catch (e) {
+    p2pViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>';
+  }
+}
 
 function setFile(f) {
   if (!f) return;
-  document.getElementById('fscName').textContent = f.name;
-  document.getElementById('fscSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
+  currentFile = f;
+  document.getElementById('p2pFileName').textContent = f.name;
+  document.getElementById('p2pFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
-  cvDrop.style.display = 'none';
-  fileCard.classList.add('show');
-  convertBtn.style.display = 'flex';
+
+  p2pDrop.style.display = 'none';
+  p2pResultCard.classList.remove('show');
+  p2pErrorCard.classList.remove('show');
+  p2pSplit.classList.add('show');
+
+  loadPreview(f);
 }
 
-function changeFile() {
-  fileInput.value = '';
-  cvDrop.style.display = '';
-  fileCard.classList.remove('show');
-  convertBtn.style.display = 'none';
-  document.querySelector('.result-card').className = 'result-card';
+async function doConvert() {
+  if (!currentFile) return;
+  p2pConvertBtn.disabled = true;
+  p2pLoadingCard.classList.add('show');
+  p2pResultCard.classList.remove('show');
+  p2pErrorCard.classList.remove('show');
+
+  const fd = new FormData();
+  fd.append('file', currentFile);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+  try {
+    const res = await fetch('{% url "api_pptx_to_pdf" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    document.getElementById('p2pDlBtn').href = data.download_url;
+    document.getElementById('p2pDlBtn').download = data.filename || 'converted.pdf';
+    p2pResultCard.classList.add('show');
+  } catch (e) {
+    document.getElementById('p2pErrorMsg').textContent = e.message || 'Conversion failed.';
+    p2pErrorCard.classList.add('show');
+  } finally {
+    p2pLoadingCard.classList.remove('show');
+    p2pConvertBtn.disabled = false;
+  }
 }
 
 fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
-cvDrop.addEventListener('dragover',  e => { e.preventDefault(); cvDrop.classList.add('drag-over'); });
-cvDrop.addEventListener('dragleave', () => cvDrop.classList.remove('drag-over'));
-cvDrop.addEventListener('drop', e => {
-  e.preventDefault(); cvDrop.classList.remove('drag-over');
+
+p2pDrop.addEventListener('dragover',  e => { e.preventDefault(); p2pDrop.classList.add('drag-over'); });
+p2pDrop.addEventListener('dragleave', () => p2pDrop.classList.remove('drag-over'));
+p2pDrop.addEventListener('drop', e => {
+  e.preventDefault(); p2pDrop.classList.remove('drag-over');
   setFile(e.dataTransfer.files[0]);
 });
-
-submitToolForm({ formId:'toolForm', apiUrl:'{% url "api_pptx_to_pdf" %}', fileInputId:'fileInput' });
 </script>{% endblock %}

@@ -132,6 +132,43 @@ def render_word_pages(request):
 
 @csrf_exempt
 @require_POST
+def render_pptx_pages(request):
+    """Convert PowerPoint file to PDF temporarily and render pages as base64 JPEG images."""
+    f = request.FILES.get('file')
+    if not f:
+        return JsonResponse({'error': 'No file uploaded.'}, status=400)
+
+    saved_path, _ = save_uploaded_file(f)
+    tmp_pdf = saved_path + '_preview.pdf'
+    try:
+        validate_office(saved_path, f.name, kinds=('ppt', 'pptx'))
+        success = _libreoffice_convert(saved_path, tmp_pdf)
+        if not success:
+            return JsonResponse({'error': 'Preview unavailable — conversion failed.'}, status=500)
+
+        doc = fitz.open(tmp_pdf)
+        page_images = []
+        for page in doc:
+            pix = page.get_pixmap(dpi=150)
+            img = Image.open(BytesIO(pix.tobytes('png'))).convert('RGB')
+            img = ImageEnhance.Sharpness(img).enhance(1.3)
+            buf = BytesIO()
+            img.save(buf, 'JPEG', quality=80, optimize=True)
+            page_images.append(base64.b64encode(buf.getvalue()).decode())
+        doc.close()
+        return JsonResponse({'page_images': page_images, 'page_count': len(page_images)})
+    except ValueError as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    finally:
+        cleanup_file(saved_path)
+        if os.path.exists(tmp_pdf):
+            os.remove(tmp_pdf)
+
+
+@csrf_exempt
+@require_POST
 def pptx_to_pdf(request):
     f = request.FILES.get('file')
     if not f:
@@ -154,6 +191,43 @@ def pptx_to_pdf(request):
         return JsonResponse({'error': f'Conversion failed: {e}'}, status=500)
     finally:
         cleanup_file(saved_path)
+
+
+@csrf_exempt
+@require_POST
+def render_excel_pages(request):
+    """Convert Excel file to PDF temporarily and render pages as base64 JPEG images."""
+    f = request.FILES.get('file')
+    if not f:
+        return JsonResponse({'error': 'No file uploaded.'}, status=400)
+
+    saved_path, _ = save_uploaded_file(f)
+    tmp_pdf = saved_path + '_preview.pdf'
+    try:
+        validate_office(saved_path, f.name, kinds=('xls', 'xlsx'))
+        success = _libreoffice_convert(saved_path, tmp_pdf)
+        if not success:
+            return JsonResponse({'error': 'Preview unavailable — conversion failed.'}, status=500)
+
+        doc = fitz.open(tmp_pdf)
+        page_images = []
+        for page in doc:
+            pix = page.get_pixmap(dpi=150)
+            img = Image.open(BytesIO(pix.tobytes('png'))).convert('RGB')
+            img = ImageEnhance.Sharpness(img).enhance(1.3)
+            buf = BytesIO()
+            img.save(buf, 'JPEG', quality=80, optimize=True)
+            page_images.append(base64.b64encode(buf.getvalue()).decode())
+        doc.close()
+        return JsonResponse({'page_images': page_images, 'page_count': len(page_images)})
+    except ValueError as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    finally:
+        cleanup_file(saved_path)
+        if os.path.exists(tmp_pdf):
+            os.remove(tmp_pdf)
 
 
 @csrf_exempt
