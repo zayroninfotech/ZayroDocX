@@ -615,12 +615,19 @@ async function aiExtractModal() {
     if (data.error) { document.getElementById('modalTxt').textContent = 'Error: ' + data.error; return; }
     _texts[_modalIdx] = data.text || '';
     document.getElementById('modalTxt').textContent = _texts[_modalIdx] || '(No data extracted)';
+    const dlBtn = document.getElementById('modalExcelBtn');
+    const wrap  = document.getElementById('modalExcelWrap');
     if (data.excel_url) {
-      const dlBtn = document.getElementById('modalExcelBtn');
       dlBtn.href = data.excel_url;
       dlBtn.download = data.excel_name || 'ai_page.xlsx';
-      document.getElementById('modalExcelWrap').style.display = '';
+      dlBtn.style.opacity = '1';
+      dlBtn.style.pointerEvents = 'auto';
+    } else {
+      dlBtn.href = '#';
+      dlBtn.style.opacity = '0.5';
+      dlBtn.style.pointerEvents = 'none';
     }
+    wrap.style.display = '';
   } catch(e) {
     document.getElementById('modalTxt').textContent = 'AI extraction failed: ' + e.message;
   } finally {
