@@ -44,7 +44,7 @@ from apps.pdf_tools.views.sign_pdf import sign_pdf
 from apps.pdf_tools.views.ocr_pdf import ocr_pdf, ocr_pdf_stream, ocr_pdf_progress, extract_page, extract_page_ai, extract_statement_summary, extract_invoice, scan_to_pdf, invoice_to_excel, extract_invoice_ai, smart_split_suggest, detect_blank_pages, crop_extract, extract_all_pages_excel
 from apps.pdf_tools.views.convert_to_pdf import word_to_pdf, pptx_to_pdf, excel_to_pdf, html_to_pdf, jpg_to_pdf
 from apps.pdf_tools.views.convert_from_pdf import pdf_to_jpg, pdf_to_word, pdf_to_pptx, pdf_to_excel
-from apps.pdf_tools.views.ai_summarizer import summarize_pdf
+from apps.pdf_tools.views.ai_summarizer import summarize_pdf, render_pdf_pages
 from apps.pdf_tools.views.translate_pdf import translate_pdf
 from apps.pdf_tools.views.security import protect_pdf, unlock_pdf, redact_pdf
 from apps.pdf_tools.views.crop_pdf import crop_pdf
@@ -136,6 +136,7 @@ urlpatterns = [
     path('api/pdf-to-pptx/',    protected_api(_tag(pdf_to_pptx,   'pdf-to-pptx')),    name='api_pdf_to_pptx'),
     path('api/pdf-to-excel/',   protected_api(_tag(pdf_to_excel,  'pdf-to-excel')),   name='api_pdf_to_excel'),
     path('api/summarize-pdf/',  protected_api(_tag(summarize_pdf, 'ai-summarizer')),   name='api_summarize_pdf'),
+    path('api/render-pdf-pages/', render_pdf_pages, name='api_render_pdf_pages'),
     path('api/translate-pdf/',  protected_api(_tag(translate_pdf, 'translate-pdf')),   name='api_translate_pdf'),
     path('api/crop-pdf/',       protected_api(_tag(crop_pdf,      'crop-pdf')),        name='api_crop_pdf'),
     path('api/protect-pdf/',    protected_api(_tag(protect_pdf,   'protect-pdf')),     name='api_protect_pdf'),

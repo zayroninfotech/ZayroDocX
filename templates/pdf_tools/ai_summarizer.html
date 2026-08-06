@@ -423,6 +423,28 @@
     <span class="ai-file-bar-size" id="fileBarSize">—</span>
   </div>
 
+  <!-- PDF Page Viewer (shown after file pick) -->
+  <div id="pdfViewer" style="display:none;margin-bottom:1rem;border-radius:16px;overflow:hidden;background:#0f172a;box-shadow:0 8px 32px rgba(0,0,0,.3)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#1e293b;border-bottom:1px solid rgba(255,255,255,.08)">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:28px;height:28px;border-radius:7px;background:#9333ea;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#fff"><i class="fa-solid fa-file-image"></i></div>
+        <div>
+          <div style="font-size:.82rem;font-weight:700;color:#e2e8f0" id="viewerTitle">PDF Pages</div>
+          <div style="font-size:.68rem;color:#64748b">Rendered at 150 DPI</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px">
+        <button onclick="pgGo(pgCur-1)" id="pgPrev" style="width:30px;height:30px;border-radius:7px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.72rem" disabled><i class="fa-solid fa-chevron-left"></i></button>
+        <span id="pgLabel" style="font-size:.76rem;color:#94a3b8;min-width:48px;text-align:center;font-weight:600">1 / 1</span>
+        <button onclick="pgGo(pgCur+1)" id="pgNext" style="width:30px;height:30px;border-radius:7px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.72rem"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+    </div>
+    <div id="pgArea" style="padding:16px;display:flex;align-items:flex-start;justify-content:center;min-height:200px;background:#0f172a">
+      <img id="pgImg" src="" alt="page" style="max-width:100%;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.5);transition:opacity .2s">
+    </div>
+    <div id="pgThumbStrip" style="display:none;gap:6px;padding:10px 16px;overflow-x:auto;background:#1a2744;border-top:1px solid rgba(255,255,255,.06)"></div>
+  </div>
+
   <button type="submit" class="ai-submit" id="submitBtn">
     <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize PDF
   </button>
@@ -466,17 +488,78 @@
   const fileBarName = document.getElementById('fileBarName');
   const fileBarSize = document.getElementById('fileBarSize');
 
+  // Page viewer state
+  let pgPages = [], pgCur = 0;
+
   zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
   zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
   zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
   input.addEventListener('change', () => setFile(input.files[0]));
 
-  function setFile(f) {
+  async function setFile(f) {
     if (!f) return;
     const dt = new DataTransfer(); dt.items.add(f); input.files = dt.files;
     fileBarName.textContent = f.name;
     fileBarSize.textContent = (f.size / 1024).toFixed(1) + ' KB';
     fileBar.classList.add('show');
+
+    // Render pages immediately
+    document.getElementById('pdfViewer').style.display = 'none';
+    document.getElementById('pgImg').style.opacity = '0.4';
+    document.getElementById('pgArea').style.minHeight = '160px';
+    document.getElementById('pdfViewer').style.display = '';
+    document.getElementById('viewerTitle').textContent = 'Rendering pages…';
+
+    try {
+      const fd = new FormData();
+      fd.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+      fd.append('file', f);
+      const res = await fetch('/tools/api/render-pdf-pages/', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.error || !data.page_images) {
+        document.getElementById('viewerTitle').textContent = 'Preview unavailable';
+        return;
+      }
+      pgPages = data.page_images;
+      pgCur = 0;
+      document.getElementById('viewerTitle').textContent = `PDF Pages (${pgPages.length})`;
+
+      // Thumbnails
+      const strip = document.getElementById('pgThumbStrip');
+      strip.innerHTML = '';
+      if (pgPages.length > 1) {
+        strip.style.display = 'flex';
+        pgPages.forEach((b64, i) => {
+          const d = document.createElement('div');
+          d.style.cssText = 'flex-shrink:0;width:50px;cursor:pointer;border-radius:5px;overflow:hidden;border:2px solid transparent;opacity:.55;transition:opacity .15s,border-color .15s';
+          d.innerHTML = `<img src="data:image/jpeg;base64,${b64}" style="width:100%;display:block">`;
+          d.addEventListener('click', () => pgGo(i));
+          strip.appendChild(d);
+        });
+      } else { strip.style.display = 'none'; }
+
+      pgGo(0);
+    } catch(e) {
+      document.getElementById('viewerTitle').textContent = 'Preview unavailable';
+    }
+  }
+
+  function pgGo(idx) {
+    if (!pgPages.length) return;
+    pgCur = Math.max(0, Math.min(idx, pgPages.length - 1));
+    const img = document.getElementById('pgImg');
+    img.style.opacity = '0';
+    img.src = 'data:image/jpeg;base64,' + pgPages[pgCur];
+    img.onload = () => { img.style.opacity = '1'; };
+    document.getElementById('pgLabel').textContent = `${pgCur+1} / ${pgPages.length}`;
+    document.getElementById('pgPrev').disabled = pgCur === 0;
+    document.getElementById('pgNext').disabled = pgCur === pgPages.length - 1;
+    // Update thumb active state
+    document.querySelectorAll('#pgThumbStrip div').forEach((d, i) => {
+      d.style.borderColor = i === pgCur ? '#9333ea' : 'transparent';
+      d.style.opacity = i === pgCur ? '1' : '.55';
+    });
+    document.getElementById('pgArea').style.minHeight = '';
   }
 
   form.addEventListener('submit', async e => {

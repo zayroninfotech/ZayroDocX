@@ -1,8 +1,11 @@
+import base64
 import fitz
 import json
 import logging
 import traceback
 import urllib.request
+from io import BytesIO
+from PIL import Image, ImageEnhance
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -102,5 +105,34 @@ def summarize_pdf(request):
     except Exception as e:
         logger.error('summarize_pdf error: %s\n%s', e, traceback.format_exc())
         return JsonResponse({'error': f'Summarization failed: {e}'}, status=500)
+    finally:
+        cleanup_file(saved_path)
+
+
+@csrf_exempt
+@require_POST
+def render_pdf_pages(request):
+    """Render PDF pages as base64 JPEG images for preview."""
+    f = request.FILES.get('file')
+    if not f:
+        return JsonResponse({'error': 'No file uploaded.'}, status=400)
+    saved_path, _ = save_uploaded_file(f)
+    try:
+        validate_pdf(saved_path, f.name)
+        doc = fitz.open(saved_path)
+        page_images = []
+        for page in doc:
+            pix = page.get_pixmap(dpi=150)
+            img = Image.open(BytesIO(pix.tobytes('png'))).convert('RGB')
+            img = ImageEnhance.Sharpness(img).enhance(1.3)
+            buf = BytesIO()
+            img.save(buf, 'JPEG', quality=80, optimize=True)
+            page_images.append(base64.b64encode(buf.getvalue()).decode())
+        doc.close()
+        return JsonResponse({'page_images': page_images, 'page_count': len(page_images)})
+    except ValueError as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
     finally:
         cleanup_file(saved_path)
