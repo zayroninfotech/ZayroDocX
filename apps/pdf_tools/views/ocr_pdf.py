@@ -813,29 +813,47 @@ Rules:
         raw_json = re.sub(r'^```(?:json)?\s*', '', raw_json)
         raw_json = re.sub(r'\s*```$', '', raw_json)
 
+        def _fix_json_strings(s):
+            """Escape literal newlines/tabs inside JSON string values (AI often omits escaping)."""
+            out = []
+            in_str = False
+            skip = False
+            for ch in s:
+                if skip:
+                    out.append(ch); skip = False
+                elif ch == '\\' and in_str:
+                    out.append(ch); skip = True
+                elif ch == '"':
+                    out.append(ch); in_str = not in_str
+                elif in_str and ch == '\n':
+                    out.append('\\n')
+                elif in_str and ch == '\r':
+                    out.append('\\r')
+                elif in_str and ch == '\t':
+                    out.append('\\t')
+                else:
+                    out.append(ch)
+            return ''.join(out)
+
         extracted = None
         # Try 1: direct parse
         try:
             extracted = json.loads(raw_json)
         except json.JSONDecodeError:
             pass
-        # Try 2: slice from first { to last }
+        # Try 2: fix unescaped control chars inside string values, then parse
+        if extracted is None:
+            try:
+                extracted = json.loads(_fix_json_strings(raw_json))
+            except json.JSONDecodeError:
+                pass
+        # Try 3: slice first { to last } + fix strings
         if extracted is None:
             s = raw_json.find('{')
             e = raw_json.rfind('}')
             if s != -1 and e > s:
                 try:
-                    extracted = json.loads(raw_json[s:e+1])
-                except json.JSONDecodeError:
-                    pass
-        # Try 3: strip any trailing comma before closing brace and retry
-        if extracted is None:
-            cleaned = re.sub(r',\s*([\}\]])', r'\1', raw_json)
-            s = cleaned.find('{')
-            e = cleaned.rfind('}')
-            if s != -1 and e > s:
-                try:
-                    extracted = json.loads(cleaned[s:e+1])
+                    extracted = json.loads(_fix_json_strings(raw_json[s:e+1]))
                 except json.JSONDecodeError:
                     pass
         if extracted is None:
