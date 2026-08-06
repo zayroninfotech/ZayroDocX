@@ -141,7 +141,7 @@
       <div class="zd-status-pill zd-pill-wait" id="zdHostPill"><i class="fa-solid fa-circle-notch fa-spin"></i> Waiting for viewer…</div>
     </div>
     <div class="zd-host-actions">
-      <button class="zd-action-btn zd-share-btn" id="zdShareBtn" onclick="hostShare()"><i class="fa-solid fa-display"></i> Share Screen</button>
+      <button class="zd-action-btn zd-share-btn" id="zdShareBtn" onclick="hostStart()"><i class="fa-solid fa-display"></i> Share Screen</button>
       <button class="zd-action-btn zd-stop-btn" id="zdStopBtn" onclick="hostStop()" style="display:none"><i class="fa-solid fa-stop"></i> Stop &amp; Disconnect</button>
     </div>
     <div class="zd-host-preview" id="zdHostPreview">
@@ -413,7 +413,7 @@ async function setupViewer(offerSdp){
   };
 
   pc.onicecandidate=e=>{
-    if(e.candidate) post('/tools/api/desk/ice/',{code:roomCode,role:'viewer',candidate:e.candidate.toJSON()});
+    if(e.candidate) api('/tools/api/desk/ice/',{code:roomCode,role:'viewer',candidate:e.candidate.toJSON()});
   };
 
   pc.onconnectionstatechange=()=>{
@@ -426,7 +426,7 @@ async function setupViewer(offerSdp){
   await pc.setRemoteDescription(new RTCSessionDescription(offerSdp));
   const answer=await pc.createAnswer();
   await pc.setLocalDescription(answer);
-  await post('/tools/api/desk/answer/',{code:roomCode,sdp:{type:answer.type,sdp:answer.sdp}});
+  await api('/tools/api/desk/answer/',{code:roomCode,sdp:{type:answer.type,sdp:answer.sdp}});
 }
 
 function sendCtrl(obj){
@@ -523,7 +523,7 @@ function showTouchHint(){
 async function viewerDisconnect(){
   clearInterval(pollTimer);
   if(pc) pc.close();
-  await post('/tools/api/desk/close/',{code:roomCode}).catch(()=>{});
+  await api('/tools/api/desk/close/',{code:roomCode}).catch(()=>{});
   location.reload();
 }
 
