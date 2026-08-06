@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}AI Resume Analyzer — ZayroDocX{% endblock %}
+{% block active_resume_analyzer %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">AI Resume Analyzer</span>{% endblock %}
+{% block extra_head %}<style>
+/* Drop zone */
+.ra-drop{border:2.5px dashed #cbd5e1;border-radius:20px;padding:3.5rem 2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:#fff;max-width:640px;margin:2rem auto}
+.ra-drop:hover,.ra-drop.drag-over{border-color:#7c3aed;background:#faf5ff}
+.ra-drop-icon{font-size:3.2rem;color:#7c3aed;margin-bottom:.9rem}
+.ra-drop h3{font-size:1.15rem;font-weight:800;color:#1e293b;margin:.4rem 0 .3rem}
+.ra-drop p{font-size:.85rem;color:#64748b;margin:0 0 1.3rem}
+.ra-drop-btn{background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:10px;padding:.65rem 1.5rem;font-size:.85rem;font-weight:700;cursor:pointer;transition:opacity .15s;display:inline-flex;align-items:center;gap:.4rem}
+.ra-drop-btn:hover{opacity:.88}
+.ra-formats{font-size:.72rem;color:#94a3b8;margin-top:.8rem}
+
+/* Mode toggle */
+.ra-mode-row{display:flex;justify-content:center;gap:.6rem;margin:1rem auto 0;max-width:640px}
+.ra-mode-tab{flex:1;max-width:200px;padding:.5rem;border:1.5px solid #e8e8e8;border-radius:10px;background:#fff;font-size:.8rem;font-weight:700;color:#666;cursor:pointer;text-align:center;transition:all .15s}
+.ra-mode-tab.active{border-color:#7c3aed;background:#faf5ff;color:#7c3aed}
+
+/* Loading */
+.ra-loading{display:none;text-align:center;padding:3rem 1rem;color:#7c3aed}
+.ra-loading.show{display:block}
+.ra-loading i{font-size:2.5rem;animation:raSpin 1s linear infinite;display:block;margin-bottom:.8rem}
+@keyframes raSpin{to{transform:rotate(360deg)}}
+.ra-loading p{font-size:.9rem;font-weight:600;color:#6d28d9}
+
+/* Results */
+.ra-results{display:none}
+.ra-results.show{display:block}
+.ra-results-grid{display:grid;grid-template-columns:300px 1fr;gap:1.4rem;align-items:start}
+
+/* Score card */
+.ra-score-card{background:#fff;border:1.5px solid #e8e8e8;border-radius:18px;padding:1.6rem 1.4rem;text-align:center}
+.ra-score-ring{position:relative;width:140px;height:140px;margin:0 auto 1rem}
+.ra-score-ring svg{transform:rotate(-90deg)}
+.ra-score-ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ra-score-num{font-size:2.2rem;font-weight:900;color:#1e293b;line-height:1}
+.ra-score-denom{font-size:.72rem;color:#94a3b8;font-weight:600}
+.ra-verdict{display:inline-block;padding:.28rem .9rem;border-radius:20px;font-size:.78rem;font-weight:800;margin-bottom:1rem}
+.verdict-excellent{background:#dcfce7;color:#16a34a}
+.verdict-good{background:#dbeafe;color:#2563eb}
+.verdict-fair{background:#fef9c3;color:#ca8a04}
+.verdict-needs{background:#fee2e2;color:#dc2626}
+.ra-breakdown{text-align:left;margin-top:.8rem}
+.ra-break-label{font-size:.72rem;font-weight:700;color:#475569;display:flex;justify-content:space-between;margin-bottom:.18rem;margin-top:.65rem}
+.ra-bar-track{background:#f1f5f9;border-radius:99px;height:7px;overflow:hidden}
+.ra-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#a855f7);transition:width .8s ease}
+
+/* Right column */
+.ra-right{display:flex;flex-direction:column;gap:1.1rem}
+.ra-card{background:#fff;border:1.5px solid #e8e8e8;border-radius:16px;padding:1.1rem 1.3rem}
+.ra-card-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem}
+
+/* Keywords */
+.ra-kw-grid{display:flex;flex-wrap:wrap;gap:.4rem}
+.ra-kw{display:inline-flex;align-items:center;gap:.25rem;padding:.28rem .65rem;border-radius:6px;font-size:.75rem;font-weight:700}
+.ra-kw-match{background:#dcfce7;color:#15803d}
+.ra-kw-miss{background:#fee2e2;color:#dc2626}
+
+/* Tips */
+.ra-tips-list{display:flex;flex-direction:column;gap:.55rem}
+.ra-tip{display:flex;align-items:flex-start;gap:.6rem;font-size:.82rem;color:#374151;line-height:1.45}
+.ra-tip-icon{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;margin-top:.05rem}
+
+/* Job recommendations */
+.ra-jobs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.6rem}
+.ra-job{background:#f8fafc;border:1.5px solid #e8e8e8;border-radius:12px;padding:.8rem .7rem;text-align:center;transition:border-color .15s}
+.ra-job:hover{border-color:#a78bfa}
+.ra-job-title{font-size:.75rem;font-weight:700;color:#1e293b;margin-bottom:.35rem;line-height:1.3}
+.ra-job-match{font-size:.7rem;font-weight:800;color:#7c3aed}
+.ra-job-bar{height:4px;background:#e8e8e8;border-radius:99px;margin-top:.4rem;overflow:hidden}
+.ra-job-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#a855f7)}
+
+/* Action row */
+.ra-action-row{display:flex;gap:.7rem;margin-top:.4rem}
+.ra-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.2rem;border-radius:10px;font-size:.82rem;font-weight:700;cursor:pointer;border:1.5px solid #e8e8e8;background:#fff;color:#444;transition:all .15s;text-decoration:none}
+.ra-btn:hover{border-color:#7c3aed;color:#7c3aed}
+.ra-btn-primary{background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border-color:transparent}
+.ra-btn-primary:hover{opacity:.88;color:#fff}
+
+/* Error */
+.ra-error{display:none;background:#fff;border:1.5px solid #fecaca;border-radius:14px;padding:1rem 1.3rem;color:#dc2626;font-size:.85rem;font-weight:600;max-width:640px;margin:1rem auto}
+.ra-error.show{display:block}
+
+@media(max-width:860px){.ra-results-grid{grid-template-columns:1fr}}
+</style>{% endblock %}
+{% block content %}
+<input type="file" id="raFile" accept=".pdf,.docx" style="display:none" onchange="startAnalysis()">
+
+<!-- Drop zone -->
+<div id="raDrop" class="ra-drop" onclick="document.getElementById('raFile').click()">
+  <div class="ra-drop-icon"><i class="fa-solid fa-file-circle-check"></i></div>
+  <h3>Drop your Resume here</h3>
+  <p>Get an instant AI-powered ATS score, keyword analysis, and job recommendations</p>
+  <button type="button" class="ra-drop-btn" onclick="event.stopPropagation();document.getElementById('raFile').click()">
+    <i class="fa-solid fa-folder-open"></i> Select Resume
+  </button>
+  <div class="ra-formats">Supports PDF and DOCX · Files are never stored · Powered by Zayron LLM</div>
+</div>
+<div class="ra-mode-row" id="raModeRow">
+  <button class="ra-mode-tab active" id="tabStd" onclick="setMode('standard')"><i class="fa-solid fa-bolt"></i> Zayron LLM</button>
+  <button class="ra-mode-tab" id="tabPro" onclick="setMode('pro')"><i class="fa-solid fa-star"></i> Zayron LLM PRO</button>
+</div>
+
+<!-- Loading -->
+<div class="ra-loading" id="raLoading">
+  <i class="fa-solid fa-spinner"></i>
+  <p id="raLoadMsg">Analyzing your resume…</p>
+  <div style="font-size:.78rem;color:#94a3b8;margin-top:.3rem">This may take 10–20 seconds</div>
+</div>
+
+<!-- Error -->
+<div class="ra-error" id="raError"></div>
+
+<!-- Results -->
+<div class="ra-results" id="raResults">
+  <div class="ra-action-row" style="margin-bottom:1rem">
+    <button class="ra-btn" onclick="resetTool()"><i class="fa-solid fa-rotate-left"></i> Analyze Another</button>
+    <button class="ra-btn ra-btn-primary" onclick="window.print()"><i class="fa-solid fa-print"></i> Print Report</button>
+  </div>
+  <div class="ra-results-grid">
+    <!-- Score card -->
+    <div class="ra-score-card">
+      <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#7c3aed;margin-bottom:.8rem"><i class="fa-solid fa-chart-line"></i> ATS Score</div>
+      <div class="ra-score-ring">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="58" fill="none" stroke="#f1f5f9" stroke-width="12"/>
+          <circle id="raRingFill" cx="70" cy="70" r="58" fill="none" stroke="url(#raGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="364.4" stroke-dashoffset="364.4"/>
+          <defs>
+            <linearGradient id="raGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#7c3aed"/>
+              <stop offset="100%" stop-color="#a855f7"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="ra-score-ring-text">
+          <div class="ra-score-num" id="raScoreNum">—</div>
+          <div class="ra-score-denom">/100</div>
+        </div>
+      </div>
+      <div class="ra-verdict" id="raVerdict">—</div>
+      <div class="ra-breakdown">
+        <div class="ra-break-label"><span><i class="fa-solid fa-align-left" style="font-size:.65rem"></i> Format & Structure</span><span id="bFormat">—</span></div>
+        <div class="ra-bar-track"><div class="ra-bar-fill" id="bFormatBar" style="width:0%"></div></div>
+        <div class="ra-break-label"><span><i class="fa-solid fa-pen-nib" style="font-size:.65rem"></i> Content Richness</span><span id="bContent">—</span></div>
+        <div class="ra-bar-track"><div class="ra-bar-fill" id="bContentBar" style="width:0%"></div></div>
+        <div class="ra-break-label"><span><i class="fa-solid fa-key" style="font-size:.65rem"></i> Keyword Matching</span><span id="bKeyword">—</span></div>
+        <div class="ra-bar-track"><div class="ra-bar-fill" id="bKeywordBar" style="width:0%"></div></div>
+        <div class="ra-break-label"><span><i class="fa-solid fa-screwdriver-wrench" style="font-size:.65rem"></i> Skills</span><span id="bSkills">—</span></div>
+        <div class="ra-bar-track"><div class="ra-bar-fill" id="bSkillsBar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div class="ra-right">
+      <!-- Keywords -->
+      <div class="ra-card">
+        <div class="ra-card-title" style="color:#15803d"><i class="fa-solid fa-circle-check"></i> Matched Keywords</div>
+        <div class="ra-kw-grid" id="raMatchedKw"></div>
+      </div>
+      <div class="ra-card">
+        <div class="ra-card-title" style="color:#dc2626"><i class="fa-solid fa-circle-xmark"></i> Missing Keywords</div>
+        <div class="ra-kw-grid" id="raMissingKw"></div>
+      </div>
+      <!-- Improvement tips -->
+      <div class="ra-card">
+        <div class="ra-card-title" style="color:#7c3aed"><i class="fa-solid fa-wand-magic-sparkles"></i> Improvement Tips</div>
+        <div class="ra-tips-list" id="raTips"></div>
+      </div>
+      <!-- Job recommendations -->
+      <div class="ra-card">
+        <div class="ra-card-title" style="color:#0891b2"><i class="fa-solid fa-briefcase"></i> Top Job Recommendations</div>
+        <div class="ra-jobs-grid" id="raJobs"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cv-info-strip" id="raInfoStrip" style="margin-top:2rem">
+  <div class="cv-info-card"><div class="cv-info-icon" style="color:#7c3aed"><i class="fa-solid fa-robot"></i></div><div><div class="cv-info-title">AI-Powered</div><div class="cv-info-desc">LLM analysis</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon" style="color:#2563eb"><i class="fa-solid fa-chart-bar"></i></div><div><div class="cv-info-title">ATS Score</div><div class="cv-info-desc">0–100 rating</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon" style="color:#16a34a"><i class="fa-solid fa-key"></i></div><div><div class="cv-info-title">Keywords</div><div class="cv-info-desc">Matched & missing</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon" style="color:#dc2626"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Never stored</div></div></div>
+</div>
+{% endblock %}
+{% block extra_js %}<script>
+const CSRF='{{ csrf_token }}';
+let currentMode='standard';
+
+function setMode(m){
+  currentMode=m;
+  document.getElementById('tabStd').classList.toggle('active',m==='standard');
+  document.getElementById('tabPro').classList.toggle('active',m==='pro');
+}
+
+function resetTool(){
+  document.getElementById('raFile').value='';
+  document.getElementById('raDrop').style.display='';
+  document.getElementById('raModeRow').style.display='';
+  document.getElementById('raInfoStrip').style.display='';
+  document.getElementById('raLoading').classList.remove('show');
+  document.getElementById('raResults').classList.remove('show');
+  document.getElementById('raError').classList.remove('show');
+}
+
+async function startAnalysis(){
+  const f=document.getElementById('raFile').files[0];
+  if(!f)return;
+  document.getElementById('raDrop').style.display='none';
+  document.getElementById('raModeRow').style.display='none';
+  document.getElementById('raInfoStrip').style.display='none';
+  document.getElementById('raResults').classList.remove('show');
+  document.getElementById('raError').classList.remove('show');
+  document.getElementById('raLoadMsg').textContent=currentMode==='pro'?'Running Zayron LLM PRO analysis…':'Analyzing your resume…';
+  document.getElementById('raLoading').classList.add('show');
+
+  const fd=new FormData();
+  fd.append('file',f);
+  fd.append('csrfmiddlewaretoken',CSRF);
+  fd.append('mode',currentMode);
+
+  try{
+    const res=await fetch('/tools/api/resume-analyzer/',{method:'POST',body:fd});
+    const d=await res.json();
+    if(d.error)throw new Error(d.error);
+    renderResults(d);
+  }catch(e){
+    const el=document.getElementById('raError');
+    el.textContent='⚠ '+( e.message||'Analysis failed.');
+    el.classList.add('show');
+    document.getElementById('raDrop').style.display='';
+    document.getElementById('raModeRow').style.display='';
+    document.getElementById('raInfoStrip').style.display='';
+  }finally{
+    document.getElementById('raLoading').classList.remove('show');
+  }
+}
+
+function renderResults(d){
+  // Score ring
+  const score=Math.min(100,Math.max(0,d.ats_score||0));
+  const circ=364.4;
+  const offset=circ-(circ*score/100);
+  const ring=document.getElementById('raRingFill');
+  ring.style.strokeDashoffset=circ;
+  document.getElementById('raScoreNum').textContent=score;
+  setTimeout(()=>ring.style.transition='stroke-dashoffset 1s ease',50);
+  setTimeout(()=>ring.style.strokeDashoffset=offset,100);
+
+  // Verdict
+  const v=(d.overall_verdict||'Fair');
+  const vEl=document.getElementById('raVerdict');
+  vEl.textContent=v;
+  vEl.className='ra-verdict '+{Excellent:'verdict-excellent',Good:'verdict-good',Fair:'verdict-fair','Needs Work':'verdict-needs'}[v]||'verdict-fair';
+
+  // Breakdown
+  const sb=d.score_breakdown||{};
+  const pairs=[
+    ['bFormat','bFormatBar',sb.format_structure],
+    ['bContent','bContentBar',sb.content_richness],
+    ['bKeyword','bKeywordBar',sb.keyword_matching],
+    ['bSkills','bSkillsBar',sb.skills],
+  ];
+  pairs.forEach(([tid,bid,val])=>{
+    const v=Math.min(100,Math.max(0,val||0));
+    document.getElementById(tid).textContent=v+'%';
+    setTimeout(()=>document.getElementById(bid).style.width=v+'%',200);
+  });
+
+  // Keywords
+  const mkw=document.getElementById('raMatchedKw');
+  mkw.innerHTML='';
+  (d.matched_keywords||[]).forEach(k=>{
+    const s=document.createElement('span');s.className='ra-kw ra-kw-match';
+    s.innerHTML=`<i class="fa-solid fa-check" style="font-size:.6rem"></i>${esc(k)}`;mkw.appendChild(s);
+  });
+  if(!mkw.children.length)mkw.innerHTML='<span style="font-size:.8rem;color:#94a3b8">None found</span>';
+
+  const mskw=document.getElementById('raMissingKw');
+  mskw.innerHTML='';
+  (d.missing_keywords||[]).forEach(k=>{
+    const s=document.createElement('span');s.className='ra-kw ra-kw-miss';
+    s.innerHTML=`<i class="fa-solid fa-plus" style="font-size:.6rem"></i>${esc(k)}`;mskw.appendChild(s);
+  });
+  if(!mskw.children.length)mskw.innerHTML='<span style="font-size:.8rem;color:#94a3b8">None identified</span>';
+
+  // Tips
+  const tips=document.getElementById('raTips');
+  tips.innerHTML='';
+  (d.improvement_tips||[]).forEach((t,i)=>{
+    tips.innerHTML+=`<div class="ra-tip"><div class="ra-tip-icon">${i+1}</div><span>${esc(t)}</span></div>`;
+  });
+
+  // Jobs
+  const jobs=document.getElementById('raJobs');
+  jobs.innerHTML='';
+  (d.job_recommendations||[]).forEach(j=>{
+    const m=Math.min(100,Math.max(0,j.match||0));
+    jobs.innerHTML+=`<div class="ra-job"><div class="ra-job-title">${esc(j.title)}</div><div class="ra-job-match">${m}% Match</div><div class="ra-job-bar"><div class="ra-job-bar-fill" style="width:${m}%"></div></div></div>`;
+  });
+
+  document.getElementById('raResults').classList.add('show');
+}
+
+function esc(s){const d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
+
+// Drag & drop
+const drop=document.getElementById('raDrop');
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+drop.addEventListener('drop',e=>{
+  e.preventDefault();drop.classList.remove('drag-over');
+  const f=e.dataTransfer.files[0];
+  if(!f)return;
+  const inp=document.getElementById('raFile');
+  const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;
+  startAnalysis();
+});
+</script>{% endblock %}

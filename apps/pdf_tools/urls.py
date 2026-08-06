@@ -57,6 +57,7 @@ from apps.pdf_tools.views.image_tools import (
 from apps.pdf_tools.views.live_share import (
     create_room, join_room, upload_file, poll_room, download_file,
 )
+from apps.pdf_tools.views.resume_analyzer import analyze_resume
 
 # Tag API views with their slug for dynamic privilege check
 def _tag(fn, slug):
@@ -105,6 +106,7 @@ urlpatterns = [
     path('blur-face/',          tool_page('img_blur_face.html', 'blur-face'),       name='img_blur_face_page'),
     path('image-to-text/',      tool_page('img_ocr.html',       'image-to-text'),   name='img_ocr_page'),
     path('connectspace/',       tool_page('live_share.html',    'connectspace'),     name='connectspace_page'),
+    path('ai-resume-analyzer/', tool_page('resume_analyzer.html','ai-resume-analyzer'), name='resume_analyzer_page'),
 
     # ── API endpoints ─────────────────────────────────────────────────────────
     path('api/merge-pdf/',      protected_api(_tag(merge_pdf,      'merge-pdf')),       name='api_merge_pdf'),
@@ -163,6 +165,7 @@ urlpatterns = [
     path('api/img/remove-bg/',  protected_api(_tag(remove_background,'remove-background')), name='api_img_remove_bg'),
     path('api/img/blur-face/',  protected_api(_tag(blur_face,    'blur-face')),       name='api_img_blur_face'),
     path('api/img/ocr/',        protected_api(_tag(img_ocr,      'image-to-text')),   name='api_img_ocr'),
+    path('api/resume-analyzer/',    analyze_resume,  name='api_resume_analyzer'),
     path('api/live-share/create/',              create_room,    name='api_ls_create'),
     path('api/live-share/join/',                join_room,      name='api_ls_join'),
     path('api/live-share/upload/',              upload_file,    name='api_ls_upload'),
