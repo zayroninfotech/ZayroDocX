@@ -200,10 +200,14 @@ let pollTimer=null,iceIdx=0,controlEnabled=true,stream=null;
 /* ─── Helpers ───────────────────────────────────── */
 async function api(url,body){
   const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},body:JSON.stringify(body)});
+  const ct=res.headers.get('content-type')||'';
+  if(!ct.includes('application/json')) throw new Error('Server not ready — please restart gunicorn (HTTP '+res.status+')');
   return res.json();
 }
 async function poll(url){
   const res=await fetch(url);
+  const ct=res.headers.get('content-type')||'';
+  if(!ct.includes('application/json')) return null;
   return res.json();
 }
 
