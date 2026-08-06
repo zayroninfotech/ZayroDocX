@@ -2,100 +2,44 @@
 {% load static %}
 {% block title %}Resize Image — ZayroDocX{% endblock %}
 {% block active_img_resize %}active{% endblock %}
-{% block breadcrumb %}<span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Resize Image</span>{% endblock %}
-
-{% block extra_head %}
-<style>
-.cv-opts-card{background:#fff;border:1.5px solid #fca5a5;border-radius:16px;padding:1.2rem 1.4rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(220,38,38,.06);}
-.cv-opts-title{font-size:.75rem;font-weight:800;color:#b91c1c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.85rem;display:flex;align-items:center;gap:.45rem;}
-.cv-field-label{font-size:.75rem;font-weight:700;color:#555;margin-bottom:.45rem;}
-.cv-input{width:100%;box-sizing:border-box;border:1.5px solid #e8e8e8;border-radius:10px;padding:.65rem .9rem;font-size:.88rem;color:#111;background:#fff;outline:none;transition:border-color .15s;}
-.cv-input:focus{border-color:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.1);}
-.cv-dim-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.75rem;}
-</style>
-{% endblock %}
-
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Resize Image</span>{% endblock %}
+{% block extra_head %}<style>{% include "pdf_tools/_img_split_css.html" %}</style>{% endblock %}
 {% block content %}
-<div class="cv-hero">
-  <div class="cv-hero-left">
-    <div class="cv-eyebrow"><i class="fa-solid fa-up-right-and-down-left-from-center"></i> Image Tools</div>
-    <h2>Resize Image</h2>
-    <p>Change image dimensions in pixels — leave one field blank to scale proportionally</p>
-  </div>
-  <div class="cv-hero-pills">
-    <div class="cv-hero-pill"><span class="n">px</span><div class="l">Pixel</div></div>
-    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-arrows-left-right-to-line"></i></span><div class="l">Proportional</div></div>
-    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
-  </div>
+<input type="file" id="fileInput" accept="image/*" style="display:none">
+<div class="it-drop" id="itDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="it-drop-icon"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></div>
+  <h3>Drop your image here</h3><p>Set the new dimensions in the panel</p>
+  <button type="button" class="it-drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()"><i class="fa-solid fa-folder-open"></i> Select Image</button>
 </div>
-
-<form id="mainForm" enctype="multipart/form-data">{% csrf_token %}
-  <div class="cv-drop" id="cvDrop">
-    <input type="file" id="fileInput" name="file" accept="image/*">
-    <div class="cv-drop-icon"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></div>
-    <h3>Drop your image here</h3>
-    <p>Set the new dimensions below</p>
-    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-folder-open"></i> Select Image
-    </button>
-    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> JPG · PNG · WebP &nbsp;·&nbsp; Private</span>
-  </div>
-  <div class="cv-file-bar" id="cvFileBar">
-    <i class="fa-solid fa-image cv-file-icon" style="color:#f87171"></i>
-    <span class="cv-file-name" id="cvFileName">—</span>
-    <span class="cv-file-size" id="cvFileSize">—</span>
-  </div>
-
-  <div class="cv-opts-card">
-    <div class="cv-opts-title"><i class="fa-solid fa-sliders"></i> Dimensions (px)</div>
-    <div class="cv-dim-grid">
-      <div>
-        <div class="cv-field-label">Width</div>
-        <input type="number" name="width" class="cv-input" placeholder="e.g. 1280" min="1">
+<div class="it-split" id="itSplit">
+  <div class="it-viewer"><div class="it-viewer-loading" id="itViewerLoad"><i class="fa-solid fa-spinner it-spin"></i><span>Loading…</span></div><img id="itPreviewImg" style="display:none;max-width:100%;max-height:100%;border-radius:8px;object-fit:contain;" alt="preview"></div>
+  <div class="it-right">
+    <div class="it-card"><div class="it-file-row"><div class="it-file-icon"><i class="fa-solid fa-image"></i></div><div><div class="it-file-name" id="itFileName">—</div><div class="it-file-size" id="itFileSize">—</div></div><button type="button" class="it-change-btn" onclick="resetTool()"><i class="fa-solid fa-rotate-left"></i> Change</button></div></div>
+    <div class="it-card">
+      <div class="it-opts-title"><i class="fa-solid fa-sliders"></i> Dimensions (px)</div>
+      <div class="it-grid2" style="margin-top:.6rem">
+        <div><div class="it-field-label">Width</div><input type="number" id="resizeW" class="it-input" placeholder="e.g. 1280" min="1"></div>
+        <div><div class="it-field-label">Height</div><input type="number" id="resizeH" class="it-input" placeholder="e.g. 720" min="1"></div>
       </div>
-      <div>
-        <div class="cv-field-label">Height</div>
-        <input type="number" name="height" class="cv-input" placeholder="e.g. 720" min="1">
-      </div>
+      <p style="font-size:.7rem;color:#aaa;margin:.5rem 0 0">Leave one blank to scale proportionally</p>
     </div>
+    <button type="button" class="it-convert-btn" id="itConvertBtn" onclick="doConvert()"><i class="fa-solid fa-up-right-and-down-left-from-center"></i> Resize Image</button>
+    <div class="it-loading-card" id="itLoadingCard"><i class="fa-solid fa-spinner it-spin"></i><span style="font-size:.88rem;font-weight:600;color:#b91c1c">Resizing…</span></div>
+    <div class="it-result-card" id="itResultCard"><div class="it-result-title"><i class="fa-solid fa-circle-check"></i> <span id="itResultInfo">Done!</span></div><a class="it-dl-btn" id="itDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a></div>
+    <div class="it-error-card" id="itErrorCard"><div class="it-error-msg" id="itErrorMsg"></div></div>
   </div>
-
-  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-up-right-and-down-left-from-center"></i> Resize Image</button>
-</form>
-
-<div class="progress-wrap" id="progressWrap" style="display:none;">
-  <div class="progress-header"><span class="progress-label">Resizing…</span></div>
-  <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
 </div>
-
-<div class="cv-info-strip">
+<div class="cv-info-strip" id="itInfoStrip">
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></div><div><div class="cv-info-title">Any Size</div><div class="cv-info-desc">Pixel-perfect resize</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-arrows-left-right-to-line"></i></div><div><div class="cv-info-title">Proportional</div><div class="cv-info-desc">Leave one blank</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
 </div>
 {% endblock %}
-
 {% block extra_js %}<script>
-(function(){
-  const inp=document.getElementById('fileInput'),drop=document.getElementById('cvDrop'),bar=document.getElementById('cvFileBar');
-  function setFile(f){if(!f)return;document.getElementById('cvFileName').textContent=f.name;document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB';bar.classList.add('show');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;}
-  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
-  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
-  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
-  inp.addEventListener('change',()=>setFile(inp.files[0]));
-})();
-document.getElementById('mainForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-  const inp=document.getElementById('fileInput');
-  if(!inp.files[0]){toast('Please select an image.','error');return;}
-  document.getElementById('progressWrap').style.display='block';
-  const r=await fetch('/tools/api/img/resize/',{method:'POST',body:new FormData(e.target)});
-  const d=await r.json();
-  document.getElementById('progressWrap').style.display='none';
-  if(d.error){toast(d.error,'error');return;}
-  const a=document.createElement('a');a.href=d.download_url;a.download=d.filename;a.click();
-  toast(`Resized to ${d.width}×${d.height}px`,'success');
-});
-function toast(msg,type){const c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast toast-'+(type||'info');t.innerHTML=`<i class="fa-solid fa-${type==='error'?'circle-xmark':'circle-check'}"></i> ${msg}`;c.appendChild(t);setTimeout(()=>t.remove(),4000);}
+let currentFile=null;const fileInput=document.getElementById('fileInput');
+function resetTool(){fileInput.value='';currentFile=null;document.getElementById('itDrop').style.display='';document.getElementById('itSplit').classList.remove('show');document.getElementById('itInfoStrip').style.display='';['itLoadingCard','itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itConvertBtn').disabled=false;}
+function setFile(f){if(!f)return;currentFile=f;document.getElementById('itFileName').textContent=f.name;document.getElementById('itFileSize').textContent=(f.size/1024).toFixed(1)+' KB';document.getElementById('itDrop').style.display='none';document.getElementById('itInfoStrip').style.display='none';['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itSplit').classList.add('show');const img=document.getElementById('itPreviewImg');img.src=URL.createObjectURL(f);img.style.display='block';document.getElementById('itViewerLoad').style.display='none';}
+async function doConvert(){if(!currentFile)return;document.getElementById('itConvertBtn').disabled=true;document.getElementById('itLoadingCard').classList.add('show');['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));const fd=new FormData();fd.append('file',currentFile);fd.append('csrfmiddlewaretoken','{{ csrf_token }}');const w=document.getElementById('resizeW').value,h=document.getElementById('resizeH').value;if(w)fd.append('width',w);if(h)fd.append('height',h);try{const res=await fetch('/tools/api/img/resize/',{method:'POST',body:fd});const d=await res.json();if(d.error)throw new Error(d.error);document.getElementById('itResultInfo').textContent=d.width&&d.height?`Resized to ${d.width}×${d.height}px`:'Resized!';document.getElementById('itDlBtn').href=d.download_url;document.getElementById('itDlBtn').download=d.filename||'resized';document.getElementById('itResultCard').classList.add('show');}catch(e){document.getElementById('itErrorMsg').textContent=e.message||'Failed.';document.getElementById('itErrorCard').classList.add('show');}finally{document.getElementById('itLoadingCard').classList.remove('show');document.getElementById('itConvertBtn').disabled=false;}}
+fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));const drop=document.getElementById('itDrop');drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
 </script>{% endblock %}

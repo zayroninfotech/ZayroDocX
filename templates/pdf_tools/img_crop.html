@@ -1,37 +1,46 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% load static %}
 {% block title %}Crop Image — ZayroDocX{% endblock %}
 {% block active_img_crop %}active{% endblock %}
-{% block breadcrumb %}<span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Crop Image</span>{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Crop Image</span>{% endblock %}
+{% block extra_head %}<style>{% include "pdf_tools/_img_split_css.html" %}</style>{% endblock %}
 {% block content %}
-<div class="tool-header">
-  <div class="tool-icon-wrap ti-green"><i class="fa-solid fa-crop-simple"></i></div>
-  <div><h1 class="tool-title">Crop Image</h1><p class="tool-desc">Cut a specific region from your image using pixel coordinates.</p></div>
+<input type="file" id="fileInput" accept="image/*" style="display:none">
+<div class="it-drop" id="itDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="it-drop-icon"><i class="fa-solid fa-crop-simple"></i></div>
+  <h3>Drop your image here</h3><p>Set crop region coordinates in the panel</p>
+  <button type="button" class="it-drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()"><i class="fa-solid fa-folder-open"></i> Select Image</button>
 </div>
-<form id="mainForm" enctype="multipart/form-data">{% csrf_token %}
-  <div class="upload-zone" id="uploadZone">
-    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i><p class="upload-title">Drop image here</p>
-    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select Image</span>
-    <input type="file" id="fileInput" name="file" accept="image/*" style="display:none">
-  </div>
-  <div class="file-list" id="fileList"></div>
-  <div class="options-panel">
-    <div class="options-panel-title"><i class="fa-solid fa-crop-simple"></i> Crop Region (px)</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.75rem;">
-      <div class="form-group"><div class="form-label">X (left offset)</div><input type="number" name="x" class="form-control" value="0" min="0"></div>
-      <div class="form-group"><div class="form-label">Y (top offset)</div><input type="number" name="y" class="form-control" value="0" min="0"></div>
-      <div class="form-group"><div class="form-label">Width <span class="form-hint">(0 = to edge)</span></div><input type="number" name="width" class="form-control" value="0" min="0"></div>
-      <div class="form-group"><div class="form-label">Height <span class="form-hint">(0 = to edge)</span></div><input type="number" name="height" class="form-control" value="0" min="0"></div>
+<div class="it-split" id="itSplit">
+  <div class="it-viewer"><div class="it-viewer-loading" id="itViewerLoad"><i class="fa-solid fa-spinner it-spin"></i><span>Loading…</span></div><img id="itPreviewImg" style="display:none;max-width:100%;max-height:100%;border-radius:8px;object-fit:contain;" alt="preview"></div>
+  <div class="it-right">
+    <div class="it-card"><div class="it-file-row"><div class="it-file-icon"><i class="fa-solid fa-image"></i></div><div><div class="it-file-name" id="itFileName">—</div><div class="it-file-size" id="itFileSize">—</div></div><button type="button" class="it-change-btn" onclick="resetTool()"><i class="fa-solid fa-rotate-left"></i> Change</button></div></div>
+    <div class="it-card">
+      <div class="it-opts-title"><i class="fa-solid fa-crop-simple"></i> Crop Region (px)</div>
+      <div class="it-grid2" style="margin-top:.6rem">
+        <div><div class="it-field-label">X (left offset)</div><input type="number" id="cropX" class="it-input" value="0" min="0"></div>
+        <div><div class="it-field-label">Y (top offset)</div><input type="number" id="cropY" class="it-input" value="0" min="0"></div>
+        <div><div class="it-field-label">Width <span style="font-size:.67rem;color:#aaa">(0=to edge)</span></div><input type="number" id="cropW" class="it-input" value="0" min="0"></div>
+        <div><div class="it-field-label">Height <span style="font-size:.67rem;color:#aaa">(0=to edge)</span></div><input type="number" id="cropH" class="it-input" value="0" min="0"></div>
+      </div>
     </div>
+    <button type="button" class="it-convert-btn" id="itConvertBtn" onclick="doConvert()"><i class="fa-solid fa-crop-simple"></i> Crop Image</button>
+    <div class="it-loading-card" id="itLoadingCard"><i class="fa-solid fa-spinner it-spin"></i><span style="font-size:.88rem;font-weight:600;color:#b91c1c">Cropping…</span></div>
+    <div class="it-result-card" id="itResultCard"><div class="it-result-title"><i class="fa-solid fa-circle-check"></i> Image cropped!</div><a class="it-dl-btn" id="itDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a></div>
+    <div class="it-error-card" id="itErrorCard"><div class="it-error-msg" id="itErrorMsg"></div></div>
   </div>
-  <div class="action-bar"><button type="submit" class="btn btn-primary btn-lg btn-submit"><i class="fa-solid fa-crop-simple"></i> Crop Image</button></div>
-</form>
-<div class="progress-wrap" id="progressWrap" style="display:none;"><div class="progress-inner"><div class="progress-spinner"></div><span>Cropping…</span></div></div>
+</div>
+<div class="cv-info-strip" id="itInfoStrip">
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-crop-simple"></i></div><div><div class="cv-info-title">Pixel Precise</div><div class="cv-info-desc">Exact region crop</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-image"></i></div><div><div class="cv-info-title">All Formats</div><div class="cv-info-desc">JPG, PNG, WebP</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
+  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
+</div>
 {% endblock %}
 {% block extra_js %}<script>
-const zone=document.getElementById('uploadZone'),input=document.getElementById('fileInput'),fileList=document.getElementById('fileList');
-zone.addEventListener('click',()=>input.click());zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});input.addEventListener('change',()=>setFile(input.files[0]));
-function setFile(f){if(!f)return;const dt=new DataTransfer();dt.items.add(f);input.files=dt.files;fileList.innerHTML=`<div class="file-item"><span class="file-name"><i class="fa-solid fa-image" style="color:#f87171"></i> ${f.name}</span><span class="file-size">${(f.size/1024).toFixed(1)} KB</span></div>`;}
-document.getElementById('mainForm').addEventListener('submit',async e=>{e.preventDefault();if(!input.files[0]){toast('Please select an image.','error');return;}document.getElementById('progressWrap').style.display='flex';const r=await fetch('/tools/api/img/crop/',{method:'POST',body:new FormData(e.target)});const d=await r.json();document.getElementById('progressWrap').style.display='none';if(d.error){toast(d.error,'error');return;}const a=document.createElement('a');a.href=d.download_url;a.download=d.filename;a.click();toast('Image cropped!','success');});
-function toast(msg,type){const c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast toast-'+(type||'info');t.innerHTML=`<i class="fa-solid fa-${type==='error'?'circle-xmark':'circle-check'}"></i> ${msg}`;c.appendChild(t);setTimeout(()=>t.remove(),4000);}
+let currentFile=null;const fileInput=document.getElementById('fileInput');
+function resetTool(){fileInput.value='';currentFile=null;document.getElementById('itDrop').style.display='';document.getElementById('itSplit').classList.remove('show');document.getElementById('itInfoStrip').style.display='';['itLoadingCard','itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itConvertBtn').disabled=false;}
+function setFile(f){if(!f)return;currentFile=f;document.getElementById('itFileName').textContent=f.name;document.getElementById('itFileSize').textContent=(f.size/1024).toFixed(1)+' KB';document.getElementById('itDrop').style.display='none';document.getElementById('itInfoStrip').style.display='none';['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itSplit').classList.add('show');const img=document.getElementById('itPreviewImg');img.src=URL.createObjectURL(f);img.style.display='block';document.getElementById('itViewerLoad').style.display='none';}
+async function doConvert(){if(!currentFile)return;document.getElementById('itConvertBtn').disabled=true;document.getElementById('itLoadingCard').classList.add('show');['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));const fd=new FormData();fd.append('file',currentFile);fd.append('csrfmiddlewaretoken','{{ csrf_token }}');fd.append('x',document.getElementById('cropX').value);fd.append('y',document.getElementById('cropY').value);fd.append('width',document.getElementById('cropW').value);fd.append('height',document.getElementById('cropH').value);try{const res=await fetch('/tools/api/img/crop/',{method:'POST',body:fd});const d=await res.json();if(d.error)throw new Error(d.error);document.getElementById('itDlBtn').href=d.download_url;document.getElementById('itDlBtn').download=d.filename||'cropped';document.getElementById('itResultCard').classList.add('show');}catch(e){document.getElementById('itErrorMsg').textContent=e.message||'Failed.';document.getElementById('itErrorCard').classList.add('show');}finally{document.getElementById('itLoadingCard').classList.remove('show');document.getElementById('itConvertBtn').disabled=false;}}
+fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));const drop=document.getElementById('itDrop');drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
 </script>{% endblock %}
