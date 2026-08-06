@@ -1,57 +1,69 @@
-import time, uuid, string, random, threading, mimetypes
+import os, time, uuid, string, random, mimetypes
 from django.http import JsonResponse, HttpResponse
-from django.views.decorators.http import require_http_methods
 from django.http import Http404
+from django.utils import timezone
+from datetime import timedelta
 
-_rooms = {}   # code -> {peers:[id,...], files:[{id,name,size,data,from,ts}], created:float}
-_lock  = threading.Lock()
 MAX_FILE_MB = 50
+TEMP_DIR = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'tmp_cs')
+
+
+def _ensure_tmp():
+    os.makedirs(TEMP_DIR, exist_ok=True)
 
 
 def _gen_code():
-    chars = string.ascii_uppercase + string.digits
-    return ''.join(random.choices(chars, k=6))
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 
-def _cleanup():
-    cutoff = time.time() - 3600  # 1-hour TTL
-    for code in list(_rooms):
-        if _rooms[code]['created'] < cutoff:
-            del _rooms[code]
+def _cleanup_old():
+    from apps.pdf_tools.models import CSRoom
+    cutoff = timezone.now() - timedelta(hours=1)
+    old = CSRoom.objects.filter(created__lt=cutoff)
+    for room in old:
+        for f in room.files.all():
+            try:
+                os.remove(f.file_path)
+            except OSError:
+                pass
+    old.delete()
 
 
 def create_room(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
+    from apps.pdf_tools.models import CSRoom, CSPeer
+    _cleanup_old()
     peer_id = str(uuid.uuid4())[:8]
-    with _lock:
-        _cleanup()
-        for _ in range(30):
-            code = _gen_code()
-            if code not in _rooms:
-                break
-        _rooms[code] = {'peers': [peer_id], 'files': [], 'created': time.time()}
+    for _ in range(30):
+        code = _gen_code()
+        if not CSRoom.objects.filter(code=code).exists():
+            break
+    room = CSRoom.objects.create(code=code)
+    CSPeer.objects.create(room=room, peer_id=peer_id)
     return JsonResponse({'code': code, 'peer_id': peer_id})
 
 
 def join_room(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
+    from apps.pdf_tools.models import CSRoom, CSPeer
     code = request.POST.get('code', '').strip().upper()
-    with _lock:
-        room = _rooms.get(code)
-        if not room:
-            return JsonResponse({'error': 'Room not found. Check your code.'}, status=404)
-        if len(room['peers']) >= 2:
-            return JsonResponse({'error': 'Room already has 2 users.'}, status=403)
-        peer_id = str(uuid.uuid4())[:8]
-        room['peers'].append(peer_id)
+    try:
+        room = CSRoom.objects.get(code=code)
+    except CSRoom.DoesNotExist:
+        return JsonResponse({'error': 'Room not found. Check your code.'}, status=404)
+    if room.peer_count() >= 2:
+        return JsonResponse({'error': 'Room already has 2 users.'}, status=403)
+    peer_id = str(uuid.uuid4())[:8]
+    CSPeer.objects.create(room=room, peer_id=peer_id)
     return JsonResponse({'code': code, 'peer_id': peer_id})
 
 
 def upload_file(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
+    from apps.pdf_tools.models import CSRoom, CSPeer, CSFile
     code    = request.POST.get('code', '').strip().upper()
     peer_id = request.POST.get('peer_id', '')
     f = request.FILES.get('file')
@@ -59,53 +71,63 @@ def upload_file(request):
         return JsonResponse({'error': 'No file attached.'}, status=400)
     if f.size > MAX_FILE_MB * 1024 * 1024:
         return JsonResponse({'error': f'File too large (max {MAX_FILE_MB} MB).'}, status=413)
-    with _lock:
-        room = _rooms.get(code)
-        if not room or peer_id not in room['peers']:
-            return JsonResponse({'error': 'Not in this room.'}, status=403)
-        file_id = str(uuid.uuid4())
-        room['files'].append({
-            'id':   file_id,
-            'name': f.name,
-            'size': f.size,
-            'data': f.read(),
-            'from': peer_id,
-            'ts':   time.time(),
-        })
+    try:
+        room = CSRoom.objects.get(code=code)
+    except CSRoom.DoesNotExist:
+        return JsonResponse({'error': 'Room not found.'}, status=404)
+    if not CSPeer.objects.filter(room=room, peer_id=peer_id).exists():
+        return JsonResponse({'error': 'Not in this room.'}, status=403)
+
+    _ensure_tmp()
+    file_id  = str(uuid.uuid4())
+    tmp_path = os.path.join(TEMP_DIR, file_id)
+    with open(tmp_path, 'wb') as out:
+        for chunk in f.chunks():
+            out.write(chunk)
+
+    CSFile.objects.create(
+        room=room, file_id=file_id,
+        name=f.name, size=f.size,
+        file_path=tmp_path,
+        from_peer=peer_id,
+        ts=time.time(),
+    )
     return JsonResponse({'ok': True, 'file_id': file_id})
 
 
 def poll_room(request):
+    from apps.pdf_tools.models import CSRoom, CSPeer, CSFile
     code    = request.GET.get('code', '').strip().upper()
     peer_id = request.GET.get('peer_id', '')
     since   = float(request.GET.get('since', 0))
-    with _lock:
-        room = _rooms.get(code)
-        if not room or peer_id not in room['peers']:
-            return JsonResponse({'error': 'Not in room.'}, status=403)
-        connected = len(room['peers']) >= 2
-        new_files = [
-            {'id': e['id'], 'name': e['name'],
-             'size': e['size'], 'from': e['from'],
-             'ts': e['ts'], 'mine': e['from'] == peer_id}
-            for e in room['files'] if e['ts'] > since
-        ]
+    try:
+        room = CSRoom.objects.get(code=code)
+    except CSRoom.DoesNotExist:
+        return JsonResponse({'error': 'Room not found.'}, status=404)
+    if not CSPeer.objects.filter(room=room, peer_id=peer_id).exists():
+        return JsonResponse({'error': 'Not in this room.'}, status=403)
+    connected = room.peer_count() >= 2
+    new_files = [
+        {'id': e.file_id, 'name': e.name, 'size': e.size,
+         'from': e.from_peer, 'ts': e.ts, 'mine': e.from_peer == peer_id}
+        for e in CSFile.objects.filter(room=room, ts__gt=since)
+    ]
     return JsonResponse({'connected': connected, 'files': new_files, 'now': time.time()})
 
 
 def download_file(request, file_id):
+    from apps.pdf_tools.models import CSFile
     code = request.GET.get('code', '').strip().upper()
-    with _lock:
-        room = _rooms.get(code)
-        if not room:
-            raise Http404
-        entry = next((e for e in room['files'] if e['id'] == file_id), None)
-        if not entry:
-            raise Http404
-        data = entry['data']
-        name = entry['name']
-    ct, _ = mimetypes.guess_type(name)
+    try:
+        entry = CSFile.objects.get(file_id=file_id, room__code=code)
+    except CSFile.DoesNotExist:
+        raise Http404
+    if not os.path.exists(entry.file_path):
+        raise Http404
+    ct, _ = mimetypes.guess_type(entry.name)
+    with open(entry.file_path, 'rb') as fh:
+        data = fh.read()
     resp = HttpResponse(data, content_type=ct or 'application/octet-stream')
-    safe = name.replace('"', '')
+    safe = entry.name.replace('"', '')
     resp['Content-Disposition'] = f'attachment; filename="{safe}"'
     return resp
