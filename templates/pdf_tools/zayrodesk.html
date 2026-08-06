@@ -1,0 +1,461 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}ZayroDesk — Remote Screen Access{% endblock %}
+{% block active_zayrodesk %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">ZayroDesk</span>{% endblock %}
+{% block extra_head %}<style>
+.zd-wrap{max-width:880px;margin:0 auto;padding:2rem 1rem}
+.zd-hero{text-align:center;padding:2rem 1rem 1.6rem}
+.zd-hero-icon{font-size:3rem;color:#0891b2;margin-bottom:.7rem}
+.zd-hero h1{font-size:1.8rem;font-weight:900;color:#1e293b;margin:0 0 .4rem}
+.zd-hero p{font-size:.88rem;color:#64748b;margin:0}
+.zd-pick{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1.6rem}
+.zd-card{background:#fff;border:2px solid #e8e8e8;border-radius:20px;padding:2rem 1.5rem;text-align:center;transition:border-color .2s,box-shadow .2s}
+.zd-card:hover{border-color:#0891b2;box-shadow:0 4px 28px rgba(8,145,178,.12)}
+.zd-card-icon{font-size:2.2rem;margin-bottom:.9rem}
+.zd-card h2{font-size:1.05rem;font-weight:800;color:#1e293b;margin:0 0 .4rem}
+.zd-card p{font-size:.82rem;color:#64748b;margin:0 0 1.4rem;line-height:1.5}
+.zd-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.4rem;border-radius:11px;font-size:.84rem;font-weight:700;border:none;cursor:pointer;transition:opacity .15s}
+.zd-btn-primary{background:linear-gradient(135deg,#0891b2,#0e7490);color:#fff}
+.zd-btn-outline{background:#fff;border:2px solid #0891b2;color:#0891b2}
+.zd-btn:hover{opacity:.85}
+.zd-btn:disabled{opacity:.45;cursor:not-allowed}
+.zd-join-row{display:flex;gap:.5rem;margin-top:.8rem}
+.zd-code-input{flex:1;border:2px solid #e8e8e8;border-radius:10px;padding:.55rem .9rem;font-size:1.1rem;font-weight:800;letter-spacing:.18em;text-align:center;font-family:monospace;color:#1e293b;outline:none}
+.zd-code-input:focus{border-color:#0891b2;box-shadow:0 0 0 3px rgba(8,145,178,.1)}
+.zd-err{font-size:.78rem;color:#dc2626;font-weight:600;margin-top:.5rem;display:none}
+.zd-err.show{display:block}
+.zd-pick-err{color:#dc2626;font-size:.82rem;font-weight:700;text-align:center;margin-top:1rem;padding:.6rem 1rem;background:#fee2e2;border-radius:10px;display:none}
+.zd-pick-err.show{display:block}
+
+/* host room */
+.zd-host-room{display:none}
+.zd-host-room.show{display:block}
+.zd-session-bar{background:#fff;border:1.5px solid #e8e8e8;border-radius:16px;padding:1rem 1.4rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.zd-session-code{font-size:1.6rem;font-weight:900;letter-spacing:.18em;color:#0891b2;font-family:monospace}
+.zd-session-label{font-size:.7rem;color:#94a3b8;font-weight:700;text-transform:uppercase}
+.zd-copy-btn{background:none;border:1.5px solid #e8e8e8;border-radius:8px;padding:.3rem .7rem;font-size:.78rem;font-weight:700;color:#475569;cursor:pointer;display:flex;align-items:center;gap:.3rem;transition:all .15s}
+.zd-copy-btn:hover{border-color:#0891b2;color:#0891b2}
+.zd-status-pill{display:inline-flex;align-items:center;gap:.4rem;padding:.28rem .8rem;border-radius:20px;font-size:.75rem;font-weight:700;margin-left:auto}
+.zd-pill-wait{background:#fef9c3;color:#ca8a04}
+.zd-pill-connected{background:#dcfce7;color:#16a34a}
+.zd-pill-sharing{background:#dbeafe;color:#2563eb}
+.zd-stop-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.2rem;border-radius:11px;font-size:.84rem;font-weight:700;border:2px solid #dc2626;color:#dc2626;background:#fff;cursor:pointer;margin-bottom:1.2rem;transition:all .15s}
+.zd-stop-btn:hover{background:#fee2e2}
+.zd-host-preview{background:#0f172a;border-radius:16px;overflow:hidden;position:relative;min-height:220px;display:flex;align-items:center;justify-content:center}
+.zd-host-preview video{width:100%;max-height:420px;object-fit:contain;display:block}
+.zd-preview-placeholder{color:#334155;font-size:.9rem;text-align:center;padding:2rem}
+.zd-preview-placeholder i{font-size:2.5rem;display:block;margin-bottom:.6rem;color:#1e40af}
+.zd-remote-cursor{position:absolute;pointer-events:none;z-index:10;transition:left .05s,top .05s;display:none}
+.zd-remote-cursor svg{filter:drop-shadow(0 1px 3px rgba(0,0,0,.6))}
+.zd-cursor-label{position:absolute;left:18px;top:2px;background:#0891b2;color:#fff;font-size:.6rem;font-weight:700;padding:.1rem .35rem;border-radius:4px;white-space:nowrap}
+
+/* viewer */
+.zd-viewer-room{display:none}
+.zd-viewer-room.show{display:block}
+.zd-viewer-wrap{position:relative;background:#000;border-radius:16px;overflow:hidden;min-height:300px;user-select:none}
+.zd-viewer-video{width:100%;display:block;cursor:none}
+.zd-viewer-toolbar{position:absolute;top:0;left:0;right:0;background:linear-gradient(180deg,rgba(0,0,0,.75) 0%,transparent 100%);padding:.6rem 1rem;display:flex;align-items:center;gap:.8rem;opacity:0;transition:opacity .25s}
+.zd-viewer-wrap:hover .zd-viewer-toolbar{opacity:1}
+.zd-viewer-title{font-size:.82rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:.4rem}
+.zd-viewer-status{font-size:.72rem;color:#86efac;font-weight:600}
+.zd-toolbar-btn{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:.35rem .75rem;font-size:.75rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.3rem;backdrop-filter:blur(4px);transition:background .15s}
+.zd-toolbar-btn:hover{background:rgba(255,255,255,.28)}
+.zd-toolbar-btn.red{background:rgba(220,38,38,.6)}
+.zd-toolbar-btn.red:hover{background:rgba(220,38,38,.85)}
+.zd-fullscreen-btn{margin-left:auto}
+.zd-connect-overlay{position:absolute;inset:0;background:#0f172a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;color:#94a3b8;font-size:.9rem;font-weight:600;border-radius:16px}
+.zd-connect-overlay i{font-size:2.5rem;animation:zdSpin 1s linear infinite;color:#0891b2}
+@keyframes zdSpin{to{transform:rotate(360deg)}}
+.zd-touch-hint{position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.55);color:#fff;font-size:.72rem;font-weight:600;padding:.3rem .9rem;border-radius:20px;pointer-events:none;opacity:0;transition:opacity .4s;white-space:nowrap}
+.zd-touch-hint.show{opacity:1}
+
+/* info strip */
+.zd-info{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.6rem}
+.zd-info-card{flex:1;min-width:140px;background:#fff;border:1.5px solid #e8e8e8;border-radius:14px;padding:.9rem 1rem;display:flex;align-items:center;gap:.7rem}
+.zd-info-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.zd-info-title{font-size:.8rem;font-weight:700;color:#1e293b}
+.zd-info-desc{font-size:.7rem;color:#94a3b8}
+@media(max-width:640px){.zd-pick{grid-template-columns:1fr}}
+</style>{% endblock %}
+
+{% block content %}
+<div class="zd-wrap">
+
+  <div id="zdPick">
+    <div class="zd-hero">
+      <div class="zd-hero-icon"><i class="fa-solid fa-desktop"></i></div>
+      <h1>ZayroDesk</h1>
+      <p>Share your screen securely. The viewer gets full-screen access with mouse, keyboard &amp; touch control.</p>
+    </div>
+    <div class="zd-pick-err" id="zdPickErr"></div>
+    <div class="zd-pick">
+      <div class="zd-card">
+        <div class="zd-card-icon">🖥️</div>
+        <h2>Share My Screen</h2>
+        <p>Generate a session code. Share it with the person who needs to view or control your screen.</p>
+        <button class="zd-btn zd-btn-primary" id="zdStartBtn" onclick="hostStart()"><i class="fa-solid fa-desktop"></i> Start Sharing</button>
+      </div>
+      <div class="zd-card">
+        <div class="zd-card-icon">🔗</div>
+        <h2>Join a Session</h2>
+        <p>Enter the 9-digit code from the person sharing their screen to connect and take control.</p>
+        <div class="zd-join-row">
+          <input id="zdJoinInput" type="text" class="zd-code-input" maxlength="11" placeholder="123-456-789" oninput="fmtCode(this)">
+          <button class="zd-btn zd-btn-primary" id="zdJoinBtn" onclick="viewerJoin()"><i class="fa-solid fa-plug"></i> Connect</button>
+        </div>
+        <div class="zd-err" id="zdJoinErr"></div>
+      </div>
+    </div>
+    <div class="zd-info">
+      <div class="zd-info-card"><div class="zd-info-icon" style="background:rgba(8,145,178,.12);color:#0891b2"><i class="fa-solid fa-lock"></i></div><div><div class="zd-info-title">End-to-End</div><div class="zd-info-desc">WebRTC P2P — server never sees your screen</div></div></div>
+      <div class="zd-info-card"><div class="zd-info-icon" style="background:rgba(22,163,74,.12);color:#16a34a"><i class="fa-solid fa-bolt"></i></div><div><div class="zd-info-title">Low Latency</div><div class="zd-info-desc">Direct peer connection</div></div></div>
+      <div class="zd-info-card"><div class="zd-info-icon" style="background:rgba(124,58,237,.12);color:#7c3aed"><i class="fa-solid fa-hand-pointer"></i></div><div><div class="zd-info-title">Full Control</div><div class="zd-info-desc">Mouse, keyboard &amp; touch</div></div></div>
+      <div class="zd-info-card"><div class="zd-info-icon" style="background:rgba(219,39,119,.12);color:#db2777"><i class="fa-solid fa-mobile-screen"></i></div><div><div class="zd-info-title">Mobile Ready</div><div class="zd-info-desc">Touch gestures supported</div></div></div>
+    </div>
+  </div>
+
+  <!-- HOST ROOM -->
+  <div id="zdHostRoom" class="zd-host-room">
+    <div class="zd-session-bar">
+      <div>
+        <div class="zd-session-label">Your Session Code</div>
+        <div class="zd-session-code" id="zdCodeDisplay">—</div>
+      </div>
+      <button class="zd-copy-btn" onclick="copyCode()"><i class="fa-solid fa-copy"></i> Copy</button>
+      <div class="zd-status-pill zd-pill-sharing" id="zdHostPill"><i class="fa-solid fa-circle" style="color:#2563eb;font-size:.55rem"></i> Sharing — waiting for viewer</div>
+    </div>
+    <button class="zd-stop-btn" onclick="hostStop('Session ended.')"><i class="fa-solid fa-stop"></i> Stop &amp; Disconnect</button>
+    <div class="zd-host-preview" id="zdHostPreview">
+      <div class="zd-preview-placeholder" id="zdHostPlaceholder"><i class="fa-solid fa-desktop"></i><br>Screen preview will appear here</div>
+      <video id="zdHostVideo" autoplay muted playsinline style="display:none"></video>
+      <div class="zd-remote-cursor" id="zdRemoteCursor">
+        <svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 2l16 10-7 1-4 7z" fill="#0891b2" stroke="#fff" stroke-width="1.5"/></svg>
+        <div class="zd-cursor-label">Viewer</div>
+      </div>
+    </div>
+    <div style="font-size:.75rem;color:#94a3b8;margin-top:.8rem;line-height:1.6"><i class="fa-solid fa-circle-info"></i> Share the code with the viewer. Once connected, their cursor appears on your preview.</div>
+  </div>
+
+  <!-- VIEWER ROOM -->
+  <div id="zdViewerRoom" class="zd-viewer-room">
+    <div class="zd-viewer-wrap" id="zdViewerWrap">
+      <div class="zd-connect-overlay" id="zdConnectOverlay">
+        <i class="fa-solid fa-spinner"></i>
+        <span id="zdConnectMsg">Connecting to host…</span>
+      </div>
+      <video id="zdViewerVideo" class="zd-viewer-video" autoplay playsinline></video>
+      <div class="zd-viewer-toolbar">
+        <div class="zd-viewer-title"><i class="fa-solid fa-desktop"></i> ZayroDesk <span class="zd-viewer-status" id="zdViewerStatus">● Connecting</span></div>
+        <button class="zd-toolbar-btn" onclick="toggleCtrl()" id="zdCtrlBtn"><i class="fa-solid fa-hand-pointer"></i> Control: ON</button>
+        <button class="zd-toolbar-btn" onclick="sendCtrlAltDel()"><i class="fa-solid fa-keyboard"></i> Ctrl+Alt+Del</button>
+        <button class="zd-toolbar-btn zd-fullscreen-btn" onclick="goFullscreen()"><i class="fa-solid fa-expand"></i></button>
+        <button class="zd-toolbar-btn red" onclick="viewerDisconnect()"><i class="fa-solid fa-plug-circle-xmark"></i> Disconnect</button>
+      </div>
+      <div class="zd-touch-hint" id="zdTouchHint">Tap to click · Drag to move · Pinch to scroll</div>
+    </div>
+    <div style="font-size:.73rem;color:#94a3b8;margin-top:.7rem;line-height:1.6;text-align:center"><i class="fa-solid fa-triangle-exclamation"></i> Hover the screen to reveal the toolbar.</div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}<script>
+const CSRF='{{ csrf_token }}';
+const ICE={iceServers:[
+  {urls:'stun:stun.l.google.com:19302'},
+  {urls:'stun:stun1.l.google.com:19302'},
+]};
+
+let role=null,roomCode=null,pc=null,dc=null;
+let pollTimer=null,iceIdx=0,controlEnabled=true,stream=null;
+
+async function api(url,body){
+  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},body:JSON.stringify(body)});
+  const ct=res.headers.get('content-type')||'';
+  if(!ct.includes('application/json')) throw new Error('Server error (HTTP '+res.status+'). Try refreshing.');
+  return res.json();
+}
+async function poll(url){
+  const res=await fetch(url);
+  const ct=res.headers.get('content-type')||'';
+  if(!ct.includes('application/json')) return null;
+  return res.json();
+}
+
+function showPickErr(msg){
+  const e=document.getElementById('zdPickErr');
+  e.textContent='⚠ '+msg; e.classList.add('show');
+}
+function clearPickErr(){document.getElementById('zdPickErr').classList.remove('show');}
+function showJoinErr(msg){const e=document.getElementById('zdJoinErr');e.textContent=msg;e.classList.add('show');}
+function clearJoinErr(){document.getElementById('zdJoinErr').classList.remove('show');}
+
+function fmtCode(el){
+  let v=el.value.replace(/\D/g,'').slice(0,9);
+  if(v.length>6)v=v.slice(0,3)+'-'+v.slice(3,6)+'-'+v.slice(6);
+  else if(v.length>3)v=v.slice(0,3)+'-'+v.slice(3);
+  el.value=v; clearJoinErr();
+}
+
+function copyCode(){
+  navigator.clipboard.writeText(roomCode).then(()=>{
+    const b=document.querySelector('.zd-copy-btn');
+    b.innerHTML='<i class="fa-solid fa-check"></i> Copied!';
+    setTimeout(()=>b.innerHTML='<i class="fa-solid fa-copy"></i> Copy',1600);
+  });
+}
+
+function setPill(state){
+  const p=document.getElementById('zdHostPill');
+  const map={
+    wait:'zd-pill-wait',connected:'zd-pill-connected',sharing:'zd-pill-sharing'
+  };
+  p.className='zd-status-pill '+map[state];
+  const labels={
+    wait:'<i class="fa-solid fa-circle-notch fa-spin"></i> Waiting for viewer…',
+    connected:'<i class="fa-solid fa-circle" style="color:#16a34a;font-size:.55rem"></i> Viewer connected',
+    sharing:'<i class="fa-solid fa-circle" style="color:#2563eb;font-size:.55rem"></i> Sharing — waiting for viewer',
+  };
+  p.innerHTML=labels[state];
+}
+
+/* ── HOST ── */
+async function hostStart(){
+  clearPickErr();
+  const btn=document.getElementById('zdStartBtn');
+  btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Starting…';
+
+  try{
+    stream=await navigator.mediaDevices.getDisplayMedia({
+      video:{displaySurface:'monitor',cursor:'always',frameRate:{ideal:30,max:60}},
+      audio:false,
+      preferCurrentTab:false,
+      selfBrowserSurface:'exclude',
+      monitorTypeSurfaces:'include',
+    });
+  }catch(e){
+    btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-desktop"></i> Start Sharing';
+    if(e.name==='NotAllowedError'){
+      showPickErr('Screen share was blocked or cancelled. Click "Start Sharing" and then click "Share" in the popup.');
+    } else {
+      showPickErr('Screen share failed: '+e.message);
+    }
+    return;
+  }
+
+  let d;
+  try{
+    d=await api('/tools/api/desk/create/',{});
+    if(d.error) throw new Error(d.error);
+  }catch(e){
+    stream.getTracks().forEach(t=>t.stop()); stream=null;
+    btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-desktop"></i> Start Sharing';
+    showPickErr('Failed to create session: '+e.message);
+    return;
+  }
+
+  roomCode=d.code; role='host';
+  document.getElementById('zdPick').style.display='none';
+  document.getElementById('zdHostRoom').classList.add('show');
+  document.getElementById('zdCodeDisplay').textContent=d.display;
+
+  const vid=document.getElementById('zdHostVideo');
+  vid.srcObject=stream; vid.style.display='block';
+  document.getElementById('zdHostPlaceholder').style.display='none';
+
+  pc=new RTCPeerConnection(ICE);
+  stream.getTracks().forEach(t=>pc.addTrack(t,stream));
+  pc.ondatachannel=e=>{dc=e.channel; dc.onmessage=ev=>{try{handleHostEvent(JSON.parse(ev.data));}catch(x){}};};
+  pc.onicecandidate=e=>{if(e.candidate) api('/tools/api/desk/ice/',{code:roomCode,role:'host',candidate:e.candidate.toJSON()});};
+  pc.onconnectionstatechange=()=>{if(pc.connectionState==='connected') setPill('connected');};
+
+  try{
+    const offer=await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    await api('/tools/api/desk/offer/',{code:roomCode,sdp:{type:offer.type,sdp:offer.sdp}});
+  }catch(e){hostStop('WebRTC setup failed: '+e.message); return;}
+
+  stream.getVideoTracks()[0].onended=()=>hostStop('Screen sharing was stopped. Click "Start Sharing" to begin a new session.');
+  startHostPoll();
+}
+
+function handleHostEvent(ev){
+  const vid=document.getElementById('zdHostVideo');
+  const rect=vid.getBoundingClientRect();
+  const cursor=document.getElementById('zdRemoteCursor');
+  if(['move','click','touch'].includes(ev.type)){
+    const x=(ev.x||0)*rect.width, y=(ev.y||0)*rect.height;
+    cursor.style.display='block'; cursor.style.left=x+'px'; cursor.style.top=y+'px';
+    if(ev.type==='click'){
+      const el=document.elementFromPoint(rect.left+x,rect.top+y);
+      if(el) el.dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:rect.left+x,clientY:rect.top+y}));
+    }
+  }
+  if(ev.type==='scroll') window.scrollBy(ev.dx||0,ev.dy||0);
+  if(ev.type==='keydown') document.activeElement.dispatchEvent(new KeyboardEvent('keydown',{key:ev.key,code:ev.code,bubbles:true}));
+  if(ev.type==='keyup')   document.activeElement.dispatchEvent(new KeyboardEvent('keyup',  {key:ev.key,code:ev.code,bubbles:true}));
+}
+
+function startHostPoll(){
+  iceIdx=0;
+  pollTimer=setInterval(async()=>{
+    try{
+      const d=await poll(`/tools/api/desk/poll/?code=${roomCode}&role=host&idx=${iceIdx}`);
+      if(!d||d.closed){hostStop('Session closed by viewer.');return;}
+      if(d.error){hostStop(d.error);return;}
+      if(d.answer&&pc&&!pc.currentRemoteDescription){
+        await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
+      }
+      if(d.ice&&d.ice.length){
+        for(const c of d.ice){if(pc&&c)try{await pc.addIceCandidate(new RTCIceCandidate(c));}catch(x){}}
+        iceIdx=d.ice_total;
+      }
+    }catch(e){}
+  },1500);
+}
+
+async function hostStop(msg){
+  clearInterval(pollTimer); pollTimer=null;
+  if(stream){stream.getTracks().forEach(t=>t.stop()); stream=null;}
+  if(pc){try{pc.close();}catch(e){} pc=null;}
+  try{if(roomCode) await api('/tools/api/desk/close/',{code:roomCode});}catch(e){}
+  roomCode=null; role=null; iceIdx=0;
+  document.getElementById('zdHostRoom').classList.remove('show');
+  document.getElementById('zdHostVideo').srcObject=null;
+  document.getElementById('zdHostVideo').style.display='none';
+  document.getElementById('zdHostPlaceholder').style.display='';
+  document.getElementById('zdPick').style.display='';
+  const btn=document.getElementById('zdStartBtn');
+  btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-desktop"></i> Start Sharing';
+  if(msg) showPickErr(msg);
+}
+
+/* ── VIEWER ── */
+async function viewerJoin(){
+  clearJoinErr();
+  const raw=document.getElementById('zdJoinInput').value.replace(/-/g,'').trim();
+  if(raw.length!==9){showJoinErr('Enter the full 9-digit code.');return;}
+  const btn=document.getElementById('zdJoinBtn');
+  btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>';
+
+  try{
+    const d=await api('/tools/api/desk/offer/',{code:raw,sdp:null});
+    if(d.error) throw new Error(d.error);
+  }catch(e){
+    btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-plug"></i> Connect';
+    showJoinErr(e.message||'Session not found. Check the code.');
+    return;
+  }
+
+  roomCode=raw; role='viewer';
+  document.getElementById('zdPick').style.display='none';
+  document.getElementById('zdViewerRoom').classList.add('show');
+  document.getElementById('zdConnectMsg').textContent='Waiting for host screen share…';
+  startViewerPoll();
+}
+
+async function startViewerPoll(){
+  iceIdx=0;
+  pollTimer=setInterval(async()=>{
+    try{
+      const d=await poll(`/tools/api/desk/poll/?code=${roomCode}&role=viewer&idx=${iceIdx}`);
+      if(!d) return;
+      if(d.error||d.closed){viewerDisconnect(); return;}
+      if(d.offer&&!pc) await setupViewer(d.offer);
+      if(d.ice&&d.ice.length&&pc){
+        for(const c of d.ice){if(c)try{await pc.addIceCandidate(new RTCIceCandidate(c));}catch(x){}}
+        iceIdx=d.ice_total;
+      }
+    }catch(e){}
+  },1500);
+}
+
+async function setupViewer(offerSdp){
+  pc=new RTCPeerConnection(ICE);
+  pc.ontrack=e=>{
+    const vid=document.getElementById('zdViewerVideo');
+    if(vid.srcObject!==e.streams[0]){
+      vid.srcObject=e.streams[0];
+      vid.onloadedmetadata=()=>{
+        document.getElementById('zdConnectOverlay').style.display='none';
+        document.getElementById('zdViewerStatus').textContent='● Live';
+        attachViewerEvents();
+        const h=document.getElementById('zdTouchHint');
+        h.classList.add('show'); setTimeout(()=>h.classList.remove('show'),3500);
+      };
+    }
+  };
+  pc.onicecandidate=e=>{if(e.candidate) api('/tools/api/desk/ice/',{code:roomCode,role:'viewer',candidate:e.candidate.toJSON()});};
+  pc.onconnectionstatechange=()=>{if(pc.connectionState==='disconnected'||pc.connectionState==='failed') viewerDisconnect();};
+  dc=pc.createDataChannel('ctrl',{ordered:true});
+  await pc.setRemoteDescription(new RTCSessionDescription(offerSdp));
+  const answer=await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  await api('/tools/api/desk/answer/',{code:roomCode,sdp:{type:answer.type,sdp:answer.sdp}});
+}
+
+function sendCtrl(obj){if(!controlEnabled||!dc||dc.readyState!=='open') return; try{dc.send(JSON.stringify(obj));}catch(e){}}
+
+function attachViewerEvents(){
+  const vid=document.getElementById('zdViewerVideo');
+  vid.addEventListener('mousemove',e=>{
+    const r=vid.getBoundingClientRect();
+    sendCtrl({type:'move',x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height});
+  });
+  vid.addEventListener('click',e=>{
+    const r=vid.getBoundingClientRect();
+    sendCtrl({type:'click',x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height,button:e.button});
+  });
+  vid.addEventListener('contextmenu',e=>{
+    e.preventDefault();
+    const r=vid.getBoundingClientRect();
+    sendCtrl({type:'click',x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height,button:2});
+  });
+  vid.addEventListener('dblclick',e=>{
+    const r=vid.getBoundingClientRect();
+    sendCtrl({type:'dblclick',x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height});
+  });
+  vid.addEventListener('wheel',e=>{e.preventDefault();sendCtrl({type:'scroll',dx:e.deltaX,dy:e.deltaY});},{passive:false});
+  let lt=null;
+  vid.addEventListener('touchstart',e=>{e.preventDefault();lt=e.touches[0];},{passive:false});
+  vid.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    const r=vid.getBoundingClientRect(),t=e.touches[0];
+    sendCtrl({type:'touch',x:(t.clientX-r.left)/r.width,y:(t.clientY-r.top)/r.height});
+    if(lt) sendCtrl({type:'scroll',dx:lt.clientX-t.clientX,dy:lt.clientY-t.clientY});
+    lt=t;
+  },{passive:false});
+  vid.addEventListener('touchend',e=>{
+    e.preventDefault();
+    if(lt){const r=vid.getBoundingClientRect(); sendCtrl({type:'click',x:(lt.clientX-r.left)/r.width,y:(lt.clientY-r.top)/r.height,button:0});}
+    lt=null;
+  },{passive:false});
+  document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return; sendCtrl({type:'keydown',key:e.key,code:e.code});});
+  document.addEventListener('keyup',  e=>{if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return; sendCtrl({type:'keyup',  key:e.key,code:e.code});});
+}
+
+function toggleCtrl(){
+  controlEnabled=!controlEnabled;
+  const btn=document.getElementById('zdCtrlBtn');
+  btn.innerHTML=controlEnabled?'<i class="fa-solid fa-hand-pointer"></i> Control: ON':'<i class="fa-solid fa-hand"></i> Control: OFF';
+  btn.style.background=controlEnabled?'rgba(255,255,255,.15)':'rgba(220,38,38,.45)';
+  document.getElementById('zdViewerVideo').style.cursor=controlEnabled?'none':'default';
+}
+function sendCtrlAltDel(){sendCtrl({type:'keydown',key:'Delete',code:'Delete',ctrl:true,alt:true});}
+function goFullscreen(){const el=document.getElementById('zdViewerWrap');(el.requestFullscreen||el.webkitRequestFullscreen).call(el);}
+
+async function viewerDisconnect(){
+  clearInterval(pollTimer); pollTimer=null;
+  if(pc){try{pc.close();}catch(e){} pc=null;}
+  await api('/tools/api/desk/close/',{code:roomCode}).catch(()=>{});
+  roomCode=null; role=null; iceIdx=0;
+  document.getElementById('zdViewerRoom').classList.remove('show');
+  document.getElementById('zdViewerVideo').srcObject=null;
+  document.getElementById('zdConnectOverlay').style.display='flex';
+  document.getElementById('zdConnectMsg').textContent='Connecting to host…';
+  document.getElementById('zdPick').style.display='';
+  const btn=document.getElementById('zdJoinBtn');
+  btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-plug"></i> Connect';
+}
+</script>{% endblock %}

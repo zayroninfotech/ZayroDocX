@@ -290,7 +290,7 @@
         <!-- More Tools -->
         <div class="mh-item has-drop">
           <span class="mh-link {% block active_more %}{% endblock %}"><i class="fa-solid fa-grip mh-nav-icon"></i> More <i class="fa-solid fa-chevron-down mh-caret"></i></span>
-          <div class="mh-drop">
+          <div class="mh-drop mh-drop-wide">
             <a href="{% url 'connectspace_page' %}" class="mh-drop-item {% block active_connectspace %}{% endblock %}">
               <span class="mhd-icon" style="background:rgba(220,38,38,.12);color:#dc2626;"><i class="fa-solid fa-arrows-turn-to-dots"></i></span>
               <span class="mhd-text"><strong>ConnectSpace</strong><em>Live file sharing</em><span class="mh-cs-badge" style="margin-left:.3rem">Live</span></span>
@@ -298,6 +298,22 @@
             <a href="{% url 'resume_analyzer_page' %}" class="mh-drop-item {% block active_resume_analyzer %}{% endblock %}">
               <span class="mhd-icon" style="background:rgba(124,58,237,.12);color:#7c3aed;"><i class="fa-solid fa-file-circle-check"></i></span>
               <span class="mhd-text"><strong>AI Resume Analyzer</strong><em>ATS score & job match</em><span class="mhd-ai">AI✧</span></span>
+            </a>
+            <a href="{% url 'zayrodesk_page' %}" class="mh-drop-item {% block active_zayrodesk %}{% endblock %}">
+              <span class="mhd-icon" style="background:rgba(6,182,212,.12);color:#0891b2;"><i class="fa-solid fa-desktop"></i></span>
+              <span class="mhd-text"><strong>ZayroDesk</strong><em>Remote screen access</em><span class="mh-cs-badge" style="background:#0891b2;margin-left:.3rem">New</span></span>
+            </a>
+            <a href="{% url 'product_recommender_page' %}" class="mh-drop-item {% block active_product_recommender %}{% endblock %}">
+              <span class="mhd-icon" style="background:rgba(124,58,237,.12);color:#7c3aed;"><i class="fa-solid fa-cart-shopping"></i></span>
+              <span class="mhd-text"><strong>AI Product Recommender</strong><em>Find best products with AI</em><span class="mhd-ai">AI✧</span></span>
+            </a>
+            <a href="{% url 'pdf_chat_page' %}" class="mh-drop-item {% block active_pdf_chat %}{% endblock %}">
+              <span class="mhd-icon" style="background:rgba(37,99,235,.12);color:#2563eb;"><i class="fa-solid fa-comments"></i></span>
+              <span class="mhd-text"><strong>AI PDF Chat</strong><em>Chat with your PDF documents</em><span class="mhd-ai">AI✧</span></span>
+            </a>
+            <a href="{% url 'zayro_eye_page' %}" class="mh-drop-item {% block active_zayro_eye %}{% endblock %}">
+              <span class="mhd-icon" style="background:rgba(220,38,38,.12);color:#dc2626;"><i class="fa-solid fa-video"></i></span>
+              <span class="mhd-text"><strong>ZayroEye</strong><em>Live remote camera access</em><span class="mh-cs-badge" style="background:#dc2626;margin-left:.3rem">Live</span></span>
             </a>
           </div>
         </div>

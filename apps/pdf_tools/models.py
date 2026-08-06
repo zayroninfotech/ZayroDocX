@@ -28,3 +28,27 @@ class CSFile(models.Model):
     file_path = models.CharField(max_length=500)   # absolute path to temp file
     from_peer = models.CharField(max_length=8)
     ts        = models.FloatField()
+
+
+# ── ZayroDesk ─────────────────────────────────────────────────────────────────
+
+class RCRoom(models.Model):
+    code       = models.CharField(max_length=9, unique=True, db_index=True)
+    created    = models.DateTimeField(auto_now_add=True)
+    offer      = models.JSONField(null=True, blank=True)
+    answer     = models.JSONField(null=True, blank=True)
+    host_ice   = models.JSONField(default=list)
+    viewer_ice = models.JSONField(default=list)
+    closed     = models.BooleanField(default=False)
+
+
+# ── ZayroEye ──────────────────────────────────────────────────────────────────
+
+class EyeRoom(models.Model):
+    code       = models.CharField(max_length=8, unique=True, db_index=True)
+    created    = models.DateTimeField(auto_now_add=True)
+    offer      = models.JSONField(null=True, blank=True)
+    answer     = models.JSONField(null=True, blank=True)
+    host_ice   = models.JSONField(default=list)
+    viewer_ice = models.JSONField(default=list)
+    closed     = models.BooleanField(default=False)

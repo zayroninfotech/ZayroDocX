@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}AI PDF Chat — ZayroDocX{% endblock %}
+{% block active_pdf_chat %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">AI PDF Chat</span>{% endblock %}
+{% block extra_head %}<style>
+.pc-wrap{max-width:960px;margin:0 auto;padding:2rem 1rem}
+.pc-hero{text-align:center;padding:1.6rem 1rem 1.2rem}
+.pc-hero-icon{font-size:2.8rem;margin-bottom:.6rem}
+.pc-hero h1{font-size:1.75rem;font-weight:900;color:#1e293b;margin:0 0 .35rem}
+.pc-hero p{font-size:.88rem;color:#64748b;margin:0}
+
+.pc-layout{display:grid;grid-template-columns:320px 1fr;gap:1.2rem;align-items:start}
+
+/* upload panel */
+.pc-upload-panel{background:#fff;border:1.5px solid #e8e8e8;border-radius:20px;padding:1.4rem;position:sticky;top:1rem}
+.pc-panel-title{font-size:.88rem;font-weight:800;color:#1e293b;margin:0 0 1rem;display:flex;align-items:center;gap:.5rem}
+.pc-drop{border:2px dashed #e2e8f0;border-radius:14px;padding:1.8rem 1rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:#fafbfc}
+.pc-drop:hover,.pc-drop.drag{border-color:#2563eb;background:rgba(37,99,235,.04)}
+.pc-drop input{display:none}
+.pc-drop-icon{font-size:2rem;color:#2563eb;margin-bottom:.6rem}
+.pc-drop-text{font-size:.82rem;color:#64748b;line-height:1.5}
+.pc-drop-text strong{color:#1e293b}
+.pc-file-loaded{display:none;margin-top:1rem;background:rgba(37,99,235,.06);border:1.5px solid rgba(37,99,235,.2);border-radius:12px;padding:.8rem 1rem}
+.pc-file-loaded.show{display:block}
+.pc-file-name{font-size:.82rem;font-weight:700;color:#1e293b;display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem}
+.pc-file-meta{font-size:.72rem;color:#64748b}
+.pc-engine-row{display:flex;gap:.5rem;margin-top:1rem}
+.pc-eng-btn{flex:1;padding:.45rem .5rem;border:1.5px solid #e8e8e8;border-radius:9px;font-size:.75rem;font-weight:700;cursor:pointer;background:#fff;color:#475569;transition:all .15s;text-align:center}
+.pc-eng-btn.active{border-color:#2563eb;background:rgba(37,99,235,.07);color:#2563eb}
+.pc-stats{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:1rem}
+.pc-stat{background:#f8fafc;border-radius:10px;padding:.6rem .8rem;text-align:center}
+.pc-stat-val{font-size:1.1rem;font-weight:900;color:#1e293b}
+.pc-stat-lbl{font-size:.65rem;color:#94a3b8;font-weight:600;text-transform:uppercase}
+.pc-clear-btn{width:100%;margin-top:.8rem;padding:.5rem;border:1.5px solid #e8e8e8;border-radius:9px;font-size:.78rem;font-weight:700;color:#475569;background:#fff;cursor:pointer;transition:all .15s}
+.pc-clear-btn:hover{border-color:#dc2626;color:#dc2626}
+
+/* chat panel */
+.pc-chat-panel{background:#fff;border:1.5px solid #e8e8e8;border-radius:20px;display:flex;flex-direction:column;min-height:540px}
+.pc-chat-header{padding:1rem 1.4rem;border-bottom:1.5px solid #f1f5f9;display:flex;align-items:center;gap:.6rem}
+.pc-chat-title{font-size:.9rem;font-weight:800;color:#1e293b}
+.pc-chat-status{font-size:.72rem;color:#94a3b8;font-weight:600;margin-left:auto}
+.pc-messages{flex:1;overflow-y:auto;padding:1.2rem;display:flex;flex-direction:column;gap:.9rem;min-height:380px;max-height:480px}
+.pc-msg{display:flex;gap:.7rem;align-items:flex-start}
+.pc-msg.user{flex-direction:row-reverse}
+.pc-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.pc-avatar-ai{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff}
+.pc-avatar-user{background:linear-gradient(135deg,#64748b,#475569);color:#fff}
+.pc-bubble{max-width:82%;padding:.7rem 1rem;border-radius:16px;font-size:.85rem;line-height:1.6;color:#1e293b}
+.pc-msg.ai .pc-bubble{background:#f1f5f9;border-bottom-left-radius:4px}
+.pc-msg.user .pc-bubble{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-bottom-right-radius:4px}
+.pc-bubble p{margin:0 0 .5rem}
+.pc-bubble p:last-child{margin:0}
+.pc-bubble .pc-citation{font-size:.72rem;color:#2563eb;font-weight:600;background:rgba(37,99,235,.1);padding:.1rem .4rem;border-radius:4px;margin-right:.2rem;display:inline-block}
+.pc-msg.user .pc-bubble .pc-citation{color:#93c5fd;background:rgba(255,255,255,.15)}
+.pc-typing{display:none;align-items:center;gap:.4rem;padding:.5rem 0}
+.pc-typing.show{display:flex}
+.pc-typing span{width:7px;height:7px;background:#2563eb;border-radius:50%;animation:pcDot .9s ease-in-out infinite}
+.pc-typing span:nth-child(2){animation-delay:.15s}
+.pc-typing span:nth-child(3){animation-delay:.3s}
+@keyframes pcDot{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+.pc-empty{text-align:center;padding:3rem 1rem;color:#94a3b8;font-size:.85rem}
+.pc-empty i{font-size:2.5rem;display:block;margin-bottom:.8rem;color:#dbeafe}
+.pc-input-row{padding:1rem 1.2rem;border-top:1.5px solid #f1f5f9;display:flex;gap:.6rem;align-items:flex-end}
+.pc-input{flex:1;border:1.5px solid #e8e8e8;border-radius:12px;padding:.6rem .9rem;font-size:.88rem;color:#1e293b;outline:none;resize:none;font-family:inherit;line-height:1.5;max-height:120px;transition:border-color .15s}
+.pc-input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.pc-send-btn{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:opacity .15s;flex-shrink:0}
+.pc-send-btn:hover{opacity:.85}
+.pc-send-btn:disabled{opacity:.4;cursor:not-allowed}
+.pc-suggestions{display:flex;flex-wrap:wrap;gap:.4rem;padding:.6rem 1.2rem;border-top:1px solid #f1f5f9}
+.pc-sug{font-size:.73rem;background:#f1f5f9;border:none;border-radius:20px;padding:.3rem .75rem;color:#475569;cursor:pointer;font-weight:600;transition:all .15s}
+.pc-sug:hover{background:#dbeafe;color:#1d4ed8}
+@media(max-width:700px){.pc-layout{grid-template-columns:1fr}.pc-upload-panel{position:static}}
+</style>{% endblock %}
+
+{% block content %}
+<div class="pc-wrap">
+  <div class="pc-hero">
+    <div class="pc-hero-icon">💬</div>
+    <h1>AI PDF Chat Assistant</h1>
+    <p>Upload any PDF and ask questions — get instant, accurate answers with page citations.</p>
+  </div>
+
+  <div class="pc-layout">
+    <!-- Upload Panel -->
+    <div class="pc-upload-panel">
+      <div class="pc-panel-title"><i class="fa-solid fa-file-pdf" style="color:#dc2626"></i> PDF Document</div>
+      <div class="pc-drop" id="pcDrop" onclick="document.getElementById('pcFile').click()" ondragover="ev.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="dropFile(event)">
+        <input type="file" id="pcFile" accept=".pdf" onchange="loadFile(this.files[0])">
+        <div class="pc-drop-icon"><i class="fa-solid fa-file-arrow-up"></i></div>
+        <div class="pc-drop-text"><strong>Click or drag a PDF here</strong><br>Max 20MB · PDF only</div>
+      </div>
+      <div class="pc-file-loaded" id="pcFileLoaded">
+        <div class="pc-file-name"><i class="fa-solid fa-file-pdf" style="color:#dc2626"></i><span id="pcFileName">—</span></div>
+        <div class="pc-file-meta" id="pcFileMeta"></div>
+      </div>
+      <div class="pc-stats" id="pcStats" style="display:none">
+        <div class="pc-stat"><div class="pc-stat-val" id="pcPageCount">—</div><div class="pc-stat-lbl">Pages</div></div>
+        <div class="pc-stat"><div class="pc-stat-val" id="pcQCount">0</div><div class="pc-stat-lbl">Questions</div></div>
+      </div>
+      <div class="pc-engine-row">
+        <button class="pc-eng-btn active" id="pcEngMistral" onclick="setPcEngine('mistral')">⚡ Zayron LLM</button>
+        <button class="pc-eng-btn" id="pcEngOpenai" onclick="setPcEngine('openai')">✦ Zayron PRO</button>
+      </div>
+      <button class="pc-clear-btn" onclick="clearChat()"><i class="fa-solid fa-rotate-left"></i> Clear &amp; Upload New</button>
+    </div>
+
+    <!-- Chat Panel -->
+    <div class="pc-chat-panel">
+      <div class="pc-chat-header">
+        <i class="fa-solid fa-robot" style="color:#2563eb;font-size:1.1rem"></i>
+        <div class="pc-chat-title">PDF Chat</div>
+        <div class="pc-chat-status" id="pcStatus">Upload a PDF to start</div>
+      </div>
+      <div class="pc-messages" id="pcMessages">
+        <div class="pc-empty" id="pcEmpty">
+          <i class="fa-solid fa-comments"></i>
+          Upload a PDF to start chatting.<br>Ask anything about the document.
+        </div>
+      </div>
+      <div class="pc-typing" id="pcTyping">
+        <div class="pc-avatar pc-avatar-ai"><i class="fa-solid fa-robot"></i></div>
+        <span></span><span></span><span></span>
+      </div>
+      <div class="pc-suggestions" id="pcSuggestions" style="display:none">
+        <button class="pc-sug" onclick="ask(this.textContent)">Summarize this document</button>
+        <button class="pc-sug" onclick="ask(this.textContent)">What are the key points?</button>
+        <button class="pc-sug" onclick="ask(this.textContent)">List all important dates</button>
+        <button class="pc-sug" onclick="ask(this.textContent)">What is the conclusion?</button>
+      </div>
+      <div class="pc-input-row">
+        <textarea class="pc-input" id="pcInput" rows="1" placeholder="Ask a question about the PDF…" oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
+        <button class="pc-send-btn" id="pcSendBtn" onclick="sendMsg()" disabled><i class="fa-solid fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}<script>
+const CSRF='{{ csrf_token }}';
+let pdfContext=null, pdfPages=0, qCount=0, pcEngine='mistral';
+
+function setPcEngine(e){
+  pcEngine=e;
+  document.getElementById('pcEngMistral').classList.toggle('active',e==='mistral');
+  document.getElementById('pcEngOpenai').classList.toggle('active',e==='openai');
+}
+
+function dropFile(ev){
+  ev.preventDefault();
+  document.getElementById('pcDrop').classList.remove('drag');
+  const f=ev.dataTransfer.files[0];
+  if(f) loadFile(f);
+}
+
+async function loadFile(f){
+  if(!f||!f.name.endsWith('.pdf')){alert('Please upload a PDF file.');return;}
+  if(f.size>20*1024*1024){alert('File too large. Max 20MB.');return;}
+  document.getElementById('pcFileName').textContent=f.name;
+  document.getElementById('pcFileMeta').textContent=formatSize(f.size);
+  document.getElementById('pcFileLoaded').classList.add('show');
+  document.getElementById('pcStatus').textContent='Extracting PDF…';
+
+  const fd=new FormData();
+  fd.append('pdf',f);
+  fd.append('question','__extract_only__');
+  fd.append('engine',pcEngine);
+
+  try{
+    const res=await fetch('/tools/api/pdf-chat/',{method:'POST',headers:{'X-CSRFToken':CSRF},body:fd});
+    const d=await res.json();
+    if(d.context){
+      pdfContext=d.context; pdfPages=d.pages||0;
+      document.getElementById('pcPageCount').textContent=pdfPages;
+      document.getElementById('pcStats').style.display='grid';
+      document.getElementById('pcSuggestions').style.display='flex';
+      document.getElementById('pcSendBtn').disabled=false;
+      document.getElementById('pcStatus').textContent=pdfPages+' pages loaded';
+      appendMsg('ai','PDF loaded! I\'ve read all <strong>'+pdfPages+' page'+(pdfPages!==1?'s':'')+
+        '</strong>. Ask me anything about this document and I\'ll give you accurate, cited answers.');
+    }
+  }catch(e){
+    document.getElementById('pcStatus').textContent='Error loading PDF';
+    appendMsg('ai','⚠ Could not read the PDF: '+e.message);
+  }
+}
+
+function formatSize(b){if(b>1024*1024) return (b/1024/1024).toFixed(1)+' MB'; return Math.round(b/1024)+' KB';}
+
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
+
+function ask(q){document.getElementById('pcInput').value=q;sendMsg();}
+
+async function sendMsg(){
+  const inp=document.getElementById('pcInput');
+  const q=inp.value.trim();
+  if(!q||!pdfContext) return;
+  if(!pdfContext){appendMsg('ai','Please upload a PDF first.');return;}
+  inp.value=''; autoResize(inp);
+  qCount++; document.getElementById('pcQCount').textContent=qCount;
+  document.getElementById('pcEmpty').style.display='none';
+  appendMsg('user',q);
+  document.getElementById('pcTyping').classList.add('show');
+  scrollBottom();
+
+  const fd=new FormData();
+  fd.append('question',q);
+  fd.append('context',pdfContext);
+  fd.append('engine',pcEngine);
+
+  try{
+    const res=await fetch('/tools/api/pdf-chat/',{method:'POST',headers:{'X-CSRFToken':CSRF},body:fd});
+    const d=await res.json();
+    document.getElementById('pcTyping').classList.remove('show');
+    if(d.error&&d.error!=='Ask a question.') appendMsg('ai','⚠ '+d.error);
+    else if(d.answer) appendMsg('ai',formatAnswer(d.answer));
+  }catch(e){
+    document.getElementById('pcTyping').classList.remove('show');
+    appendMsg('ai','⚠ Error: '+e.message);
+  }
+}
+
+function formatAnswer(text){
+  // highlight page citations like (Page 3) or (Pages 2-4)
+  return text.replace(/\(Page[s]? [\d,\s\-]+\)/g,m=>`<span class="pc-citation">${m}</span>`);
+}
+
+function appendMsg(role,html){
+  const msgs=document.getElementById('pcMessages');
+  const div=document.createElement('div');
+  div.className='pc-msg '+role;
+  const icon=role==='ai'?'<i class="fa-solid fa-robot"></i>':'<i class="fa-solid fa-user"></i>';
+  div.innerHTML=`<div class="pc-avatar pc-avatar-${role}">${icon}</div><div class="pc-bubble"><p>${html}</p></div>`;
+  msgs.appendChild(div);
+  scrollBottom();
+}
+
+function scrollBottom(){
+  const m=document.getElementById('pcMessages');
+  m.scrollTop=m.scrollHeight;
+}
+
+function clearChat(){
+  pdfContext=null; pdfPages=0; qCount=0;
+  document.getElementById('pcMessages').innerHTML='<div class="pc-empty" id="pcEmpty"><i class="fa-solid fa-comments"></i>Upload a PDF to start chatting.<br>Ask anything about the document.</div>';
+  document.getElementById('pcFileLoaded').classList.remove('show');
+  document.getElementById('pcStats').style.display='none';
+  document.getElementById('pcSuggestions').style.display='none';
+  document.getElementById('pcSendBtn').disabled=true;
+  document.getElementById('pcStatus').textContent='Upload a PDF to start';
+  document.getElementById('pcFile').value='';
+  document.getElementById('pcQCount').textContent='0';
+}
+</script>{% endblock %}

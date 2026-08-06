@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}AI Product Recommender — ZayroDocX{% endblock %}
+{% block active_product_recommender %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">AI Product Recommender</span>{% endblock %}
+{% block extra_head %}<style>
+.pr-wrap{max-width:900px;margin:0 auto;padding:2rem 1rem}
+.pr-hero{text-align:center;padding:1.8rem 1rem 1.4rem}
+.pr-hero-icon{font-size:2.8rem;margin-bottom:.6rem}
+.pr-hero h1{font-size:1.75rem;font-weight:900;color:#1e293b;margin:0 0 .4rem}
+.pr-hero p{font-size:.88rem;color:#64748b;margin:0}
+
+.pr-form-card{background:#fff;border:1.5px solid #e8e8e8;border-radius:20px;padding:1.8rem;margin-bottom:1.6rem}
+.pr-form-title{font-size:.95rem;font-weight:800;color:#1e293b;margin:0 0 1.2rem;display:flex;align-items:center;gap:.5rem}
+.pr-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.pr-field{display:flex;flex-direction:column;gap:.35rem}
+.pr-label{font-size:.75rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.04em}
+.pr-input,.pr-select{border:1.5px solid #e8e8e8;border-radius:10px;padding:.55rem .85rem;font-size:.88rem;color:#1e293b;outline:none;transition:border-color .15s;font-family:inherit}
+.pr-input:focus,.pr-select:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.1)}
+.pr-textarea{border:1.5px solid #e8e8e8;border-radius:12px;padding:.7rem 1rem;font-size:.9rem;color:#1e293b;outline:none;resize:none;width:100%;box-sizing:border-box;font-family:inherit;line-height:1.5;transition:border-color .15s}
+.pr-textarea:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.1)}
+.pr-engine-row{display:flex;gap:.6rem;margin-top:.3rem}
+.pr-engine-btn{flex:1;padding:.5rem;border:1.5px solid #e8e8e8;border-radius:10px;font-size:.8rem;font-weight:700;cursor:pointer;background:#fff;color:#475569;transition:all .15s;text-align:center}
+.pr-engine-btn.active{border-color:#7c3aed;background:rgba(124,58,237,.07);color:#7c3aed}
+.pr-submit{width:100%;padding:.75rem;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:12px;font-size:.95rem;font-weight:800;cursor:pointer;margin-top:1rem;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.pr-submit:hover{opacity:.88}
+.pr-submit:disabled{opacity:.45;cursor:not-allowed}
+
+/* results */
+.pr-results{display:none}
+.pr-results.show{display:block}
+.pr-summary-bar{background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(109,40,217,.04));border:1.5px solid rgba(124,58,237,.2);border-radius:16px;padding:1rem 1.4rem;margin-bottom:1.4rem}
+.pr-summary-text{font-size:.9rem;color:#1e293b;font-weight:600;margin:0 0 .4rem}
+.pr-tip{font-size:.8rem;color:#7c3aed;font-weight:600;display:flex;align-items:center;gap:.4rem}
+.pr-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.pr-product-card{background:#fff;border:1.5px solid #e8e8e8;border-radius:18px;padding:1.3rem;transition:border-color .2s,box-shadow .2s;position:relative}
+.pr-product-card:hover{border-color:#7c3aed;box-shadow:0 4px 24px rgba(124,58,237,.1)}
+.pr-badge{position:absolute;top:.9rem;right:.9rem;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;font-size:.65rem;font-weight:800;padding:.2rem .55rem;border-radius:20px}
+.pr-product-name{font-size:.95rem;font-weight:800;color:#1e293b;margin:0 0 .15rem;padding-right:4rem}
+.pr-product-brand{font-size:.75rem;color:#94a3b8;margin:0 0 .6rem}
+.pr-stars{display:flex;align-items:center;gap:.3rem;margin-bottom:.5rem}
+.pr-star{color:#f59e0b;font-size:.75rem}
+.pr-rating-text{font-size:.72rem;color:#64748b}
+.pr-price{font-size:1.3rem;font-weight:900;color:#7c3aed;margin:.4rem 0 .5rem}
+.pr-why{font-size:.78rem;color:#475569;line-height:1.5;margin-bottom:.7rem;padding:.5rem .7rem;background:#f8fafc;border-radius:8px;border-left:3px solid #7c3aed}
+.pr-pros{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.25rem}
+.pr-pros li{font-size:.75rem;color:#475569;display:flex;align-items:center;gap:.4rem}
+.pr-pros li::before{content:'✓';color:#16a34a;font-weight:900;font-size:.7rem}
+.pr-loading{text-align:center;padding:3rem;display:none}
+.pr-loading.show{display:block}
+.pr-loading-icon{font-size:2.5rem;animation:prSpin 1s linear infinite;color:#7c3aed;margin-bottom:.8rem}
+@keyframes prSpin{to{transform:rotate(360deg)}}
+.pr-err{background:#fee2e2;border:1.5px solid #fca5a5;border-radius:12px;padding:1rem 1.2rem;color:#dc2626;font-size:.85rem;font-weight:600;display:none;margin-bottom:1rem}
+.pr-err.show{display:block}
+@media(max-width:640px){.pr-row,.pr-grid{grid-template-columns:1fr}}
+</style>{% endblock %}
+
+{% block content %}
+<div class="pr-wrap">
+  <div class="pr-hero">
+    <div class="pr-hero-icon">🛍️</div>
+    <h1>AI Product Recommender</h1>
+    <p>Describe what you need — get personalized product recommendations with ratings, prices &amp; buying tips.</p>
+  </div>
+
+  <div class="pr-form-card">
+    <div class="pr-form-title"><i class="fa-solid fa-wand-magic-sparkles" style="color:#7c3aed"></i> What are you looking for?</div>
+    <div class="pr-field" style="margin-bottom:1rem">
+      <label class="pr-label">Describe your need</label>
+      <textarea class="pr-textarea" id="prQuery" rows="3" placeholder="e.g. Wireless headphones with noise cancellation for office work under ₹5000, gaming laptop with RTX 4060 for video editing…"></textarea>
+    </div>
+    <div class="pr-row">
+      <div class="pr-field">
+        <label class="pr-label">Category</label>
+        <select class="pr-select" id="prCategory">
+          <option value="any">Any Category</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Mobile & Accessories">Mobile & Accessories</option>
+          <option value="Laptop & Computers">Laptop & Computers</option>
+          <option value="Audio & Headphones">Audio & Headphones</option>
+          <option value="Camera & Photography">Camera & Photography</option>
+          <option value="Home Appliances">Home Appliances</option>
+          <option value="Fashion & Clothing">Fashion & Clothing</option>
+          <option value="Books & Education">Books & Education</option>
+          <option value="Sports & Fitness">Sports & Fitness</option>
+          <option value="Kitchen & Cooking">Kitchen & Cooking</option>
+          <option value="Gaming">Gaming</option>
+          <option value="Beauty & Personal Care">Beauty & Personal Care</option>
+        </select>
+      </div>
+      <div class="pr-field">
+        <label class="pr-label">Budget (optional)</label>
+        <input class="pr-input" id="prBudget" type="text" placeholder="e.g. ₹5000, under $200">
+      </div>
+    </div>
+    <div class="pr-field">
+      <label class="pr-label">AI Engine</label>
+      <div class="pr-engine-row">
+        <button class="pr-engine-btn active" id="engMistral" onclick="setEngine('mistral')">⚡ Zayron LLM</button>
+        <button class="pr-engine-btn" id="engOpenai" onclick="setEngine('openai')">✦ Zayron LLM PRO</button>
+      </div>
+    </div>
+    <div class="pr-err" id="prErr"></div>
+    <button class="pr-submit" id="prSubmit" onclick="getRecommendations()">
+      <i class="fa-solid fa-magnifying-glass-dollar"></i> Get Recommendations
+    </button>
+  </div>
+
+  <div class="pr-loading" id="prLoading">
+    <div class="pr-loading-icon"><i class="fa-solid fa-robot"></i></div>
+    <div style="font-weight:700;color:#1e293b;margin-bottom:.3rem">AI is finding the best products…</div>
+    <div style="font-size:.8rem;color:#94a3b8">Analyzing requirements, comparing options, ranking by value</div>
+  </div>
+
+  <div class="pr-results" id="prResults">
+    <div class="pr-summary-bar">
+      <div class="pr-summary-text" id="prSummary"></div>
+      <div class="pr-tip"><i class="fa-solid fa-lightbulb"></i> <span id="prTip"></span></div>
+    </div>
+    <div class="pr-grid" id="prGrid"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}<script>
+const CSRF='{{ csrf_token }}';
+let engine='mistral';
+
+function setEngine(e){
+  engine=e;
+  document.getElementById('engMistral').classList.toggle('active',e==='mistral');
+  document.getElementById('engOpenai').classList.toggle('active',e==='openai');
+}
+
+function stars(r){
+  let s='';
+  for(let i=1;i<=5;i++){
+    if(i<=Math.floor(r)) s+='<i class="fa-solid fa-star pr-star"></i>';
+    else if(i-r<1) s+='<i class="fa-solid fa-star-half-stroke pr-star"></i>';
+    else s+='<i class="fa-regular fa-star pr-star" style="color:#d1d5db"></i>';
+  }
+  return s;
+}
+
+async function getRecommendations(){
+  const query=document.getElementById('prQuery').value.trim();
+  if(!query){showErr('Please describe what you are looking for.');return;}
+  const btn=document.getElementById('prSubmit');
+  btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Analyzing…';
+  document.getElementById('prErr').classList.remove('show');
+  document.getElementById('prResults').classList.remove('show');
+  document.getElementById('prLoading').classList.add('show');
+
+  try{
+    const res=await fetch('/tools/api/product-recommender/',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
+      body:JSON.stringify({
+        query,
+        category:document.getElementById('prCategory').value,
+        budget:document.getElementById('prBudget').value.trim(),
+        engine,
+      }),
+    });
+    const d=await res.json();
+    if(d.error){showErr(d.error);return;}
+    renderResults(d);
+  }catch(e){
+    showErr('Something went wrong: '+e.message);
+  }finally{
+    document.getElementById('prLoading').classList.remove('show');
+    btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-magnifying-glass-dollar"></i> Get Recommendations';
+  }
+}
+
+function showErr(msg){
+  const e=document.getElementById('prErr');
+  e.textContent=msg; e.classList.add('show');
+}
+
+function renderResults(d){
+  document.getElementById('prSummary').textContent=d.summary||'';
+  document.getElementById('prTip').textContent=d.tip||'';
+  const grid=document.getElementById('prGrid');
+  grid.innerHTML='';
+  (d.recommendations||[]).forEach(p=>{
+    const pros=(p.pros||[]).map(x=>`<li>${x}</li>`).join('');
+    grid.innerHTML+=`
+    <div class="pr-product-card">
+      <span class="pr-badge">${p.badge||'Recommended'}</span>
+      <div class="pr-product-name">${p.name}</div>
+      <div class="pr-product-brand">${p.brand||''}</div>
+      <div class="pr-stars">${stars(p.rating||4)} <span class="pr-rating-text">${p.rating||''} · ${(p.reviews||0).toLocaleString()} reviews</span></div>
+      <div class="pr-price">${p.price||''}</div>
+      <div class="pr-why">${p.why||''}</div>
+      <ul class="pr-pros">${pros}</ul>
+    </div>`;
+  });
+  document.getElementById('prResults').classList.add('show');
+}
+
+document.getElementById('prQuery').addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter') getRecommendations();});
+</script>{% endblock %}

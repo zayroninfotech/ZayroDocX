@@ -58,6 +58,13 @@ from apps.pdf_tools.views.live_share import (
     create_room, join_room, upload_file, poll_room, download_file,
 )
 from apps.pdf_tools.views.resume_analyzer import analyze_resume
+from apps.pdf_tools.views.remote_control import rc_create, rc_offer, rc_answer, rc_ice, rc_poll, rc_close
+from apps.pdf_tools.views.product_recommender import recommend_products
+from apps.pdf_tools.views.pdf_chat import pdf_chat
+from apps.pdf_tools.views.zayro_eye import (
+    eye_login, eye_logout, zayro_eye_page,
+    eye_create, eye_offer, eye_answer, eye_ice, eye_poll, eye_close,
+)
 
 # Tag API views with their slug for dynamic privilege check
 def _tag(fn, slug):
@@ -105,8 +112,14 @@ urlpatterns = [
     path('remove-background/',  tool_page('img_remove_bg.html', 'remove-background'),name='img_remove_bg_page'),
     path('blur-face/',          tool_page('img_blur_face.html', 'blur-face'),       name='img_blur_face_page'),
     path('image-to-text/',      tool_page('img_ocr.html',       'image-to-text'),   name='img_ocr_page'),
-    path('connectspace/',       tool_page('live_share.html',    'connectspace'),     name='connectspace_page'),
-    path('ai-resume-analyzer/', tool_page('resume_analyzer.html','ai-resume-analyzer'), name='resume_analyzer_page'),
+    path('connectspace/',         tool_page('live_share.html',         'connectspace'),          name='connectspace_page'),
+    path('ai-resume-analyzer/',   tool_page('resume_analyzer.html',    'ai-resume-analyzer'),    name='resume_analyzer_page'),
+    path('zayrodesk/',            tool_page('zayrodesk.html',          'zayrodesk'),             name='zayrodesk_page'),
+    path('product-recommender/',  tool_page('product_recommender.html','product-recommender'),   name='product_recommender_page'),
+    path('pdf-chat/',             tool_page('pdf_chat.html',           'pdf-chat'),              name='pdf_chat_page'),
+    path('zayro-eye/',            zayro_eye_page,                                               name='zayro_eye_page'),
+    path('zayro-eye/login/',      eye_login,                                                    name='eye_login'),
+    path('zayro-eye/logout/',     eye_logout,                                                   name='eye_logout'),
 
     # ── API endpoints ─────────────────────────────────────────────────────────
     path('api/merge-pdf/',      protected_api(_tag(merge_pdf,      'merge-pdf')),       name='api_merge_pdf'),
@@ -165,7 +178,21 @@ urlpatterns = [
     path('api/img/remove-bg/',  protected_api(_tag(remove_background,'remove-background')), name='api_img_remove_bg'),
     path('api/img/blur-face/',  protected_api(_tag(blur_face,    'blur-face')),       name='api_img_blur_face'),
     path('api/img/ocr/',        protected_api(_tag(img_ocr,      'image-to-text')),   name='api_img_ocr'),
-    path('api/resume-analyzer/',    analyze_resume,  name='api_resume_analyzer'),
+    path('api/resume-analyzer/',       analyze_resume,    name='api_resume_analyzer'),
+    path('api/product-recommender/',   recommend_products, name='api_product_recommender'),
+    path('api/pdf-chat/',              pdf_chat,           name='api_pdf_chat'),
+    path('api/eye/create/',            eye_create,         name='api_eye_create'),
+    path('api/eye/offer/',             eye_offer,          name='api_eye_offer'),
+    path('api/eye/answer/',            eye_answer,         name='api_eye_answer'),
+    path('api/eye/ice/',               eye_ice,            name='api_eye_ice'),
+    path('api/eye/poll/',              eye_poll,           name='api_eye_poll'),
+    path('api/eye/close/',             eye_close,          name='api_eye_close'),
+    path('api/desk/create/',           rc_create,          name='api_rc_create'),
+    path('api/desk/offer/',            rc_offer,           name='api_rc_offer'),
+    path('api/desk/answer/',           rc_answer,          name='api_rc_answer'),
+    path('api/desk/ice/',              rc_ice,             name='api_rc_ice'),
+    path('api/desk/poll/',             rc_poll,            name='api_rc_poll'),
+    path('api/desk/close/',            rc_close,           name='api_rc_close'),
     path('api/live-share/create/',              create_room,    name='api_ls_create'),
     path('api/live-share/join/',                join_room,      name='api_ls_join'),
     path('api/live-share/upload/',              upload_file,    name='api_ls_upload'),
