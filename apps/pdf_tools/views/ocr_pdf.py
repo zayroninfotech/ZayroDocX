@@ -816,13 +816,22 @@ Rules:
         try:
             extracted = json.loads(raw_json)
         except json.JSONDecodeError:
-            # AI returned plain text instead of JSON — show it directly as extracted text
-            return JsonResponse({
-                'text':       raw_json.strip() or '(No content extracted)',
-                'excel_url':  '',
-                'excel_name': '',
-                'fields':     {},
-            })
+            # Try to salvage: find the outermost { ... } block
+            m = re.search(r'\{.*\}', raw_json, re.DOTALL)
+            if m:
+                try:
+                    extracted = json.loads(m.group())
+                except json.JSONDecodeError:
+                    extracted = None
+            else:
+                extracted = None
+            if extracted is None:
+                return JsonResponse({
+                    'text':       raw_json.strip() or '(No content extracted)',
+                    'excel_url':  '',
+                    'excel_name': '',
+                    'fields':     {},
+                })
 
         # â"€â"€ Build Excel â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
         import openpyxl
@@ -969,11 +978,8 @@ Rules:
                     lines.append(f'  {k.replace("_"," ").title()}: {v}')
 
         fallback = '\n'.join(lines).strip()
-        raw = extracted.get('raw_text', '').strip()
-        # Strip stray JSON closing chars Gemini appends (e.g. trailing `"`, `}`)
-        raw = re.sub(r'[\s"{}]+$', '', raw, flags=re.DOTALL).strip()
-        raw = raw.rstrip('"\'{} \t\n\r')
-        display_text = raw if raw else (fallback or '(No data extracted)')
+        # Always show formatted key-value pairs; raw_text is verbose/redundant
+        display_text = fallback if fallback else '(No data extracted)'
 
         return JsonResponse({
             'text':       display_text,
