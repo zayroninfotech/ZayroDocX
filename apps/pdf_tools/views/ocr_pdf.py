@@ -948,10 +948,11 @@ Rules:
                 return ('\n' + prefix).join(_flat(i, indent) for i in val if i not in (None, '', {}, []))
             return str(val)
 
+        sep = '─' * 50
         lines = []
         page_type = extracted.get('page_type', '').replace('_', ' ').upper()
         if page_type:
-            lines += [f'{'─'*50}', f'  {page_type}', f'{'─'*50}', '']
+            lines += [sep, f'  {page_type}', sep, '']
 
         if hfields:
             htitle = (extracted.get('header') or {}).get('title', '')
@@ -962,7 +963,7 @@ Rules:
             lines.append('')
 
         if transactions:
-            lines += ['─'*50, '  LINE ITEMS', '─'*50]
+            lines += [sep, '  LINE ITEMS', sep]
             for i, txn in enumerate(transactions, 1):
                 lines.append(f'\n  [{i}]')
                 for k in col_keys:
