@@ -43,22 +43,49 @@
 }
 .inv-upload-glow { display:none; }
 .inv-upload-icon-ring {
-  width:76px; height:76px; border-radius:50%; margin:0 auto 18px;
-  background:linear-gradient(135deg,#dc2626,#ef4444);
-  display:flex; align-items:center; justify-content:center;
-  font-size:1.7rem; color:#fff;
-  box-shadow:0 6px 24px rgba(220,38,38,.35), 0 0 0 8px rgba(220,38,38,.10), 0 0 0 16px rgba(220,38,38,.05);
+  width: 110px; height: 110px;
+  margin: 0 auto 18px;
+  background: rgba(22,163,74,.10);
+  border-radius: 22px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.inv-upload-icon-ring i.inv-hero-main {
+  font-size: 2.6rem;
+  color: #16a34a;
+}
+.inv-upload-icon-ring .inv-hero-badge {
+  position: absolute;
+  bottom: -6px; right: -6px;
+  width: 34px; height: 34px;
+  background: #16a34a;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 3px 10px rgba(22,163,74,.4);
+  border: 3px solid #fff;
+}
+.inv-hero-badge i {
+  color: #fff;
+  font-size: .8rem;
 }
 .inv-upload-title { font-size:1.25rem; font-weight:800; color:#1e293b; margin-bottom:6px; }
 .inv-upload-sub   { font-size:.88rem; color:#64748b; margin-bottom:20px; }
 .inv-upload-cta {
   display:inline-flex; align-items:center; gap:8px;
-  background:#2563eb;
+  background:#16a34a;
   color:#fff; padding:10px 24px; border-radius:10px; font-size:.88rem; font-weight:700;
-  box-shadow:0 4px 14px rgba(37,99,235,.35); letter-spacing:.02em;
-  transition:box-shadow .15s, transform .15s;
+  box-shadow:0 4px 14px rgba(22,163,74,.35); letter-spacing:.02em;
+  transition: background .18s ease, box-shadow .18s ease, transform .15s ease;
 }
-.inv-upload-zone:hover .inv-upload-cta { transform:scale(1.03); box-shadow:0 6px 20px rgba(37,99,235,.45); }
+.inv-upload-cta:hover {
+  background:#15803d;               /* darker green on hover */
+  transform:translateY(-1px);
+  box-shadow:0 6px 20px rgba(22,163,74,.45);
+}
+.inv-upload-cta:active {
+  transform:translateY(0);
+  background:#166534;               /* even darker on click */
+}
 .inv-upload-hint  { margin-top:14px; font-size:.75rem; color:#94a3b8; }
 
 /* ── Settings bar ── */
@@ -397,7 +424,12 @@
 
     <div class="inv-upload-zone" id="uploadZone">
       <div class="inv-upload-glow"></div>
-      <div class="inv-upload-icon-ring"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+       <div class="inv-upload-icon-ring">
+  <i class="fa-solid fa-file-lines inv-hero-main"></i>
+  <div class="inv-hero-badge">
+    <i class="fa-solid fa-file-invoice-dollar"></i>
+  </div>
+</div>
       <h2 style="font-size:2rem;font-weight:900;color:#111;margin:0 0 .3rem;letter-spacing:-.03em;">Invoice Extractor</h2>
       <div class="inv-upload-title">Drop your Invoice PDF here</div>
       <div class="inv-upload-sub">Supports normal PDFs and scanned invoices — drop or click to upload, and we'll extract all key fields instantly</div>

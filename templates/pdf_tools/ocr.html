@@ -17,6 +17,32 @@
   display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.2rem;
   box-shadow: 0 6px 28px rgba(220,38,38,.28); position: relative; overflow: hidden;
 }
+.ocr-hero-icon {
+  width: 110px; height: 110px;
+  margin: 0 auto 1.5rem;
+  background: rgba(37,99,235,.10);
+  border-radius: 22px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.ocr-hero-icon i.ocr-hero-main {
+  font-size: 2.6rem;
+  color: #2563eb;
+}
+.ocr-hero-icon .ocr-hero-badge {
+  position: absolute;
+  bottom: -6px; right: -6px;
+  width: 34px; height: 34px;
+  background: #2563eb;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 3px 10px rgba(37,99,235,.4);
+  border: 3px solid #fff;
+}
+.ocr-hero-badge i {
+  color: #fff;
+  font-size: .8rem;
+}
 .ocr-hero::before { content:''; position:absolute; top:-60px; right:-40px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,.07); pointer-events:none; }
 .ocr-hero-left { position:relative; z-index:1; }
 .ocr-eyebrow { display:inline-flex; align-items:center; gap:.4rem; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); border-radius:999px; padding:.22rem .75rem; font-size:.68rem; font-weight:700; color:#fff; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.55rem; }
@@ -240,7 +266,12 @@
 <!-- Drop zone -->
 <div class="ocr-drop" id="uploadZone">
   <input type="file" id="fileInput" accept=".pdf">
-
+   <div class="ocr-hero-icon">
+  <i class="fa-solid fa-file-lines ocr-hero-main"></i>
+  <div class="ocr-hero-badge">
+    <i class="fa-solid fa-eye"></i>
+  </div>
+</div>
   <h2 style="font-size:2rem;font-weight:900;color:#111;margin:0 0 .3rem;letter-spacing:-.03em;">OCR PDF</h2>
   <h3>Drop your PDF here</h3>
   <p>Upload a PDF — all pages are processed and displayed with OCR text extraction</p>
