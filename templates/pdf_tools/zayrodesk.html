@@ -227,8 +227,24 @@ async function hostStart(){
 
 async function hostShare(){
   try{
-    stream=await navigator.mediaDevices.getDisplayMedia({video:{cursor:'always'},audio:true});
-  }catch(e){alert('Screen share cancelled or denied.');return;}
+    stream=await navigator.mediaDevices.getDisplayMedia({
+      video:{
+        displaySurface:'monitor',       // pre-selects "Entire Screen" tab
+        cursor:'always',
+        frameRate:{ideal:30,max:60},
+        width:{ideal:1920},
+        height:{ideal:1080},
+      },
+      audio:{echoCancellation:true,noiseSuppression:true},
+      preferCurrentTab:false,           // don't offer current tab
+      selfBrowserSurface:'exclude',     // hide this browser from list
+      monitorTypeSurfaces:'include',    // show monitors first
+      surfaceSwitching:'exclude',       // no mid-session switching UI
+    });
+  }catch(e){
+    if(e.name!=='NotAllowedError') alert('Screen share failed: '+e.message);
+    return;
+  }
 
   const vid=document.getElementById('zdHostVideo');
   vid.srcObject=stream;vid.style.display='block';
