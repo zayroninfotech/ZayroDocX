@@ -220,8 +220,7 @@
 .inv-zoom-val  { font-size:.78rem; color:#94a3b8; min-width:44px; text-align:center; font-weight:700; }
 .inv-divider   { width:1px; height:22px; background:rgba(255,255,255,.1); margin:0 2px; }
 .inv-page-area {
-  padding:20px; background:#0f172a;
-  height:620px; max-height:72vh;
+  padding:16px; background:#0f172a;
   display:flex; align-items:flex-start; justify-content:center;
   overflow:auto;
   scroll-behavior:smooth;
@@ -231,7 +230,25 @@
   box-shadow:0 12px 48px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.05);
   transition:opacity .22s, transform .22s;
   transform-origin:top center;
-  flex-shrink:0;
+  display:block;
+}
+
+/* ── Side-by-side: viewer left, fields right ── */
+.inv-split {
+  display:grid;
+  grid-template-columns: 1fr 420px;
+  gap:18px;
+  align-items:start;
+}
+.inv-split-right {
+  display:flex; flex-direction:column; gap:18px;
+  position:sticky; top:16px;
+  max-height:calc(100vh - 120px); overflow-y:auto;
+  padding-right:2px;
+}
+@media (max-width:1024px){
+  .inv-split { grid-template-columns:1fr; }
+  .inv-split-right { position:static; max-height:none; }
 }
 .inv-thumb-strip {
   display:flex; gap:8px; padding:12px 20px; overflow-x:auto;
@@ -423,73 +440,80 @@
     </div>
   </div>
 
-  <!-- Page Viewer -->
-  <div class="inv-viewer" id="pageViewer">
-    <div class="inv-viewer-topbar">
-      <div class="inv-viewer-badge">
-        <div class="inv-viewer-badge-icon"><i class="fa-solid fa-file-image"></i></div>
-        <div>
-          <div class="inv-viewer-badge-text" id="viewerTitle">Invoice Pages</div>
-          <div class="inv-viewer-badge-sub">Rendered at 150 DPI · Enhanced</div>
+  <!-- Split: viewer left + fields right -->
+  <div class="inv-split">
+
+    <!-- LEFT: Page Viewer (full image) -->
+    <div class="inv-viewer" id="pageViewer">
+      <div class="inv-viewer-topbar">
+        <div class="inv-viewer-badge">
+          <div class="inv-viewer-badge-icon"><i class="fa-solid fa-file-image"></i></div>
+          <div>
+            <div class="inv-viewer-badge-text" id="viewerTitle">Invoice Pages</div>
+            <div class="inv-viewer-badge-sub">Rendered at 150 DPI · Enhanced</div>
+          </div>
+        </div>
+        <div class="inv-viewer-controls">
+          <button class="inv-ctrl-btn" id="btnZoomOut" title="Zoom out"><i class="fa-solid fa-minus"></i></button>
+          <span class="inv-zoom-val" id="zoomVal">100%</span>
+          <button class="inv-ctrl-btn" id="btnZoomIn"  title="Zoom in"><i class="fa-solid fa-plus"></i></button>
+          <div class="inv-divider"></div>
+          <button class="inv-ctrl-btn" id="btnPrev" title="Previous page"><i class="fa-solid fa-chevron-left"></i></button>
+          <span class="inv-pg-label" id="pgLabel">1 / 1</span>
+          <button class="inv-ctrl-btn" id="btnNext" title="Next page"><i class="fa-solid fa-chevron-right"></i></button>
         </div>
       </div>
-      <div class="inv-viewer-controls">
-        <button class="inv-ctrl-btn" id="btnZoomOut" title="Zoom out"><i class="fa-solid fa-minus"></i></button>
-        <span class="inv-zoom-val" id="zoomVal">100%</span>
-        <button class="inv-ctrl-btn" id="btnZoomIn"  title="Zoom in"><i class="fa-solid fa-plus"></i></button>
-        <div class="inv-divider"></div>
-        <button class="inv-ctrl-btn" id="btnPrev" title="Previous page"><i class="fa-solid fa-chevron-left"></i></button>
-        <span class="inv-pg-label" id="pgLabel">1 / 1</span>
-        <button class="inv-ctrl-btn" id="btnNext" title="Next page"><i class="fa-solid fa-chevron-right"></i></button>
+      <div class="inv-page-area" id="pageArea">
+        <img id="pageImg" src="" alt="Invoice page">
       </div>
+      <div class="inv-thumb-strip" id="thumbStrip" style="display:none"></div>
     </div>
-    <div class="inv-page-area" id="pageArea">
-      <img id="pageImg" src="" alt="Invoice page">
-    </div>
-    <div class="inv-thumb-strip" id="thumbStrip" style="display:none"></div>
-  </div>
 
-  <!-- Extracted Fields -->
-  <div class="inv-section-wrap">
-    <div class="inv-section-head">
-      <div class="inv-section-head-left">
-        <div class="inv-section-head-icon"><i class="fa-solid fa-table-list"></i></div>
-        <div>
-          <div class="inv-section-head-title">Extracted Fields</div>
+    <!-- RIGHT: Fields + Line items + Raw text -->
+    <div class="inv-split-right">
+
+      <!-- Extracted Fields -->
+      <div class="inv-section-wrap">
+        <div class="inv-section-head">
+          <div class="inv-section-head-left">
+            <div class="inv-section-head-icon"><i class="fa-solid fa-table-list"></i></div>
+            <div><div class="inv-section-head-title">Extracted Fields</div></div>
+            <span class="inv-section-head-count" id="fieldCount">0 fields</span>
+          </div>
+          <button class="inv-dl-btn" id="dlExcelBtn2" style="font-size:.8rem;padding:7px 16px">
+            <i class="fa-solid fa-file-excel"></i> Excel
+          </button>
         </div>
-        <span class="inv-section-head-count" id="fieldCount">0 fields</span>
+        <div class="inv-fields" id="fieldsGrid" style="grid-template-columns:1fr 1fr"></div>
       </div>
-      <button class="inv-dl-btn" id="dlExcelBtn2" style="font-size:.8rem;padding:7px 16px">
-        <i class="fa-solid fa-file-excel"></i> Download Excel
-      </button>
-    </div>
-    <div class="inv-fields" id="fieldsGrid"></div>
-  </div>
 
-  <!-- Line items -->
-  <div id="lineSection" style="display:none" class="inv-section-wrap">
-    <div class="inv-section-head">
-      <div class="inv-section-head-left">
-        <div class="inv-section-head-icon" style="background:linear-gradient(135deg,#0891b2,#0e7490)"><i class="fa-solid fa-list"></i></div>
-        <div class="inv-section-head-title">Line Items</div>
+      <!-- Line items -->
+      <div id="lineSection" style="display:none" class="inv-section-wrap">
+        <div class="inv-section-head">
+          <div class="inv-section-head-left">
+            <div class="inv-section-head-icon" style="background:linear-gradient(135deg,#0891b2,#0e7490)"><i class="fa-solid fa-list"></i></div>
+            <div class="inv-section-head-title">Line Items</div>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="inv-line-tbl">
+            <thead><tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead>
+            <tbody id="lineBody"></tbody>
+          </table>
+        </div>
       </div>
-    </div>
-    <div style="overflow-x:auto">
-      <table class="inv-line-tbl">
-        <thead><tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead>
-        <tbody id="lineBody"></tbody>
-      </table>
-    </div>
-  </div>
 
-  <!-- Raw text -->
-  <div>
-    <div class="inv-raw-toggle" id="rawToggle">
-      <span><i class="fa-solid fa-code" style="margin-right:8px;color:#dc2626"></i>Raw Extracted Text</span>
-      <i class="fa-solid fa-chevron-down" id="rawChevron" style="transition:transform .2s"></i>
-    </div>
-    <div class="inv-raw-body" id="rawBody"></div>
-  </div>
+      <!-- Raw text -->
+      <div>
+        <div class="inv-raw-toggle" id="rawToggle">
+          <span><i class="fa-solid fa-code" style="margin-right:8px;color:#dc2626"></i>Raw Extracted Text</span>
+          <i class="fa-solid fa-chevron-down" id="rawChevron" style="transition:transform .2s"></i>
+        </div>
+        <div class="inv-raw-body" id="rawBody"></div>
+      </div>
+
+    </div><!-- /inv-split-right -->
+  </div><!-- /inv-split -->
 
 </div>
 {% endblock %}
