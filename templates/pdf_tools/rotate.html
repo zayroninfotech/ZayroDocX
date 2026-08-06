@@ -3,78 +3,141 @@
 {% block active_rotate %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Rotate PDF</span>{% endblock %}
 
-{% block extra_head %}
-<style>
-.cv-angle-grid { display:flex; gap:.6rem; flex-wrap:wrap; }
-.cv-angle-opt { position:relative; }
-.cv-angle-opt input { position:absolute;opacity:0;width:0;height:0; }
-.cv-angle-opt label { display:flex; flex-direction:column; align-items:center; gap:.4rem; padding:.85rem 1.1rem; border:1.5px solid #e8e8e8; border-radius:12px; cursor:pointer; color:#555; background:#fff; transition:all .15s; min-width:80px; }
-.cv-angle-opt label i { font-size:1.3rem; color:#aaa; transition:color .15s; }
-.cv-angle-opt label span { font-size:.78rem; font-weight:700; }
-.cv-angle-opt input:checked + label { border-color:#dc2626; background:#fff8f8; color:#dc2626; box-shadow:0 0 0 2px rgba(220,38,38,.12); }
-.cv-angle-opt input:checked + label i { color:#dc2626; }
-.cv-angle-opt label:hover { border-color:#fca5a5; color:#b91c1c; }
-.cv-opts-card { background:#fff; border:1.5px solid #fca5a5; border-radius:16px; padding:1.2rem 1.4rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(220,38,38,.06); }
-.cv-opts-title { font-size:.75rem; font-weight:800; color:#b91c1c; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.85rem; display:flex; align-items:center; gap:.45rem; }
-.cv-field-label { font-size:.75rem; font-weight:700; color:#555; margin-bottom:.45rem; }
-.cv-input { width:100%; box-sizing:border-box; border:1.5px solid #e8e8e8; border-radius:10px; padding:.65rem .9rem; font-size:.88rem; color:#111; background:#fff; outline:none; transition:border-color .15s; }
-.cv-input:focus { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.1); }
-</style>
-{% endblock %}
+{% block extra_head %}<style>
+.rot-drop { border: 2.5px dashed #cbd5e1; border-radius: 20px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: #f8fafc; }
+.rot-drop:hover, .rot-drop.drag-over { border-color: #dc2626; background: #fff8f8; }
+.rot-drop-icon { font-size: 3rem; color: #dc2626; margin-bottom: .8rem; }
+.rot-drop h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
+.rot-drop p  { color: #64748b; margin: 0 0 1.2rem; }
+.rot-drop-btn { background: #dc2626; color: #fff; border: none; border-radius: 10px; padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer; }
+.rot-drop-btn:hover { background: #b91c1c; }
+
+.rot-split { display: none; grid-template-columns: 1fr 420px; gap: 20px; align-items: start; }
+.rot-split.show { display: grid; }
+
+.rot-viewer { background: #0f172a; border-radius: 16px; padding: 16px; min-height: 400px; display: flex; align-items: flex-start; justify-content: center; overflow: auto; scroll-behavior: smooth; }
+.rot-viewer-pages { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
+.rot-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; }
+.rot-viewer-loading { color: #94a3b8; font-size: .9rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
+.rot-viewer-loading i { font-size: 2rem; }
+
+.rot-right { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
+.rot-card { background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 1.1rem 1.3rem; }
+.rot-file-row { display: flex; align-items: center; gap: .9rem; }
+.rot-file-icon { width: 48px; height: 48px; border-radius: 12px; background: #fff8f8; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #dc2626; flex-shrink: 0; }
+.rot-file-name { font-size: .9rem; font-weight: 700; color: #111; word-break: break-all; }
+.rot-file-size { font-size: .78rem; color: #aaa; margin-top: .15rem; }
+.rot-change-btn { margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 8px; padding: .4rem .85rem; font-size: .78rem; font-weight: 600; color: #666; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.rot-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
+
+/* angle selector */
+.rot-opts-title { font-size: .72rem; font-weight: 800; color: #b91c1c; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .6rem; }
+.rot-angle-grid { display: flex; gap: .5rem; flex-wrap: wrap; }
+.rot-angle-opt { position: relative; }
+.rot-angle-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+.rot-angle-opt label { display: flex; flex-direction: column; align-items: center; gap: .35rem; padding: .7rem .9rem; border: 1.5px solid #e8e8e8; border-radius: 10px; cursor: pointer; color: #555; background: #fff; transition: all .15s; min-width: 72px; font-size: .78rem; font-weight: 700; }
+.rot-angle-opt label i { font-size: 1.1rem; color: #aaa; transition: color .15s; }
+.rot-angle-opt input:checked + label { border-color: #dc2626; background: #fff8f8; color: #dc2626; box-shadow: 0 0 0 2px rgba(220,38,38,.12); }
+.rot-angle-opt input:checked + label i { color: #dc2626; }
+.rot-angle-opt label:hover { border-color: #fca5a5; color: #b91c1c; }
+
+.rot-field-label { font-size: .75rem; font-weight: 700; color: #555; margin: .9rem 0 .4rem; }
+.rot-input { width: 100%; box-sizing: border-box; border: 1.5px solid #e8e8e8; border-radius: 10px; padding: .6rem .9rem; font-size: .85rem; color: #111; outline: none; transition: border-color .15s; }
+.rot-input:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+
+.rot-convert-btn { width: 100%; padding: .85rem; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: opacity .15s; }
+.rot-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.rot-loading-card { display: none; background: #fff8f8; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.2rem 1.3rem; align-items: center; gap: 1rem; }
+.rot-loading-card.show { display: flex; }
+.rot-spin { animation: spin 1s linear infinite; font-size: 1.4rem; color: #dc2626; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.rot-loading-text { font-size: .9rem; font-weight: 600; color: #b91c1c; }
+
+.rot-result-card { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 1.2rem 1.3rem; }
+.rot-result-card.show { display: block; }
+.rot-result-title { font-size: .85rem; font-weight: 700; color: #166534; display: flex; align-items: center; gap: .4rem; margin-bottom: .8rem; }
+.rot-dl-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .7rem; background: #16a34a; color: #fff; border: none; border-radius: 10px; font-size: .9rem; font-weight: 700; cursor: pointer; text-decoration: none; }
+.rot-dl-btn:hover { background: #15803d; }
+
+.rot-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.1rem 1.3rem; }
+.rot-error-card.show { display: block; }
+.rot-error-msg { font-size: .85rem; color: #dc2626; }
+
+@media (max-width: 1000px) { .rot-split { grid-template-columns: 1fr; } .rot-right { position: static; max-height: none; } }
+</style>{% endblock %}
 
 {% block content %}
-<div class="cv-hero">
-  <div class="cv-hero-left">
-    <div class="cv-eyebrow"><i class="fa-solid fa-rotate-right"></i> Edit PDF</div>
-    <h2>Rotate PDF</h2>
-    <p>Rotate pages 90°, 180° or 270° — choose specific pages or all at once</p>
-  </div>
-  <div class="cv-hero-pills">
-    <div class="cv-hero-pill"><span class="n">90°</span><div class="l">Right</div></div>
-    <div class="cv-hero-pill"><span class="n">180°</span><div class="l">Flip</div></div>
-    <div class="cv-hero-pill"><span class="n">270°</span><div class="l">Left</div></div>
-  </div>
+<input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
+
+<div class="rot-drop" id="rotDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="rot-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+  <h3>Drop your PDF here</h3>
+  <p>Select the rotation angle and pages in the panel</p>
+  <button type="button" class="rot-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-folder-open"></i> Select PDF File
+  </button>
 </div>
 
-<form id="toolForm">{% csrf_token %}
-  <div class="cv-drop" id="cvDrop">
-    <input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="cv-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
-    <h3>Drop your PDF here</h3>
-    <p>Select the rotation angle and pages below</p>
-    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-folder-open"></i> Select PDF File
-    </button>
-    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; Private &nbsp;·&nbsp; Free</span>
-  </div>
-  <div class="cv-file-bar" id="cvFileBar">
-    <i class="fa-solid fa-file-pdf cv-file-icon" style="color:#dc2626"></i>
-    <span class="cv-file-name" id="cvFileName">—</span>
-    <span class="cv-file-size" id="cvFileSize">—</span>
-  </div>
-
-  <div class="cv-opts-card">
-    <div class="cv-opts-title"><i class="fa-solid fa-sliders"></i> Rotation Options</div>
-    <div class="cv-field-label">Rotation Angle</div>
-    <div class="cv-angle-grid" style="margin-bottom:1rem;">
-      <div class="cv-angle-opt"><input type="radio" name="angle" id="a90" value="90" checked><label for="a90"><i class="fa-solid fa-rotate-right"></i><span>90° Right</span></label></div>
-      <div class="cv-angle-opt"><input type="radio" name="angle" id="a180" value="180"><label for="a180"><i class="fa-solid fa-arrows-rotate"></i><span>180°</span></label></div>
-      <div class="cv-angle-opt"><input type="radio" name="angle" id="a270" value="270"><label for="a270"><i class="fa-solid fa-rotate-left"></i><span>90° Left</span></label></div>
+<div class="rot-split" id="rotSplit">
+  <div class="rot-viewer">
+    <div class="rot-viewer-loading" id="rotViewerLoading">
+      <i class="fa-solid fa-spinner rot-spin"></i>
+      <span>Loading pages…</span>
     </div>
-    <div class="cv-field-label">Pages <span style="font-size:.7rem;color:#aaa;font-weight:400;">(leave blank for all pages)</span></div>
-    <input type="text" name="pages" class="cv-input" placeholder="e.g. 1, 3, 5-8 — blank = all pages">
+    <div class="rot-viewer-pages" id="rotPages" style="display:none"></div>
   </div>
 
-  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-rotate-right"></i> Rotate Pages</button>
-</form>
+  <div class="rot-right">
+    <!-- File info -->
+    <div class="rot-card">
+      <div class="rot-file-row">
+        <div class="rot-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+        <div>
+          <div class="rot-file-name" id="rotFileName">—</div>
+          <div class="rot-file-size" id="rotFileSize">—</div>
+        </div>
+        <button type="button" class="rot-change-btn" onclick="resetTool()">
+          <i class="fa-solid fa-rotate-left"></i> Change
+        </button>
+      </div>
+    </div>
 
-<div class="progress-wrap">
-  <div class="progress-header"><span class="progress-label">Rotating pages…</span></div>
-  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+    <!-- Options -->
+    <div class="rot-card">
+      <div class="rot-opts-title"><i class="fa-solid fa-sliders"></i> Rotation Options</div>
+      <div class="rot-angle-grid">
+        <div class="rot-angle-opt"><input type="radio" name="angle" id="a90" value="90" checked><label for="a90"><i class="fa-solid fa-rotate-right"></i>90° Right</label></div>
+        <div class="rot-angle-opt"><input type="radio" name="angle" id="a180" value="180"><label for="a180"><i class="fa-solid fa-arrows-rotate"></i>180°</label></div>
+        <div class="rot-angle-opt"><input type="radio" name="angle" id="a270" value="270"><label for="a270"><i class="fa-solid fa-rotate-left"></i>90° Left</label></div>
+      </div>
+      <div class="rot-field-label">Pages <span style="font-size:.7rem;color:#aaa;font-weight:400;">(blank = all pages)</span></div>
+      <input type="text" id="rotPages_input" class="rot-input" placeholder="e.g. 1, 3, 5-8 — blank = all">
+    </div>
+
+    <button type="button" class="rot-convert-btn" id="rotConvertBtn" onclick="doConvert()">
+      <i class="fa-solid fa-rotate-right"></i> Rotate Pages
+    </button>
+
+    <div class="rot-loading-card" id="rotLoadingCard">
+      <i class="fa-solid fa-spinner rot-spin"></i>
+      <span class="rot-loading-text">Rotating pages…</span>
+    </div>
+
+    <div class="rot-result-card" id="rotResultCard">
+      <div class="rot-result-title"><i class="fa-solid fa-circle-check"></i> PDF ready!</div>
+      <a class="rot-dl-btn" id="rotDlBtn" href="#" download>
+        <i class="fa-solid fa-download"></i> Download PDF
+      </a>
+    </div>
+
+    <div class="rot-error-card" id="rotErrorCard">
+      <div class="rot-error-msg" id="rotErrorMsg"></div>
+    </div>
+  </div>
 </div>
-<div class="result-card"></div>
 
-<div class="cv-info-strip">
+<div class="cv-info-strip" id="rotInfoStrip">
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-rotate-right"></i></div><div><div class="cv-info-title">Any Angle</div><div class="cv-info-desc">90°, 180°, 270°</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-file-lines"></i></div><div><div class="cv-info-title">Select Pages</div><div class="cv-info-desc">Specific or all pages</div></div></div>
@@ -83,13 +146,97 @@
 {% endblock %}
 
 {% block extra_js %}<script>
-(function(){
-  const inp=document.getElementById('fileInput'),drop=document.getElementById('cvDrop'),bar=document.getElementById('cvFileBar');
-  function setFile(f){if(!f)return;document.getElementById('cvFileName').textContent=f.name;document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB';bar.classList.add('show');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;}
-  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
-  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
-  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
-  inp.addEventListener('change',()=>setFile(inp.files[0]));
-})();
-submitToolForm({formId:'toolForm',apiUrl:'{% url "api_rotate_pdf" %}',fileInputId:'fileInput'});
+const fileInput      = document.getElementById('fileInput');
+const rotDrop        = document.getElementById('rotDrop');
+const rotSplit       = document.getElementById('rotSplit');
+const rotPagesEl     = document.getElementById('rotPages');
+const rotViewerLoad  = document.getElementById('rotViewerLoading');
+const rotConvertBtn  = document.getElementById('rotConvertBtn');
+const rotLoadingCard = document.getElementById('rotLoadingCard');
+const rotResultCard  = document.getElementById('rotResultCard');
+const rotErrorCard   = document.getElementById('rotErrorCard');
+const rotInfoStrip   = document.getElementById('rotInfoStrip');
+
+let currentFile = null;
+
+function resetTool() {
+  fileInput.value = ''; currentFile = null;
+  rotDrop.style.display = ''; rotSplit.classList.remove('show');
+  rotPagesEl.innerHTML = ''; rotPagesEl.style.display = 'none';
+  rotViewerLoad.style.display = 'flex'; rotConvertBtn.disabled = false;
+  rotLoadingCard.classList.remove('show'); rotResultCard.classList.remove('show');
+  rotErrorCard.classList.remove('show'); rotInfoStrip.style.display = '';
+}
+
+async function loadPreview(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  try {
+    const res = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    rotPagesEl.innerHTML = '';
+    data.page_images.forEach((b64, i) => {
+      const img = document.createElement('img');
+      img.src = 'data:image/jpeg;base64,' + b64;
+      img.alt = 'Page ' + (i + 1);
+      rotPagesEl.appendChild(img);
+    });
+    rotViewerLoad.style.display = 'none';
+    rotPagesEl.style.display = 'flex';
+  } catch (e) {
+    rotViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>';
+  }
+}
+
+function setFile(f) {
+  if (!f) return;
+  currentFile = f;
+  document.getElementById('rotFileName').textContent = f.name;
+  document.getElementById('rotFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
+  const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
+  rotDrop.style.display = 'none'; rotInfoStrip.style.display = 'none';
+  rotResultCard.classList.remove('show'); rotErrorCard.classList.remove('show');
+  rotSplit.classList.add('show');
+  loadPreview(f);
+}
+
+async function doConvert() {
+  if (!currentFile) return;
+  rotConvertBtn.disabled = true;
+  rotLoadingCard.classList.add('show');
+  rotResultCard.classList.remove('show');
+  rotErrorCard.classList.remove('show');
+
+  const fd = new FormData();
+  fd.append('file', currentFile);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  const angle = document.querySelector('input[name="angle"]:checked');
+  if (angle) fd.append('angle', angle.value);
+  fd.append('pages', document.getElementById('rotPages_input').value);
+
+  try {
+    const res = await fetch('{% url "api_rotate_pdf" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    document.getElementById('rotDlBtn').href = data.download_url;
+    document.getElementById('rotDlBtn').download = data.filename || 'rotated.pdf';
+    rotResultCard.classList.add('show');
+  } catch (e) {
+    document.getElementById('rotErrorMsg').textContent = e.message || 'Rotation failed.';
+    rotErrorCard.classList.add('show');
+  } finally {
+    rotLoadingCard.classList.remove('show');
+    rotConvertBtn.disabled = false;
+  }
+}
+
+fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+rotDrop.addEventListener('dragover',  e => { e.preventDefault(); rotDrop.classList.add('drag-over'); });
+rotDrop.addEventListener('dragleave', () => rotDrop.classList.remove('drag-over'));
+rotDrop.addEventListener('drop', e => {
+  e.preventDefault(); rotDrop.classList.remove('drag-over');
+  setFile(e.dataTransfer.files[0]);
+});
 </script>{% endblock %}
