@@ -639,7 +639,7 @@ function renderResult(data){
       <div class="inv-card-icon-inner"><i class="fa-solid ${meta.icon}"></i></div>
       <div class="inv-card-label">${meta.label}</div>
       <div class="inv-card-value">${esc(inv[k])}</div>
-      <button class="inv-card-copy" title="Copy" onclick="navigator.clipboard.writeText(${JSON.stringify(inv[k])}).then(()=>showToast2('Copied!'))">
+      <button class="inv-card-copy" title="Copy" data-v="${esc(inv[k])}" onclick="navigator.clipboard.writeText(this.dataset.v).then(()=>showToast2('Copied!'))">
         <i class="fa-regular fa-copy"></i>
       </button>`;
     grid.appendChild(d);
