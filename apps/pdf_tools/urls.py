@@ -58,6 +58,7 @@ from apps.pdf_tools.views.live_share import (
     create_room, join_room, upload_file, poll_room, download_file,
 )
 from apps.pdf_tools.views.resume_analyzer import analyze_resume
+from apps.pdf_tools.views.remote_control import rc_create, rc_offer, rc_answer, rc_ice, rc_poll, rc_close
 
 # Tag API views with their slug for dynamic privilege check
 def _tag(fn, slug):
@@ -107,6 +108,7 @@ urlpatterns = [
     path('image-to-text/',      tool_page('img_ocr.html',       'image-to-text'),   name='img_ocr_page'),
     path('connectspace/',       tool_page('live_share.html',    'connectspace'),     name='connectspace_page'),
     path('ai-resume-analyzer/', tool_page('resume_analyzer.html','ai-resume-analyzer'), name='resume_analyzer_page'),
+    path('zayrodesk/',          tool_page('zayrodesk.html',       'zayrodesk'),          name='zayrodesk_page'),
 
     # ── API endpoints ─────────────────────────────────────────────────────────
     path('api/merge-pdf/',      protected_api(_tag(merge_pdf,      'merge-pdf')),       name='api_merge_pdf'),
@@ -166,6 +168,12 @@ urlpatterns = [
     path('api/img/blur-face/',  protected_api(_tag(blur_face,    'blur-face')),       name='api_img_blur_face'),
     path('api/img/ocr/',        protected_api(_tag(img_ocr,      'image-to-text')),   name='api_img_ocr'),
     path('api/resume-analyzer/',    analyze_resume,  name='api_resume_analyzer'),
+    path('api/desk/create/',        rc_create,       name='api_rc_create'),
+    path('api/desk/offer/',         rc_offer,        name='api_rc_offer'),
+    path('api/desk/answer/',        rc_answer,       name='api_rc_answer'),
+    path('api/desk/ice/',           rc_ice,          name='api_rc_ice'),
+    path('api/desk/poll/',          rc_poll,         name='api_rc_poll'),
+    path('api/desk/close/',         rc_close,        name='api_rc_close'),
     path('api/live-share/create/',              create_room,    name='api_ls_create'),
     path('api/live-share/join/',                join_room,      name='api_ls_join'),
     path('api/live-share/upload/',              upload_file,    name='api_ls_upload'),
