@@ -4,99 +4,326 @@
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Word to PDF</span>{% endblock %}
 
 {% block extra_head %}<style>
-.file-selected-card {
-  display: none; background: #fff; border: 1.5px solid #fca5a5;
-  border-radius: 16px; padding: 1.4rem 1.6rem;
-  align-items: center; gap: 1.2rem;
-  box-shadow: 0 2px 12px rgba(220,38,38,.08);
+/* ── Drop zone ── */
+.w2p-drop {
+  border: 2.5px dashed #cbd5e1; border-radius: 20px;
+  padding: 3rem 2rem; text-align: center; cursor: pointer;
+  transition: border-color .2s, background .2s;
+  background: #f8fafc;
 }
-.file-selected-card.show { display: flex; }
-.fsc-icon {
-  width: 56px; height: 56px; border-radius: 14px;
+.w2p-drop:hover, .w2p-drop.drag-over {
+  border-color: #2563eb; background: #eff6ff;
+}
+.w2p-drop-icon {
+  font-size: 3rem; color: #2563eb; margin-bottom: .8rem;
+}
+.w2p-drop h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
+.w2p-drop p  { color: #64748b; margin: 0 0 1.2rem; }
+.w2p-drop-btn {
+  background: #2563eb; color: #fff; border: none; border-radius: 10px;
+  padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer;
+  transition: background .15s;
+}
+.w2p-drop-btn:hover { background: #1d4ed8; }
+
+/* ── Side-by-side split ── */
+.w2p-split {
+  display: none;
+  grid-template-columns: 1fr 420px;
+  gap: 20px;
+  align-items: start;
+}
+.w2p-split.show { display: grid; }
+
+/* ── Left: viewer ── */
+.w2p-viewer {
+  background: #0f172a;
+  border-radius: 16px;
+  padding: 16px;
+  min-height: 400px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: auto;
+  scroll-behavior: smooth;
+}
+.w2p-viewer-pages {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+}
+.w2p-viewer-pages img {
+  width: 100%; max-width: 680px;
+  border-radius: 6px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.5);
+  display: block;
+}
+.w2p-viewer-loading {
+  color: #94a3b8; font-size: .9rem; padding: 2rem;
+  display: flex; flex-direction: column; align-items: center; gap: .8rem;
+}
+.w2p-viewer-loading i { font-size: 2rem; }
+
+/* ── Right panel ── */
+.w2p-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+}
+
+/* cards */
+.w2p-card {
+  background: #fff;
+  border: 1.5px solid #e8e8e8;
+  border-radius: 14px;
+  padding: 1.1rem 1.3rem;
+}
+.w2p-file-row {
+  display: flex; align-items: center; gap: .9rem;
+}
+.w2p-file-icon {
+  width: 48px; height: 48px; border-radius: 12px;
   background: #eff6ff; display: flex; align-items: center; justify-content: center;
-  font-size: 1.6rem; color: #2b7cd3; flex-shrink: 0;
+  font-size: 1.5rem; color: #2563eb; flex-shrink: 0;
 }
-.fsc-info { flex: 1; min-width: 0; }
-.fsc-name { font-size: 1rem; font-weight: 700; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.fsc-size { font-size: .8rem; color: #aaa; margin-top: .2rem; }
-.fsc-change {
-  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 10px;
-  padding: .5rem 1rem; font-size: .82rem; font-weight: 600; color: #666;
-  cursor: pointer; transition: all .15s; white-space: nowrap; flex-shrink: 0;
+.w2p-file-name { font-size: .9rem; font-weight: 700; color: #111; word-break: break-all; }
+.w2p-file-size { font-size: .78rem; color: #aaa; margin-top: .15rem; }
+.w2p-change-btn {
+  margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8;
+  border-radius: 8px; padding: .4rem .85rem; font-size: .78rem; font-weight: 600;
+  color: #666; cursor: pointer; transition: all .15s; white-space: nowrap; flex-shrink: 0;
 }
-.fsc-change:hover { border-color: #fca5a5; color: #dc2626; }
+.w2p-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
+
+.w2p-convert-btn {
+  width: 100%; padding: .85rem;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff; border: none; border-radius: 12px;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  transition: opacity .15s;
+}
+.w2p-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.w2p-loading-card {
+  display: none;
+  background: #eff6ff; border: 1.5px solid #bfdbfe;
+  border-radius: 14px; padding: 1.2rem 1.3rem;
+  align-items: center; gap: 1rem;
+}
+.w2p-loading-card.show { display: flex; }
+.w2p-spin { animation: spin 1s linear infinite; font-size: 1.4rem; color: #2563eb; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.w2p-loading-text { font-size: .9rem; font-weight: 600; color: #1e40af; }
+
+.w2p-result-card {
+  display: none;
+  background: #f0fdf4; border: 1.5px solid #86efac;
+  border-radius: 14px; padding: 1.2rem 1.3rem;
+}
+.w2p-result-card.show { display: block; }
+.w2p-result-title {
+  font-size: .85rem; font-weight: 700; color: #166534;
+  display: flex; align-items: center; gap: .4rem; margin-bottom: .8rem;
+}
+.w2p-dl-btn {
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  width: 100%; padding: .7rem;
+  background: #16a34a; color: #fff; border: none; border-radius: 10px;
+  font-size: .9rem; font-weight: 700; cursor: pointer; text-decoration: none;
+  transition: background .15s;
+}
+.w2p-dl-btn:hover { background: #15803d; }
+
+.w2p-error-card {
+  display: none;
+  background: #fff1f2; border: 1.5px solid #fca5a5;
+  border-radius: 14px; padding: 1.1rem 1.3rem;
+}
+.w2p-error-card.show { display: block; }
+.w2p-error-msg { font-size: .85rem; color: #dc2626; }
+
+@media (max-width: 1000px) {
+  .w2p-split { grid-template-columns: 1fr; }
+  .w2p-right { position: static; max-height: none; }
+}
 </style>{% endblock %}
 
 {% block content %}
-<form id="toolForm">{% csrf_token %}
-  <input type="file" id="fileInput" name="file" accept=".doc,.docx" style="display:none">
+<input type="file" id="fileInput" name="file" accept=".doc,.docx" style="display:none">
 
-  <!-- Drop zone -->
-  <div class="cv-drop" id="cvDrop" onclick="document.getElementById('fileInput').click()">
-    <div class="cv-drop-icon"><i class="fa-solid fa-file-word"></i></div>
-    <h3>Drop your Word file here</h3>
-    <p>Supports .doc and .docx formats</p>
-    <button type="button" class="cv-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-plus"></i> Select Word File
-    </button>
-    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> All processing done locally — never uploaded</span>
-  </div>
-
-  <!-- File selected card -->
-  <div class="file-selected-card" id="fileCard">
-    <div class="fsc-icon"><i class="fa-solid fa-file-word"></i></div>
-    <div class="fsc-info">
-      <div class="fsc-name" id="fscName">—</div>
-      <div class="fsc-size" id="fscSize">—</div>
-    </div>
-    <button type="button" class="fsc-change" onclick="changeFile()">
-      <i class="fa-solid fa-rotate-left"></i> Change
-    </button>
-  </div>
-
-  <button type="submit" class="cv-submit btn-submit" id="convertBtn" style="display:none; margin-top:1rem;">
-    <i class="fa-solid fa-file-pdf"></i> Convert Word to PDF
+<!-- Step 1: Drop zone -->
+<div class="w2p-drop" id="w2pDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="w2p-drop-icon"><i class="fa-solid fa-file-word"></i></div>
+  <h3>Drop your Word file here</h3>
+  <p>Supports .doc and .docx formats</p>
+  <button type="button" class="w2p-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-plus"></i> Select Word File
   </button>
-</form>
-
-<div class="progress-wrap">
-  <div class="progress-header"><span class="progress-label">Converting…</span></div>
-  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
 </div>
-<div class="result-card"></div>
+
+<!-- Step 2: Split view -->
+<div class="w2p-split" id="w2pSplit">
+  <!-- Left: page viewer -->
+  <div class="w2p-viewer" id="w2pViewer">
+    <div class="w2p-viewer-loading" id="w2pViewerLoading">
+      <i class="fa-solid fa-spinner w2p-spin"></i>
+      <span>Generating preview…</span>
+    </div>
+    <div class="w2p-viewer-pages" id="w2pPages" style="display:none"></div>
+  </div>
+
+  <!-- Right: controls -->
+  <div class="w2p-right">
+    <!-- File info card -->
+    <div class="w2p-card">
+      <div class="w2p-file-row">
+        <div class="w2p-file-icon"><i class="fa-solid fa-file-word"></i></div>
+        <div>
+          <div class="w2p-file-name" id="w2pFileName">—</div>
+          <div class="w2p-file-size" id="w2pFileSize">—</div>
+        </div>
+        <button type="button" class="w2p-change-btn" onclick="resetTool()">
+          <i class="fa-solid fa-rotate-left"></i> Change
+        </button>
+      </div>
+    </div>
+
+    <!-- Convert button -->
+    <button type="button" class="w2p-convert-btn" id="w2pConvertBtn" onclick="doConvert()">
+      <i class="fa-solid fa-file-pdf"></i> Convert Word to PDF
+    </button>
+
+    <!-- Loading card -->
+    <div class="w2p-loading-card" id="w2pLoadingCard">
+      <i class="fa-solid fa-spinner w2p-spin"></i>
+      <span class="w2p-loading-text">Converting, please wait…</span>
+    </div>
+
+    <!-- Result card -->
+    <div class="w2p-result-card" id="w2pResultCard">
+      <div class="w2p-result-title"><i class="fa-solid fa-circle-check"></i> PDF ready!</div>
+      <a class="w2p-dl-btn" id="w2pDlBtn" href="#" download>
+        <i class="fa-solid fa-download"></i> Download PDF
+      </a>
+    </div>
+
+    <!-- Error card -->
+    <div class="w2p-error-card" id="w2pErrorCard">
+      <div class="w2p-error-msg" id="w2pErrorMsg"></div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}<script>
-const fileInput  = document.getElementById('fileInput');
-const cvDrop     = document.getElementById('cvDrop');
-const fileCard   = document.getElementById('fileCard');
-const convertBtn = document.getElementById('convertBtn');
+const fileInput      = document.getElementById('fileInput');
+const w2pDrop        = document.getElementById('w2pDrop');
+const w2pSplit       = document.getElementById('w2pSplit');
+const w2pPages       = document.getElementById('w2pPages');
+const w2pViewerLoad  = document.getElementById('w2pViewerLoading');
+const w2pConvertBtn  = document.getElementById('w2pConvertBtn');
+const w2pLoadingCard = document.getElementById('w2pLoadingCard');
+const w2pResultCard  = document.getElementById('w2pResultCard');
+const w2pErrorCard   = document.getElementById('w2pErrorCard');
+
+let currentFile = null;
+
+function resetTool() {
+  fileInput.value = '';
+  currentFile = null;
+  w2pDrop.style.display = '';
+  w2pSplit.classList.remove('show');
+  w2pPages.innerHTML = '';
+  w2pPages.style.display = 'none';
+  w2pViewerLoad.style.display = 'flex';
+  w2pConvertBtn.disabled = false;
+  w2pLoadingCard.classList.remove('show');
+  w2pResultCard.classList.remove('show');
+  w2pErrorCard.classList.remove('show');
+}
+
+async function loadPreview(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+  try {
+    const res = await fetch('{% url "api_render_word_pages" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    w2pPages.innerHTML = '';
+    data.page_images.forEach((b64, i) => {
+      const img = document.createElement('img');
+      img.src = 'data:image/jpeg;base64,' + b64;
+      img.alt = 'Page ' + (i + 1);
+      w2pPages.appendChild(img);
+    });
+    w2pViewerLoad.style.display = 'none';
+    w2pPages.style.display = 'flex';
+  } catch (e) {
+    w2pViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>';
+  }
+}
 
 function setFile(f) {
   if (!f) return;
-  document.getElementById('fscName').textContent = f.name;
-  document.getElementById('fscSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
+  currentFile = f;
+  document.getElementById('w2pFileName').textContent = f.name;
+  document.getElementById('w2pFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
-  cvDrop.style.display   = 'none';
-  fileCard.classList.add('show');
-  convertBtn.style.display = 'flex';
+
+  w2pDrop.style.display = 'none';
+  w2pResultCard.classList.remove('show');
+  w2pErrorCard.classList.remove('show');
+  w2pSplit.classList.add('show');
+
+  loadPreview(f);
 }
 
-function changeFile() {
-  fileInput.value = '';
-  cvDrop.style.display = '';
-  fileCard.classList.remove('show');
-  convertBtn.style.display = 'none';
-  document.querySelector('.result-card').className = 'result-card';
+async function doConvert() {
+  if (!currentFile) return;
+  w2pConvertBtn.disabled = true;
+  w2pLoadingCard.classList.add('show');
+  w2pResultCard.classList.remove('show');
+  w2pErrorCard.classList.remove('show');
+
+  const fd = new FormData();
+  fd.append('file', currentFile);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+  try {
+    const res = await fetch('{% url "api_word_to_pdf" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    document.getElementById('w2pDlBtn').href = data.download_url;
+    document.getElementById('w2pDlBtn').download = data.filename || 'converted.pdf';
+    w2pResultCard.classList.add('show');
+  } catch (e) {
+    document.getElementById('w2pErrorMsg').textContent = e.message || 'Conversion failed.';
+    w2pErrorCard.classList.add('show');
+  } finally {
+    w2pLoadingCard.classList.remove('show');
+    w2pConvertBtn.disabled = false;
+  }
 }
 
 fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
-cvDrop.addEventListener('dragover',  e => { e.preventDefault(); cvDrop.classList.add('drag-over'); });
-cvDrop.addEventListener('dragleave', () => cvDrop.classList.remove('drag-over'));
-cvDrop.addEventListener('drop', e => {
-  e.preventDefault(); cvDrop.classList.remove('drag-over');
+
+w2pDrop.addEventListener('dragover',  e => { e.preventDefault(); w2pDrop.classList.add('drag-over'); });
+w2pDrop.addEventListener('dragleave', () => w2pDrop.classList.remove('drag-over'));
+w2pDrop.addEventListener('drop', e => {
+  e.preventDefault(); w2pDrop.classList.remove('drag-over');
   setFile(e.dataTransfer.files[0]);
 });
-
-submitToolForm({ formId:'toolForm', apiUrl:'{% url "api_word_to_pdf" %}', fileInputId:'fileInput' });
 </script>{% endblock %}

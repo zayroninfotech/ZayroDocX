@@ -42,7 +42,7 @@ from apps.pdf_tools.views.edit_pdf import rotate_pdf, add_page_numbers
 from apps.pdf_tools.views.watermark import add_watermark
 from apps.pdf_tools.views.sign_pdf import sign_pdf
 from apps.pdf_tools.views.ocr_pdf import ocr_pdf, ocr_pdf_stream, ocr_pdf_progress, extract_page, extract_page_ai, extract_statement_summary, extract_invoice, scan_to_pdf, invoice_to_excel, extract_invoice_ai, smart_split_suggest, detect_blank_pages, crop_extract, extract_all_pages_excel
-from apps.pdf_tools.views.convert_to_pdf import word_to_pdf, pptx_to_pdf, excel_to_pdf, html_to_pdf, jpg_to_pdf
+from apps.pdf_tools.views.convert_to_pdf import word_to_pdf, pptx_to_pdf, excel_to_pdf, html_to_pdf, jpg_to_pdf, render_word_pages
 from apps.pdf_tools.views.convert_from_pdf import pdf_to_jpg, pdf_to_word, pdf_to_pptx, pdf_to_excel
 from apps.pdf_tools.views.ai_summarizer import summarize_pdf, render_pdf_pages
 from apps.pdf_tools.views.translate_pdf import translate_pdf
@@ -128,6 +128,7 @@ urlpatterns = [
     path('api/ocr-all-pages-excel/',        protected_api(_tag(extract_all_pages_excel,   'ocr-pdf')),             name='api_all_pages_excel'),
     path('api/scan-to-pdf/',    protected_api(_tag(scan_to_pdf,    'scan-to-pdf')),     name='api_scan_pdf'),
     path('api/word-to-pdf/',    protected_api(_tag(word_to_pdf,    'word-to-pdf')),     name='api_word_to_pdf'),
+    path('api/render-word-pages/', render_word_pages, name='api_render_word_pages'),
     path('api/pptx-to-pdf/',    protected_api(_tag(pptx_to_pdf,   'pptx-to-pdf')),     name='api_pptx_to_pdf'),
     path('api/excel-to-pdf/',   protected_api(_tag(excel_to_pdf,  'excel-to-pdf')),    name='api_excel_to_pdf'),
     path('api/html-to-pdf/',    protected_api(_tag(html_to_pdf,   'html-to-pdf')),     name='api_html_to_pdf'),
