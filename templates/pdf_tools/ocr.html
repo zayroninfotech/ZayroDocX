@@ -470,7 +470,7 @@ async function extractPage(idx) {
       const dlBtn = document.getElementById('modalExcelBtn');
       dlBtn.href = data.excel_url;
       dlBtn.download = data.excel_name || 'page.xlsx';
-      dlBtn.style.display = '';
+      document.getElementById('modalExcelWrap').style.display = '';
     }
   } catch(e) {
     document.getElementById('modalTxt').textContent = 'Extraction failed: ' + e.message;
