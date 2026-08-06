@@ -2,67 +2,120 @@
 {% load static %}
 {% block title %}Redact PDF — ZayroDocX{% endblock %}
 {% block active_redact %}active{% endblock %}
-{% block breadcrumb %}<span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Redact PDF</span>{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Redact PDF</span>{% endblock %}
 
-{% block extra_head %}
-<style>
-.cv-opts-card{background:#fff;border:1.5px solid #fca5a5;border-radius:16px;padding:1.2rem 1.4rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(220,38,38,.06);}
-.cv-opts-title{font-size:.75rem;font-weight:800;color:#b91c1c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.85rem;display:flex;align-items:center;gap:.45rem;}
-.cv-field-label{font-size:.75rem;font-weight:700;color:#555;margin-bottom:.45rem;}
-.cv-field-hint{font-size:.7rem;color:#aaa;font-weight:400;}
-.cv-textarea{width:100%;box-sizing:border-box;border:1.5px solid #e8e8e8;border-radius:10px;padding:.65rem .9rem;font-size:.88rem;color:#111;background:#fff;outline:none;transition:border-color .15s;resize:vertical;min-height:120px;font-family:inherit;}
-.cv-textarea:focus{border-color:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.1);}
-</style>
-{% endblock %}
+{% block extra_head %}<style>
+.rd-drop { border: 2.5px dashed #cbd5e1; border-radius: 20px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: #f8fafc; }
+.rd-drop:hover, .rd-drop.drag-over { border-color: #dc2626; background: #fff8f8; }
+.rd-drop-icon { font-size: 3rem; color: #dc2626; margin-bottom: .8rem; }
+.rd-drop h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
+.rd-drop p  { color: #64748b; margin: 0 0 1.2rem; }
+.rd-drop-btn { background: #dc2626; color: #fff; border: none; border-radius: 10px; padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer; }
+.rd-drop-btn:hover { background: #b91c1c; }
+
+.rd-split { display: none; grid-template-columns: 1fr 440px; gap: 20px; align-items: start; }
+.rd-split.show { display: grid; }
+
+.rd-viewer { background: #0f172a; border-radius: 16px; padding: 16px; min-height: 400px; display: flex; align-items: flex-start; justify-content: center; overflow: auto; scroll-behavior: smooth; }
+.rd-viewer-pages { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
+.rd-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; }
+.rd-viewer-loading { color: #94a3b8; font-size: .9rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
+.rd-viewer-loading i { font-size: 2rem; }
+
+.rd-right { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
+.rd-card { background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 1.1rem 1.3rem; }
+.rd-file-row { display: flex; align-items: center; gap: .9rem; }
+.rd-file-icon { width: 44px; height: 44px; border-radius: 11px; background: #fff8f8; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #dc2626; flex-shrink: 0; }
+.rd-file-name { font-size: .88rem; font-weight: 700; color: #111; word-break: break-all; }
+.rd-file-size { font-size: .75rem; color: #aaa; margin-top: .1rem; }
+.rd-change-btn { margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 8px; padding: .35rem .75rem; font-size: .75rem; font-weight: 600; color: #666; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.rd-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
+
+.rd-opts-title { font-size: .72rem; font-weight: 800; color: #b91c1c; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .65rem; }
+.rd-field-label { font-size: .73rem; font-weight: 700; color: #555; margin: .7rem 0 .35rem; }
+.rd-textarea { width: 100%; box-sizing: border-box; border: 1.5px solid #e8e8e8; border-radius: 9px; padding: .55rem .8rem; font-size: .82rem; color: #111; outline: none; transition: border-color .15s; resize: vertical; min-height: 110px; font-family: inherit; }
+.rd-textarea:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+
+.rd-convert-btn { width: 100%; padding: .85rem; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: opacity .15s; }
+.rd-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
+.rd-loading-card { display: none; background: #fff8f8; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.1rem 1.2rem; align-items: center; gap: .9rem; }
+.rd-loading-card.show { display: flex; }
+.rd-spin { animation: spin 1s linear infinite; font-size: 1.3rem; color: #dc2626; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.rd-result-card { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 1.1rem 1.2rem; }
+.rd-result-card.show { display: block; }
+.rd-result-title { font-size: .82rem; font-weight: 700; color: #166534; display: flex; align-items: center; gap: .4rem; margin-bottom: .7rem; }
+.rd-dl-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .65rem; background: #16a34a; color: #fff; border: none; border-radius: 9px; font-size: .88rem; font-weight: 700; cursor: pointer; text-decoration: none; }
+.rd-dl-btn:hover { background: #15803d; }
+.rd-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1rem 1.2rem; }
+.rd-error-card.show { display: block; }
+.rd-error-msg { font-size: .82rem; color: #dc2626; }
+
+@media (max-width: 1050px) { .rd-split { grid-template-columns: 1fr; } .rd-right { position: static; max-height: none; } }
+</style>{% endblock %}
 
 {% block content %}
-<div class="cv-hero">
-  <div class="cv-hero-left">
-    <div class="cv-eyebrow"><i class="fa-solid fa-eraser"></i> Security</div>
-    <h2>Redact PDF</h2>
-    <p>Permanently black out sensitive words and phrases from your PDF document</p>
-  </div>
-  <div class="cv-hero-pills">
-    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-eraser"></i></span><div class="l">Permanent</div></div>
-    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-list"></i></span><div class="l">Multi-word</div></div>
-    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
-  </div>
+<input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
+
+<div class="rd-drop" id="rdDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="rd-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+  <h3>Drop your PDF here</h3>
+  <p>Enter words or phrases to redact permanently in the panel</p>
+  <button type="button" class="rd-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-folder-open"></i> Select PDF File
+  </button>
 </div>
 
-<form id="mainForm" enctype="multipart/form-data">{% csrf_token %}
-  <div class="cv-drop" id="cvDrop">
-    <input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="cv-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
-    <h3>Drop your PDF here</h3>
-    <p>Enter the words to redact below</p>
-    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-folder-open"></i> Select PDF File
-    </button>
-    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; Private &nbsp;·&nbsp; Free</span>
-  </div>
-  <div class="cv-file-bar" id="cvFileBar">
-    <i class="fa-solid fa-file-pdf cv-file-icon" style="color:#dc2626"></i>
-    <span class="cv-file-name" id="cvFileName">—</span>
-    <span class="cv-file-size" id="cvFileSize">—</span>
+<div class="rd-split" id="rdSplit">
+  <div class="rd-viewer">
+    <div class="rd-viewer-loading" id="rdViewerLoading">
+      <i class="fa-solid fa-spinner rd-spin"></i>
+      <span>Loading pages…</span>
+    </div>
+    <div class="rd-viewer-pages" id="rdPages" style="display:none"></div>
   </div>
 
-  <div class="cv-opts-card">
-    <div class="cv-opts-title"><i class="fa-solid fa-eraser"></i> Words / Phrases to Redact</div>
-    <div style="margin-top:.75rem;">
-      <div class="cv-field-label">Text to redact <span class="cv-field-hint">(one per line or comma-separated)</span></div>
-      <textarea name="words" class="cv-textarea" placeholder="e.g. John Doe&#10;123-456-7890&#10;confidential"></textarea>
+  <div class="rd-right">
+    <div class="rd-card">
+      <div class="rd-file-row">
+        <div class="rd-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+        <div>
+          <div class="rd-file-name" id="rdFileName">—</div>
+          <div class="rd-file-size" id="rdFileSize">—</div>
+        </div>
+        <button type="button" class="rd-change-btn" onclick="resetTool()">
+          <i class="fa-solid fa-rotate-left"></i> Change
+        </button>
+      </div>
+    </div>
+
+    <div class="rd-card">
+      <div class="rd-opts-title"><i class="fa-solid fa-eraser"></i> Words / Phrases to Redact</div>
+      <div class="rd-field-label" style="margin-top:0">Text to redact <span style="font-size:.7rem;color:#aaa;font-weight:400;">(one per line or comma-separated)</span></div>
+      <textarea id="rdWords" class="rd-textarea" placeholder="e.g. John Doe&#10;123-456-7890&#10;confidential"></textarea>
+    </div>
+
+    <button type="button" class="rd-convert-btn" id="rdConvertBtn" onclick="doRedact()">
+      <i class="fa-solid fa-eraser"></i> Redact PDF
+    </button>
+
+    <div class="rd-loading-card" id="rdLoadingCard">
+      <i class="fa-solid fa-spinner rd-spin"></i>
+      <span style="font-size:.88rem;font-weight:600;color:#b91c1c">Redacting content…</span>
+    </div>
+
+    <div class="rd-result-card" id="rdResultCard">
+      <div class="rd-result-title" id="rdResultTitle"><i class="fa-solid fa-circle-check"></i> PDF redacted!</div>
+      <a class="rd-dl-btn" id="rdDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download PDF</a>
+    </div>
+
+    <div class="rd-error-card" id="rdErrorCard">
+      <div class="rd-error-msg" id="rdErrorMsg"></div>
     </div>
   </div>
-
-  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-eraser"></i> Redact PDF</button>
-</form>
-
-<div class="progress-wrap" id="progressWrap" style="display:none;">
-  <div class="progress-header"><span class="progress-label">Redacting content…</span></div>
-  <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
 </div>
 
-<div class="cv-info-strip">
+<div class="cv-info-strip" id="rdInfoStrip">
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-eraser"></i></div><div><div class="cv-info-title">Permanent</div><div class="cv-info-desc">Text cannot be recovered</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-list"></i></div><div><div class="cv-info-title">Multi-word</div><div class="cv-info-desc">Redact many at once</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
@@ -71,26 +124,72 @@
 {% endblock %}
 
 {% block extra_js %}<script>
-(function(){
-  const inp=document.getElementById('fileInput'),drop=document.getElementById('cvDrop'),bar=document.getElementById('cvFileBar');
-  function setFile(f){if(!f)return;document.getElementById('cvFileName').textContent=f.name;document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB';bar.classList.add('show');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;}
-  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
-  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
-  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
-  inp.addEventListener('change',()=>setFile(inp.files[0]));
-})();
-document.getElementById('mainForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-  const inp=document.getElementById('fileInput');
-  if(!inp.files[0]){toast('Please select a PDF.','error');return;}
-  if(!e.target.words.value.trim()){toast('Enter at least one word to redact.','error');return;}
-  document.getElementById('progressWrap').style.display='block';
-  const r=await fetch('/tools/api/redact-pdf/',{method:'POST',body:new FormData(e.target)});
-  const d=await r.json();
-  document.getElementById('progressWrap').style.display='none';
-  if(d.error){toast(d.error,'error');return;}
-  const a=document.createElement('a');a.href=d.download_url;a.download=d.filename;a.click();
-  toast(`Redacted ${d.count} occurrence(s) successfully!`,'success');
-});
-function toast(msg,type){const c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast toast-'+(type||'info');t.innerHTML=`<i class="fa-solid fa-${type==='error'?'circle-xmark':'circle-check'}"></i> ${msg}`;c.appendChild(t);setTimeout(()=>t.remove(),4000);}
+const fileInput     = document.getElementById('fileInput');
+const rdDrop        = document.getElementById('rdDrop');
+const rdSplit       = document.getElementById('rdSplit');
+const rdPagesEl     = document.getElementById('rdPages');
+const rdViewerLoad  = document.getElementById('rdViewerLoading');
+const rdConvertBtn  = document.getElementById('rdConvertBtn');
+const rdLoadingCard = document.getElementById('rdLoadingCard');
+const rdResultCard  = document.getElementById('rdResultCard');
+const rdErrorCard   = document.getElementById('rdErrorCard');
+const rdInfoStrip   = document.getElementById('rdInfoStrip');
+let currentFile = null;
+
+function resetTool() {
+  fileInput.value = ''; currentFile = null;
+  rdDrop.style.display = ''; rdSplit.classList.remove('show');
+  rdPagesEl.innerHTML = ''; rdPagesEl.style.display = 'none';
+  rdViewerLoad.style.display = 'flex'; rdConvertBtn.disabled = false;
+  rdLoadingCard.classList.remove('show'); rdResultCard.classList.remove('show');
+  rdErrorCard.classList.remove('show'); rdInfoStrip.style.display = '';
+}
+
+async function loadPreview(file) {
+  const fd = new FormData(); fd.append('file', file); fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  try {
+    const res = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    rdPagesEl.innerHTML = '';
+    data.page_images.forEach((b64, i) => { const img = document.createElement('img'); img.src = 'data:image/jpeg;base64,' + b64; img.alt = 'Page ' + (i+1); rdPagesEl.appendChild(img); });
+    rdViewerLoad.style.display = 'none'; rdPagesEl.style.display = 'flex';
+  } catch (e) { rdViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>'; }
+}
+
+function setFile(f) {
+  if (!f) return; currentFile = f;
+  document.getElementById('rdFileName').textContent = f.name;
+  document.getElementById('rdFileSize').textContent = (f.size/1024).toFixed(1) + ' KB';
+  const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
+  rdDrop.style.display = 'none'; rdInfoStrip.style.display = 'none';
+  rdResultCard.classList.remove('show'); rdErrorCard.classList.remove('show');
+  rdSplit.classList.add('show'); loadPreview(f);
+}
+
+async function doRedact() {
+  if (!currentFile) return;
+  const words = document.getElementById('rdWords').value.trim();
+  if (!words) { document.getElementById('rdErrorMsg').textContent = 'Enter at least one word to redact.'; rdErrorCard.classList.add('show'); return; }
+  rdConvertBtn.disabled = true; rdLoadingCard.classList.add('show');
+  rdResultCard.classList.remove('show'); rdErrorCard.classList.remove('show');
+  const fd = new FormData();
+  fd.append('file', currentFile); fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fd.append('words', words);
+  try {
+    const res = await fetch('/tools/api/redact-pdf/', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    document.getElementById('rdResultTitle').innerHTML = '<i class="fa-solid fa-circle-check"></i> Redacted ' + (data.count || 0) + ' occurrence(s)!';
+    document.getElementById('rdDlBtn').href = data.download_url;
+    document.getElementById('rdDlBtn').download = data.filename || 'redacted.pdf';
+    rdResultCard.classList.add('show');
+  } catch (e) { document.getElementById('rdErrorMsg').textContent = e.message || 'Failed.'; rdErrorCard.classList.add('show'); }
+  finally { rdLoadingCard.classList.remove('show'); rdConvertBtn.disabled = false; }
+}
+
+fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+rdDrop.addEventListener('dragover', e => { e.preventDefault(); rdDrop.classList.add('drag-over'); });
+rdDrop.addEventListener('dragleave', () => rdDrop.classList.remove('drag-over'));
+rdDrop.addEventListener('drop', e => { e.preventDefault(); rdDrop.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
 </script>{% endblock %}

@@ -2,67 +2,120 @@
 {% load static %}
 {% block title %}Unlock PDF — ZayroDocX{% endblock %}
 {% block active_unlock %}active{% endblock %}
-{% block breadcrumb %}<span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Unlock PDF</span>{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Unlock PDF</span>{% endblock %}
 
-{% block extra_head %}
-<style>
-.cv-opts-card{background:#fff;border:1.5px solid #fca5a5;border-radius:16px;padding:1.2rem 1.4rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(220,38,38,.06);}
-.cv-opts-title{font-size:.75rem;font-weight:800;color:#b91c1c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.85rem;display:flex;align-items:center;gap:.45rem;}
-.cv-field-label{font-size:.75rem;font-weight:700;color:#555;margin-bottom:.45rem;}
-.cv-field-hint{font-size:.7rem;color:#aaa;font-weight:400;}
-.cv-input{width:100%;box-sizing:border-box;border:1.5px solid #e8e8e8;border-radius:10px;padding:.65rem .9rem;font-size:.88rem;color:#111;background:#fff;outline:none;transition:border-color .15s;}
-.cv-input:focus{border-color:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.1);}
-</style>
-{% endblock %}
+{% block extra_head %}<style>
+.ul-drop { border: 2.5px dashed #cbd5e1; border-radius: 20px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: #f8fafc; }
+.ul-drop:hover, .ul-drop.drag-over { border-color: #dc2626; background: #fff8f8; }
+.ul-drop-icon { font-size: 3rem; color: #dc2626; margin-bottom: .8rem; }
+.ul-drop h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
+.ul-drop p  { color: #64748b; margin: 0 0 1.2rem; }
+.ul-drop-btn { background: #dc2626; color: #fff; border: none; border-radius: 10px; padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer; }
+.ul-drop-btn:hover { background: #b91c1c; }
+
+.ul-split { display: none; grid-template-columns: 1fr 440px; gap: 20px; align-items: start; }
+.ul-split.show { display: grid; }
+
+.ul-viewer { background: #0f172a; border-radius: 16px; padding: 16px; min-height: 400px; display: flex; align-items: flex-start; justify-content: center; overflow: auto; scroll-behavior: smooth; }
+.ul-viewer-pages { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
+.ul-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; }
+.ul-viewer-loading { color: #94a3b8; font-size: .9rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
+.ul-viewer-loading i { font-size: 2rem; }
+
+.ul-right { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
+.ul-card { background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 1.1rem 1.3rem; }
+.ul-file-row { display: flex; align-items: center; gap: .9rem; }
+.ul-file-icon { width: 44px; height: 44px; border-radius: 11px; background: #fff8f8; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #dc2626; flex-shrink: 0; }
+.ul-file-name { font-size: .88rem; font-weight: 700; color: #111; word-break: break-all; }
+.ul-file-size { font-size: .75rem; color: #aaa; margin-top: .1rem; }
+.ul-change-btn { margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 8px; padding: .35rem .75rem; font-size: .75rem; font-weight: 600; color: #666; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.ul-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
+
+.ul-opts-title { font-size: .72rem; font-weight: 800; color: #b91c1c; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .65rem; }
+.ul-field-label { font-size: .73rem; font-weight: 700; color: #555; margin: .7rem 0 .35rem; }
+.ul-input { width: 100%; box-sizing: border-box; border: 1.5px solid #e8e8e8; border-radius: 9px; padding: .55rem .8rem; font-size: .82rem; color: #111; outline: none; transition: border-color .15s; }
+.ul-input:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+
+.ul-convert-btn { width: 100%; padding: .85rem; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: opacity .15s; }
+.ul-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
+.ul-loading-card { display: none; background: #fff8f8; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.1rem 1.2rem; align-items: center; gap: .9rem; }
+.ul-loading-card.show { display: flex; }
+.ul-spin { animation: spin 1s linear infinite; font-size: 1.3rem; color: #dc2626; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ul-result-card { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 1.1rem 1.2rem; }
+.ul-result-card.show { display: block; }
+.ul-result-title { font-size: .82rem; font-weight: 700; color: #166534; display: flex; align-items: center; gap: .4rem; margin-bottom: .7rem; }
+.ul-dl-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .65rem; background: #16a34a; color: #fff; border: none; border-radius: 9px; font-size: .88rem; font-weight: 700; cursor: pointer; text-decoration: none; }
+.ul-dl-btn:hover { background: #15803d; }
+.ul-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1rem 1.2rem; }
+.ul-error-card.show { display: block; }
+.ul-error-msg { font-size: .82rem; color: #dc2626; }
+
+@media (max-width: 1050px) { .ul-split { grid-template-columns: 1fr; } .ul-right { position: static; max-height: none; } }
+</style>{% endblock %}
 
 {% block content %}
-<div class="cv-hero">
-  <div class="cv-hero-left">
-    <div class="cv-eyebrow"><i class="fa-solid fa-lock-open"></i> Security</div>
-    <h2>Unlock PDF</h2>
-    <p>Remove the password from a protected PDF — enter the current password to decrypt</p>
-  </div>
-  <div class="cv-hero-pills">
-    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-lock-open"></i></span><div class="l">Decrypt</div></div>
-    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-key"></i></span><div class="l">Password</div></div>
-    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
-  </div>
+<input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
+
+<div class="ul-drop" id="ulDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="ul-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+  <h3>Drop your protected PDF here</h3>
+  <p>Enter the current password in the panel to remove encryption</p>
+  <button type="button" class="ul-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-folder-open"></i> Select PDF File
+  </button>
 </div>
 
-<form id="mainForm" enctype="multipart/form-data">{% csrf_token %}
-  <div class="cv-drop" id="cvDrop">
-    <input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="cv-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
-    <h3>Drop your protected PDF here</h3>
-    <p>Enter the current password below to remove encryption</p>
-    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-folder-open"></i> Select PDF File
-    </button>
-    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; Private &nbsp;·&nbsp; Free</span>
-  </div>
-  <div class="cv-file-bar" id="cvFileBar">
-    <i class="fa-solid fa-file-pdf cv-file-icon" style="color:#dc2626"></i>
-    <span class="cv-file-name" id="cvFileName">—</span>
-    <span class="cv-file-size" id="cvFileSize">—</span>
+<div class="ul-split" id="ulSplit">
+  <div class="ul-viewer">
+    <div class="ul-viewer-loading" id="ulViewerLoading">
+      <i class="fa-solid fa-spinner ul-spin"></i>
+      <span>Loading pages…</span>
+    </div>
+    <div class="ul-viewer-pages" id="ulPages" style="display:none"></div>
   </div>
 
-  <div class="cv-opts-card">
-    <div class="cv-opts-title"><i class="fa-solid fa-key"></i> Enter Password</div>
-    <div style="margin-top:.75rem;">
-      <div class="cv-field-label">Current Password <span class="cv-field-hint">(leave blank if not password-protected)</span></div>
-      <input type="password" name="password" class="cv-input" placeholder="Enter the PDF password" autocomplete="current-password">
+  <div class="ul-right">
+    <div class="ul-card">
+      <div class="ul-file-row">
+        <div class="ul-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+        <div>
+          <div class="ul-file-name" id="ulFileName">—</div>
+          <div class="ul-file-size" id="ulFileSize">—</div>
+        </div>
+        <button type="button" class="ul-change-btn" onclick="resetTool()">
+          <i class="fa-solid fa-rotate-left"></i> Change
+        </button>
+      </div>
+    </div>
+
+    <div class="ul-card">
+      <div class="ul-opts-title"><i class="fa-solid fa-key"></i> Enter Password</div>
+      <div class="ul-field-label" style="margin-top:0">Current Password <span style="font-size:.7rem;color:#aaa;font-weight:400;">(leave blank if not password-protected)</span></div>
+      <input type="password" id="ulPwInput" class="ul-input" placeholder="Enter the PDF password" autocomplete="current-password">
+    </div>
+
+    <button type="button" class="ul-convert-btn" id="ulConvertBtn" onclick="doUnlock()">
+      <i class="fa-solid fa-lock-open"></i> Unlock PDF
+    </button>
+
+    <div class="ul-loading-card" id="ulLoadingCard">
+      <i class="fa-solid fa-spinner ul-spin"></i>
+      <span style="font-size:.88rem;font-weight:600;color:#b91c1c">Removing password…</span>
+    </div>
+
+    <div class="ul-result-card" id="ulResultCard">
+      <div class="ul-result-title"><i class="fa-solid fa-circle-check"></i> PDF unlocked!</div>
+      <a class="ul-dl-btn" id="ulDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download PDF</a>
+    </div>
+
+    <div class="ul-error-card" id="ulErrorCard">
+      <div class="ul-error-msg" id="ulErrorMsg"></div>
     </div>
   </div>
-
-  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-lock-open"></i> Unlock PDF</button>
-</form>
-
-<div class="progress-wrap" id="progressWrap" style="display:none;">
-  <div class="progress-header"><span class="progress-label">Removing password…</span></div>
-  <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
 </div>
 
-<div class="cv-info-strip">
+<div class="cv-info-strip" id="ulInfoStrip">
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-lock-open"></i></div><div><div class="cv-info-title">Remove Lock</div><div class="cv-info-desc">Instant decryption</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-key"></i></div><div><div class="cv-info-title">Password</div><div class="cv-info-desc">You must know it first</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
@@ -71,25 +124,69 @@
 {% endblock %}
 
 {% block extra_js %}<script>
-(function(){
-  const inp=document.getElementById('fileInput'),drop=document.getElementById('cvDrop'),bar=document.getElementById('cvFileBar');
-  function setFile(f){if(!f)return;document.getElementById('cvFileName').textContent=f.name;document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB';bar.classList.add('show');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;}
-  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
-  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
-  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
-  inp.addEventListener('change',()=>setFile(inp.files[0]));
-})();
-document.getElementById('mainForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-  const inp=document.getElementById('fileInput');
-  if(!inp.files[0]){toast('Please select a PDF.','error');return;}
-  document.getElementById('progressWrap').style.display='block';
-  const r=await fetch('/tools/api/unlock-pdf/',{method:'POST',body:new FormData(e.target)});
-  const d=await r.json();
-  document.getElementById('progressWrap').style.display='none';
-  if(d.error){toast(d.error,'error');return;}
-  const a=document.createElement('a');a.href=d.download_url;a.download=d.filename;a.click();
-  toast('PDF unlocked successfully!','success');
-});
-function toast(msg,type){const c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast toast-'+(type||'info');t.innerHTML=`<i class="fa-solid fa-${type==='error'?'circle-xmark':'circle-check'}"></i> ${msg}`;c.appendChild(t);setTimeout(()=>t.remove(),4000);}
+const fileInput     = document.getElementById('fileInput');
+const ulDrop        = document.getElementById('ulDrop');
+const ulSplit       = document.getElementById('ulSplit');
+const ulPagesEl     = document.getElementById('ulPages');
+const ulViewerLoad  = document.getElementById('ulViewerLoading');
+const ulConvertBtn  = document.getElementById('ulConvertBtn');
+const ulLoadingCard = document.getElementById('ulLoadingCard');
+const ulResultCard  = document.getElementById('ulResultCard');
+const ulErrorCard   = document.getElementById('ulErrorCard');
+const ulInfoStrip   = document.getElementById('ulInfoStrip');
+let currentFile = null;
+
+function resetTool() {
+  fileInput.value = ''; currentFile = null;
+  ulDrop.style.display = ''; ulSplit.classList.remove('show');
+  ulPagesEl.innerHTML = ''; ulPagesEl.style.display = 'none';
+  ulViewerLoad.style.display = 'flex'; ulConvertBtn.disabled = false;
+  ulLoadingCard.classList.remove('show'); ulResultCard.classList.remove('show');
+  ulErrorCard.classList.remove('show'); ulInfoStrip.style.display = '';
+}
+
+async function loadPreview(file) {
+  const fd = new FormData(); fd.append('file', file); fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  try {
+    const res = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    ulPagesEl.innerHTML = '';
+    data.page_images.forEach((b64, i) => { const img = document.createElement('img'); img.src = 'data:image/jpeg;base64,' + b64; img.alt = 'Page ' + (i+1); ulPagesEl.appendChild(img); });
+    ulViewerLoad.style.display = 'none'; ulPagesEl.style.display = 'flex';
+  } catch (e) { ulViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>'; }
+}
+
+function setFile(f) {
+  if (!f) return; currentFile = f;
+  document.getElementById('ulFileName').textContent = f.name;
+  document.getElementById('ulFileSize').textContent = (f.size/1024).toFixed(1) + ' KB';
+  const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
+  ulDrop.style.display = 'none'; ulInfoStrip.style.display = 'none';
+  ulResultCard.classList.remove('show'); ulErrorCard.classList.remove('show');
+  ulSplit.classList.add('show'); loadPreview(f);
+}
+
+async function doUnlock() {
+  if (!currentFile) return;
+  ulConvertBtn.disabled = true; ulLoadingCard.classList.add('show');
+  ulResultCard.classList.remove('show'); ulErrorCard.classList.remove('show');
+  const fd = new FormData();
+  fd.append('file', currentFile); fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fd.append('password', document.getElementById('ulPwInput').value);
+  try {
+    const res = await fetch('/tools/api/unlock-pdf/', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    document.getElementById('ulDlBtn').href = data.download_url;
+    document.getElementById('ulDlBtn').download = data.filename || 'unlocked.pdf';
+    ulResultCard.classList.add('show');
+  } catch (e) { document.getElementById('ulErrorMsg').textContent = e.message || 'Failed.'; ulErrorCard.classList.add('show'); }
+  finally { ulLoadingCard.classList.remove('show'); ulConvertBtn.disabled = false; }
+}
+
+fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+ulDrop.addEventListener('dragover', e => { e.preventDefault(); ulDrop.classList.add('drag-over'); });
+ulDrop.addEventListener('dragleave', () => ulDrop.classList.remove('drag-over'));
+ulDrop.addEventListener('drop', e => { e.preventDefault(); ulDrop.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
 </script>{% endblock %}

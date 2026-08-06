@@ -4,86 +4,142 @@
 {% block active_crop %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Crop PDF</span>{% endblock %}
 
-{% block extra_head %}
-<style>
-.cv-opts-card { background:#fff; border:1.5px solid #fca5a5; border-radius:16px; padding:1.2rem 1.4rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(220,38,38,.06); }
-.cv-opts-title { font-size:.75rem; font-weight:800; color:#b91c1c; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.85rem; display:flex; align-items:center; gap:.45rem; }
-.cv-field-label { font-size:.75rem; font-weight:700; color:#555; margin-bottom:.45rem; }
-.cv-input { width:100%; box-sizing:border-box; border:1.5px solid #e8e8e8; border-radius:10px; padding:.65rem .9rem; font-size:.88rem; color:#111; background:#fff; outline:none; transition:border-color .15s; }
-.cv-input:focus { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.1); }
-.cv-crop-grid { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
-.cv-crop-field { position:relative; }
-.cv-crop-unit { position:absolute; right:.75rem; top:50%; transform:translateY(-50%); font-size:.72rem; color:#aaa; font-weight:600; pointer-events:none; }
-.cv-crop-diagram { display:flex; align-items:center; justify-content:center; padding:1.2rem 0 .5rem; }
-.cv-crop-box { width:120px; height:80px; border:2.5px solid #dc2626; border-radius:8px; position:relative; background:#fff8f8; display:flex; align-items:center; justify-content:center; }
-.cv-crop-label { font-size:.6rem; font-weight:700; color:#dc2626; position:absolute; }
-.cv-crop-label.top    { top:-18px; left:50%; transform:translateX(-50%); }
-.cv-crop-label.bottom { bottom:-18px; left:50%; transform:translateX(-50%); }
-.cv-crop-label.left   { left:-24px; top:50%; transform:translateY(-50%); }
-.cv-crop-label.right  { right:-28px; top:50%; transform:translateY(-50%); }
-.cv-crop-center { font-size:.6rem; color:#dc2626; opacity:.5; }
-</style>
-{% endblock %}
+{% block extra_head %}<style>
+.cr-drop { border: 2.5px dashed #cbd5e1; border-radius: 20px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: #f8fafc; }
+.cr-drop:hover, .cr-drop.drag-over { border-color: #dc2626; background: #fff8f8; }
+.cr-drop-icon { font-size: 3rem; color: #dc2626; margin-bottom: .8rem; }
+.cr-drop h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
+.cr-drop p  { color: #64748b; margin: 0 0 1.2rem; }
+.cr-drop-btn { background: #dc2626; color: #fff; border: none; border-radius: 10px; padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer; }
+.cr-drop-btn:hover { background: #b91c1c; }
+
+.cr-split { display: none; grid-template-columns: 1fr 440px; gap: 20px; align-items: start; }
+.cr-split.show { display: grid; }
+
+.cr-viewer { background: #0f172a; border-radius: 16px; padding: 16px; min-height: 400px; display: flex; align-items: flex-start; justify-content: center; overflow: auto; scroll-behavior: smooth; }
+.cr-viewer-pages { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
+.cr-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; }
+.cr-viewer-loading { color: #94a3b8; font-size: .9rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
+.cr-viewer-loading i { font-size: 2rem; }
+
+.cr-right { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
+.cr-card { background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 1.1rem 1.3rem; }
+.cr-file-row { display: flex; align-items: center; gap: .9rem; }
+.cr-file-icon { width: 44px; height: 44px; border-radius: 11px; background: #fff8f8; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #dc2626; flex-shrink: 0; }
+.cr-file-name { font-size: .88rem; font-weight: 700; color: #111; word-break: break-all; }
+.cr-file-size { font-size: .75rem; color: #aaa; margin-top: .1rem; }
+.cr-change-btn { margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 8px; padding: .35rem .75rem; font-size: .75rem; font-weight: 600; color: #666; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.cr-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
+
+.cr-opts-title { font-size: .72rem; font-weight: 800; color: #b91c1c; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .65rem; }
+.cr-diagram { display: flex; align-items: center; justify-content: center; padding: .8rem 0; }
+.cr-box { width: 110px; height: 72px; border: 2.5px solid #dc2626; border-radius: 7px; position: relative; background: #fff8f8; display: flex; align-items: center; justify-content: center; }
+.cr-lbl { font-size: .58rem; font-weight: 700; color: #dc2626; position: absolute; }
+.cr-lbl.top    { top: -16px; left: 50%; transform: translateX(-50%); }
+.cr-lbl.bottom { bottom: -16px; left: 50%; transform: translateX(-50%); }
+.cr-lbl.left   { left: -22px; top: 50%; transform: translateY(-50%); }
+.cr-lbl.right  { right: -26px; top: 50%; transform: translateY(-50%); }
+.cr-box-center { font-size: .58rem; color: #dc2626; opacity: .5; }
+.cr-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .6rem; }
+.cr-field-label { font-size: .73rem; font-weight: 700; color: #555; margin-bottom: .35rem; }
+.cr-field { position: relative; }
+.cr-input { width: 100%; box-sizing: border-box; border: 1.5px solid #e8e8e8; border-radius: 9px; padding: .55rem .8rem; padding-right: 2.4rem; font-size: .82rem; color: #111; outline: none; transition: border-color .15s; }
+.cr-input:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+.cr-unit { position: absolute; right: .75rem; top: 50%; transform: translateY(-50%); font-size: .7rem; color: #aaa; font-weight: 600; pointer-events: none; }
+
+.cr-convert-btn { width: 100%; padding: .85rem; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: opacity .15s; }
+.cr-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
+.cr-loading-card { display: none; background: #fff8f8; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.1rem 1.2rem; align-items: center; gap: .9rem; }
+.cr-loading-card.show { display: flex; }
+.cr-spin { animation: spin 1s linear infinite; font-size: 1.3rem; color: #dc2626; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.cr-result-card { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 1.1rem 1.2rem; }
+.cr-result-card.show { display: block; }
+.cr-result-title { font-size: .82rem; font-weight: 700; color: #166534; display: flex; align-items: center; gap: .4rem; margin-bottom: .7rem; }
+.cr-dl-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .65rem; background: #16a34a; color: #fff; border: none; border-radius: 9px; font-size: .88rem; font-weight: 700; cursor: pointer; text-decoration: none; }
+.cr-dl-btn:hover { background: #15803d; }
+.cr-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1rem 1.2rem; }
+.cr-error-card.show { display: block; }
+.cr-error-msg { font-size: .82rem; color: #dc2626; }
+
+@media (max-width: 1050px) { .cr-split { grid-template-columns: 1fr; } .cr-right { position: static; max-height: none; } }
+</style>{% endblock %}
 
 {% block content %}
-<div class="cv-hero">
-  <div class="cv-hero-left">
-    <div class="cv-eyebrow"><i class="fa-solid fa-crop-simple"></i> Edit PDF</div>
-    <h2>Crop PDF</h2>
-    <p>Remove margins from all pages by specifying crop amounts in millimetres</p>
-  </div>
-  <div class="cv-hero-pills">
-    <div class="cv-hero-pill"><span class="n">mm</span><div class="l">Precision</div></div>
-    <div class="cv-hero-pill"><span class="n">All</span><div class="l">Pages</div></div>
-    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
-  </div>
+<input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
+
+<div class="cr-drop" id="crDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="cr-drop-icon"><i class="fa-solid fa-crop-simple"></i></div>
+  <h3>Drop your PDF here</h3>
+  <p>Set crop margins in the panel to trim all pages</p>
+  <button type="button" class="cr-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-folder-open"></i> Select PDF File
+  </button>
 </div>
 
-<form id="mainForm" enctype="multipart/form-data">{% csrf_token %}
-  <div class="cv-drop" id="cvDrop">
-    <input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="cv-drop-icon"><i class="fa-solid fa-crop-simple"></i></div>
-    <h3>Drop your PDF here</h3>
-    <p>Set crop margins below to trim all pages</p>
-    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-folder-open"></i> Select PDF File
-    </button>
-    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; Private &nbsp;·&nbsp; Free</span>
-  </div>
-  <div class="cv-file-bar" id="cvFileBar">
-    <i class="fa-solid fa-file-pdf cv-file-icon" style="color:#dc2626"></i>
-    <span class="cv-file-name" id="cvFileName">—</span>
-    <span class="cv-file-size" id="cvFileSize">—</span>
+<div class="cr-split" id="crSplit">
+  <div class="cr-viewer">
+    <div class="cr-viewer-loading" id="crViewerLoading">
+      <i class="fa-solid fa-spinner cr-spin"></i>
+      <span>Loading pages…</span>
+    </div>
+    <div class="cr-viewer-pages" id="crPages" style="display:none"></div>
   </div>
 
-  <div class="cv-opts-card">
-    <div class="cv-opts-title"><i class="fa-solid fa-crop-simple"></i> Crop Margins</div>
-    <div class="cv-crop-diagram">
-      <div class="cv-crop-box">
-        <span class="cv-crop-label top">TOP</span>
-        <span class="cv-crop-label bottom">BOTTOM</span>
-        <span class="cv-crop-label left">LEFT</span>
-        <span class="cv-crop-label right">RIGHT</span>
-        <span class="cv-crop-center">PDF Page</span>
+  <div class="cr-right">
+    <div class="cr-card">
+      <div class="cr-file-row">
+        <div class="cr-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+        <div>
+          <div class="cr-file-name" id="crFileName">—</div>
+          <div class="cr-file-size" id="crFileSize">—</div>
+        </div>
+        <button type="button" class="cr-change-btn" onclick="resetTool()">
+          <i class="fa-solid fa-rotate-left"></i> Change
+        </button>
       </div>
     </div>
-    <div class="cv-crop-grid" style="margin-top:.75rem;">
-      <div class="cv-crop-field"><div class="cv-field-label">Top (mm)</div><input type="number" name="top_mm" class="cv-input" value="0" min="0" max="200"><span class="cv-crop-unit">mm</span></div>
-      <div class="cv-crop-field"><div class="cv-field-label">Bottom (mm)</div><input type="number" name="bottom_mm" class="cv-input" value="0" min="0" max="200"><span class="cv-crop-unit">mm</span></div>
-      <div class="cv-crop-field"><div class="cv-field-label">Left (mm)</div><input type="number" name="left_mm" class="cv-input" value="0" min="0" max="200"><span class="cv-crop-unit">mm</span></div>
-      <div class="cv-crop-field"><div class="cv-field-label">Right (mm)</div><input type="number" name="right_mm" class="cv-input" value="0" min="0" max="200"><span class="cv-crop-unit">mm</span></div>
+
+    <div class="cr-card">
+      <div class="cr-opts-title"><i class="fa-solid fa-crop-simple"></i> Crop Margins</div>
+      <div class="cr-diagram">
+        <div class="cr-box">
+          <span class="cr-lbl top">TOP</span>
+          <span class="cr-lbl bottom">BOTTOM</span>
+          <span class="cr-lbl left">LEFT</span>
+          <span class="cr-lbl right">RIGHT</span>
+          <span class="cr-box-center">PDF Page</span>
+        </div>
+      </div>
+      <div class="cr-grid2">
+        <div><div class="cr-field-label">Top (mm)</div><div class="cr-field"><input type="number" id="top_mm" class="cr-input" value="0" min="0" max="200"><span class="cr-unit">mm</span></div></div>
+        <div><div class="cr-field-label">Bottom (mm)</div><div class="cr-field"><input type="number" id="bottom_mm" class="cr-input" value="0" min="0" max="200"><span class="cr-unit">mm</span></div></div>
+        <div><div class="cr-field-label">Left (mm)</div><div class="cr-field"><input type="number" id="left_mm" class="cr-input" value="0" min="0" max="200"><span class="cr-unit">mm</span></div></div>
+        <div><div class="cr-field-label">Right (mm)</div><div class="cr-field"><input type="number" id="right_mm" class="cr-input" value="0" min="0" max="200"><span class="cr-unit">mm</span></div></div>
+      </div>
+    </div>
+
+    <button type="button" class="cr-convert-btn" id="crConvertBtn" onclick="doCrop()">
+      <i class="fa-solid fa-crop-simple"></i> Crop PDF
+    </button>
+
+    <div class="cr-loading-card" id="crLoadingCard">
+      <i class="fa-solid fa-spinner cr-spin"></i>
+      <span style="font-size:.88rem;font-weight:600;color:#b91c1c">Cropping pages…</span>
+    </div>
+
+    <div class="cr-result-card" id="crResultCard">
+      <div class="cr-result-title"><i class="fa-solid fa-circle-check"></i> PDF ready!</div>
+      <a class="cr-dl-btn" id="crDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download PDF</a>
+    </div>
+
+    <div class="cr-error-card" id="crErrorCard">
+      <div class="cr-error-msg" id="crErrorMsg"></div>
     </div>
   </div>
-
-  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-crop-simple"></i> Crop PDF</button>
-</form>
-
-<div class="progress-wrap" id="progressWrap" style="display:none;">
-  <div class="progress-header"><span class="progress-label">Cropping pages…</span></div>
-  <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
 </div>
 
-<div class="cv-info-strip">
+<div class="cv-info-strip" id="crInfoStrip">
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-ruler"></i></div><div><div class="cv-info-title">mm Precision</div><div class="cv-info-desc">Millimetre accuracy</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-file-lines"></i></div><div><div class="cv-info-title">All Pages</div><div class="cv-info-desc">Every page cropped</div></div></div>
@@ -92,33 +148,73 @@
 {% endblock %}
 
 {% block extra_js %}<script>
-(function(){
-  const inp=document.getElementById('fileInput'),drop=document.getElementById('cvDrop'),bar=document.getElementById('cvFileBar');
-  function setFile(f){if(!f)return;document.getElementById('cvFileName').textContent=f.name;document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB';bar.classList.add('show');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;}
-  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
-  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
-  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
-  inp.addEventListener('change',()=>setFile(inp.files[0]));
-})();
-const MM2PT=2.8346;
-document.getElementById('mainForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-  const inp=document.getElementById('fileInput');
-  if(!inp.files[0]){toast('Please select a PDF.','error');return;}
-  document.getElementById('progressWrap').style.display='block';
-  const fd=new FormData();
-  fd.append('csrfmiddlewaretoken',e.target.querySelector('[name=csrfmiddlewaretoken]').value);
-  fd.append('file',inp.files[0]);
-  fd.append('top',  (parseFloat(e.target.top_mm.value)||0)*MM2PT);
-  fd.append('bottom',(parseFloat(e.target.bottom_mm.value)||0)*MM2PT);
-  fd.append('left', (parseFloat(e.target.left_mm.value)||0)*MM2PT);
-  fd.append('right',(parseFloat(e.target.right_mm.value)||0)*MM2PT);
-  const r=await fetch('/tools/api/crop-pdf/',{method:'POST',body:fd});
-  const d=await r.json();
-  document.getElementById('progressWrap').style.display='none';
-  if(d.error){toast(d.error,'error');return;}
-  const a=document.createElement('a');a.href=d.download_url;a.download=d.filename;a.click();
-  toast('PDF cropped successfully!','success');
-});
-function toast(msg,type){const c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast toast-'+(type||'info');t.innerHTML=`<i class="fa-solid fa-${type==='error'?'circle-xmark':'circle-check'}"></i> ${msg}`;c.appendChild(t);setTimeout(()=>t.remove(),4000);}
+const MM2PT = 2.8346;
+const fileInput     = document.getElementById('fileInput');
+const crDrop        = document.getElementById('crDrop');
+const crSplit       = document.getElementById('crSplit');
+const crPagesEl     = document.getElementById('crPages');
+const crViewerLoad  = document.getElementById('crViewerLoading');
+const crConvertBtn  = document.getElementById('crConvertBtn');
+const crLoadingCard = document.getElementById('crLoadingCard');
+const crResultCard  = document.getElementById('crResultCard');
+const crErrorCard   = document.getElementById('crErrorCard');
+const crInfoStrip   = document.getElementById('crInfoStrip');
+let currentFile = null;
+
+function resetTool() {
+  fileInput.value = ''; currentFile = null;
+  crDrop.style.display = ''; crSplit.classList.remove('show');
+  crPagesEl.innerHTML = ''; crPagesEl.style.display = 'none';
+  crViewerLoad.style.display = 'flex'; crConvertBtn.disabled = false;
+  crLoadingCard.classList.remove('show'); crResultCard.classList.remove('show');
+  crErrorCard.classList.remove('show'); crInfoStrip.style.display = '';
+}
+
+async function loadPreview(file) {
+  const fd = new FormData(); fd.append('file', file); fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  try {
+    const res = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    crPagesEl.innerHTML = '';
+    data.page_images.forEach((b64, i) => { const img = document.createElement('img'); img.src = 'data:image/jpeg;base64,' + b64; img.alt = 'Page ' + (i+1); crPagesEl.appendChild(img); });
+    crViewerLoad.style.display = 'none'; crPagesEl.style.display = 'flex';
+  } catch (e) { crViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>'; }
+}
+
+function setFile(f) {
+  if (!f) return; currentFile = f;
+  document.getElementById('crFileName').textContent = f.name;
+  document.getElementById('crFileSize').textContent = (f.size/1024).toFixed(1) + ' KB';
+  const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
+  crDrop.style.display = 'none'; crInfoStrip.style.display = 'none';
+  crResultCard.classList.remove('show'); crErrorCard.classList.remove('show');
+  crSplit.classList.add('show'); loadPreview(f);
+}
+
+async function doCrop() {
+  if (!currentFile) return;
+  crConvertBtn.disabled = true; crLoadingCard.classList.add('show');
+  crResultCard.classList.remove('show'); crErrorCard.classList.remove('show');
+  const fd = new FormData();
+  fd.append('file', currentFile); fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fd.append('top',    (parseFloat(document.getElementById('top_mm').value)    || 0) * MM2PT);
+  fd.append('bottom', (parseFloat(document.getElementById('bottom_mm').value) || 0) * MM2PT);
+  fd.append('left',   (parseFloat(document.getElementById('left_mm').value)   || 0) * MM2PT);
+  fd.append('right',  (parseFloat(document.getElementById('right_mm').value)  || 0) * MM2PT);
+  try {
+    const res = await fetch('/tools/api/crop-pdf/', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    document.getElementById('crDlBtn').href = data.download_url;
+    document.getElementById('crDlBtn').download = data.filename || 'cropped.pdf';
+    crResultCard.classList.add('show');
+  } catch (e) { document.getElementById('crErrorMsg').textContent = e.message || 'Crop failed.'; crErrorCard.classList.add('show'); }
+  finally { crLoadingCard.classList.remove('show'); crConvertBtn.disabled = false; }
+}
+
+fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+crDrop.addEventListener('dragover', e => { e.preventDefault(); crDrop.classList.add('drag-over'); });
+crDrop.addEventListener('dragleave', () => crDrop.classList.remove('drag-over'));
+crDrop.addEventListener('drop', e => { e.preventDefault(); crDrop.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
 </script>{% endblock %}
