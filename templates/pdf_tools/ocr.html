@@ -273,12 +273,12 @@
       <button class="ocr-action-btn" id="extractAllOcrBtn" onclick="extractAllPages('ocr')" title="OCR all pages → one Excel">
         <i class="fa-solid fa-file-excel"></i> All Pages OCR
       </button>
-      <div style="display:inline-flex;align-items:center;gap:0;border:1.5px solid #dc2626;border-radius:8px;overflow:hidden;">
-        <select id="allPagesAiProvider" style="font-size:11px;padding:4px 6px;border:none;border-right:1.5px solid #dc2626;color:#dc2626;background:#fff8f8;cursor:pointer;outline:none;height:100%">
+      <div style="display:inline-flex;align-items:stretch;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.12)">
+        <select id="allPagesAiProvider" style="font-size:11px;padding:0 8px;border:none;border-right:1px solid rgba(255,255,255,.25);color:#fff;background:#1e3a5f;cursor:pointer;outline:none;min-width:110px">
           <option value="gemini">🆓 Gemini Flash</option>
           <option value="mistral">Mistral</option>
         </select>
-        <button class="ocr-action-btn ocr-btn-stmt" id="extractAllAiBtn" onclick="extractAllPages('ai')" title="AI extract all pages → one Excel" style="border:none;border-radius:0;margin:0">
+        <button class="ocr-action-btn ocr-btn-stmt" id="extractAllAiBtn" onclick="extractAllPages('ai')" title="AI extract all pages → one Excel" style="border:none;border-radius:0;margin:0;border-left:1px solid rgba(255,255,255,.2)">
           <i class="fa-solid fa-wand-magic-sparkles"></i> All Pages AI
         </button>
       </div>
