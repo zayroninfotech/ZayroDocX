@@ -3,6 +3,70 @@
 {% block active_pdf2word %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">PDF to Word</span>{% endblock %}
 
+{% block extra_head %}<style>
+/* ── Drop zone ── */
+.p2w-drop {
+  border: 2.5px dashed #cbd5e1; border-radius: 20px;
+  padding: 3rem 2rem; text-align: center; cursor: pointer;
+  transition: border-color .2s, background .2s; background: #f8fafc;
+}
+.p2w-drop:hover, .p2w-drop.drag-over { border-color: #dc2626; background: #fff8f8; }
+.p2w-drop-icon { font-size: 3rem; color: #dc2626; margin-bottom: .8rem; }
+.p2w-drop h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
+.p2w-drop p  { color: #64748b; margin: 0 0 1.2rem; }
+.p2w-drop-btn {
+  background: #dc2626; color: #fff; border: none; border-radius: 10px;
+  padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer;
+}
+.p2w-drop-btn:hover { background: #b91c1c; }
+
+/* ── Split ── */
+.p2w-split { display: none; grid-template-columns: 1fr 420px; gap: 20px; align-items: start; }
+.p2w-split.show { display: grid; }
+
+/* ── Viewer ── */
+.p2w-viewer {
+  background: #0f172a; border-radius: 16px; padding: 16px;
+  min-height: 400px; display: flex; align-items: flex-start;
+  justify-content: center; overflow: auto; scroll-behavior: smooth;
+}
+.p2w-viewer-pages { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
+.p2w-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; }
+.p2w-viewer-loading { color: #94a3b8; font-size: .9rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
+.p2w-viewer-loading i { font-size: 2rem; }
+
+/* ── Right panel ── */
+.p2w-right { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
+.p2w-card { background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 1.1rem 1.3rem; }
+.p2w-file-row { display: flex; align-items: center; gap: .9rem; }
+.p2w-file-icon { width: 48px; height: 48px; border-radius: 12px; background: #fff8f8; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #dc2626; flex-shrink: 0; }
+.p2w-file-name { font-size: .9rem; font-weight: 700; color: #111; word-break: break-all; }
+.p2w-file-size { font-size: .78rem; color: #aaa; margin-top: .15rem; }
+.p2w-change-btn { margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 8px; padding: .4rem .85rem; font-size: .78rem; font-weight: 600; color: #666; cursor: pointer; transition: all .15s; white-space: nowrap; flex-shrink: 0; }
+.p2w-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
+
+.p2w-convert-btn { width: 100%; padding: .85rem; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: opacity .15s; }
+.p2w-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.p2w-loading-card { display: none; background: #fff8f8; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.2rem 1.3rem; align-items: center; gap: 1rem; }
+.p2w-loading-card.show { display: flex; }
+.p2w-spin { animation: spin 1s linear infinite; font-size: 1.4rem; color: #dc2626; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.p2w-loading-text { font-size: .9rem; font-weight: 600; color: #b91c1c; }
+
+.p2w-result-card { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 1.2rem 1.3rem; }
+.p2w-result-card.show { display: block; }
+.p2w-result-title { font-size: .85rem; font-weight: 700; color: #166534; display: flex; align-items: center; gap: .4rem; margin-bottom: .8rem; }
+.p2w-dl-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .7rem; background: #16a34a; color: #fff; border: none; border-radius: 10px; font-size: .9rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: background .15s; }
+.p2w-dl-btn:hover { background: #15803d; }
+
+.p2w-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.1rem 1.3rem; }
+.p2w-error-card.show { display: block; }
+.p2w-error-msg { font-size: .85rem; color: #dc2626; }
+
+@media (max-width: 1000px) { .p2w-split { grid-template-columns: 1fr; } .p2w-right { position: static; max-height: none; } }
+</style>{% endblock %}
+
 {% block content %}
 <div class="cv-hero">
   <div class="cv-hero-left">
@@ -17,32 +81,65 @@
   </div>
 </div>
 
-<form id="toolForm">{% csrf_token %}
-  <div class="cv-drop" id="cvDrop">
-    <input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="cv-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
-    <h3>Drop your PDF here</h3>
-    <p>Text and structure will be extracted into an editable Word file</p>
-    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-folder-open"></i> Select PDF File
-    </button>
-    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; Editable output &nbsp;·&nbsp; Free</span>
-  </div>
-  <div class="cv-file-bar" id="cvFileBar">
-    <i class="fa-solid fa-file-pdf cv-file-icon" style="color:#dc2626"></i>
-    <span class="cv-file-name" id="cvFileName">—</span>
-    <span class="cv-file-size" id="cvFileSize">—</span>
-  </div>
-  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-file-word"></i> Convert PDF to Word</button>
-</form>
+<input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
 
-<div class="progress-wrap">
-  <div class="progress-header"><span class="progress-label">Processing…</span></div>
-  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+<!-- Step 1: Drop zone -->
+<div class="p2w-drop" id="p2wDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="p2w-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+  <h3>Drop your PDF here</h3>
+  <p>Text and structure will be extracted into an editable Word file</p>
+  <button type="button" class="p2w-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-folder-open"></i> Select PDF File
+  </button>
 </div>
-<div class="result-card"></div>
 
-<div class="cv-info-strip">
+<!-- Step 2: Split view -->
+<div class="p2w-split" id="p2wSplit">
+  <div class="p2w-viewer" id="p2wViewer">
+    <div class="p2w-viewer-loading" id="p2wViewerLoading">
+      <i class="fa-solid fa-spinner p2w-spin"></i>
+      <span>Loading pages…</span>
+    </div>
+    <div class="p2w-viewer-pages" id="p2wPages" style="display:none"></div>
+  </div>
+
+  <div class="p2w-right">
+    <div class="p2w-card">
+      <div class="p2w-file-row">
+        <div class="p2w-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+        <div>
+          <div class="p2w-file-name" id="p2wFileName">—</div>
+          <div class="p2w-file-size" id="p2wFileSize">—</div>
+        </div>
+        <button type="button" class="p2w-change-btn" onclick="resetTool()">
+          <i class="fa-solid fa-rotate-left"></i> Change
+        </button>
+      </div>
+    </div>
+
+    <button type="button" class="p2w-convert-btn" id="p2wConvertBtn" onclick="doConvert()">
+      <i class="fa-solid fa-file-word"></i> Convert PDF to Word
+    </button>
+
+    <div class="p2w-loading-card" id="p2wLoadingCard">
+      <i class="fa-solid fa-spinner p2w-spin"></i>
+      <span class="p2w-loading-text">Converting, please wait…</span>
+    </div>
+
+    <div class="p2w-result-card" id="p2wResultCard">
+      <div class="p2w-result-title"><i class="fa-solid fa-circle-check"></i> Word file ready!</div>
+      <a class="p2w-dl-btn" id="p2wDlBtn" href="#" download>
+        <i class="fa-solid fa-download"></i> Download DOCX
+      </a>
+    </div>
+
+    <div class="p2w-error-card" id="p2wErrorCard">
+      <div class="p2w-error-msg" id="p2wErrorMsg"></div>
+    </div>
+  </div>
+</div>
+
+<div class="cv-info-strip" id="p2wInfoStrip">
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-file-word"></i></div><div><div class="cv-info-title">DOCX Output</div><div class="cv-info-desc">Fully editable</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-align-left"></i></div><div><div class="cv-info-title">Text & Layout</div><div class="cv-info-desc">Structure preserved</div></div></div>
@@ -51,15 +148,102 @@
 {% endblock %}
 
 {% block extra_js %}<script>
-(function(){
-  const inp = document.getElementById('fileInput');
-  const drop = document.getElementById('cvDrop');
-  const bar  = document.getElementById('cvFileBar');
-  function setFile(f){ if(!f) return; document.getElementById('cvFileName').textContent=f.name; document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB'; bar.classList.add('show'); const dt=new DataTransfer(); dt.items.add(f); inp.files=dt.files; }
-  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
-  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
-  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
-  inp.addEventListener('change',()=>setFile(inp.files[0]));
-})();
-submitToolForm({formId:'toolForm',apiUrl:'{% url "api_pdf_to_word" %}',fileInputId:'fileInput'});
+const fileInput      = document.getElementById('fileInput');
+const p2wDrop        = document.getElementById('p2wDrop');
+const p2wSplit       = document.getElementById('p2wSplit');
+const p2wPages       = document.getElementById('p2wPages');
+const p2wViewerLoad  = document.getElementById('p2wViewerLoading');
+const p2wConvertBtn  = document.getElementById('p2wConvertBtn');
+const p2wLoadingCard = document.getElementById('p2wLoadingCard');
+const p2wResultCard  = document.getElementById('p2wResultCard');
+const p2wErrorCard   = document.getElementById('p2wErrorCard');
+const p2wInfoStrip   = document.getElementById('p2wInfoStrip');
+
+let currentFile = null;
+
+function resetTool() {
+  fileInput.value = '';
+  currentFile = null;
+  p2wDrop.style.display = '';
+  p2wSplit.classList.remove('show');
+  p2wPages.innerHTML = '';
+  p2wPages.style.display = 'none';
+  p2wViewerLoad.style.display = 'flex';
+  p2wConvertBtn.disabled = false;
+  p2wLoadingCard.classList.remove('show');
+  p2wResultCard.classList.remove('show');
+  p2wErrorCard.classList.remove('show');
+  p2wInfoStrip.style.display = '';
+}
+
+async function loadPreview(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  try {
+    const res = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    p2wPages.innerHTML = '';
+    data.page_images.forEach((b64, i) => {
+      const img = document.createElement('img');
+      img.src = 'data:image/jpeg;base64,' + b64;
+      img.alt = 'Page ' + (i + 1);
+      p2wPages.appendChild(img);
+    });
+    p2wViewerLoad.style.display = 'none';
+    p2wPages.style.display = 'flex';
+  } catch (e) {
+    p2wViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>';
+  }
+}
+
+function setFile(f) {
+  if (!f) return;
+  currentFile = f;
+  document.getElementById('p2wFileName').textContent = f.name;
+  document.getElementById('p2wFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
+  const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
+  p2wDrop.style.display = 'none';
+  p2wInfoStrip.style.display = 'none';
+  p2wResultCard.classList.remove('show');
+  p2wErrorCard.classList.remove('show');
+  p2wSplit.classList.add('show');
+  loadPreview(f);
+}
+
+async function doConvert() {
+  if (!currentFile) return;
+  p2wConvertBtn.disabled = true;
+  p2wLoadingCard.classList.add('show');
+  p2wResultCard.classList.remove('show');
+  p2wErrorCard.classList.remove('show');
+
+  const fd = new FormData();
+  fd.append('file', currentFile);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+  try {
+    const res = await fetch('{% url "api_pdf_to_word" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    document.getElementById('p2wDlBtn').href = data.download_url;
+    document.getElementById('p2wDlBtn').download = data.filename || 'converted.docx';
+    p2wResultCard.classList.add('show');
+  } catch (e) {
+    document.getElementById('p2wErrorMsg').textContent = e.message || 'Conversion failed.';
+    p2wErrorCard.classList.add('show');
+  } finally {
+    p2wLoadingCard.classList.remove('show');
+    p2wConvertBtn.disabled = false;
+  }
+}
+
+fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+p2wDrop.addEventListener('dragover',  e => { e.preventDefault(); p2wDrop.classList.add('drag-over'); });
+p2wDrop.addEventListener('dragleave', () => p2wDrop.classList.remove('drag-over'));
+p2wDrop.addEventListener('drop', e => {
+  e.preventDefault(); p2wDrop.classList.remove('drag-over');
+  setFile(e.dataTransfer.files[0]);
+});
 </script>{% endblock %}
