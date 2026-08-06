@@ -188,21 +188,39 @@
 
 {% block extra_js %}<script>
 const CSRF='{{ csrf_token }}';
-const ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+const ICE={iceServers:[
+  {urls:'stun:stun.l.google.com:19302'},
+  {urls:'stun:stun1.l.google.com:19302'},
+  {urls:'stun:stun2.l.google.com:19302'},
+]};
 
-let role=null, roomCode=null, pc=null, dc=null;
-let pollTimer=null, iceIdx=0;
-let controlEnabled=true, stream=null;
+let role=null,roomCode=null,pc=null,dc=null;
+let pollTimer=null,iceIdx=0,controlEnabled=true,stream=null;
 
 /* ─── Helpers ───────────────────────────────────── */
-function post(url,body){return fetch(url,{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},body:JSON.stringify(body)});}
-function get(url){return fetch(url);}
+async function api(url,body){
+  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},body:JSON.stringify(body)});
+  return res.json();
+}
+async function poll(url){
+  const res=await fetch(url);
+  return res.json();
+}
+
+function showPickErr(msg){
+  let e=document.getElementById('zdPickErr');
+  if(!e){e=document.createElement('div');e.id='zdPickErr';e.style.cssText='color:#dc2626;font-size:.8rem;font-weight:700;text-align:center;margin-top:1rem;padding:.6rem;background:#fee2e2;border-radius:10px;';document.getElementById('zdPick').appendChild(e);}
+  e.textContent='⚠ '+msg;e.style.display='block';
+}
+function showJoinErr(msg){const e=document.getElementById('zdJoinErr');e.textContent=msg;e.classList.add('show');}
+function clearJoinErr(){document.getElementById('zdJoinErr').classList.remove('show');}
 
 function fmtCode(el){
   let v=el.value.replace(/\D/g,'').slice(0,9);
-  if(v.length>6) v=v.slice(0,3)+'-'+v.slice(3,6)+'-'+v.slice(6);
-  else if(v.length>3) v=v.slice(0,3)+'-'+v.slice(3);
+  if(v.length>6)v=v.slice(0,3)+'-'+v.slice(3,6)+'-'+v.slice(6);
+  else if(v.length>3)v=v.slice(0,3)+'-'+v.slice(3);
   el.value=v;
+  clearJoinErr();
 }
 
 function copyCode(){
@@ -213,143 +231,146 @@ function copyCode(){
   });
 }
 
-/* ─── HOST ──────────────────────────────────────── */
+/* ─── HOST — one-click: share screen → get code ── */
 async function hostStart(){
-  const res=await post('/tools/api/desk/create/',{});
-  const d=await res.json();
-  if(d.error){alert(d.error);return;}
-  roomCode=d.code;role='host';
-  document.getElementById('zdPick').style.display='none';
-  document.getElementById('zdHostRoom').classList.add('show');
-  document.getElementById('zdCodeDisplay').textContent=d.display;
-  startHostPoll();
-}
+  const btn=document.querySelector('.zd-card .zd-btn-primary');
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Starting…';}
 
-async function hostShare(){
+  // Step 1: ask for screen first (before creating room)
   try{
     stream=await navigator.mediaDevices.getDisplayMedia({
-      video:{
-        displaySurface:'monitor',       // pre-selects "Entire Screen" tab
-        cursor:'always',
-        frameRate:{ideal:30,max:60},
-        width:{ideal:1920},
-        height:{ideal:1080},
-      },
+      video:{displaySurface:'monitor',cursor:'always',frameRate:{ideal:30,max:60}},
       audio:{echoCancellation:true,noiseSuppression:true},
-      preferCurrentTab:false,           // don't offer current tab
-      selfBrowserSurface:'exclude',     // hide this browser from list
-      monitorTypeSurfaces:'include',    // show monitors first
-      surfaceSwitching:'exclude',       // no mid-session switching UI
+      preferCurrentTab:false,
+      selfBrowserSurface:'exclude',
+      monitorTypeSurfaces:'include',
+      surfaceSwitching:'exclude',
     });
   }catch(e){
-    if(e.name!=='NotAllowedError') alert('Screen share failed: '+e.message);
+    if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-desktop"></i> Start Sharing';}
+    if(e.name!=='NotAllowedError') showPickErr('Screen share failed: '+e.message);
     return;
   }
 
+  // Step 2: create room in DB
+  let d;
+  try{
+    d=await api('/tools/api/desk/create/',{});
+    if(d.error) throw new Error(d.error);
+  }catch(e){
+    stream.getTracks().forEach(t=>t.stop());
+    if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-desktop"></i> Start Sharing';}
+    showPickErr('Failed to create session: '+e.message);
+    return;
+  }
+
+  roomCode=d.code; role='host';
+  document.getElementById('zdPick').style.display='none';
+  document.getElementById('zdHostRoom').classList.add('show');
+  document.getElementById('zdCodeDisplay').textContent=d.display;
+
+  // Step 3: setup WebRTC with the stream we already have
   const vid=document.getElementById('zdHostVideo');
-  vid.srcObject=stream;vid.style.display='block';
+  vid.srcObject=stream; vid.style.display='block';
   document.getElementById('zdHostPlaceholder').style.display='none';
-
-  pc=new RTCPeerConnection(ICE);
-  stream.getTracks().forEach(t=>pc.addTrack(t,stream));
-
-  // Data channel for receiving control events
-  pc.ondatachannel=e=>{
-    dc=e.channel;
-    dc.onmessage=ev=>handleHostEvent(JSON.parse(ev.data));
-  };
-
-  pc.onicecandidate=e=>{
-    if(e.candidate) post('/tools/api/desk/ice/',{code:roomCode,role:'host',candidate:e.candidate.toJSON()});
-  };
-
-  const offer=await pc.createOffer();
-  await pc.setLocalDescription(offer);
-  await post('/tools/api/desk/offer/',{code:roomCode,sdp:{type:offer.type,sdp:offer.sdp}});
-
   document.getElementById('zdShareBtn').style.display='none';
   document.getElementById('zdStopBtn').style.display='';
   setPill('sharing');
 
+  pc=new RTCPeerConnection(ICE);
+  stream.getTracks().forEach(t=>pc.addTrack(t,stream));
+
+  pc.ondatachannel=e=>{dc=e.channel;dc.onmessage=ev=>{try{handleHostEvent(JSON.parse(ev.data));}catch(x){}};};
+  pc.onicecandidate=e=>{if(e.candidate)api('/tools/api/desk/ice/',{code:roomCode,role:'host',candidate:e.candidate.toJSON()});};
+  pc.onconnectionstatechange=()=>{if(pc.connectionState==='connected')setPill('connected');};
+
+  try{
+    const offer=await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    await api('/tools/api/desk/offer/',{code:roomCode,sdp:{type:offer.type,sdp:offer.sdp}});
+  }catch(e){showPickErr('WebRTC setup failed: '+e.message);hostStop();return;}
+
   stream.getVideoTracks()[0].onended=()=>hostStop();
+  startHostPoll();
 }
 
 function handleHostEvent(ev){
   const vid=document.getElementById('zdHostVideo');
-  const wrap=document.getElementById('zdHostPreview');
   const rect=vid.getBoundingClientRect();
-  // Show remote cursor
   const cursor=document.getElementById('zdRemoteCursor');
-  if(ev.type==='move'||ev.type==='click'||ev.type==='touch'){
-    const x=(ev.x||0)*rect.width;
-    const y=(ev.y||0)*rect.height;
-    cursor.style.display='block';
-    cursor.style.left=x+'px';cursor.style.top=y+'px';
-    // Dispatch synthetic event to element under cursor
-    const el=document.elementFromPoint(rect.left+x,rect.top+y);
-    if(el&&ev.type==='click'){
-      el.dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:rect.left+x,clientY:rect.top+y}));
+  if(['move','click','touch'].includes(ev.type)){
+    const x=(ev.x||0)*rect.width, y=(ev.y||0)*rect.height;
+    cursor.style.display='block'; cursor.style.left=x+'px'; cursor.style.top=y+'px';
+    if(ev.type==='click'){
+      const el=document.elementFromPoint(rect.left+x,rect.top+y);
+      if(el) el.dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:rect.left+x,clientY:rect.top+y}));
     }
   }
-  if(ev.type==='scroll'){
-    window.scrollBy(ev.dx||0,ev.dy||0);
-  }
-  if(ev.type==='keydown'){
-    document.activeElement.dispatchEvent(new KeyboardEvent('keydown',{key:ev.key,code:ev.code,bubbles:true}));
-  }
-  if(ev.type==='keyup'){
-    document.activeElement.dispatchEvent(new KeyboardEvent('keyup',{key:ev.key,code:ev.code,bubbles:true}));
-  }
+  if(ev.type==='scroll') window.scrollBy(ev.dx||0,ev.dy||0);
+  if(ev.type==='keydown') document.activeElement.dispatchEvent(new KeyboardEvent('keydown',{key:ev.key,code:ev.code,bubbles:true}));
+  if(ev.type==='keyup') document.activeElement.dispatchEvent(new KeyboardEvent('keyup',{key:ev.key,code:ev.code,bubbles:true}));
 }
 
-async function startHostPoll(){
+function startHostPoll(){
+  iceIdx=0;
   pollTimer=setInterval(async()=>{
     try{
-      const res=await get(`/tools/api/desk/poll/?code=${roomCode}&role=host&idx=${iceIdx}`);
-      const d=await res.json();
-      if(d.closed){hostStop();return;}
+      const d=await poll(`/tools/api/desk/poll/?code=${roomCode}&role=host&idx=${iceIdx}`);
+      if(!d||d.error||d.closed){hostStop();return;}
       if(d.answer&&pc&&!pc.currentRemoteDescription){
         await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
-        setPill('connected');
       }
       if(d.ice&&d.ice.length){
-        for(const c of d.ice) if(pc&&c) await pc.addIceCandidate(new RTCIceCandidate(c));
+        for(const c of d.ice){if(pc&&c)try{await pc.addIceCandidate(new RTCIceCandidate(c));}catch(x){}}
         iceIdx=d.ice_total;
       }
     }catch(e){}
-  },1200);
+  },1500);
 }
 
 function setPill(state){
   const p=document.getElementById('zdHostPill');
-  const m={wait:'zd-pill-wait',connected:'zd-pill-connected',sharing:'zd-pill-sharing'};
-  p.className='zd-status-pill '+m[state];
+  p.className='zd-status-pill '+{wait:'zd-pill-wait',connected:'zd-pill-connected',sharing:'zd-pill-sharing'}[state];
   p.innerHTML={
     wait:'<i class="fa-solid fa-circle-notch fa-spin"></i> Waiting for viewer…',
     connected:'<i class="fa-solid fa-circle" style="color:#16a34a;font-size:.55rem"></i> Viewer connected',
-    sharing:'<i class="fa-solid fa-circle" style="color:#2563eb;font-size:.55rem"></i> Sharing screen',
+    sharing:'<i class="fa-solid fa-circle" style="color:#2563eb;font-size:.55rem"></i> Sharing — waiting for viewer',
   }[state];
 }
 
 async function hostStop(){
   clearInterval(pollTimer);
   if(stream) stream.getTracks().forEach(t=>t.stop());
-  if(pc) pc.close();
-  await post('/tools/api/desk/close/',{code:roomCode});
+  if(pc){try{pc.close();}catch(e){}}
+  try{await api('/tools/api/desk/close/',{code:roomCode});}catch(e){}
   location.reload();
 }
 
-/* ─── VIEWER ────────────────────────────────────── */
+/* ─── VIEWER ─────────────────────────────────────── */
 async function viewerJoin(){
-  const raw=document.getElementById('zdJoinInput').value.replace(/-/g,'');
+  clearJoinErr();
+  const raw=document.getElementById('zdJoinInput').value.replace(/-/g,'').trim();
   if(raw.length!==9){showJoinErr('Enter the full 9-digit code.');return;}
-  const res=await post('/tools/api/desk/offer/',{code:raw,sdp:null});  // just validate
-  // Actually just start polling — offer endpoint won't hurt
-  roomCode=raw;role='viewer';
+
+  const btn=document.querySelector('#zdPick .zd-join-submit');
+  if(btn){btn.disabled=true;btn.textContent='Checking…';}
+
+  // Validate room exists
+  let d;
+  try{
+    d=await api('/tools/api/desk/offer/',{code:raw,sdp:null});
+    if(d.error) throw new Error(d.error);
+  }catch(e){
+    if(btn){btn.disabled=false;btn.textContent='Connect';}
+    showJoinErr(e.message||'Could not connect. Check the code.');
+    return;
+  }
+
+  roomCode=raw; role='viewer';
   document.getElementById('zdPick').style.display='none';
   document.getElementById('zdViewerRoom').classList.add('show');
   document.getElementById('zdConnectOverlay').style.display='flex';
-  document.getElementById('zdConnectMsg').textContent='Waiting for host to share screen…';
+  document.getElementById('zdConnectMsg').textContent='Waiting for host to start screen share…';
   startViewerPoll();
 }
 
@@ -357,19 +378,17 @@ async function startViewerPoll(){
   iceIdx=0;
   pollTimer=setInterval(async()=>{
     try{
-      const res=await get(`/tools/api/desk/poll/?code=${roomCode}&role=viewer&idx=${iceIdx}`);
-      const d=await res.json();
-      if(d.error){showJoinErr(d.error);clearInterval(pollTimer);return;}
+      const d=await poll(`/tools/api/desk/poll/?code=${roomCode}&role=viewer&idx=${iceIdx}`);
+      if(!d){return;}
+      if(d.error){clearInterval(pollTimer);showJoinErr(d.error);document.getElementById('zdPick').style.display='';document.getElementById('zdViewerRoom').classList.remove('show');return;}
       if(d.closed){viewerDisconnect();return;}
-      if(d.offer&&(!pc)){
-        await setupViewer(d.offer);
-      }
+      if(d.offer&&!pc){await setupViewer(d.offer);}
       if(d.ice&&d.ice.length&&pc){
-        for(const c of d.ice) if(c) await pc.addIceCandidate(new RTCIceCandidate(c));
+        for(const c of d.ice){if(c)try{await pc.addIceCandidate(new RTCIceCandidate(c));}catch(x){}}
         iceIdx=d.ice_total;
       }
     }catch(e){}
-  },1200);
+  },1500);
 }
 
 async function setupViewer(offerSdp){
