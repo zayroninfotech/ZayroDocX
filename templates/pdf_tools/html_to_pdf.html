@@ -3,133 +3,419 @@
 {% block active_html2pdf %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">HTML to PDF</span>{% endblock %}
 
-{% block extra_head %}
-<style>
-.html-src-panel { background:#fff; border:1.5px solid #fca5a5; border-radius:16px; padding:1.2rem 1.4rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(220,38,38,.06); }
-.html-src-title { font-size:.75rem; font-weight:800; color:#b91c1c; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.85rem; display:flex; align-items:center; gap:.45rem; }
-.html-src-tabs { display:flex; gap:.45rem; margin-bottom:1rem; }
-.html-src-tab { display:inline-flex; align-items:center; gap:.38rem; padding:.42rem .85rem; border:1.5px solid #e8e8e8; border-radius:8px; font-size:.8rem; font-weight:600; cursor:pointer; color:#555; background:#fff; transition:all .15s; }
-.html-src-tab.active { border-color:#dc2626; background:#fff8f8; color:#dc2626; box-shadow:0 0 0 2px rgba(220,38,38,.1); }
-.html-src-tab:hover { border-color:#fca5a5; color:#b91c1c; }
-.html-opts-row { display:flex; gap:.75rem; flex-wrap:wrap; }
-.html-opt-group { flex:1; min-width:140px; }
-.html-opt-label { font-size:.72rem; font-weight:700; color:#b91c1c; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.5rem; }
-.html-opt-tabs { display:flex; gap:.35rem; }
-.html-opt-btn { padding:.38rem .8rem; border:1.5px solid #e8e8e8; border-radius:7px; font-size:.78rem; font-weight:600; cursor:pointer; color:#555; background:#fff; transition:all .15s; }
-.html-opt-btn:has(input:checked) { border-color:#dc2626; background:#fff8f8; color:#dc2626; }
-.html-opt-btn input { display:none; }
-.html-url-input, .html-code-input {
-  width:100%; box-sizing:border-box; border:1.5px solid #fca5a5; border-radius:10px;
-  padding:.7rem 1rem; font-size:.88rem; color:#111; background:#fff;
-  outline:none; transition:border-color .15s;
+{% block extra_head %}<style>
+/* ── Source panel (compact, always visible) ── */
+.h2p-src-panel {
+  background: #fff; border: 1.5px solid #fca5a5;
+  border-radius: 16px; padding: 1.2rem 1.4rem;
+  margin-bottom: 1rem;
 }
-.html-url-input:focus, .html-code-input:focus { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.1); }
-.html-code-input { font-family:'Courier New',monospace; font-size:.8rem; resize:vertical; min-height:160px; }
-</style>
-{% endblock %}
+.h2p-src-title {
+  font-size: .75rem; font-weight: 800; color: #b91c1c;
+  text-transform: uppercase; letter-spacing: .06em;
+  margin-bottom: .85rem; display: flex; align-items: center; gap: .45rem;
+}
+.h2p-src-tabs { display: flex; gap: .45rem; margin-bottom: 1rem; }
+.h2p-src-tab {
+  display: inline-flex; align-items: center; gap: .38rem;
+  padding: .42rem .85rem; border: 1.5px solid #e8e8e8; border-radius: 8px;
+  font-size: .8rem; font-weight: 600; cursor: pointer; color: #555;
+  background: #fff; transition: all .15s;
+}
+.h2p-src-tab.active { border-color: #dc2626; background: #fff8f8; color: #dc2626; box-shadow: 0 0 0 2px rgba(220,38,38,.1); }
+.h2p-src-tab:hover  { border-color: #fca5a5; color: #b91c1c; }
+
+/* ── Drop zone (file mode) ── */
+.h2p-drop {
+  border: 2.5px dashed #fca5a5; border-radius: 14px;
+  padding: 2.5rem 1.5rem; text-align: center; cursor: pointer;
+  transition: border-color .2s, background .2s; background: #fff8f8;
+}
+.h2p-drop:hover, .h2p-drop.drag-over { border-color: #dc2626; background: #fff1f2; }
+.h2p-drop-icon { font-size: 2.5rem; color: #dc2626; margin-bottom: .6rem; }
+.h2p-drop h3 { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin: 0 0 .3rem; }
+.h2p-drop p  { color: #64748b; margin: 0 0 1rem; font-size: .88rem; }
+.h2p-drop-btn {
+  background: #dc2626; color: #fff; border: none; border-radius: 9px;
+  padding: .55rem 1.3rem; font-size: .88rem; font-weight: 600; cursor: pointer;
+}
+.h2p-drop-btn:hover { background: #b91c1c; }
+
+/* ── URL / Paste inputs ── */
+.h2p-url-input, .h2p-code-input {
+  width: 100%; box-sizing: border-box; border: 1.5px solid #fca5a5; border-radius: 10px;
+  padding: .7rem 1rem; font-size: .88rem; color: #111; background: #fff;
+  outline: none; transition: border-color .15s;
+}
+.h2p-url-input:focus, .h2p-code-input:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+.h2p-code-input { font-family: 'Courier New', monospace; font-size: .8rem; resize: vertical; min-height: 160px; }
+
+/* ── Options row ── */
+.h2p-opts-row { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1rem; }
+.h2p-opt-group { flex: 1; min-width: 140px; }
+.h2p-opt-label { font-size: .72rem; font-weight: 700; color: #b91c1c; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
+.h2p-opt-tabs  { display: flex; gap: .35rem; }
+.h2p-opt-btn   { padding: .38rem .8rem; border: 1.5px solid #e8e8e8; border-radius: 7px; font-size: .78rem; font-weight: 600; cursor: pointer; color: #555; background: #fff; transition: all .15s; }
+.h2p-opt-btn:has(input:checked) { border-color: #dc2626; background: #fff8f8; color: #dc2626; }
+.h2p-opt-btn input { display: none; }
+
+/* ── Non-file convert button ── */
+.h2p-submit-wrap { margin-top: 1rem; }
+.h2p-submit-btn {
+  width: 100%; padding: .8rem;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #fff; border: none; border-radius: 12px;
+  font-size: .95rem; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  transition: opacity .15s;
+}
+.h2p-submit-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+/* ── Split view (file mode after upload) ── */
+.h2p-split {
+  display: none;
+  grid-template-columns: 1fr 420px;
+  gap: 20px;
+  align-items: start;
+}
+.h2p-split.show { display: grid; }
+
+/* ── Left: iframe preview ── */
+.h2p-viewer {
+  background: #f1f5f9; border: 1.5px solid #e2e8f0;
+  border-radius: 16px; overflow: hidden;
+  min-height: 500px; position: relative;
+}
+.h2p-viewer iframe {
+  width: 100%; height: 600px; border: none; display: block;
+  border-radius: 16px;
+}
+.h2p-viewer-label {
+  position: absolute; top: 8px; left: 12px;
+  background: rgba(0,0,0,.5); color: #fff;
+  font-size: .7rem; font-weight: 700; border-radius: 6px; padding: .2rem .55rem;
+  pointer-events: none;
+}
+
+/* ── Right panel (file mode) ── */
+.h2p-right {
+  display: flex; flex-direction: column; gap: 16px;
+  position: sticky; top: 16px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto; padding-right: 4px; scrollbar-width: thin;
+}
+.h2p-card {
+  background: #fff; border: 1.5px solid #e8e8e8;
+  border-radius: 14px; padding: 1.1rem 1.3rem;
+}
+.h2p-file-row { display: flex; align-items: center; gap: .9rem; }
+.h2p-file-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: #fff8f8; display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; color: #dc2626; flex-shrink: 0;
+}
+.h2p-file-name { font-size: .9rem; font-weight: 700; color: #111; word-break: break-all; }
+.h2p-file-size { font-size: .78rem; color: #aaa; margin-top: .15rem; }
+.h2p-change-btn {
+  margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8;
+  border-radius: 8px; padding: .4rem .85rem; font-size: .78rem; font-weight: 600;
+  color: #666; cursor: pointer; transition: all .15s; white-space: nowrap; flex-shrink: 0;
+}
+.h2p-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
+
+.h2p-convert-btn {
+  width: 100%; padding: .85rem;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #fff; border: none; border-radius: 12px;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  transition: opacity .15s;
+}
+.h2p-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.h2p-loading-card {
+  display: none;
+  background: #fff8f8; border: 1.5px solid #fca5a5;
+  border-radius: 14px; padding: 1.2rem 1.3rem;
+  align-items: center; gap: 1rem;
+}
+.h2p-loading-card.show { display: flex; }
+.h2p-spin { animation: spin 1s linear infinite; font-size: 1.4rem; color: #dc2626; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.h2p-loading-text { font-size: .9rem; font-weight: 600; color: #b91c1c; }
+
+.h2p-result-card { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 1.2rem 1.3rem; }
+.h2p-result-card.show { display: block; }
+.h2p-result-title { font-size: .85rem; font-weight: 700; color: #166534; display: flex; align-items: center; gap: .4rem; margin-bottom: .8rem; }
+.h2p-dl-btn {
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  width: 100%; padding: .7rem;
+  background: #16a34a; color: #fff; border: none; border-radius: 10px;
+  font-size: .9rem; font-weight: 700; cursor: pointer; text-decoration: none;
+  transition: background .15s;
+}
+.h2p-dl-btn:hover { background: #15803d; }
+
+.h2p-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.1rem 1.3rem; }
+.h2p-error-card.show { display: block; }
+.h2p-error-msg { font-size: .85rem; color: #dc2626; }
+
+/* ── Non-file result area ── */
+#h2pInlineResult { margin-top: 1rem; }
+
+@media (max-width: 1000px) {
+  .h2p-split { grid-template-columns: 1fr; }
+  .h2p-right { position: static; max-height: none; }
+  .h2p-viewer iframe { height: 380px; }
+}
+</style>{% endblock %}
 
 {% block content %}
-<form id="toolForm">{% csrf_token %}
+<input type="file" id="fileInput" name="file" accept=".html,.htm" style="display:none">
 
-  <!-- Source panel -->
-  <div class="html-src-panel">
-    <div class="html-src-title"><i class="fa-solid fa-sliders"></i> Input Source</div>
-    <div class="html-src-tabs">
-      <div class="html-src-tab active" data-src="file" onclick="switchSrc('file',this)"><i class="fa-solid fa-file-code"></i> Upload File</div>
-      <div class="html-src-tab" data-src="url"  onclick="switchSrc('url',this)"><i class="fa-solid fa-link"></i> URL</div>
-      <div class="html-src-tab" data-src="content" onclick="switchSrc('content',this)"><i class="fa-solid fa-code"></i> Paste HTML</div>
+<!-- Source panel (tabs + URL/Paste inputs, always visible) -->
+<div class="h2p-src-panel" id="h2pSrcPanel">
+  <div class="h2p-src-title"><i class="fa-solid fa-sliders"></i> Input Source</div>
+  <div class="h2p-src-tabs">
+    <div class="h2p-src-tab active" data-src="file"    onclick="switchSrc('file',this)"><i class="fa-solid fa-file-code"></i> Upload File</div>
+    <div class="h2p-src-tab"        data-src="url"     onclick="switchSrc('url',this)"><i class="fa-solid fa-link"></i> URL</div>
+    <div class="h2p-src-tab"        data-src="content" onclick="switchSrc('content',this)"><i class="fa-solid fa-code"></i> Paste HTML</div>
+  </div>
+
+  <!-- File drop zone (hidden after file chosen) -->
+  <div id="fileDropWrap">
+    <div class="h2p-drop" id="h2pDrop" onclick="document.getElementById('fileInput').click()">
+      <div class="h2p-drop-icon"><i class="fa-brands fa-html5"></i></div>
+      <h3>Drop HTML file here</h3>
+      <p>Supports .html and .htm files</p>
+      <button type="button" class="h2p-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+        <i class="fa-solid fa-plus"></i> Select HTML File
+      </button>
     </div>
+  </div>
 
-    <div id="fileSource">
-      <div class="cv-drop" id="cvDrop" style="padding:2rem 1.5rem;">
-        <input type="file" id="fileInput" name="file" accept=".html,.htm">
-        <div class="cv-drop-icon"><i class="fa-brands fa-html5"></i></div>
-        <h3>Drop HTML file here</h3>
-        <p>Supports .html and .htm files</p>
-        <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
-          <i class="fa-solid fa-plus"></i> Select HTML File
-        </button>
-        <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> All processing done locally — never uploaded</span>
+  <!-- URL input -->
+  <div id="urlSource" style="display:none">
+    <input type="url" id="urlInput" class="h2p-url-input" placeholder="https://example.com">
+  </div>
+
+  <!-- Paste HTML textarea -->
+  <div id="contentSource" style="display:none">
+    <textarea id="contentInput" class="h2p-code-input" placeholder="<html><body><h1>Hello</h1></body></html>"></textarea>
+  </div>
+
+  <!-- Options (page size / orientation) always shown -->
+  <div class="h2p-opts-row">
+    <div class="h2p-opt-group">
+      <div class="h2p-opt-label">Page Size</div>
+      <div class="h2p-opt-tabs">
+        <label class="h2p-opt-btn"><input type="radio" name="page_size" value="A4" checked> A4</label>
+        <label class="h2p-opt-btn"><input type="radio" name="page_size" value="Letter"> Letter</label>
       </div>
-      <div class="cv-file-bar" id="cvFileBar" style="margin-top:.5rem;">
-        <i class="fa-brands fa-html5 cv-file-icon" style="color:#e44d26"></i>
-        <span class="cv-file-name" id="cvFileName">—</span>
-        <span class="cv-file-size" id="cvFileSize">—</span>
-      </div>
     </div>
-
-    <div id="urlSource" style="display:none">
-      <input type="url" name="url" class="html-url-input" placeholder="https://example.com">
-    </div>
-
-    <div id="contentSource" style="display:none">
-      <textarea name="content" class="html-code-input" placeholder="<html><body><h1>Hello</h1></body></html>"></textarea>
-    </div>
-
-    <div style="margin-top:1rem;">
-      <div class="html-opts-row">
-        <div class="html-opt-group">
-          <div class="html-opt-label">Page Size</div>
-          <div class="html-opt-tabs">
-            <label class="html-opt-btn"><input type="radio" name="page_size" value="A4" checked> A4</label>
-            <label class="html-opt-btn"><input type="radio" name="page_size" value="Letter"> Letter</label>
-          </div>
-        </div>
-        <div class="html-opt-group">
-          <div class="html-opt-label">Orientation</div>
-          <div class="html-opt-tabs">
-            <label class="html-opt-btn"><input type="radio" name="orientation" value="Portrait" checked> Portrait</label>
-            <label class="html-opt-btn"><input type="radio" name="orientation" value="Landscape"> Landscape</label>
-          </div>
-        </div>
+    <div class="h2p-opt-group">
+      <div class="h2p-opt-label">Orientation</div>
+      <div class="h2p-opt-tabs">
+        <label class="h2p-opt-btn"><input type="radio" name="orientation" value="Portrait" checked> Portrait</label>
+        <label class="h2p-opt-btn"><input type="radio" name="orientation" value="Landscape"> Landscape</label>
       </div>
     </div>
   </div>
 
-  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-file-pdf"></i> Convert to PDF</button>
-</form>
-
-<div class="progress-wrap">
-  <div class="progress-header"><span class="progress-label">Converting…</span></div>
-  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+  <!-- Convert + result area for URL/Paste modes -->
+  <div id="nonFileArea" style="display:none">
+    <div class="h2p-submit-wrap">
+      <button type="button" class="h2p-submit-btn" id="nonFileConvertBtn" onclick="doNonFileConvert()">
+        <i class="fa-solid fa-file-pdf"></i> Convert to PDF
+      </button>
+    </div>
+    <div id="h2pInlineResult"></div>
+  </div>
 </div>
-<div class="result-card"></div>
+
+<!-- Split view (file mode after upload) -->
+<div class="h2p-split" id="h2pSplit">
+  <!-- Left: live HTML preview -->
+  <div class="h2p-viewer">
+    <div class="h2p-viewer-label">HTML Preview</div>
+    <iframe id="h2pIframe" sandbox="allow-same-origin allow-scripts" title="HTML Preview"></iframe>
+  </div>
+
+  <!-- Right: controls -->
+  <div class="h2p-right">
+    <div class="h2p-card">
+      <div class="h2p-file-row">
+        <div class="h2p-file-icon"><i class="fa-brands fa-html5"></i></div>
+        <div>
+          <div class="h2p-file-name" id="h2pFileName">—</div>
+          <div class="h2p-file-size" id="h2pFileSize">—</div>
+        </div>
+        <button type="button" class="h2p-change-btn" onclick="resetFile()">
+          <i class="fa-solid fa-rotate-left"></i> Change
+        </button>
+      </div>
+    </div>
+
+    <button type="button" class="h2p-convert-btn" id="h2pConvertBtn" onclick="doFileConvert()">
+      <i class="fa-solid fa-file-pdf"></i> Convert HTML to PDF
+    </button>
+
+    <div class="h2p-loading-card" id="h2pLoadingCard">
+      <i class="fa-solid fa-spinner h2p-spin"></i>
+      <span class="h2p-loading-text">Converting, please wait…</span>
+    </div>
+
+    <div class="h2p-result-card" id="h2pResultCard">
+      <div class="h2p-result-title"><i class="fa-solid fa-circle-check"></i> PDF ready!</div>
+      <a class="h2p-dl-btn" id="h2pDlBtn" href="#" download>
+        <i class="fa-solid fa-download"></i> Download PDF
+      </a>
+    </div>
+
+    <div class="h2p-error-card" id="h2pErrorCard">
+      <div class="h2p-error-msg" id="h2pErrorMsg"></div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}<script>
+const fileInput      = document.getElementById('fileInput');
+const h2pDrop        = document.getElementById('h2pDrop');
+const fileDropWrap   = document.getElementById('fileDropWrap');
+const h2pSplit       = document.getElementById('h2pSplit');
+const h2pIframe      = document.getElementById('h2pIframe');
+const h2pConvertBtn  = document.getElementById('h2pConvertBtn');
+const h2pLoadingCard = document.getElementById('h2pLoadingCard');
+const h2pResultCard  = document.getElementById('h2pResultCard');
+const h2pErrorCard   = document.getElementById('h2pErrorCard');
+const nonFileArea    = document.getElementById('nonFileArea');
+
+let currentFile = null;
+let blobUrl = null;
+let currentSrc = 'file';
+
 function switchSrc(src, el) {
-  document.querySelectorAll('.html-src-tab').forEach(t => t.classList.remove('active'));
+  currentSrc = src;
+  document.querySelectorAll('.h2p-src-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('fileSource').style.display    = src === 'file'    ? '' : 'none';
+  fileDropWrap.style.display   = src === 'file'    ? '' : 'none';
   document.getElementById('urlSource').style.display     = src === 'url'     ? '' : 'none';
   document.getElementById('contentSource').style.display = src === 'content' ? '' : 'none';
-}
-(function(){
-  const inp = document.getElementById('fileInput');
-  const drop = document.getElementById('cvDrop');
-  const bar  = document.getElementById('cvFileBar');
-  function setFile(f){ if(!f) return; document.getElementById('cvFileName').textContent=f.name; document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB'; bar.classList.add('show'); const dt=new DataTransfer(); dt.items.add(f); inp.files=dt.files; }
-  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
-  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
-  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
-  inp.addEventListener('change',()=>setFile(inp.files[0]));
-})();
-submitToolForm({formId:'toolForm', apiUrl:'{% url "api_html_to_pdf" %}', fileInputId:'fileInput',
-  onSuccess(data){showDownload(data);}, onError(data){showError(data.error);}
-});
-document.getElementById('toolForm').addEventListener('submit', async function(e) {
-  const src = document.querySelector('.html-src-tab.active').dataset.src;
-  if (src !== 'file') {
-    e.stopImmediatePropagation(); e.preventDefault();
-    const fd = new FormData(this);
-    const btn = document.querySelector('.btn-submit');
-    btn.disabled = true; showProgress(true, 'Converting…', 10);
-    try {
-      const resp = await fetch('{% url "api_html_to_pdf" %}', {method:'POST', body:fd});
-      const data = await resp.json();
-      showProgress(false); btn.disabled = false;
-      if (data.error) showError(data.error); else showDownload(data);
-    } catch(err) { showProgress(false); btn.disabled = false; showError(err.message); }
+  nonFileArea.style.display = src !== 'file' ? '' : 'none';
+  if (src === 'file') {
+    h2pSplit.classList.remove('show');
   }
-}, true);
+}
+
+function resetFile() {
+  fileInput.value = '';
+  currentFile = null;
+  if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
+  h2pIframe.src = 'about:blank';
+  h2pSplit.classList.remove('show');
+  fileDropWrap.style.display = '';
+  h2pConvertBtn.disabled = false;
+  h2pLoadingCard.classList.remove('show');
+  h2pResultCard.classList.remove('show');
+  h2pErrorCard.classList.remove('show');
+}
+
+function setFile(f) {
+  if (!f) return;
+  currentFile = f;
+  document.getElementById('h2pFileName').textContent = f.name;
+  document.getElementById('h2pFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
+  const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
+
+  if (blobUrl) URL.revokeObjectURL(blobUrl);
+  blobUrl = URL.createObjectURL(f);
+  h2pIframe.src = blobUrl;
+
+  fileDropWrap.style.display = 'none';
+  h2pResultCard.classList.remove('show');
+  h2pErrorCard.classList.remove('show');
+  h2pSplit.classList.add('show');
+}
+
+async function doFileConvert() {
+  if (!currentFile) return;
+  h2pConvertBtn.disabled = true;
+  h2pLoadingCard.classList.add('show');
+  h2pResultCard.classList.remove('show');
+  h2pErrorCard.classList.remove('show');
+
+  const fd = new FormData();
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fd.append('file', currentFile);
+  const ps = document.querySelector('input[name="page_size"]:checked');
+  const or = document.querySelector('input[name="orientation"]:checked');
+  if (ps) fd.append('page_size', ps.value);
+  if (or) fd.append('orientation', or.value);
+
+  try {
+    const res = await fetch('{% url "api_html_to_pdf" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    document.getElementById('h2pDlBtn').href = data.download_url;
+    document.getElementById('h2pDlBtn').download = data.filename || 'converted.pdf';
+    h2pResultCard.classList.add('show');
+  } catch (e) {
+    document.getElementById('h2pErrorMsg').textContent = e.message || 'Conversion failed.';
+    h2pErrorCard.classList.add('show');
+  } finally {
+    h2pLoadingCard.classList.remove('show');
+    h2pConvertBtn.disabled = false;
+  }
+}
+
+async function doNonFileConvert() {
+  const btn = document.getElementById('nonFileConvertBtn');
+  const resultEl = document.getElementById('h2pInlineResult');
+  btn.disabled = true;
+  resultEl.innerHTML = '';
+
+  const fd = new FormData();
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  if (currentSrc === 'url') {
+    const v = document.getElementById('urlInput').value.trim();
+    if (!v) { btn.disabled = false; return; }
+    fd.append('url', v);
+  } else {
+    const v = document.getElementById('contentInput').value.trim();
+    if (!v) { btn.disabled = false; return; }
+    fd.append('content', v);
+  }
+  const ps = document.querySelector('input[name="page_size"]:checked');
+  const or = document.querySelector('input[name="orientation"]:checked');
+  if (ps) fd.append('page_size', ps.value);
+  if (or) fd.append('orientation', or.value);
+
+  resultEl.innerHTML = '<div style="color:#b91c1c;font-size:.85rem;padding:.5rem 0"><i class="fa-solid fa-spinner" style="animation:spin 1s linear infinite"></i> Converting…</div>';
+
+  try {
+    const res = await fetch('{% url "api_html_to_pdf" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    resultEl.innerHTML = `
+      <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:1rem;margin-top:.5rem">
+        <div style="font-size:.82rem;font-weight:700;color:#166534;margin-bottom:.6rem"><i class="fa-solid fa-circle-check"></i> PDF ready!</div>
+        <a href="${data.download_url}" download="${data.filename||'converted.pdf'}" style="display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.65rem;background:#16a34a;color:#fff;border-radius:9px;font-size:.88rem;font-weight:700;text-decoration:none">
+          <i class="fa-solid fa-download"></i> Download PDF
+        </a>
+      </div>`;
+  } catch (e) {
+    resultEl.innerHTML = `<div style="background:#fff1f2;border:1.5px solid #fca5a5;border-radius:12px;padding:.9rem;margin-top:.5rem;color:#dc2626;font-size:.85rem">${e.message||'Conversion failed.'}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+h2pDrop.addEventListener('dragover',  e => { e.preventDefault(); h2pDrop.classList.add('drag-over'); });
+h2pDrop.addEventListener('dragleave', () => h2pDrop.classList.remove('drag-over'));
+h2pDrop.addEventListener('drop', e => {
+  e.preventDefault(); h2pDrop.classList.remove('drag-over');
+  setFile(e.dataTransfer.files[0]);
+});
 </script>{% endblock %}
