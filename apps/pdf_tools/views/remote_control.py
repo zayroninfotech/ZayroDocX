@@ -1,4 +1,4 @@
-import json, string, random
+import json, string, random, time
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
@@ -104,6 +104,44 @@ def rc_poll(request):
         'ice_total': len(other_ice),
         'closed':    room.closed,
     })
+
+
+@csrf_exempt
+def rc_cmd(request):
+    """Viewer posts batched control commands (mouse/keyboard)."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    data = json.loads(request.body)
+    code = data.get('code', '').replace('-', '')
+    cmds = data.get('cmds', [])
+    from apps.pdf_tools.models import RCRoom, RCCommand
+    try:
+        room = RCRoom.objects.get(code=code)
+    except RCRoom.DoesNotExist:
+        return JsonResponse({'error': 'Session not found.'}, status=404)
+    now = time.time()
+    RCCommand.objects.bulk_create([
+        RCCommand(room=room, cmd_type=c.get('type', ''), data=c, ts=now)
+        for c in cmds if c.get('type')
+    ])
+    # Clean up old consumed commands to prevent table bloat
+    RCCommand.objects.filter(room=room, consumed=True, ts__lt=now - 10).delete()
+    return JsonResponse({'ok': True})
+
+
+def rc_agent_poll(request):
+    """Agent on host machine polls for pending commands."""
+    from apps.pdf_tools.models import RCRoom, RCCommand
+    code = request.GET.get('code', '').replace('-', '')
+    try:
+        room = RCRoom.objects.get(code=code)
+    except RCRoom.DoesNotExist:
+        return JsonResponse({'error': 'Session not found.'}, status=404)
+    pending = list(RCCommand.objects.filter(room=room, consumed=False).order_by('ts').values('id', 'cmd_type', 'data'))
+    if pending:
+        ids = [c['id'] for c in pending]
+        RCCommand.objects.filter(id__in=ids).update(consumed=True)
+    return JsonResponse({'commands': [c['data'] for c in pending], 'closed': room.closed})
 
 
 @csrf_exempt

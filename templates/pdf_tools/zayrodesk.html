@@ -395,7 +395,21 @@ async function setupViewer(offerSdp){
   await api('/tools/api/desk/answer/',{code:roomCode,sdp:{type:answer.type,sdp:answer.sdp}});
 }
 
-function sendCtrl(obj){if(!controlEnabled||!dc||dc.readyState!=='open') return; try{dc.send(JSON.stringify(obj));}catch(e){}}
+// Command buffer — flushed to server every 80ms for OS-level agent control
+let _cmdBuf=[], _cmdTimer=null;
+function sendCtrl(obj){
+  if(!controlEnabled) return;
+  // DataChannel (browser-level, low latency)
+  if(dc&&dc.readyState==='open'){try{dc.send(JSON.stringify(obj));}catch(e){}}
+  // Server queue (picked up by zayro_agent.py for OS-level control)
+  _cmdBuf.push(obj);
+  if(!_cmdTimer) _cmdTimer=setInterval(flushCmds, 80);
+}
+async function flushCmds(){
+  if(!_cmdBuf.length||!roomCode) return;
+  const batch=_cmdBuf.splice(0,_cmdBuf.length);
+  try{await fetch('/tools/api/desk/cmd/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},body:JSON.stringify({code:roomCode,cmds:batch})});}catch(e){}
+}
 
 function attachViewerEvents(){
   const vid=document.getElementById('zdViewerVideo');

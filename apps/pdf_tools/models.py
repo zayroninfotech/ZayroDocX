@@ -42,6 +42,14 @@ class RCRoom(models.Model):
     closed     = models.BooleanField(default=False)
 
 
+class RCCommand(models.Model):
+    room     = models.ForeignKey(RCRoom, on_delete=models.CASCADE, related_name='commands')
+    cmd_type = models.CharField(max_length=20)
+    data     = models.JSONField()
+    ts       = models.FloatField()
+    consumed = models.BooleanField(default=False, db_index=True)
+
+
 # ── ZayroEye ──────────────────────────────────────────────────────────────────
 
 class EyeRoom(models.Model):
