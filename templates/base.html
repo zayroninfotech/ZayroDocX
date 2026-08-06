@@ -287,15 +287,20 @@
           </div>
         </div>
 
-        <!-- ConnectSpace -->
-        <a href="{% url 'connectspace_page' %}" class="mh-link mh-connectspace {% block active_connectspace %}{% endblock %}">
-          <i class="fa-solid fa-link-slash mh-nav-icon" style="color:#dc2626"></i> ConnectSpace <span class="mh-cs-badge">Live</span>
-        </a>
-
-        <!-- AI Resume Analyzer -->
-        <a href="{% url 'resume_analyzer_page' %}" class="mh-link mh-resumeai {% block active_resume_analyzer %}{% endblock %}">
-          <i class="fa-solid fa-file-circle-check mh-nav-icon"></i> AI Resume <span class="mh-cs-badge" style="background:#7c3aed">AI✧</span>
-        </a>
+        <!-- More Tools -->
+        <div class="mh-item has-drop">
+          <span class="mh-link {% block active_more %}{% endblock %}"><i class="fa-solid fa-grip mh-nav-icon"></i> More <i class="fa-solid fa-chevron-down mh-caret"></i></span>
+          <div class="mh-drop">
+            <a href="{% url 'connectspace_page' %}" class="mh-drop-item {% block active_connectspace %}{% endblock %}">
+              <span class="mhd-icon" style="background:rgba(220,38,38,.12);color:#dc2626;"><i class="fa-solid fa-arrows-turn-to-dots"></i></span>
+              <span class="mhd-text"><strong>ConnectSpace</strong><em>Live file sharing</em><span class="mh-cs-badge" style="margin-left:.3rem">Live</span></span>
+            </a>
+            <a href="{% url 'resume_analyzer_page' %}" class="mh-drop-item {% block active_resume_analyzer %}{% endblock %}">
+              <span class="mhd-icon" style="background:rgba(124,58,237,.12);color:#7c3aed;"><i class="fa-solid fa-file-circle-check"></i></span>
+              <span class="mhd-text"><strong>AI Resume Analyzer</strong><em>ATS score & job match</em><span class="mhd-ai">AI✧</span></span>
+            </a>
+          </div>
+        </div>
 
       </nav>
 
