@@ -3,49 +3,119 @@
 {% block active_pdf2jpg %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">PDF to JPG</span>{% endblock %}
 
+{% block extra_head %}<style>
+.p2j-drop {
+  border: 2.5px dashed #cbd5e1; border-radius: 20px;
+  padding: 3rem 2rem; text-align: center; cursor: pointer;
+  transition: border-color .2s, background .2s; background: #f8fafc;
+}
+.p2j-drop:hover, .p2j-drop.drag-over { border-color: #dc2626; background: #fff8f8; }
+.p2j-drop-icon { font-size: 3rem; color: #dc2626; margin-bottom: .8rem; }
+.p2j-drop h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
+.p2j-drop p  { color: #64748b; margin: 0 0 1.2rem; }
+.p2j-drop-btn { background: #dc2626; color: #fff; border: none; border-radius: 10px; padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer; }
+.p2j-drop-btn:hover { background: #b91c1c; }
+
+.p2j-split { display: none; grid-template-columns: 1fr 420px; gap: 20px; align-items: start; }
+.p2j-split.show { display: grid; }
+
+.p2j-viewer { background: #0f172a; border-radius: 16px; padding: 16px; min-height: 400px; display: flex; align-items: flex-start; justify-content: center; overflow: auto; scroll-behavior: smooth; }
+.p2j-viewer-pages { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
+.p2j-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; }
+.p2j-viewer-loading { color: #94a3b8; font-size: .9rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
+.p2j-viewer-loading i { font-size: 2rem; }
+
+.p2j-right { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
+.p2j-card { background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 1.1rem 1.3rem; }
+.p2j-file-row { display: flex; align-items: center; gap: .9rem; }
+.p2j-file-icon { width: 48px; height: 48px; border-radius: 12px; background: #fff8f8; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #dc2626; flex-shrink: 0; }
+.p2j-file-name { font-size: .9rem; font-weight: 700; color: #111; word-break: break-all; }
+.p2j-file-size { font-size: .78rem; color: #aaa; margin-top: .15rem; }
+.p2j-change-btn { margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 8px; padding: .4rem .85rem; font-size: .78rem; font-weight: 600; color: #666; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.p2j-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
+
+.p2j-convert-btn { width: 100%; padding: .85rem; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: opacity .15s; }
+.p2j-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.p2j-loading-card { display: none; background: #fff8f8; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.2rem 1.3rem; align-items: center; gap: 1rem; }
+.p2j-loading-card.show { display: flex; }
+.p2j-spin { animation: spin 1s linear infinite; font-size: 1.4rem; color: #dc2626; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.p2j-loading-text { font-size: .9rem; font-weight: 600; color: #b91c1c; }
+
+.p2j-result-card { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 1.2rem 1.3rem; }
+.p2j-result-card.show { display: block; }
+.p2j-result-title { font-size: .85rem; font-weight: 700; color: #166534; display: flex; align-items: center; gap: .4rem; margin-bottom: .8rem; }
+.p2j-dl-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .7rem; background: #16a34a; color: #fff; border: none; border-radius: 10px; font-size: .9rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: background .15s; }
+.p2j-dl-btn:hover { background: #15803d; }
+
+.p2j-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.1rem 1.3rem; }
+.p2j-error-card.show { display: block; }
+.p2j-error-msg { font-size: .85rem; color: #dc2626; }
+
+@media (max-width: 1000px) { .p2j-split { grid-template-columns: 1fr; } .p2j-right { position: static; max-height: none; } }
+</style>{% endblock %}
+
 {% block content %}
-<div class="cv-hero">
-  <div class="cv-hero-left">
-    <div class="cv-eyebrow"><i class="fa-solid fa-image"></i> From PDF</div>
-    <h2>PDF to JPG</h2>
-    <p>Convert every PDF page to a high-quality JPG image — 150 DPI output</p>
-  </div>
-  <div class="cv-hero-pills">
-    <div class="cv-hero-pill"><span class="n">.PDF</span><div class="l">Input</div></div>
-    <div class="cv-hero-pill"><span class="n">.JPG</span><div class="l">Output</div></div>
-    <div class="cv-hero-pill"><span class="n">150</span><div class="l">DPI</div></div>
-  </div>
+<input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
+
+<!-- Step 1: Drop zone -->
+<div class="p2j-drop" id="p2jDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="p2j-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+  <h3>Drop your PDF here</h3>
+  <p>Each page will be exported as a JPG image</p>
+  <button type="button" class="p2j-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-folder-open"></i> Select PDF File
+  </button>
 </div>
 
-<form id="toolForm">{% csrf_token %}
-  <div class="cv-drop" id="cvDrop">
-    <input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="cv-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
-    <h3>Drop your PDF here</h3>
-    <p>Each page will be exported as a JPG image</p>
-    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-folder-open"></i> Select PDF File
+<!-- Step 2: Split view -->
+<div class="p2j-split" id="p2jSplit">
+  <div class="p2j-viewer">
+    <div class="p2j-viewer-loading" id="p2jViewerLoading">
+      <i class="fa-solid fa-spinner p2j-spin"></i>
+      <span>Loading pages…</span>
+    </div>
+    <div class="p2j-viewer-pages" id="p2jPages" style="display:none"></div>
+  </div>
+
+  <div class="p2j-right">
+    <div class="p2j-card">
+      <div class="p2j-file-row">
+        <div class="p2j-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+        <div>
+          <div class="p2j-file-name" id="p2jFileName">—</div>
+          <div class="p2j-file-size" id="p2jFileSize">—</div>
+        </div>
+        <button type="button" class="p2j-change-btn" onclick="resetTool()">
+          <i class="fa-solid fa-rotate-left"></i> Change
+        </button>
+      </div>
+    </div>
+
+    <button type="button" class="p2j-convert-btn" id="p2jConvertBtn" onclick="doConvert()">
+      <i class="fa-solid fa-image"></i> Export as JPG Images
     </button>
-    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; High quality &nbsp;·&nbsp; Free</span>
-  </div>
-  <div class="cv-file-bar" id="cvFileBar">
-    <i class="fa-solid fa-file-pdf cv-file-icon" style="color:#dc2626"></i>
-    <span class="cv-file-name" id="cvFileName">—</span>
-    <span class="cv-file-size" id="cvFileSize">—</span>
-  </div>
-  <input type="hidden" name="format" value="jpg">
-  <input type="hidden" name="dpi" value="150">
-  <input type="hidden" name="pages" value="">
-  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-image"></i> Export as JPG Images</button>
-</form>
 
-<div class="progress-wrap">
-  <div class="progress-header"><span class="progress-label">Rendering pages…</span></div>
-  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+    <div class="p2j-loading-card" id="p2jLoadingCard">
+      <i class="fa-solid fa-spinner p2j-spin"></i>
+      <span class="p2j-loading-text">Rendering pages…</span>
+    </div>
+
+    <div class="p2j-result-card" id="p2jResultCard">
+      <div class="p2j-result-title"><i class="fa-solid fa-circle-check"></i> Images ready!</div>
+      <a class="p2j-dl-btn" id="p2jDlBtn" href="#" download>
+        <i class="fa-solid fa-download"></i> Download JPG Images
+      </a>
+    </div>
+
+    <div class="p2j-error-card" id="p2jErrorCard">
+      <div class="p2j-error-msg" id="p2jErrorMsg"></div>
+    </div>
+  </div>
 </div>
-<div class="result-card"></div>
 
-<div class="cv-info-strip">
+<div class="cv-info-strip" id="p2jInfoStrip">
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-images"></i></div><div><div class="cv-info-title">All Pages</div><div class="cv-info-desc">Every page exported</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-star"></i></div><div><div class="cv-info-title">150 DPI</div><div class="cv-info-desc">High resolution</div></div></div>
@@ -54,15 +124,105 @@
 {% endblock %}
 
 {% block extra_js %}<script>
-(function(){
-  const inp = document.getElementById('fileInput');
-  const drop = document.getElementById('cvDrop');
-  const bar  = document.getElementById('cvFileBar');
-  function setFile(f){ if(!f) return; document.getElementById('cvFileName').textContent=f.name; document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB'; bar.classList.add('show'); const dt=new DataTransfer(); dt.items.add(f); inp.files=dt.files; }
-  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
-  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
-  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
-  inp.addEventListener('change',()=>setFile(inp.files[0]));
-})();
-submitToolForm({formId:'toolForm',apiUrl:'{% url "api_pdf_to_jpg" %}',fileInputId:'fileInput'});
+const fileInput      = document.getElementById('fileInput');
+const p2jDrop        = document.getElementById('p2jDrop');
+const p2jSplit       = document.getElementById('p2jSplit');
+const p2jPages       = document.getElementById('p2jPages');
+const p2jViewerLoad  = document.getElementById('p2jViewerLoading');
+const p2jConvertBtn  = document.getElementById('p2jConvertBtn');
+const p2jLoadingCard = document.getElementById('p2jLoadingCard');
+const p2jResultCard  = document.getElementById('p2jResultCard');
+const p2jErrorCard   = document.getElementById('p2jErrorCard');
+const p2jInfoStrip   = document.getElementById('p2jInfoStrip');
+
+let currentFile = null;
+
+function resetTool() {
+  fileInput.value = '';
+  currentFile = null;
+  p2jDrop.style.display = '';
+  p2jSplit.classList.remove('show');
+  p2jPages.innerHTML = '';
+  p2jPages.style.display = 'none';
+  p2jViewerLoad.style.display = 'flex';
+  p2jConvertBtn.disabled = false;
+  p2jLoadingCard.classList.remove('show');
+  p2jResultCard.classList.remove('show');
+  p2jErrorCard.classList.remove('show');
+  p2jInfoStrip.style.display = '';
+}
+
+async function loadPreview(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  try {
+    const res = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    p2jPages.innerHTML = '';
+    data.page_images.forEach((b64, i) => {
+      const img = document.createElement('img');
+      img.src = 'data:image/jpeg;base64,' + b64;
+      img.alt = 'Page ' + (i + 1);
+      p2jPages.appendChild(img);
+    });
+    p2jViewerLoad.style.display = 'none';
+    p2jPages.style.display = 'flex';
+  } catch (e) {
+    p2jViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>';
+  }
+}
+
+function setFile(f) {
+  if (!f) return;
+  currentFile = f;
+  document.getElementById('p2jFileName').textContent = f.name;
+  document.getElementById('p2jFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
+  const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
+  p2jDrop.style.display = 'none';
+  p2jInfoStrip.style.display = 'none';
+  p2jResultCard.classList.remove('show');
+  p2jErrorCard.classList.remove('show');
+  p2jSplit.classList.add('show');
+  loadPreview(f);
+}
+
+async function doConvert() {
+  if (!currentFile) return;
+  p2jConvertBtn.disabled = true;
+  p2jLoadingCard.classList.add('show');
+  p2jResultCard.classList.remove('show');
+  p2jErrorCard.classList.remove('show');
+
+  const fd = new FormData();
+  fd.append('file', currentFile);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fd.append('format', 'jpg');
+  fd.append('dpi', '150');
+  fd.append('pages', '');
+
+  try {
+    const res = await fetch('{% url "api_pdf_to_jpg" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    document.getElementById('p2jDlBtn').href = data.download_url;
+    document.getElementById('p2jDlBtn').download = data.filename || 'images.zip';
+    p2jResultCard.classList.add('show');
+  } catch (e) {
+    document.getElementById('p2jErrorMsg').textContent = e.message || 'Conversion failed.';
+    p2jErrorCard.classList.add('show');
+  } finally {
+    p2jLoadingCard.classList.remove('show');
+    p2jConvertBtn.disabled = false;
+  }
+}
+
+fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+p2jDrop.addEventListener('dragover',  e => { e.preventDefault(); p2jDrop.classList.add('drag-over'); });
+p2jDrop.addEventListener('dragleave', () => p2jDrop.classList.remove('drag-over'));
+p2jDrop.addEventListener('drop', e => {
+  e.preventDefault(); p2jDrop.classList.remove('drag-over');
+  setFile(e.dataTransfer.files[0]);
+});
 </script>{% endblock %}
