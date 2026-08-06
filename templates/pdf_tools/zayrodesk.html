@@ -252,7 +252,11 @@ async function hostStart(){
     });
   }catch(e){
     if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-desktop"></i> Start Sharing';}
-    if(e.name!=='NotAllowedError') showPickErr('Screen share failed: '+e.message);
+    if(e.name==='NotAllowedError'){
+      showPickErr('Screen share was blocked or cancelled. Click "Start Sharing" and then click "Share" in the popup.');
+    } else {
+      showPickErr('Screen share failed: '+e.message);
+    }
     return;
   }
 
@@ -294,7 +298,7 @@ async function hostStart(){
     await api('/tools/api/desk/offer/',{code:roomCode,sdp:{type:offer.type,sdp:offer.sdp}});
   }catch(e){showPickErr('WebRTC setup failed: '+e.message);hostStop();return;}
 
-  stream.getVideoTracks()[0].onended=()=>hostStop();
+  stream.getVideoTracks()[0].onended=()=>hostStop('Screen sharing was stopped. Click "Start Sharing" to begin a new session.');
   startHostPoll();
 }
 
@@ -342,12 +346,22 @@ function setPill(state){
   }[state];
 }
 
-async function hostStop(){
+async function hostStop(msg){
   clearInterval(pollTimer);
-  if(stream) stream.getTracks().forEach(t=>t.stop());
-  if(pc){try{pc.close();}catch(e){}}
-  try{await api('/tools/api/desk/close/',{code:roomCode});}catch(e){}
-  location.reload();
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  if(pc){try{pc.close();}catch(e){} pc=null;}
+  try{if(roomCode)await api('/tools/api/desk/close/',{code:roomCode});}catch(e){}
+  roomCode=null; role=null; iceIdx=0;
+  document.getElementById('zdHostRoom').classList.remove('show');
+  document.getElementById('zdHostVideo').srcObject=null;
+  document.getElementById('zdHostVideo').style.display='none';
+  document.getElementById('zdHostPlaceholder').style.display='';
+  document.getElementById('zdShareBtn').style.display='';
+  document.getElementById('zdStopBtn').style.display='none';
+  document.getElementById('zdPick').style.display='';
+  const btn=document.querySelector('.zd-card .zd-btn-primary');
+  if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-desktop"></i> Start Sharing';}
+  if(msg) showPickErr(msg);
 }
 
 /* ─── VIEWER ─────────────────────────────────────── */
@@ -522,9 +536,13 @@ function showTouchHint(){
 
 async function viewerDisconnect(){
   clearInterval(pollTimer);
-  if(pc) pc.close();
+  if(pc){try{pc.close();}catch(e){} pc=null;}
   await api('/tools/api/desk/close/',{code:roomCode}).catch(()=>{});
-  location.reload();
+  roomCode=null; role=null; iceIdx=0;
+  document.getElementById('zdViewerRoom').classList.remove('show');
+  document.getElementById('zdViewerVideo').srcObject=null;
+  document.getElementById('zdConnectOverlay').style.display='flex';
+  document.getElementById('zdPick').style.display='';
 }
 
 function showJoinErr(msg){
