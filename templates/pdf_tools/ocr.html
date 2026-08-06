@@ -214,8 +214,13 @@
 }
 .page-modal-txt::-webkit-scrollbar { width: 4px; }
 .page-modal-txt::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 3px; }
-.page-modal-actions { display: flex; gap: 7px; flex-wrap: wrap; padding: 14px 20px; border-top: 1px solid var(--border); background: var(--bg); }
+.page-modal-actions { display: flex; gap: 7px; flex-wrap: wrap; padding: 10px 20px; border-top: 1px solid var(--border); background: var(--bg); }
 .pm-nav { display: flex; gap: 7px; margin-left: auto; }
+.modal-text-actions { display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:10px 0 4px; border-top:1px solid var(--border); margin-top:8px; }
+.mta-right { display:flex; gap:6px; align-items:center; margin-left:auto; }
+.mta-copy { background:var(--surface-alt);border:1px solid var(--border);color:var(--text); }
+.mta-provider { font-size:11px;padding:3px 6px;border:1px solid #dc2626;border-radius:6px;color:#dc2626;background:#fff8f8;cursor:pointer;max-width:130px; }
+.mta-ai { background:#dc2626;color:#fff;border:none;cursor:pointer; }
 .btn-spin { width:12px;height:12px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:4px; }
 
 /* summary panel */
@@ -318,36 +323,43 @@
           <span id="modalWordCount" style="font-size:.7rem;font-weight:400;color:var(--text-muted)"></span>
         </div>
         <div class="page-modal-txt" id="modalTxt">Loading…</div>
-        <!-- Excel download appears here after AI Extract -->
-        <div id="modalExcelWrap" style="display:none;padding:10px 0 4px">
+
+        <!-- Action buttons below extracted text -->
+        <div class="modal-text-actions">
+          <button class="btn btn-primary btn-sm" id="modalExtractBtn" onclick="extractCurrentPage()">
+            <i class="fa-solid fa-rotate"></i> Re-extract
+          </button>
+          <button class="btn btn-sm mta-copy" onclick="copyModalText()">
+            <i class="fa-solid fa-copy"></i> Copy
+          </button>
+          <a class="btn btn-sm" id="cropExcelBtn" href="#" style="display:none;background:#059669;color:#fff;border:none;text-decoration:none">
+            <i class="fa-solid fa-file-excel"></i> Region Excel
+          </a>
+          <div class="mta-right">
+            <select id="aiProviderSelect" class="mta-provider">
+              <option value="gemini">🆓 Gemini Flash</option>
+              <option value="mistral">Mistral</option>
+              <option value="gpt">GPT-4o-mini</option>
+              <option value="claude-haiku">Claude Haiku</option>
+              <option value="claude-sonnet">Claude Sonnet</option>
+            </select>
+            <button class="btn btn-sm mta-ai" id="modalAiBtn" onclick="aiExtractModal()">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> AI Extract
+            </button>
+          </div>
+        </div>
+
+        <!-- Excel download after AI Extract -->
+        <div id="modalExcelWrap" style="display:none;padding:8px 0 2px">
           <a class="btn btn-sm" id="modalExcelBtn" href="#"
-            style="background:#16a34a;color:#fff;border:none;text-decoration:none;font-weight:700;display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;font-size:.85rem">
+            style="background:#16a34a;color:#fff;border:none;text-decoration:none;font-weight:700;display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;font-size:.85rem;width:100%;justify-content:center">
             <i class="fa-solid fa-file-excel"></i> Download Excel
           </a>
         </div>
       </div>
     </div>
-    <div class="page-modal-actions">
-      <button class="btn btn-primary btn-sm" id="modalExtractBtn" onclick="extractCurrentPage()">
-        <i class="fa-solid fa-rotate"></i> Re-extract Text
-      </button>
-      <button class="btn btn-sm" onclick="copyModalText()" style="background:var(--surface-alt);border:1px solid var(--border);color:var(--text)">
-        <i class="fa-solid fa-copy"></i> Copy
-      </button>
-      <a class="btn btn-sm" id="cropExcelBtn" href="#" style="display:none;background:#059669;color:#fff;border:none;text-decoration:none">
-        <i class="fa-solid fa-file-excel"></i> Download Region Excel
-      </a>
-      <select id="aiProviderSelect" style="font-size:11px;padding:3px 6px;border:1px solid #dc2626;border-radius:6px;color:#dc2626;background:#fff8f8;cursor:pointer;margin-right:2px;max-width:130px">
-        <option value="gemini">🆓 Gemini Flash</option>
-        <option value="mistral">Mistral</option>
-        <option value="gpt">GPT-4o-mini</option>
-        <option value="claude-haiku">Claude Haiku</option>
-        <option value="claude-sonnet">Claude Sonnet</option>
-      </select>
-      <button class="btn btn-sm" id="modalAiBtn" onclick="aiExtractModal()"
-        style="background:#dc2626;color:#fff;border:none;cursor:pointer">
-        <i class="fa-solid fa-wand-magic-sparkles"></i> AI Extract
-      </button>
+    <!-- Bottom bar: only page navigation -->
+    <div class="page-modal-actions" style="justify-content:flex-end">
       <div class="pm-nav">
         <button class="btn btn-outline btn-sm" id="modalPrev"><i class="fa-solid fa-chevron-left"></i> Prev</button>
         <button class="btn btn-outline btn-sm" id="modalNext">Next <i class="fa-solid fa-chevron-right"></i></button>
