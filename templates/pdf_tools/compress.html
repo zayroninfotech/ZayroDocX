@@ -11,6 +11,33 @@
 ═══════════════════════════════════════ */
 
 /* Drop zone (initial state) */
+/* Hero icon box — matches Merge PDF style */
+.cp-hero-icon {
+  width: 110px; height: 110px;
+  margin: 0 auto 1.5rem;
+  background: rgba(217,119,6,.10);   /* amber tint, matches nav */
+  border-radius: 22px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.cp-hero-icon i.cp-hero-main {
+  font-size: 2.6rem;
+  color: #d97706;                    /* amber, not red */
+}
+.cp-hero-icon .cp-hero-badge {
+  position: absolute;
+  bottom: -6px; right: -6px;
+  width: 34px; height: 34px;
+  background: #d97706;               /* amber, not red */
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 3px 10px rgba(217,119,6,.4);
+  border: 3px solid #fff;
+}
+.cp-hero-badge i {
+  color: #fff;
+  font-size: .8rem;
+}
 .cp-drop {
   border: 2.5px dashed #fca5a5; border-radius: 18px;
   padding: 4rem 2rem; text-align: center; position: relative;
@@ -166,15 +193,23 @@
 <form id="toolForm">{% csrf_token %}
 
   <!-- Drop zone (initial) -->
-  <div class="cp-drop" id="cpDrop">
-    <input type="file" id="fileInput" name="file" accept=".pdf">
-    <h2 style="font-size:2rem;font-weight:900;color:#111;margin:0 0 .3rem;letter-spacing:-.03em;">Compress PDF</h2>
-    <h3 style="font-size:1rem;font-weight:500;color:#555;margin:0 0 .3rem;">Drop your PDF here</h3>
-    <p>Select a PDF to reduce its file size</p>
-    <button type="button" class="cp-drop-btn" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-folder-open"></i> Select PDF File
-    </button>
+<div class="cp-drop" id="cpDrop">
+  <input type="file" id="fileInput" name="file" accept=".pdf">
+
+<div class="cp-hero-icon">
+  <i class="fa-solid fa-file-lines cp-hero-main"></i>
+  <div class="cp-hero-badge">
+    <i class="fa-solid fa-compress"></i>
   </div>
+</div>
+
+  <h2 style="font-size:2rem;font-weight:900;color:#111;margin:0 0 .3rem;letter-spacing:-.03em;">Compress PDF</h2>
+  <h3 style="font-size:1rem;font-weight:500;color:#555;margin:0 0 .3rem;">Drop your PDF here</h3>
+  <p>Select a PDF to reduce its file size</p>
+  <button type="button" class="cp-drop-btn" onclick="document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-folder-open"></i> Select PDF File
+  </button>
+</div>
 
   <!-- 2-column workspace (shown after file selected) -->
   <div class="cp-workspace" id="cpWorkspace">

@@ -133,7 +133,7 @@ body { padding-top: var(--mh-h); }
 .mhd-text em { font-size: .7rem; color: #888888; font-style: normal; white-space: nowrap; }
 .mhd-ai {
   display: inline-block; font-size: .55rem; font-weight: 700; letter-spacing: .04em;
-  background: var(--brand); color: #fff;
+  background: var(--brand); color: #ffd2d2;
   padding: 1px 4px; border-radius: 3px; margin-top: 1px;
 }
 
