@@ -813,25 +813,38 @@ Rules:
         raw_json = re.sub(r'^```(?:json)?\s*', '', raw_json)
         raw_json = re.sub(r'\s*```$', '', raw_json)
 
+        extracted = None
+        # Try 1: direct parse
         try:
             extracted = json.loads(raw_json)
         except json.JSONDecodeError:
-            # Try to salvage: find the outermost { ... } block
-            m = re.search(r'\{.*\}', raw_json, re.DOTALL)
-            if m:
+            pass
+        # Try 2: slice from first { to last }
+        if extracted is None:
+            s = raw_json.find('{')
+            e = raw_json.rfind('}')
+            if s != -1 and e > s:
                 try:
-                    extracted = json.loads(m.group())
+                    extracted = json.loads(raw_json[s:e+1])
                 except json.JSONDecodeError:
-                    extracted = None
-            else:
-                extracted = None
-            if extracted is None:
-                return JsonResponse({
-                    'text':       raw_json.strip() or '(No content extracted)',
-                    'excel_url':  '',
-                    'excel_name': '',
-                    'fields':     {},
-                })
+                    pass
+        # Try 3: strip any trailing comma before closing brace and retry
+        if extracted is None:
+            cleaned = re.sub(r',\s*([\}\]])', r'\1', raw_json)
+            s = cleaned.find('{')
+            e = cleaned.rfind('}')
+            if s != -1 and e > s:
+                try:
+                    extracted = json.loads(cleaned[s:e+1])
+                except json.JSONDecodeError:
+                    pass
+        if extracted is None:
+            return JsonResponse({
+                'text':       raw_json.strip() or '(No content extracted)',
+                'excel_url':  '',
+                'excel_name': '',
+                'fields':     {},
+            })
 
         # â"€â"€ Build Excel â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
         import openpyxl
