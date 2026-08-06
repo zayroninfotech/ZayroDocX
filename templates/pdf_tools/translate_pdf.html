@@ -103,149 +103,293 @@
 {% endblock %}
 
 {% block content %}
+<style>
+/* ── Split layout ── */
+.tr-split { display:grid; grid-template-columns:1fr 480px; gap:20px; align-items:start; }
+.tr-split-right { display:flex; flex-direction:column; gap:16px; position:sticky; top:16px; }
+@media(max-width:1060px){ .tr-split{ grid-template-columns:1fr; } .tr-split-right{ position:static; } }
+
+/* ── PDF Viewer (same dark style) ── */
+.tr-viewer { border-radius:16px; overflow:hidden; background:#0f172a; box-shadow:0 8px 32px rgba(0,0,0,.3); }
+.tr-viewer-bar { display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#1e293b;border-bottom:1px solid rgba(255,255,255,.08); }
+.tr-viewer-icon { width:28px;height:28px;border-radius:7px;background:#0d9488;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#fff; }
+.tr-ctrl { width:30px;height:30px;border-radius:7px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.72rem;transition:background .15s; }
+.tr-ctrl:hover:not(:disabled){ background:rgba(255,255,255,.14); }
+.tr-ctrl:disabled{ opacity:.3;cursor:not-allowed; }
+.tr-page-area { padding:16px;display:flex;align-items:flex-start;justify-content:center;background:#0f172a; }
+.tr-page-area img { max-width:100%;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.5);transition:opacity .2s;display:block; }
+.tr-thumb-strip { display:flex;gap:6px;padding:10px 16px;overflow-x:auto;background:#1a2744;border-top:1px solid rgba(255,255,255,.06); }
+.tr-thumb { flex-shrink:0;width:50px;cursor:pointer;border-radius:5px;overflow:hidden;border:2px solid transparent;opacity:.55;transition:opacity .15s,border-color .15s; }
+.tr-thumb.active { border-color:#0d9488;opacity:1; }
+.tr-thumb img { width:100%;display:block; }
+
+/* ── Right panel cards ── */
+.tr-card { background:var(--bg-card);border:1.5px solid var(--border);border-radius:16px;overflow:hidden; }
+.tr-card-head { padding:14px 18px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--bg-card),var(--bg-page,#f8fafc));display:flex;align-items:center;justify-content:space-between; }
+.tr-card-head-left { display:flex;align-items:center;gap:9px; }
+.tr-card-icon { width:32px;height:32px;border-radius:8px;background:#0d9488;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff;flex-shrink:0; }
+.tr-card-title { font-size:.9rem;font-weight:800;color:var(--text-primary); }
+.tr-card-sub   { font-size:.72rem;color:var(--text-muted); }
+.tr-card-body  { padding:16px 18px; }
+
+/* language dropdown */
+.tr-lang-select-wrap { position:relative; }
+.tr-lang-select-wrap i { position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#0d9488;font-size:.88rem;pointer-events:none; }
+.tr-lang-dd {
+  width:100%;padding:.72rem 1rem .72rem 2.4rem;
+  border:1.5px solid var(--border);border-radius:11px;
+  background:var(--bg-card);color:var(--text-primary);
+  font-size:.88rem;font-weight:600;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+.tr-lang-dd:focus { outline:none;border-color:#0d9488;box-shadow:0 0 0 3px rgba(13,148,136,.12); }
+
+/* translated output */
+.tr-out-body { font-size:.875rem;line-height:1.75;color:var(--text-primary);max-height:55vh;overflow-y:auto;white-space:pre-wrap;word-break:break-word; }
+
+/* loading spinner */
+.tr-loading { display:none;flex-direction:column;align-items:center;gap:14px;padding:36px 20px; }
+.tr-loading.show { display:flex; }
+.tr-spin { width:44px;height:44px;border-radius:50%;border:3.5px solid #ccfbf1;border-top-color:#0d9488;animation:tr-spin .75s linear infinite; }
+@keyframes tr-spin{ to{transform:rotate(360deg)} }
+</style>
 
 <form id="translateForm" enctype="multipart/form-data">
-  {% csrf_token %}
+{% csrf_token %}
+<input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
 
-  <!-- Drop zone -->
-  <div class="tr-drop" id="uploadZone">
-    <input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="tr-drop-icon">
-  <i class="fa-solid fa-language"></i>
-</div>
-    <h2 style="font-size:2rem;font-weight:900;color:#111;margin:0 0 .3rem;letter-spacing:-.03em;">Translate PDF</h2>
-    <h3>Drop your PDF here</h3>
-    <p>Upload any PDF — AI will translate the entire document content</p>
-    <button type="button" class="tr-drop-btn" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-folder-open"></i> Select PDF File
-    </button>
-    <br><span class="tr-drop-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; 100% local &nbsp;·&nbsp; Never stored</span>
-  </div>
-
-  <!-- File bar -->
-  <div class="tr-file-bar" id="fileBar">
-    <i class="fa-solid fa-file-pdf tr-file-bar-icon"></i>
-    <span class="tr-file-bar-name" id="fileBarName">—</span>
-    <span class="tr-file-bar-size" id="fileBarSize">—</span>
-  </div>
-
-  <!-- Language picker -->
-  <div class="tr-lang-panel">
-    <div class="tr-lang-title"><i class="fa-solid fa-globe"></i> Choose Target Language</div>
-    <div class="tr-lang-grid">
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_hi" value="Hindi" checked><label for="l_hi">🇮🇳 Hindi</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_te" value="Telugu"><label for="l_te">Telugu</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_ta" value="Tamil"><label for="l_ta">Tamil</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_kn" value="Kannada"><label for="l_kn">Kannada</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_ml" value="Malayalam"><label for="l_ml">Malayalam</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_bn" value="Bengali"><label for="l_bn">Bengali</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_mr" value="Marathi"><label for="l_mr">Marathi</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_gu" value="Gujarati"><label for="l_gu">Gujarati</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_pa" value="Punjabi"><label for="l_pa">Punjabi</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_fr" value="French"><label for="l_fr">🇫🇷 French</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_es" value="Spanish"><label for="l_es">🇪🇸 Spanish</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_de" value="German"><label for="l_de">🇩🇪 German</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_ar" value="Arabic"><label for="l_ar">🇸🇦 Arabic</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_zh" value="Chinese (Simplified)"><label for="l_zh">🇨🇳 Chinese</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_ja" value="Japanese"><label for="l_ja">🇯🇵 Japanese</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_ko" value="Korean"><label for="l_ko">🇰🇷 Korean</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_pt" value="Portuguese"><label for="l_pt">🇵🇹 Portuguese</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_ru" value="Russian"><label for="l_ru">🇷🇺 Russian</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_it" value="Italian"><label for="l_it">🇮🇹 Italian</label></div>
-      <div class="tr-lang-opt"><input type="radio" name="language" id="l_nl" value="Dutch"><label for="l_nl">🇳🇱 Dutch</label></div>
-    </div>
-  </div>
-
-  <button type="submit" class="tr-submit" id="submitBtn">
-    <i class="fa-solid fa-language"></i> Translate PDF
+<!-- Step 1: Drop zone -->
+<div class="tr-drop" id="uploadZone">
+  <div class="tr-drop-icon"><i class="fa-solid fa-language"></i></div>
+  <h2 style="font-size:2rem;font-weight:900;color:#111;margin:0 0 .3rem;letter-spacing:-.03em;">Translate PDF</h2>
+  <h3>Drop your PDF here</h3>
+  <p>Upload any PDF — AI will translate the entire document content</p>
+  <button type="button" class="tr-drop-btn" onclick="document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-folder-open"></i> Select PDF File
   </button>
-</form>
+</div>
 
-<!-- Result panel -->
-<div id="resultPanel" style="display:none;">
-  <div class="tr-result-card">
-    <div class="tr-result-head">
-      <div class="tr-result-head-left"><i class="fa-solid fa-file-lines"></i> Translated Text &nbsp;<span id="pageCount" style="font-size:.72rem;color:#888;font-weight:400;"></span></div>
-      <div class="tr-result-actions">
-        <a id="downloadBtn" class="tr-action-btn"><i class="fa-solid fa-download"></i> Download</a>
-        <button class="tr-action-btn" onclick="copyText()"><i class="fa-solid fa-copy"></i> Copy</button>
+<!-- Step 2: Side-by-side (after file pick) -->
+<div class="tr-split" id="splitView" style="display:none">
+
+  <!-- LEFT: PDF Viewer -->
+  <div class="tr-viewer" id="pdfViewer">
+    <div class="tr-viewer-bar">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div class="tr-viewer-icon"><i class="fa-solid fa-file-image"></i></div>
+        <div>
+          <div style="font-size:.82rem;font-weight:700;color:#e2e8f0" id="viewerTitle">PDF Pages</div>
+          <div style="font-size:.68rem;color:#64748b">Rendered at 150 DPI</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px">
+        <button type="button" class="tr-ctrl" id="pgPrev" onclick="pgGo(pgCur-1)" disabled><i class="fa-solid fa-chevron-left"></i></button>
+        <span id="pgLabel" style="font-size:.76rem;color:#94a3b8;min-width:48px;text-align:center;font-weight:600">1 / 1</span>
+        <button type="button" class="tr-ctrl" id="pgNext" onclick="pgGo(pgCur+1)"><i class="fa-solid fa-chevron-right"></i></button>
+        <div style="width:1px;height:20px;background:rgba(255,255,255,.1);margin:0 4px"></div>
+        <button type="button" class="tr-ctrl" title="Change PDF" onclick="resetUpload()"><i class="fa-solid fa-arrow-rotate-left"></i></button>
       </div>
     </div>
-    <div class="tr-result-body" id="translatedContent"></div>
+    <div class="tr-page-area" id="pgArea">
+      <img id="pgImg" src="" alt="page">
+    </div>
+    <div class="tr-thumb-strip" id="pgThumbStrip" style="display:none"></div>
   </div>
-</div>
 
-<!-- Info strip -->
-<div class="tr-info-strip">
-  <div class="tr-info-card"><div class="tr-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="tr-info-title">Private</div><div class="tr-info-desc">Files never stored</div></div></div>
-  <div class="tr-info-card"><div class="tr-info-icon"><i class="fa-solid fa-globe"></i></div><div><div class="tr-info-title">20 Languages</div><div class="tr-info-desc">Indian + Global</div></div></div>
-  <div class="tr-info-card"><div class="tr-info-icon"><i class="fa-solid fa-brain"></i></div><div><div class="tr-info-title">AI Powered</div><div class="tr-info-desc">Accurate translation</div></div></div>
-  <div class="tr-info-card"><div class="tr-info-icon"><i class="fa-solid fa-download"></i></div><div><div class="tr-info-title">Download TXT</div><div class="tr-info-desc">Save translated text</div></div></div>
-</div>
+  <!-- RIGHT: Controls + Output -->
+  <div class="tr-split-right">
 
-<div class="progress-wrap" id="progressWrap" style="display:none;">
-  <div class="progress-inner">
-    <div class="progress-spinner"></div>
-    <span id="progressMsg">Translating document…</span>
-  </div>
-</div>
+    <!-- File info -->
+    <div class="tr-card">
+      <div class="tr-card-head">
+        <div class="tr-card-head-left">
+          <div class="tr-card-icon"><i class="fa-solid fa-file-pdf"></i></div>
+          <div>
+            <div class="tr-card-title" id="fileBarName2">—</div>
+            <div class="tr-card-sub" id="fileBarMeta">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="tr-card-body" style="display:flex;flex-direction:column;gap:12px">
+        <!-- Language dropdown -->
+        <div>
+          <label style="font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">
+            <i class="fa-solid fa-globe" style="color:#0d9488;margin-right:4px"></i> Target Language
+          </label>
+          <div class="tr-lang-select-wrap">
+            <i class="fa-solid fa-language"></i>
+            <select name="language" id="langSelect" class="tr-lang-dd">
+              <optgroup label="🇮🇳 Indian Languages">
+                <option value="Hindi">🇮🇳 Hindi</option>
+                <option value="Telugu">Telugu</option>
+                <option value="Tamil">Tamil</option>
+                <option value="Kannada">Kannada</option>
+                <option value="Malayalam">Malayalam</option>
+                <option value="Bengali">Bengali</option>
+                <option value="Marathi">Marathi</option>
+                <option value="Gujarati">Gujarati</option>
+                <option value="Punjabi">Punjabi</option>
+              </optgroup>
+              <optgroup label="🌍 Global Languages">
+                <option value="French">🇫🇷 French</option>
+                <option value="Spanish">🇪🇸 Spanish</option>
+                <option value="German">🇩🇪 German</option>
+                <option value="Arabic">🇸🇦 Arabic</option>
+                <option value="Chinese (Simplified)">🇨🇳 Chinese</option>
+                <option value="Japanese">🇯🇵 Japanese</option>
+                <option value="Korean">🇰🇷 Korean</option>
+                <option value="Portuguese">🇵🇹 Portuguese</option>
+                <option value="Russian">🇷🇺 Russian</option>
+                <option value="Italian">🇮🇹 Italian</option>
+                <option value="Dutch">🇳🇱 Dutch</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="tr-submit" id="submitBtn" style="margin-top:0">
+          <i class="fa-solid fa-language"></i> Translate PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="tr-card" id="loadingCard" style="display:none">
+      <div class="tr-loading show">
+        <div class="tr-spin"></div>
+        <div style="font-size:.88rem;font-weight:700;color:var(--text-primary)" id="progressMsg">Translating document…</div>
+        <div style="font-size:.76rem;color:var(--text-muted)">This may take 20–60 seconds</div>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div class="tr-card" id="resultPanel" style="display:none">
+      <div class="tr-card-head">
+        <div class="tr-card-head-left">
+          <div class="tr-card-icon" style="background:#16a34a"><i class="fa-solid fa-check"></i></div>
+          <div>
+            <div class="tr-card-title">Translated Text</div>
+            <div class="tr-card-sub" id="pageCount">—</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <a id="downloadBtn" class="tr-action-btn"><i class="fa-solid fa-download"></i> Download</a>
+          <button class="tr-action-btn" onclick="copyText()"><i class="fa-solid fa-copy"></i> Copy</button>
+        </div>
+      </div>
+      <div class="tr-card-body">
+        <div class="tr-out-body" id="translatedContent"></div>
+      </div>
+    </div>
+
+  </div><!-- /tr-split-right -->
+</div><!-- /tr-split -->
+</form>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 const zone      = document.getElementById('uploadZone');
 const input     = document.getElementById('fileInput');
-const fileBar   = document.getElementById('fileBar');
 const form      = document.getElementById('translateForm');
 const submitBtn = document.getElementById('submitBtn');
-const progress  = document.getElementById('progressWrap');
-const result    = document.getElementById('resultPanel');
 const contentEl = document.getElementById('translatedContent');
-const pageEl    = document.getElementById('pageCount');
 const dlBtn     = document.getElementById('downloadBtn');
 
-zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+let pgPages = [], pgCur = 0;
+
+zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
 zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
 zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
+zone.addEventListener('click', () => input.click());
 input.addEventListener('change', () => setFile(input.files[0]));
 
-function setFile(f) {
+async function setFile(f) {
   if (!f) return;
   const dt = new DataTransfer(); dt.items.add(f); input.files = dt.files;
-  document.getElementById('fileBarName').textContent = f.name;
-  document.getElementById('fileBarSize').textContent = (f.size/1024).toFixed(1) + ' KB';
-  fileBar.classList.add('show');
+  zone.style.display = 'none';
+  document.getElementById('splitView').style.display = '';
+  document.getElementById('fileBarName2').textContent = f.name;
+  document.getElementById('fileBarMeta').textContent  = (f.size/1024).toFixed(1)+' KB  ·  Loading pages…';
+  document.getElementById('viewerTitle').textContent  = 'Rendering pages…';
+  document.getElementById('pgImg').style.opacity = '0.3';
+
+  try {
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    fd.append('file', f);
+    const res  = await fetch('/tools/api/render-pdf-pages/', { method:'POST', body:fd });
+    const data = await res.json();
+    if (data.error || !data.page_images) { document.getElementById('viewerTitle').textContent = 'Preview unavailable'; return; }
+    pgPages = data.page_images; pgCur = 0;
+    document.getElementById('viewerTitle').textContent = `PDF Pages (${pgPages.length})`;
+    document.getElementById('fileBarMeta').textContent = `${(f.size/1024).toFixed(1)} KB  ·  ${pgPages.length} page${pgPages.length!==1?'s':''}`;
+
+    const strip = document.getElementById('pgThumbStrip');
+    strip.innerHTML = '';
+    if (pgPages.length > 1) {
+      strip.style.display = 'flex';
+      pgPages.forEach((b64, i) => {
+        const d = document.createElement('div');
+        d.className = 'tr-thumb' + (i===0?' active':'');
+        d.innerHTML = `<img src="data:image/jpeg;base64,${b64}">`;
+        d.addEventListener('click', () => pgGo(i));
+        strip.appendChild(d);
+      });
+    } else strip.style.display = 'none';
+    pgGo(0);
+  } catch(e) { document.getElementById('viewerTitle').textContent = 'Preview unavailable'; }
+}
+
+function pgGo(idx) {
+  if (!pgPages.length) return;
+  pgCur = Math.max(0, Math.min(idx, pgPages.length-1));
+  const img = document.getElementById('pgImg');
+  img.style.opacity = '0';
+  img.src = 'data:image/jpeg;base64,' + pgPages[pgCur];
+  img.onload = () => { img.style.opacity = '1'; };
+  document.getElementById('pgLabel').textContent = `${pgCur+1} / ${pgPages.length}`;
+  document.getElementById('pgPrev').disabled = pgCur === 0;
+  document.getElementById('pgNext').disabled = pgCur === pgPages.length-1;
+  document.querySelectorAll('.tr-thumb').forEach((d,i) => d.classList.toggle('active', i===pgCur));
+}
+
+function resetUpload() {
+  input.value = ''; pgPages = []; pgCur = 0;
+  zone.style.display = '';
+  document.getElementById('splitView').style.display = 'none';
+  document.getElementById('resultPanel').style.display = 'none';
+  document.getElementById('loadingCard').style.display = 'none';
 }
 
 form.addEventListener('submit', async e => {
   e.preventDefault();
   if (!input.files[0]) { showToast('Please select a PDF file.', 'error'); return; }
 
-  progress.style.display = 'flex';
-  result.style.display   = 'none';
-  submitBtn.disabled     = true;
+  document.getElementById('loadingCard').style.display = '';
+  document.getElementById('resultPanel').style.display = 'none';
+  submitBtn.disabled = true;
 
-  const msgs = ['Translating document…', 'Processing pages…', 'Almost done…'];
+  const msgs = ['Translating document…','Processing pages…','Almost done…'];
   let mi = 0;
   const ticker = setInterval(() => { document.getElementById('progressMsg').textContent = msgs[Math.min(++mi, msgs.length-1)]; }, 5000);
 
   const fd = new FormData(form);
   try {
-    const resp = await fetch('/tools/api/translate-pdf/', { method: 'POST', body: fd });
+    const resp = await fetch('/tools/api/translate-pdf/', { method:'POST', body:fd });
     const data = await resp.json();
     clearInterval(ticker);
-    progress.style.display = 'none';
+    document.getElementById('loadingCard').style.display = 'none';
     submitBtn.disabled = false;
     if (data.error) { showToast(data.error, 'error'); return; }
     contentEl.textContent = data.translated;
-    pageEl.textContent    = data.pages + ' page' + (data.pages !== 1 ? 's' : '');
-    dlBtn.href            = data.download_url;
-    dlBtn.download        = data.filename;
-    result.style.display  = 'block';
-    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  } catch (err) {
+    document.getElementById('pageCount').textContent = data.pages + ' page' + (data.pages!==1?'s':'') + ' translated';
+    dlBtn.href     = data.download_url;
+    dlBtn.download = data.filename;
+    document.getElementById('resultPanel').style.display = '';
+  } catch(err) {
     clearInterval(ticker);
-    progress.style.display = 'none';
+    document.getElementById('loadingCard').style.display = 'none';
     submitBtn.disabled = false;
     showToast('Request failed. Please try again.', 'error');
   }
@@ -258,10 +402,9 @@ function copyText() {
 function showToast(msg, type) {
   const c = document.getElementById('toastContainer');
   const t = document.createElement('div');
-  t.className = 'toast toast-' + (type || 'info');
+  t.className = 'toast toast-' + (type||'info');
   t.innerHTML = `<i class="fa-solid fa-${type==='error'?'circle-xmark':'circle-check'}"></i> ${msg}`;
-  c.appendChild(t);
-  setTimeout(() => t.remove(), 4000);
+  c.appendChild(t); setTimeout(() => t.remove(), 4000);
 }
 </script>
 {% endblock %}
