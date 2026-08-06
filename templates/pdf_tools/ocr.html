@@ -306,8 +306,8 @@
       </button>
       <div style="display:inline-flex;align-items:stretch;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.12)">
         <select id="allPagesAiProvider" style="font-size:11px;padding:0 8px;border:none;border-right:1px solid rgba(255,255,255,.25);color:#fff;background:#1e3a5f;cursor:pointer;outline:none;min-width:110px">
-          <option value="gemini">🆓 Gemini Flash</option>
-          <option value="mistral">Mistral</option>
+          <option value="gemini">Zayron LLM</option>
+          <option value="mistral">Zayron LLM PRO</option>
         </select>
         <button class="ocr-action-btn ocr-btn-stmt" id="extractAllAiBtn" onclick="extractAllPages('ai')" title="AI extract all pages → one Excel" style="border:none;border-radius:0;margin:0;border-left:1px solid rgba(255,255,255,.2)">
           <i class="fa-solid fa-wand-magic-sparkles"></i> All Pages AI
@@ -374,8 +374,8 @@
           </a>
           <div class="mta-right">
             <select id="aiProviderSelect" class="mta-provider">
-              <option value="gemini">🆓 Gemini Flash</option>
-              <option value="mistral">Mistral</option>
+              <option value="gemini">Zayron LLM</option>
+              <option value="mistral">Zayron LLM PRO</option>
             </select>
             <button class="btn btn-sm mta-ai" id="modalAiBtn" onclick="aiExtractModal()">
               <i class="fa-solid fa-wand-magic-sparkles"></i> AI Extract
@@ -640,7 +640,7 @@ async function aiExtractModal() {
   const btn = document.getElementById('modalAiBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="btn-spin"></span> Extracting…';
-  const _provLabels = { gemini:'Gemini Flash', groq:'Groq Llama', mistral:'Mistral', gpt:'GPT-4o-mini', 'claude-haiku':'Claude Haiku', 'claude-sonnet':'Claude Sonnet' };
+  const _provLabels = { gemini:'Zayron LLM', groq:'Groq Llama', mistral:'Zayron LLM PRO', gpt:'GPT-4o-mini', 'claude-haiku':'Claude Haiku', 'claude-sonnet':'Claude Sonnet' };
   const provLabel = _provLabels[_aiProvider()] || _aiProvider();
   document.getElementById('modalTxt').innerHTML = `<span class="btn-spin"></span> ${provLabel} is reading the page…`;
   document.getElementById('modalExcelWrap').style.display = 'none';
