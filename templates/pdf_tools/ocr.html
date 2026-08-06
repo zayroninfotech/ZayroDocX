@@ -318,6 +318,13 @@
           <span id="modalWordCount" style="font-size:.7rem;font-weight:400;color:var(--text-muted)"></span>
         </div>
         <div class="page-modal-txt" id="modalTxt">Loading…</div>
+        <!-- Excel download appears here after AI Extract -->
+        <div id="modalExcelWrap" style="display:none;padding:10px 0 4px">
+          <a class="btn btn-sm" id="modalExcelBtn" href="#"
+            style="background:#16a34a;color:#fff;border:none;text-decoration:none;font-weight:700;display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;font-size:.85rem">
+            <i class="fa-solid fa-file-excel"></i> Download Excel
+          </a>
+        </div>
       </div>
     </div>
     <div class="page-modal-actions">
@@ -341,9 +348,6 @@
         style="background:#dc2626;color:#fff;border:none;cursor:pointer">
         <i class="fa-solid fa-wand-magic-sparkles"></i> AI Extract
       </button>
-      <a class="btn btn-sm" id="modalExcelBtn" href="#" style="display:none;background:#16a34a;color:#fff;border:none;text-decoration:none;font-weight:700">
-        <i class="fa-solid fa-file-excel"></i> Download Excel
-      </a>
       <div class="pm-nav">
         <button class="btn btn-outline btn-sm" id="modalPrev"><i class="fa-solid fa-chevron-left"></i> Prev</button>
         <button class="btn btn-outline btn-sm" id="modalNext">Next <i class="fa-solid fa-chevron-right"></i></button>
@@ -426,7 +430,7 @@ async function openModal(idx) {
   document.getElementById('modalImg').src = imgSrc(_imgs[idx]);
   document.getElementById('modalPrev').disabled = idx === 0;
   document.getElementById('modalNext').disabled = idx === _imgs.length - 1;
-  document.getElementById('modalExcelBtn').style.display = 'none';
+  document.getElementById('modalExcelWrap').style.display = 'none';
 
   if (_texts[idx] !== undefined) {
     document.getElementById('modalTxt').textContent = _texts[idx] || '(No text found on this page)';
@@ -593,7 +597,7 @@ async function aiExtractModal() {
   const _provLabels = { gemini:'Gemini Flash', groq:'Groq Llama', mistral:'Mistral', gpt:'GPT-4o-mini', 'claude-haiku':'Claude Haiku', 'claude-sonnet':'Claude Sonnet' };
   const provLabel = _provLabels[_aiProvider()] || _aiProvider();
   document.getElementById('modalTxt').innerHTML = `<span class="btn-spin"></span> ${provLabel} is reading the page…`;
-  document.getElementById('modalExcelBtn').style.display = 'none';
+  document.getElementById('modalExcelWrap').style.display = 'none';
   try {
     const data = await _callAiExtract(_modalIdx);
     if (data.error) { document.getElementById('modalTxt').textContent = 'Error: ' + data.error; return; }
@@ -603,9 +607,7 @@ async function aiExtractModal() {
       const dlBtn = document.getElementById('modalExcelBtn');
       dlBtn.href = data.excel_url;
       dlBtn.download = data.excel_name || 'ai_page.xlsx';
-      dlBtn.style.display = 'inline-flex';
-      dlBtn.style.alignItems = 'center';
-      dlBtn.style.gap = '5px';
+      document.getElementById('modalExcelWrap').style.display = '';
     }
   } catch(e) {
     document.getElementById('modalTxt').textContent = 'AI extraction failed: ' + e.message;
