@@ -3,96 +3,154 @@
 {% block active_sign %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Sign PDF</span>{% endblock %}
 
-{% block extra_head %}
-<style>
-.cv-opts-card { background:#fff; border:1.5px solid #fca5a5; border-radius:16px; padding:1.2rem 1.4rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(220,38,38,.06); }
-.cv-opts-title { font-size:.75rem; font-weight:800; color:#b91c1c; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.85rem; display:flex; align-items:center; gap:.45rem; }
-.cv-field-label { font-size:.75rem; font-weight:700; color:#555; margin-bottom:.45rem; }
-.cv-input { width:100%; box-sizing:border-box; border:1.5px solid #e8e8e8; border-radius:10px; padding:.65rem .9rem; font-size:.88rem; color:#111; background:#fff; outline:none; transition:border-color .15s; }
-.cv-input:focus { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.1); }
-.cv-type-tabs { display:flex; gap:.5rem; margin-bottom:1rem; }
-.cv-type-tab { display:inline-flex; align-items:center; gap:.4rem; padding:.5rem 1rem; border:1.5px solid #e8e8e8; border-radius:9px; font-size:.82rem; font-weight:600; cursor:pointer; color:#555; background:#fff; transition:all .15s; }
-.cv-type-tab input { display:none; }
-.cv-type-tab:has(input:checked) { border-color:#dc2626; background:#fff8f8; color:#dc2626; box-shadow:0 0 0 2px rgba(220,38,38,.1); }
-.cv-type-tab:hover { border-color:#fca5a5; color:#b91c1c; }
-.cv-canvas-wrap { border:1.5px solid #fca5a5; border-radius:12px; overflow:hidden; background:#fff; touch-action:none; margin-bottom:.65rem; }
-.cv-canvas-wrap canvas { display:block; width:100%; height:160px; cursor:crosshair; }
-.cv-clear-btn { display:inline-flex; align-items:center; gap:.4rem; background:#fff; border:1.5px solid #fca5a5; border-radius:8px; padding:.38rem .85rem; font-size:.78rem; font-weight:600; color:#dc2626; cursor:pointer; transition:all .15s; }
-.cv-clear-btn:hover { background:#fee2e2; }
-.cv-row5 { display:grid; grid-template-columns:repeat(5,1fr); gap:.5rem; margin-top:.75rem; }
-.cv-hint { font-size:.74rem; color:#aaa; margin-bottom:.65rem; }
-</style>
-{% endblock %}
+{% block extra_head %}<style>
+.sg-drop { border: 2.5px dashed #cbd5e1; border-radius: 20px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: #f8fafc; }
+.sg-drop:hover, .sg-drop.drag-over { border-color: #dc2626; background: #fff8f8; }
+.sg-drop-icon { font-size: 3rem; color: #dc2626; margin-bottom: .8rem; }
+.sg-drop h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
+.sg-drop p  { color: #64748b; margin: 0 0 1.2rem; }
+.sg-drop-btn { background: #dc2626; color: #fff; border: none; border-radius: 10px; padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer; }
+.sg-drop-btn:hover { background: #b91c1c; }
+
+.sg-split { display: none; grid-template-columns: 1fr 440px; gap: 20px; align-items: start; }
+.sg-split.show { display: grid; }
+
+.sg-viewer { background: #0f172a; border-radius: 16px; padding: 16px; min-height: 400px; display: flex; align-items: flex-start; justify-content: center; overflow: auto; scroll-behavior: smooth; }
+.sg-viewer-pages { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
+.sg-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; }
+.sg-viewer-loading { color: #94a3b8; font-size: .9rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
+.sg-viewer-loading i { font-size: 2rem; }
+
+.sg-right { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
+.sg-card { background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 1.1rem 1.3rem; }
+.sg-file-row { display: flex; align-items: center; gap: .9rem; }
+.sg-file-icon { width: 44px; height: 44px; border-radius: 11px; background: #fff8f8; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #dc2626; flex-shrink: 0; }
+.sg-file-name { font-size: .88rem; font-weight: 700; color: #111; word-break: break-all; }
+.sg-file-size { font-size: .75rem; color: #aaa; margin-top: .1rem; }
+.sg-change-btn { margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 8px; padding: .35rem .75rem; font-size: .75rem; font-weight: 600; color: #666; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.sg-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
+
+.sg-opts-title { font-size: .72rem; font-weight: 800; color: #b91c1c; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .65rem; }
+.sg-type-tabs { display: flex; gap: .4rem; margin-bottom: .8rem; }
+.sg-type-tab { display: inline-flex; align-items: center; gap: .35rem; padding: .42rem .85rem; border: 1.5px solid #e8e8e8; border-radius: 8px; font-size: .78rem; font-weight: 600; cursor: pointer; color: #555; background: #fff; transition: all .15s; }
+.sg-type-tab input { display: none; }
+.sg-type-tab:has(input:checked) { border-color: #dc2626; background: #fff8f8; color: #dc2626; }
+.sg-type-tab:hover { border-color: #fca5a5; color: #b91c1c; }
+
+.sg-canvas-wrap { border: 1.5px solid #fca5a5; border-radius: 10px; overflow: hidden; background: #fff; touch-action: none; margin-bottom: .5rem; }
+.sg-canvas-wrap canvas { display: block; width: 100%; height: 150px; cursor: crosshair; }
+.sg-clear-btn { display: inline-flex; align-items: center; gap: .35rem; background: #fff; border: 1.5px solid #fca5a5; border-radius: 8px; padding: .35rem .8rem; font-size: .75rem; font-weight: 600; color: #dc2626; cursor: pointer; }
+.sg-clear-btn:hover { background: #fee2e2; }
+.sg-hint { font-size: .72rem; color: #aaa; margin-bottom: .5rem; }
+
+.sg-field-label { font-size: .73rem; font-weight: 700; color: #555; margin: .7rem 0 .35rem; }
+.sg-coords-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: .35rem; }
+.sg-input { width: 100%; box-sizing: border-box; border: 1.5px solid #e8e8e8; border-radius: 9px; padding: .5rem .6rem; font-size: .78rem; color: #111; outline: none; transition: border-color .15s; text-align: center; }
+.sg-input:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+
+.sg-convert-btn { width: 100%; padding: .85rem; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: opacity .15s; }
+.sg-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
+.sg-loading-card { display: none; background: #fff8f8; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.1rem 1.2rem; align-items: center; gap: .9rem; }
+.sg-loading-card.show { display: flex; }
+.sg-spin { animation: spin 1s linear infinite; font-size: 1.3rem; color: #dc2626; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.sg-result-card { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 1.1rem 1.2rem; }
+.sg-result-card.show { display: block; }
+.sg-result-title { font-size: .82rem; font-weight: 700; color: #166534; display: flex; align-items: center; gap: .4rem; margin-bottom: .7rem; }
+.sg-dl-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .65rem; background: #16a34a; color: #fff; border: none; border-radius: 9px; font-size: .88rem; font-weight: 700; cursor: pointer; text-decoration: none; }
+.sg-dl-btn:hover { background: #15803d; }
+.sg-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1rem 1.2rem; }
+.sg-error-card.show { display: block; }
+.sg-error-msg { font-size: .82rem; color: #dc2626; }
+
+@media (max-width: 1050px) { .sg-split { grid-template-columns: 1fr; } .sg-right { position: static; max-height: none; } }
+</style>{% endblock %}
 
 {% block content %}
-<div class="cv-hero">
-  <div class="cv-hero-left">
-    <div class="cv-eyebrow"><i class="fa-solid fa-signature"></i> Edit PDF</div>
-    <h2>Sign PDF</h2>
-    <p>Draw your signature or upload an image — place it precisely on any page</p>
-  </div>
-  <div class="cv-hero-pills">
-    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-pen"></i></span><div class="l">Draw</div></div>
-    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-image"></i></span><div class="l">Upload</div></div>
-    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
-  </div>
+<input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
+
+<div class="sg-drop" id="sgDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="sg-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+  <h3>Drop your PDF here</h3>
+  <p>Draw or upload your signature, then place it on any page</p>
+  <button type="button" class="sg-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-folder-open"></i> Select PDF File
+  </button>
 </div>
 
-<form id="toolForm" enctype="multipart/form-data">{% csrf_token %}
-  <div class="cv-drop" id="cvDrop">
-    <input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="cv-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
-    <h3>Drop your PDF here</h3>
-    <p>Then draw or upload your signature below</p>
-    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-folder-open"></i> Select PDF File
+<div class="sg-split" id="sgSplit">
+  <div class="sg-viewer">
+    <div class="sg-viewer-loading" id="sgViewerLoading">
+      <i class="fa-solid fa-spinner sg-spin"></i>
+      <span>Loading pages…</span>
+    </div>
+    <div class="sg-viewer-pages" id="sgPages" style="display:none"></div>
+  </div>
+
+  <div class="sg-right">
+    <div class="sg-card">
+      <div class="sg-file-row">
+        <div class="sg-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+        <div>
+          <div class="sg-file-name" id="sgFileName">—</div>
+          <div class="sg-file-size" id="sgFileSize">—</div>
+        </div>
+        <button type="button" class="sg-change-btn" onclick="resetTool()">
+          <i class="fa-solid fa-rotate-left"></i> Change
+        </button>
+      </div>
+    </div>
+
+    <div class="sg-card">
+      <div class="sg-opts-title"><i class="fa-solid fa-signature"></i> Signature</div>
+      <div class="sg-type-tabs">
+        <label class="sg-type-tab"><input type="radio" name="sig_method" value="draw" checked><i class="fa-solid fa-pen"></i> Draw</label>
+        <label class="sg-type-tab"><input type="radio" name="sig_method" value="upload"><i class="fa-solid fa-image"></i> Upload Image</label>
+      </div>
+
+      <div id="sgDrawSection">
+        <div class="sg-hint">Draw your signature using mouse or touch:</div>
+        <div class="sg-canvas-wrap"><canvas id="signatureCanvas" width="600" height="150"></canvas></div>
+        <button type="button" id="clearCanvas" class="sg-clear-btn"><i class="fa-solid fa-eraser"></i> Clear</button>
+        <input type="hidden" name="signature_data" id="signatureData">
+      </div>
+
+      <div id="sgUploadSection" style="display:none">
+        <div class="sg-field-label">Signature Image <span style="font-size:.7rem;color:#aaa;font-weight:400;">(PNG recommended)</span></div>
+        <input type="file" name="signature" class="sg-input" accept="image/*" style="text-align:left;padding:.5rem .8rem;">
+      </div>
+
+      <div class="sg-field-label" style="margin-top:.9rem">Placement <span style="font-size:.7rem;color:#aaa;font-weight:400;">(page + coordinates in points)</span></div>
+      <div class="sg-coords-grid">
+        <div><div class="sg-field-label" style="margin-top:0">Page</div><input type="number" name="page" class="sg-input" value="1" min="1"></div>
+        <div><div class="sg-field-label" style="margin-top:0">X1</div><input type="number" name="x1" class="sg-input" value="50"></div>
+        <div><div class="sg-field-label" style="margin-top:0">Y1</div><input type="number" name="y1" class="sg-input" value="700"></div>
+        <div><div class="sg-field-label" style="margin-top:0">X2</div><input type="number" name="x2" class="sg-input" value="250"></div>
+        <div><div class="sg-field-label" style="margin-top:0">Y2</div><input type="number" name="y2" class="sg-input" value="760"></div>
+      </div>
+    </div>
+
+    <button type="button" class="sg-convert-btn" id="sgConvertBtn" onclick="doSign()">
+      <i class="fa-solid fa-signature"></i> Sign PDF
     </button>
-    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; Private &nbsp;·&nbsp; Free</span>
-  </div>
-  <div class="cv-file-bar" id="cvFileBar">
-    <i class="fa-solid fa-file-pdf cv-file-icon" style="color:#dc2626"></i>
-    <span class="cv-file-name" id="cvFileName">—</span>
-    <span class="cv-file-size" id="cvFileSize">—</span>
-  </div>
 
-  <div class="cv-opts-card">
-    <div class="cv-opts-title"><i class="fa-solid fa-signature"></i> Signature</div>
-    <div class="cv-type-tabs">
-      <label class="cv-type-tab"><input type="radio" name="sig_method" id="smDraw" value="draw" checked><i class="fa-solid fa-pen"></i> Draw</label>
-      <label class="cv-type-tab"><input type="radio" name="sig_method" id="smUpload" value="upload"><i class="fa-solid fa-image"></i> Upload Image</label>
+    <div class="sg-loading-card" id="sgLoadingCard">
+      <i class="fa-solid fa-spinner sg-spin"></i>
+      <span style="font-size:.88rem;font-weight:600;color:#b91c1c">Signing PDF…</span>
     </div>
 
-    <div id="drawSection">
-      <div class="cv-hint">Draw your signature below using mouse or touch:</div>
-      <div class="cv-canvas-wrap"><canvas id="signatureCanvas" width="600" height="160"></canvas></div>
-      <button type="button" id="clearCanvas" class="cv-clear-btn"><i class="fa-solid fa-eraser"></i> Clear</button>
-      <input type="hidden" name="signature_data" id="signatureData">
+    <div class="sg-result-card" id="sgResultCard">
+      <div class="sg-result-title"><i class="fa-solid fa-circle-check"></i> PDF signed!</div>
+      <a class="sg-dl-btn" id="sgDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download PDF</a>
     </div>
 
-    <div id="uploadSection" style="display:none">
-      <div class="cv-field-label">Signature Image <span style="font-size:.7rem;color:#aaa;font-weight:400;">(PNG with transparent background recommended)</span></div>
-      <input type="file" name="signature" class="cv-input" accept="image/*" style="padding:.5rem .9rem;">
-    </div>
-
-    <div class="cv-row5" style="margin-top:1rem;">
-      <div><div class="cv-field-label">Page</div><input type="number" name="page" class="cv-input" value="1" min="1"></div>
-      <div><div class="cv-field-label">X1 (left)</div><input type="number" name="x1" class="cv-input" value="50"></div>
-      <div><div class="cv-field-label">Y1 (top)</div><input type="number" name="y1" class="cv-input" value="700"></div>
-      <div><div class="cv-field-label">X2 (right)</div><input type="number" name="x2" class="cv-input" value="250"></div>
-      <div><div class="cv-field-label">Y2 (bottom)</div><input type="number" name="y2" class="cv-input" value="760"></div>
+    <div class="sg-error-card" id="sgErrorCard">
+      <div class="sg-error-msg" id="sgErrorMsg"></div>
     </div>
   </div>
-
-  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-signature"></i> Sign PDF</button>
-</form>
-
-<div class="progress-wrap">
-  <div class="progress-header"><span class="progress-label">Signing PDF…</span></div>
-  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
 </div>
-<div class="result-card"></div>
 
-<div class="cv-info-strip">
+<div class="cv-info-strip" id="sgInfoStrip">
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-pen"></i></div><div><div class="cv-info-title">Draw or Upload</div><div class="cv-info-desc">Two signature modes</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-crosshairs"></i></div><div><div class="cv-info-title">Precise Placement</div><div class="cv-info-desc">X/Y coordinates</div></div></div>
@@ -101,32 +159,81 @@
 {% endblock %}
 
 {% block extra_js %}<script>
-(function(){
-  const inp=document.getElementById('fileInput'),drop=document.getElementById('cvDrop'),bar=document.getElementById('cvFileBar');
-  function setFile(f){if(!f)return;document.getElementById('cvFileName').textContent=f.name;document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB';bar.classList.add('show');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;}
-  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
-  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
-  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
-  inp.addEventListener('change',()=>setFile(inp.files[0]));
-})();
-initSignatureCanvas('signatureCanvas');
-document.querySelectorAll('input[name="sig_method"]').forEach(r=>r.addEventListener('change',function(){
-  document.getElementById('drawSection').style.display=this.value==='draw'?'block':'none';
-  document.getElementById('uploadSection').style.display=this.value==='upload'?'block':'none';
+const fileInput      = document.getElementById('fileInput');
+const sgDrop         = document.getElementById('sgDrop');
+const sgSplit        = document.getElementById('sgSplit');
+const sgPagesEl      = document.getElementById('sgPages');
+const sgViewerLoad   = document.getElementById('sgViewerLoading');
+const sgConvertBtn   = document.getElementById('sgConvertBtn');
+const sgLoadingCard  = document.getElementById('sgLoadingCard');
+const sgResultCard   = document.getElementById('sgResultCard');
+const sgErrorCard    = document.getElementById('sgErrorCard');
+const sgInfoStrip    = document.getElementById('sgInfoStrip');
+let currentFile = null;
+
+function resetTool() {
+  fileInput.value = ''; currentFile = null;
+  sgDrop.style.display = ''; sgSplit.classList.remove('show');
+  sgPagesEl.innerHTML = ''; sgPagesEl.style.display = 'none';
+  sgViewerLoad.style.display = 'flex'; sgConvertBtn.disabled = false;
+  sgLoadingCard.classList.remove('show'); sgResultCard.classList.remove('show');
+  sgErrorCard.classList.remove('show'); sgInfoStrip.style.display = '';
+}
+
+async function loadPreview(file) {
+  const fd = new FormData(); fd.append('file', file); fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  try {
+    const res = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    sgPagesEl.innerHTML = '';
+    data.page_images.forEach((b64, i) => { const img = document.createElement('img'); img.src = 'data:image/jpeg;base64,' + b64; img.alt = 'Page ' + (i+1); sgPagesEl.appendChild(img); });
+    sgViewerLoad.style.display = 'none'; sgPagesEl.style.display = 'flex';
+  } catch (e) { sgViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>'; }
+}
+
+function setFile(f) {
+  if (!f) return; currentFile = f;
+  document.getElementById('sgFileName').textContent = f.name;
+  document.getElementById('sgFileSize').textContent = (f.size/1024).toFixed(1) + ' KB';
+  const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
+  sgDrop.style.display = 'none'; sgInfoStrip.style.display = 'none';
+  sgResultCard.classList.remove('show'); sgErrorCard.classList.remove('show');
+  sgSplit.classList.add('show'); loadPreview(f);
+}
+
+async function doSign() {
+  if (!currentFile) return;
+  if (document.querySelector('input[name="sig_method"]:checked').value === 'draw')
+    document.getElementById('signatureData').value = document.getElementById('signatureCanvas').toDataURL('image/png');
+  sgConvertBtn.disabled = true; sgLoadingCard.classList.add('show');
+  sgResultCard.classList.remove('show'); sgErrorCard.classList.remove('show');
+  const fd = new FormData();
+  fd.append('file', currentFile); fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fd.append('sig_method', document.querySelector('input[name="sig_method"]:checked').value);
+  fd.append('signature_data', document.getElementById('signatureData').value);
+  const sigFile = document.querySelector('[name="signature"]'); if (sigFile?.files[0]) fd.append('signature', sigFile.files[0]);
+  ['page','x1','y1','x2','y2'].forEach(n => { const el = document.querySelector(`[name="${n}"]`); if (el) fd.append(n, el.value); });
+  try {
+    const res = await fetch('{% url "api_sign_pdf" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    document.getElementById('sgDlBtn').href = data.download_url;
+    document.getElementById('sgDlBtn').download = data.filename || 'signed.pdf';
+    sgResultCard.classList.add('show');
+  } catch (e) { document.getElementById('sgErrorMsg').textContent = e.message || 'Failed.'; sgErrorCard.classList.add('show'); }
+  finally { sgLoadingCard.classList.remove('show'); sgConvertBtn.disabled = false; }
+}
+
+fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+sgDrop.addEventListener('dragover', e => { e.preventDefault(); sgDrop.classList.add('drag-over'); });
+sgDrop.addEventListener('dragleave', () => sgDrop.classList.remove('drag-over'));
+sgDrop.addEventListener('drop', e => { e.preventDefault(); sgDrop.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
+
+document.querySelectorAll('input[name="sig_method"]').forEach(r => r.addEventListener('change', function() {
+  document.getElementById('sgDrawSection').style.display = this.value === 'draw' ? 'block' : 'none';
+  document.getElementById('sgUploadSection').style.display = this.value === 'upload' ? 'block' : 'none';
 }));
-document.getElementById('toolForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-  if(document.querySelector('input[name="sig_method"]:checked').value==='draw')
-    document.getElementById('signatureData').value=document.getElementById('signatureCanvas').toDataURL('image/png');
-  const fd=new FormData(e.target);
-  const btn=e.target.querySelector('.btn-submit');
-  btn.disabled=true; showProgress(true,'Signing PDF…',20);
-  try{
-    await fakeProgress(20,80,500);
-    const resp=await fetch('{% url "api_sign_pdf" %}',{method:'POST',body:fd});
-    const data=await resp.json();
-    showProgress(false); btn.disabled=false;
-    if(data.error) showError(data.error); else showDownload(data);
-  }catch(err){showProgress(false);btn.disabled=false;showError(err.message);}
-});
+
+initSignatureCanvas('signatureCanvas');
 </script>{% endblock %}

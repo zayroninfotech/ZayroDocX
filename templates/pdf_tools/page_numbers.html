@@ -3,85 +3,148 @@
 {% block active_pagenum %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Page Numbers</span>{% endblock %}
 
-{% block extra_head %}
-<style>
-.cv-opts-card { background:#fff; border:1.5px solid #fca5a5; border-radius:16px; padding:1.2rem 1.4rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(220,38,38,.06); }
-.cv-opts-title { font-size:.75rem; font-weight:800; color:#b91c1c; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.85rem; display:flex; align-items:center; gap:.45rem; }
-.cv-field-label { font-size:.75rem; font-weight:700; color:#555; margin-bottom:.45rem; }
-.cv-input { width:100%; box-sizing:border-box; border:1.5px solid #e8e8e8; border-radius:10px; padding:.65rem .9rem; font-size:.88rem; color:#111; background:#fff; outline:none; transition:border-color .15s; }
-.cv-input:focus { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.1); }
-.cv-pos-grid { display:grid; grid-template-columns:1fr 1fr; gap:.5rem; margin-bottom:1rem; }
-.cv-pos-opt { position:relative; }
-.cv-pos-opt input { position:absolute;opacity:0;width:0;height:0; }
-.cv-pos-opt label { display:flex; align-items:center; gap:.5rem; padding:.65rem .9rem; border:1.5px solid #e8e8e8; border-radius:10px; cursor:pointer; color:#555; font-size:.82rem; font-weight:600; background:#fff; transition:all .15s; }
-.cv-pos-opt input:checked + label { border-color:#dc2626; background:#fff8f8; color:#dc2626; box-shadow:0 0 0 2px rgba(220,38,38,.1); }
-.cv-pos-opt label:hover { border-color:#fca5a5; color:#b91c1c; }
-.cv-row2 { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
-</style>
-{% endblock %}
+{% block extra_head %}<style>
+.pn-drop { border: 2.5px dashed #cbd5e1; border-radius: 20px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: #f8fafc; }
+.pn-drop:hover, .pn-drop.drag-over { border-color: #dc2626; background: #fff8f8; }
+.pn-drop-icon { font-size: 3rem; color: #dc2626; margin-bottom: .8rem; }
+.pn-drop h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
+.pn-drop p  { color: #64748b; margin: 0 0 1.2rem; }
+.pn-drop-btn { background: #dc2626; color: #fff; border: none; border-radius: 10px; padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer; }
+.pn-drop-btn:hover { background: #b91c1c; }
+
+.pn-split { display: none; grid-template-columns: 1fr 420px; gap: 20px; align-items: start; }
+.pn-split.show { display: grid; }
+
+.pn-viewer { background: #0f172a; border-radius: 16px; padding: 16px; min-height: 400px; display: flex; align-items: flex-start; justify-content: center; overflow: auto; scroll-behavior: smooth; }
+.pn-viewer-pages { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
+.pn-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; }
+.pn-viewer-loading { color: #94a3b8; font-size: .9rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
+.pn-viewer-loading i { font-size: 2rem; }
+
+.pn-right { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
+.pn-card { background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 1.1rem 1.3rem; }
+.pn-file-row { display: flex; align-items: center; gap: .9rem; }
+.pn-file-icon { width: 48px; height: 48px; border-radius: 12px; background: #fff8f8; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #dc2626; flex-shrink: 0; }
+.pn-file-name { font-size: .9rem; font-weight: 700; color: #111; word-break: break-all; }
+.pn-file-size { font-size: .78rem; color: #aaa; margin-top: .15rem; }
+.pn-change-btn { margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 8px; padding: .4rem .85rem; font-size: .78rem; font-weight: 600; color: #666; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.pn-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
+
+.pn-opts-title { font-size: .72rem; font-weight: 800; color: #b91c1c; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .6rem; }
+.pn-field-label { font-size: .75rem; font-weight: 700; color: #555; margin: .8rem 0 .4rem; }
+.pn-pos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; }
+.pn-pos-opt { position: relative; }
+.pn-pos-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+.pn-pos-opt label { display: flex; align-items: center; gap: .4rem; padding: .55rem .75rem; border: 1.5px solid #e8e8e8; border-radius: 9px; cursor: pointer; color: #555; font-size: .78rem; font-weight: 600; background: #fff; transition: all .15s; }
+.pn-pos-opt input:checked + label { border-color: #dc2626; background: #fff8f8; color: #dc2626; box-shadow: 0 0 0 2px rgba(220,38,38,.1); }
+.pn-pos-opt label:hover { border-color: #fca5a5; color: #b91c1c; }
+.pn-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; }
+.pn-input { width: 100%; box-sizing: border-box; border: 1.5px solid #e8e8e8; border-radius: 9px; padding: .55rem .8rem; font-size: .85rem; color: #111; outline: none; transition: border-color .15s; }
+.pn-input:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+
+.pn-convert-btn { width: 100%; padding: .85rem; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: opacity .15s; }
+.pn-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.pn-loading-card { display: none; background: #fff8f8; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.2rem 1.3rem; align-items: center; gap: 1rem; }
+.pn-loading-card.show { display: flex; }
+.pn-spin { animation: spin 1s linear infinite; font-size: 1.4rem; color: #dc2626; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.pn-loading-text { font-size: .9rem; font-weight: 600; color: #b91c1c; }
+
+.pn-result-card { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 1.2rem 1.3rem; }
+.pn-result-card.show { display: block; }
+.pn-result-title { font-size: .85rem; font-weight: 700; color: #166534; display: flex; align-items: center; gap: .4rem; margin-bottom: .8rem; }
+.pn-dl-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .7rem; background: #16a34a; color: #fff; border: none; border-radius: 10px; font-size: .9rem; font-weight: 700; cursor: pointer; text-decoration: none; }
+.pn-dl-btn:hover { background: #15803d; }
+
+.pn-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.1rem 1.3rem; }
+.pn-error-card.show { display: block; }
+.pn-error-msg { font-size: .85rem; color: #dc2626; }
+
+@media (max-width: 1000px) { .pn-split { grid-template-columns: 1fr; } .pn-right { position: static; max-height: none; } }
+</style>{% endblock %}
 
 {% block content %}
-<div class="cv-hero">
-  <div class="cv-hero-left">
-    <div class="cv-eyebrow"><i class="fa-solid fa-list-ol"></i> Edit PDF</div>
-    <h2>Add Page Numbers</h2>
-    <p>Number every page automatically — choose position, start number and font size</p>
-  </div>
-  <div class="cv-hero-pills">
-    <div class="cv-hero-pill"><span class="n">4</span><div class="l">Positions</div></div>
-    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-font"></i></span><div class="l">Custom Font</div></div>
-    <div class="cv-hero-pill"><span class="n"><i class="fa-solid fa-shield-halved"></i></span><div class="l">Private</div></div>
-  </div>
+<input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
+
+<div class="pn-drop" id="pnDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="pn-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+  <h3>Drop your PDF here</h3>
+  <p>Page numbers will be added to every page</p>
+  <button type="button" class="pn-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-folder-open"></i> Select PDF File
+  </button>
 </div>
 
-<form id="toolForm">{% csrf_token %}
-  <div class="cv-drop" id="cvDrop">
-    <input type="file" id="fileInput" name="file" accept=".pdf">
-    <div class="cv-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
-    <h3>Drop your PDF here</h3>
-    <p>Page numbers will be added to every page</p>
-    <button type="button" class="cv-drop-btn" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-folder-open"></i> Select PDF File
+<div class="pn-split" id="pnSplit">
+  <div class="pn-viewer">
+    <div class="pn-viewer-loading" id="pnViewerLoading">
+      <i class="fa-solid fa-spinner pn-spin"></i>
+      <span>Loading pages…</span>
+    </div>
+    <div class="pn-viewer-pages" id="pnPages" style="display:none"></div>
+  </div>
+
+  <div class="pn-right">
+    <!-- File info -->
+    <div class="pn-card">
+      <div class="pn-file-row">
+        <div class="pn-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+        <div>
+          <div class="pn-file-name" id="pnFileName">—</div>
+          <div class="pn-file-size" id="pnFileSize">—</div>
+        </div>
+        <button type="button" class="pn-change-btn" onclick="resetTool()">
+          <i class="fa-solid fa-rotate-left"></i> Change
+        </button>
+      </div>
+    </div>
+
+    <!-- Options -->
+    <div class="pn-card">
+      <div class="pn-opts-title"><i class="fa-solid fa-sliders"></i> Number Options</div>
+      <div class="pn-field-label" style="margin-top:0">Number Position</div>
+      <div class="pn-pos-grid">
+        <div class="pn-pos-opt"><input type="radio" name="position" id="pbc" value="bottom-center" checked><label for="pbc"><i class="fa-solid fa-align-center"></i> Bottom Centre</label></div>
+        <div class="pn-pos-opt"><input type="radio" name="position" id="pbr" value="bottom-right"><label for="pbr"><i class="fa-solid fa-align-right"></i> Bottom Right</label></div>
+        <div class="pn-pos-opt"><input type="radio" name="position" id="ptc" value="top-center"><label for="ptc"><i class="fa-solid fa-align-center"></i> Top Centre</label></div>
+        <div class="pn-pos-opt"><input type="radio" name="position" id="ptr" value="top-right"><label for="ptr"><i class="fa-solid fa-align-right"></i> Top Right</label></div>
+      </div>
+      <div class="pn-row2">
+        <div>
+          <div class="pn-field-label">Starting Number</div>
+          <input type="number" id="pnStart" class="pn-input" value="1" min="0">
+        </div>
+        <div>
+          <div class="pn-field-label">Font Size (pt)</div>
+          <input type="number" id="pnFontSize" class="pn-input" value="12" min="8" max="36">
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="pn-convert-btn" id="pnConvertBtn" onclick="doConvert()">
+      <i class="fa-solid fa-list-ol"></i> Add Page Numbers
     </button>
-    <br><span class="cv-drop-hint"><i class="fa-solid fa-shield-halved"></i> PDF only &nbsp;·&nbsp; Private &nbsp;·&nbsp; Free</span>
-  </div>
-  <div class="cv-file-bar" id="cvFileBar">
-    <i class="fa-solid fa-file-pdf cv-file-icon" style="color:#dc2626"></i>
-    <span class="cv-file-name" id="cvFileName">—</span>
-    <span class="cv-file-size" id="cvFileSize">—</span>
-  </div>
 
-  <div class="cv-opts-card">
-    <div class="cv-opts-title"><i class="fa-solid fa-sliders"></i> Number Options</div>
-    <div class="cv-field-label" style="margin-bottom:.55rem;">Number Position</div>
-    <div class="cv-pos-grid">
-      <div class="cv-pos-opt"><input type="radio" name="position" id="pbc" value="bottom-center" checked><label for="pbc"><i class="fa-solid fa-align-center"></i> Bottom Centre</label></div>
-      <div class="cv-pos-opt"><input type="radio" name="position" id="pbr" value="bottom-right"><label for="pbr"><i class="fa-solid fa-align-right"></i> Bottom Right</label></div>
-      <div class="cv-pos-opt"><input type="radio" name="position" id="ptc" value="top-center"><label for="ptc"><i class="fa-solid fa-align-center"></i> Top Centre</label></div>
-      <div class="cv-pos-opt"><input type="radio" name="position" id="ptr" value="top-right"><label for="ptr"><i class="fa-solid fa-align-right"></i> Top Right</label></div>
+    <div class="pn-loading-card" id="pnLoadingCard">
+      <i class="fa-solid fa-spinner pn-spin"></i>
+      <span class="pn-loading-text">Adding page numbers…</span>
     </div>
-    <div class="cv-row2">
-      <div>
-        <div class="cv-field-label">Starting Number</div>
-        <input type="number" name="start" class="cv-input" value="1" min="0">
-      </div>
-      <div>
-        <div class="cv-field-label">Font Size (pt)</div>
-        <input type="number" name="font_size" class="cv-input" value="12" min="8" max="36">
-      </div>
+
+    <div class="pn-result-card" id="pnResultCard">
+      <div class="pn-result-title"><i class="fa-solid fa-circle-check"></i> PDF ready!</div>
+      <a class="pn-dl-btn" id="pnDlBtn" href="#" download>
+        <i class="fa-solid fa-download"></i> Download PDF
+      </a>
+    </div>
+
+    <div class="pn-error-card" id="pnErrorCard">
+      <div class="pn-error-msg" id="pnErrorMsg"></div>
     </div>
   </div>
-
-  <button type="submit" class="cv-submit btn-submit"><i class="fa-solid fa-list-ol"></i> Add Page Numbers</button>
-</form>
-
-<div class="progress-wrap">
-  <div class="progress-header"><span class="progress-label">Adding page numbers…</span></div>
-  <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
 </div>
-<div class="result-card"></div>
 
-<div class="cv-info-strip">
+<div class="cv-info-strip" id="pnInfoStrip">
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-crosshairs"></i></div><div><div class="cv-info-title">4 Positions</div><div class="cv-info-desc">Top & bottom options</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-font"></i></div><div><div class="cv-info-title">Custom Font</div><div class="cv-info-desc">Size & start number</div></div></div>
@@ -90,13 +153,98 @@
 {% endblock %}
 
 {% block extra_js %}<script>
-(function(){
-  const inp=document.getElementById('fileInput'),drop=document.getElementById('cvDrop'),bar=document.getElementById('cvFileBar');
-  function setFile(f){if(!f)return;document.getElementById('cvFileName').textContent=f.name;document.getElementById('cvFileSize').textContent=(f.size/1024).toFixed(1)+' KB';bar.classList.add('show');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;}
-  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
-  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
-  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
-  inp.addEventListener('change',()=>setFile(inp.files[0]));
-})();
-submitToolForm({formId:'toolForm',apiUrl:'{% url "api_page_numbers" %}',fileInputId:'fileInput'});
+const fileInput      = document.getElementById('fileInput');
+const pnDrop         = document.getElementById('pnDrop');
+const pnSplit        = document.getElementById('pnSplit');
+const pnPagesEl      = document.getElementById('pnPages');
+const pnViewerLoad   = document.getElementById('pnViewerLoading');
+const pnConvertBtn   = document.getElementById('pnConvertBtn');
+const pnLoadingCard  = document.getElementById('pnLoadingCard');
+const pnResultCard   = document.getElementById('pnResultCard');
+const pnErrorCard    = document.getElementById('pnErrorCard');
+const pnInfoStrip    = document.getElementById('pnInfoStrip');
+
+let currentFile = null;
+
+function resetTool() {
+  fileInput.value = ''; currentFile = null;
+  pnDrop.style.display = ''; pnSplit.classList.remove('show');
+  pnPagesEl.innerHTML = ''; pnPagesEl.style.display = 'none';
+  pnViewerLoad.style.display = 'flex'; pnConvertBtn.disabled = false;
+  pnLoadingCard.classList.remove('show'); pnResultCard.classList.remove('show');
+  pnErrorCard.classList.remove('show'); pnInfoStrip.style.display = '';
+}
+
+async function loadPreview(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  try {
+    const res = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    pnPagesEl.innerHTML = '';
+    data.page_images.forEach((b64, i) => {
+      const img = document.createElement('img');
+      img.src = 'data:image/jpeg;base64,' + b64;
+      img.alt = 'Page ' + (i + 1);
+      pnPagesEl.appendChild(img);
+    });
+    pnViewerLoad.style.display = 'none';
+    pnPagesEl.style.display = 'flex';
+  } catch (e) {
+    pnViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>';
+  }
+}
+
+function setFile(f) {
+  if (!f) return;
+  currentFile = f;
+  document.getElementById('pnFileName').textContent = f.name;
+  document.getElementById('pnFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
+  const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
+  pnDrop.style.display = 'none'; pnInfoStrip.style.display = 'none';
+  pnResultCard.classList.remove('show'); pnErrorCard.classList.remove('show');
+  pnSplit.classList.add('show');
+  loadPreview(f);
+}
+
+async function doConvert() {
+  if (!currentFile) return;
+  pnConvertBtn.disabled = true;
+  pnLoadingCard.classList.add('show');
+  pnResultCard.classList.remove('show');
+  pnErrorCard.classList.remove('show');
+
+  const fd = new FormData();
+  fd.append('file', currentFile);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  const pos = document.querySelector('input[name="position"]:checked');
+  if (pos) fd.append('position', pos.value);
+  fd.append('start', document.getElementById('pnStart').value);
+  fd.append('font_size', document.getElementById('pnFontSize').value);
+
+  try {
+    const res = await fetch('{% url "api_page_numbers" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    document.getElementById('pnDlBtn').href = data.download_url;
+    document.getElementById('pnDlBtn').download = data.filename || 'numbered.pdf';
+    pnResultCard.classList.add('show');
+  } catch (e) {
+    document.getElementById('pnErrorMsg').textContent = e.message || 'Failed to add page numbers.';
+    pnErrorCard.classList.add('show');
+  } finally {
+    pnLoadingCard.classList.remove('show');
+    pnConvertBtn.disabled = false;
+  }
+}
+
+fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+pnDrop.addEventListener('dragover',  e => { e.preventDefault(); pnDrop.classList.add('drag-over'); });
+pnDrop.addEventListener('dragleave', () => pnDrop.classList.remove('drag-over'));
+pnDrop.addEventListener('drop', e => {
+  e.preventDefault(); pnDrop.classList.remove('drag-over');
+  setFile(e.dataTransfer.files[0]);
+});
 </script>{% endblock %}
