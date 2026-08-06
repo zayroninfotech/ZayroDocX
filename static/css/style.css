@@ -143,6 +143,30 @@ body { padding-top: var(--mh-h); }
   color: var(--brand); padding: .3rem .65rem .1rem;
 }
 
+/* ConnectSpace nav link */
+.mh-connectspace {
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: 0 .85rem; height: var(--mh-h); line-height: var(--mh-h);
+  font-size: .82rem; font-weight: 700; color: #dc2626;
+  cursor: pointer; transition: color .15s; text-decoration: none;
+  border-bottom: 2px solid transparent; margin-bottom: -2px;
+}
+.mh-connectspace:hover, .mh-connectspace.active {
+  color: #b91c1c; border-bottom-color: #dc2626;
+}
+.mh-cs-badge {
+  display: inline-flex; align-items: center;
+  background: #dc2626; color: #fff;
+  font-size: .58rem; font-weight: 800; letter-spacing: .04em;
+  border-radius: 4px; padding: .1rem .32rem; line-height: 1.3;
+  vertical-align: middle; margin-left: .1rem;
+  animation: csPulse 2s ease-in-out infinite;
+}
+@keyframes csPulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: .55; }
+}
+
 /* Header right */
 .mh-actions { display: flex; align-items: center; gap: .6rem; flex-shrink: 0; margin-left: auto; }
 .mh-local-badge {

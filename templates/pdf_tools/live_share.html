@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}ConnectSpace — Live File Share{% endblock %}
+{% block active_connectspace %}active{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">ConnectSpace</span>{% endblock %}
+{% block extra_head %}<style>
+.cs-wrap{max-width:900px;margin:0 auto;padding:2rem 1rem}
+.cs-hero{text-align:center;padding:2.5rem 1rem 2rem}
+.cs-hero-icon{font-size:3rem;color:#dc2626;margin-bottom:.8rem}
+.cs-hero h1{font-size:1.8rem;font-weight:800;color:#1e293b;margin:0 0 .4rem}
+.cs-hero p{font-size:.92rem;color:#64748b;margin:0}
+.cs-pick{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:2rem}
+.cs-card{background:#fff;border:2px solid #e8e8e8;border-radius:18px;padding:2rem 1.5rem;text-align:center;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.cs-card:hover{border-color:#dc2626;box-shadow:0 4px 24px rgba(220,38,38,.12)}
+.cs-card-icon{font-size:2.2rem;margin-bottom:.8rem}
+.cs-card h2{font-size:1.1rem;font-weight:800;color:#1e293b;margin:0 0 .4rem}
+.cs-card p{font-size:.82rem;color:#64748b;margin:0 0 1.3rem}
+.cs-card-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.4rem;border-radius:10px;font-size:.84rem;font-weight:700;border:none;cursor:pointer;transition:opacity .15s}
+.cs-gen-btn{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff}
+.cs-join-btn{background:#fff;border:2px solid #dc2626 !important;color:#dc2626}
+.cs-card-btn:hover{opacity:.85}
+
+/* Room view */
+.cs-room{display:none}
+.cs-room.show{display:block}
+.cs-status-bar{display:flex;align-items:center;gap:.8rem;background:#fff;border:1.5px solid #e8e8e8;border-radius:14px;padding:.8rem 1.2rem;margin-bottom:1.2rem}
+.cs-status-dot{width:10px;height:10px;border-radius:50%;background:#f59e0b;flex-shrink:0;transition:background .3s}
+.cs-status-dot.online{background:#16a34a}
+.cs-status-label{font-size:.82rem;font-weight:700;color:#475569}
+.cs-code-badge{margin-left:auto;background:#f1f5f9;border-radius:8px;padding:.3rem .8rem;font-size:.88rem;font-weight:800;color:#dc2626;letter-spacing:.1em;font-family:monospace}
+.cs-copy-code{background:none;border:none;cursor:pointer;color:#94a3b8;font-size:.85rem;padding:.2rem .4rem;transition:color .15s}
+.cs-copy-code:hover{color:#dc2626}
+.cs-wait-tip{font-size:.78rem;color:#f59e0b;font-weight:600}
+.cs-split{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+.cs-panel{background:#fff;border:1.5px solid #e8e8e8;border-radius:16px;overflow:hidden}
+.cs-panel-head{padding:.8rem 1.1rem;border-bottom:1.5px solid #f1f5f9;display:flex;align-items:center;gap:.5rem;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.cs-panel-body{padding:.8rem 1rem;min-height:280px;max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem}
+.cs-empty{color:#cbd5e1;font-size:.82rem;text-align:center;margin:auto;padding:2rem 0;display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.cs-empty i{font-size:2rem}
+.cs-file-item{display:flex;align-items:center;gap:.7rem;padding:.65rem .7rem;border-radius:10px;border:1.5px solid #f1f5f9;transition:border-color .15s}
+.cs-file-item:hover{border-color:#fecaca}
+.cs-file-item.mine{background:#fafafa}
+.cs-file-item.theirs{background:#fff8f8}
+.cs-ficon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.cs-fname{font-size:.8rem;font-weight:700;color:#1e293b;word-break:break-all;flex:1}
+.cs-fsize{font-size:.7rem;color:#94a3b8}
+.cs-fdl{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;font-size:.75rem;text-decoration:none;flex-shrink:0;transition:opacity .15s}
+.cs-fdl:hover{opacity:.85}
+
+/* Upload area */
+.cs-upload-area{border:2px dashed #e2e8f0;border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;margin:.4rem 0}
+.cs-upload-area:hover,.cs-upload-area.drag-over{border-color:#dc2626;background:#fff8f8}
+.cs-upload-area p{font-size:.8rem;color:#94a3b8;margin:.4rem 0 .8rem}
+.cs-upload-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.1rem;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:9px;font-size:.8rem;font-weight:700;cursor:pointer;transition:opacity .15s}
+.cs-upload-btn:hover{opacity:.85}
+.cs-upload-progress{font-size:.75rem;color:#dc2626;font-weight:600;margin-top:.4rem;display:none}
+.cs-join-form{display:flex;gap:.5rem;margin-top:.8rem}
+.cs-join-input{flex:1;border:2px solid #e8e8e8;border-radius:10px;padding:.55rem .9rem;font-size:1rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;outline:none;text-align:center;font-family:monospace;color:#1e293b}
+.cs-join-input:focus{border-color:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.1)}
+.cs-join-submit{padding:.55rem 1.2rem;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer}
+.cs-join-err{font-size:.78rem;color:#dc2626;font-weight:600;margin-top:.4rem;display:none}
+@media(max-width:700px){.cs-pick,.cs-split{grid-template-columns:1fr}}
+</style>{% endblock %}
+{% block content %}
+<div class="cs-wrap">
+  <!-- Hero + pick screen -->
+  <div id="csPick">
+    <div class="cs-hero">
+      <div class="cs-hero-icon"><i class="fa-solid fa-arrows-turn-to-dots"></i></div>
+      <h1>ConnectSpace</h1>
+      <p>Share files instantly with another person — no account needed. One generates a code, the other joins.</p>
+    </div>
+    <div class="cs-pick">
+      <!-- Generate -->
+      <div class="cs-card" onclick="generateCode()">
+        <div class="cs-card-icon">🔑</div>
+        <h2>Generate Code</h2>
+        <p>Create a private room and share the 6-character code with the other person.</p>
+        <button class="cs-card-btn cs-gen-btn" type="button"><i class="fa-solid fa-plus"></i> Create Room</button>
+      </div>
+      <!-- Join -->
+      <div class="cs-card">
+        <div class="cs-card-icon">🔗</div>
+        <h2>Join with Code</h2>
+        <p>Enter the 6-character code that the other person shared with you.</p>
+        <div class="cs-join-form">
+          <input type="text" id="joinCodeInput" class="cs-join-input" maxlength="6" placeholder="XXXXXX" oninput="this.value=this.value.toUpperCase()">
+          <button class="cs-join-submit" type="button" onclick="joinRoom()">Join</button>
+        </div>
+        <div class="cs-join-err" id="joinErr"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Room view -->
+  <div id="csRoom" class="cs-room">
+    <div class="cs-status-bar">
+      <div class="cs-status-dot" id="csDot"></div>
+      <span class="cs-status-label" id="csStatusLabel">Waiting for the other person…</span>
+      <div class="cs-wait-tip" id="csWaitTip"><i class="fa-solid fa-share-nodes"></i> Share your code!</div>
+      <div class="cs-code-badge" id="csCodeBadge">———</div>
+      <button class="cs-copy-code" title="Copy code" onclick="copyCode()"><i class="fa-solid fa-copy"></i></button>
+    </div>
+    <div class="cs-split">
+      <!-- Left: Files received from the other person -->
+      <div class="cs-panel">
+        <div class="cs-panel-head" style="color:#2563eb;"><i class="fa-solid fa-inbox"></i> Received Files</div>
+        <div class="cs-panel-body" id="csReceived">
+          <div class="cs-empty" id="csEmptyReceived"><i class="fa-solid fa-inbox"></i><span>No files yet</span></div>
+        </div>
+      </div>
+      <!-- Right: Your uploads -->
+      <div class="cs-panel">
+        <div class="cs-panel-head" style="color:#dc2626;"><i class="fa-solid fa-paper-plane"></i> Your Uploads</div>
+        <div class="cs-panel-body" id="csSent">
+          <div class="cs-empty" id="csEmptySent"><i class="fa-solid fa-paper-plane"></i><span>Nothing sent yet</span></div>
+          <input type="file" id="csFileInput" style="display:none" multiple onchange="uploadFiles()">
+          <div class="cs-upload-area" id="csDropArea" onclick="document.getElementById('csFileInput').click()">
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size:1.5rem;color:#dc2626;margin-bottom:.3rem"></i>
+            <p>Drop files here or click to select</p>
+            <button class="cs-upload-btn" type="button" onclick="event.stopPropagation();document.getElementById('csFileInput').click()"><i class="fa-solid fa-folder-open"></i> Choose Files</button>
+          </div>
+          <div class="cs-upload-progress" id="csUploadProg">Uploading…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script>
+const CSRF = '{{ csrf_token }}';
+let roomCode = null, peerId = null, pollTimer = null, lastTs = 0, isConnected = false;
+
+function fmt(bytes){if(bytes<1024)return bytes+'B';if(bytes<1048576)return(bytes/1024).toFixed(1)+' KB';return(bytes/1048576).toFixed(1)+' MB';}
+function fileIcon(name){const e=name.split('.').pop().toLowerCase();const m={pdf:'fa-file-pdf',doc:'fa-file-word',docx:'fa-file-word',xls:'fa-file-excel',xlsx:'fa-file-excel',ppt:'fa-file-powerpoint',pptx:'fa-file-powerpoint',png:'fa-file-image',jpg:'fa-file-image',jpeg:'fa-file-image',gif:'fa-file-image',webp:'fa-file-image',zip:'fa-file-zipper',rar:'fa-file-zipper',mp4:'fa-file-video',mp3:'fa-file-audio'};return m[e]||'fa-file';}
+function fileColor(name){const e=name.split('.').pop().toLowerCase();if(['pdf'].includes(e))return'background:rgba(220,38,38,.12);color:#dc2626';if(['doc','docx'].includes(e))return'background:rgba(43,87,154,.12);color:#2b579a';if(['xls','xlsx'].includes(e))return'background:rgba(33,115,70,.12);color:#217346';if(['png','jpg','jpeg','gif','webp'].includes(e))return'background:rgba(147,51,234,.12);color:#9333ea';return'background:rgba(100,116,139,.12);color:#475569';}
+
+async function generateCode(){
+  const res=await fetch('/tools/api/live-share/create/',{method:'POST',headers:{'X-CSRFToken':CSRF}});
+  const d=await res.json();
+  if(d.error){alert(d.error);return;}
+  enterRoom(d.code,d.peer_id);
+}
+
+async function joinRoom(){
+  const code=document.getElementById('joinCodeInput').value.trim().toUpperCase();
+  if(code.length!==6){showJoinErr('Enter a 6-character code.');return;}
+  const fd=new FormData();fd.append('code',code);fd.append('csrfmiddlewaretoken',CSRF);
+  const res=await fetch('/tools/api/live-share/join/',{method:'POST',body:fd});
+  const d=await res.json();
+  if(d.error){showJoinErr(d.error);return;}
+  enterRoom(d.code,d.peer_id);
+}
+
+function showJoinErr(msg){const e=document.getElementById('joinErr');e.textContent=msg;e.style.display='block';}
+
+function enterRoom(code,pid){
+  roomCode=code;peerId=pid;lastTs=0;
+  document.getElementById('csPick').style.display='none';
+  document.getElementById('csRoom').classList.add('show');
+  document.getElementById('csCodeBadge').textContent=code;
+  startPoll();
+}
+
+function startPoll(){
+  poll();
+  pollTimer=setInterval(poll,2500);
+}
+
+async function poll(){
+  try{
+    const res=await fetch(`/tools/api/live-share/poll/?code=${roomCode}&peer_id=${peerId}&since=${lastTs}`);
+    const d=await res.json();
+    if(d.error)return;
+    setConnected(d.connected);
+    if(d.files&&d.files.length){d.files.forEach(addFileItem);lastTs=d.now;}
+  }catch(e){}
+}
+
+function setConnected(c){
+  if(isConnected===c)return;
+  isConnected=c;
+  document.getElementById('csDot').classList.toggle('online',c);
+  document.getElementById('csStatusLabel').textContent=c?'Connected — both users online':'Waiting for the other person…';
+  document.getElementById('csWaitTip').style.display=c?'none':'';
+}
+
+function addFileItem(f){
+  const panel=f.mine?'csSent':'csReceived';
+  const empty=f.mine?'csEmptySent':'csEmptyReceived';
+  document.getElementById(empty).style.display='none';
+  const div=document.createElement('div');
+  div.className='cs-file-item '+(f.mine?'mine':'theirs');
+  const dlUrl=`/tools/api/live-share/download/${f.id}/?code=${roomCode}`;
+  div.innerHTML=`<div class="cs-ficon" style="${fileColor(f.name)}"><i class="fa-solid ${fileIcon(f.name)}"></i></div><div style="flex:1;min-width:0"><div class="cs-fname">${esc(f.name)}</div><div class="cs-fsize">${fmt(f.size)}</div></div><a class="cs-fdl" href="${dlUrl}" download="${esc(f.name)}" title="Download"><i class="fa-solid fa-download"></i></a>`;
+  const body=document.getElementById(panel);
+  const uploadArea=body.querySelector('.cs-upload-area');
+  if(uploadArea){body.insertBefore(div,uploadArea);}else{body.appendChild(div);}
+}
+
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+async function uploadFiles(){
+  const files=[...document.getElementById('csFileInput').files];
+  if(!files.length)return;
+  const prog=document.getElementById('csUploadProg');
+  prog.style.display='block';
+  for(const f of files){
+    prog.textContent=`Uploading ${f.name}…`;
+    const fd=new FormData();
+    fd.append('file',f);fd.append('code',roomCode);fd.append('peer_id',peerId);fd.append('csrfmiddlewaretoken',CSRF);
+    try{
+      const res=await fetch('/tools/api/live-share/upload/',{method:'POST',body:fd});
+      const d=await res.json();
+      if(d.error){alert(d.error);}else{await poll();}
+    }catch(e){alert('Upload failed.');}
+  }
+  prog.style.display='none';
+  document.getElementById('csFileInput').value='';
+}
+
+function copyCode(){
+  navigator.clipboard.writeText(roomCode).then(()=>{
+    const btn=document.querySelector('.cs-copy-code');
+    btn.innerHTML='<i class="fa-solid fa-check" style="color:#16a34a"></i>';
+    setTimeout(()=>btn.innerHTML='<i class="fa-solid fa-copy"></i>',1500);
+  });
+}
+
+// Drag & drop on upload area
+const dropArea=document.getElementById('csDropArea');
+if(dropArea){
+  dropArea.addEventListener('dragover',e=>{e.preventDefault();dropArea.classList.add('drag-over');});
+  dropArea.addEventListener('dragleave',()=>dropArea.classList.remove('drag-over'));
+  dropArea.addEventListener('drop',e=>{
+    e.preventDefault();dropArea.classList.remove('drag-over');
+    if(!roomCode){return;}
+    const dt=e.dataTransfer;
+    const inp=document.getElementById('csFileInput');
+    inp.files=dt.files;
+    uploadFiles();
+  });
+}
+</script>{% endblock %}

@@ -54,6 +54,9 @@ from apps.pdf_tools.views.image_tools import (
     convert_to_jpg, convert_from_jpg, watermark_image, meme_generator,
     upscale_image, remove_background, blur_face, img_ocr,
 )
+from apps.pdf_tools.views.live_share import (
+    create_room, join_room, upload_file, poll_room, download_file,
+)
 
 # Tag API views with their slug for dynamic privilege check
 def _tag(fn, slug):
@@ -101,6 +104,7 @@ urlpatterns = [
     path('remove-background/',  tool_page('img_remove_bg.html', 'remove-background'),name='img_remove_bg_page'),
     path('blur-face/',          tool_page('img_blur_face.html', 'blur-face'),       name='img_blur_face_page'),
     path('image-to-text/',      tool_page('img_ocr.html',       'image-to-text'),   name='img_ocr_page'),
+    path('connectspace/',       tool_page('live_share.html',    'connectspace'),     name='connectspace_page'),
 
     # ── API endpoints ─────────────────────────────────────────────────────────
     path('api/merge-pdf/',      protected_api(_tag(merge_pdf,      'merge-pdf')),       name='api_merge_pdf'),
@@ -159,4 +163,9 @@ urlpatterns = [
     path('api/img/remove-bg/',  protected_api(_tag(remove_background,'remove-background')), name='api_img_remove_bg'),
     path('api/img/blur-face/',  protected_api(_tag(blur_face,    'blur-face')),       name='api_img_blur_face'),
     path('api/img/ocr/',        protected_api(_tag(img_ocr,      'image-to-text')),   name='api_img_ocr'),
+    path('api/live-share/create/',              create_room,    name='api_ls_create'),
+    path('api/live-share/join/',                join_room,      name='api_ls_join'),
+    path('api/live-share/upload/',              upload_file,    name='api_ls_upload'),
+    path('api/live-share/poll/',                poll_room,      name='api_ls_poll'),
+    path('api/live-share/download/<str:file_id>/', download_file, name='api_ls_download'),
 ]
