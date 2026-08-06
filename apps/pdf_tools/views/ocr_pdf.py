@@ -1901,27 +1901,52 @@ def invoice_to_excel(request):
         ('po_number',         'PO Number',               COL_GREY,   False),
     ]
 
-    row = 1
+    # Header row
+    hdr_cell(ws, 1, 1, 'Field',  bg=COL_HEADER, fg=COL_WHITE, size=10)
+    hdr_cell(ws, 1, 2, 'Value',  bg=COL_HEADER, fg=COL_WHITE, size=10)
+    ws.row_dimensions[1].height = 22
 
+    row = 2
     for key, label, color, bold in field_meta:
-        val = inv.get(key, '')
-        if not val:
-            continue
+        val = inv.get(key) or ''
         bg = COL_LIGHT if row % 2 == 0 else COL_WHITE
-        val_cell(ws, row, 1, label, bold=True, color='FF334155', bg=bg)
-        val_cell(ws, row, 2, val,  bold=bold,  color=color,      bg=bg)
+        val_cell(ws, row, 1, label, bold=True,  color='FF334155', bg=bg)
+        if val:
+            val_cell(ws, row, 2, val, bold=bold, color=color, bg=bg)
+        else:
+            val_cell(ws, row, 2, '—', bold=False, color='FFCBD5E1', bg=bg)
         ws.row_dimensions[row].height = 20
         row += 1
 
-
     # Column widths
-    ws.column_dimensions['A'].width = 26
-    ws.column_dimensions['B'].width = 44
+    ws.column_dimensions['A'].width = 28
+    ws.column_dimensions['B'].width = 48
 
     # â"€â"€ Stream response â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+    # ── Sheet 2: Line Items (if present) ──────────────────────────────────────────
+    line_items = inv.get('line_items', [])
+    if line_items:
+        ws2 = wb.create_sheet('Line Items')
+        li_headers = ['Description', 'Qty', 'Unit Price', 'Total']
+        li_colors  = [COL_HEADER, COL_TEAL, COL_AMBER, COL_GREEN]
+        for ci, (htext, hcol) in enumerate(zip(li_headers, li_colors), 1):
+            hdr_cell(ws2, 1, ci, htext, bg=hcol)
+        ws2.row_dimensions[1].height = 22
+        for ri, item in enumerate(line_items, 2):
+            bg = COL_LIGHT if ri % 2 == 0 else COL_WHITE
+            val_cell(ws2, ri, 1, item.get('description', ''), bg=bg)
+            val_cell(ws2, ri, 2, item.get('qty', ''),         bg=bg, align='center')
+            val_cell(ws2, ri, 3, item.get('unit_price', ''),  bg=bg, align='right')
+            val_cell(ws2, ri, 4, item.get('total', ''),       bg=bg, align='right', bold=True, color=COL_GREEN)
+            ws2.row_dimensions[ri].height = 18
+        ws2.column_dimensions['A'].width = 38
+        ws2.column_dimensions['B'].width = 10
+        ws2.column_dimensions['C'].width = 16
+        ws2.column_dimensions['D'].width = 16
+
     buf = BytesIO()
     wb.save(buf)
-    size = buf.tell()   # capture size BEFORE seeking back to 0
+    size = buf.tell()
     buf.seek(0)
 
     safe_name = re.sub(r'[^\w\-]', '_', filename.replace('.pdf', ''))
