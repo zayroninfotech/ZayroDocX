@@ -3,7 +3,10 @@
 {% block title %}ZayroDesk — Remote Screen Access{% endblock %}
 {% block active_zayrodesk %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">ZayroDesk</span>{% endblock %}
-{% block extra_head %}<style>
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<style>
 .zd-wrap{max-width:880px;margin:0 auto;padding:2rem 1rem}
 .zd-hero{text-align:center;padding:2rem 1rem 1.6rem}
 .zd-hero-icon{font-size:3rem;color:#0891b2;margin-bottom:.7rem}
@@ -77,9 +80,54 @@
 .zd-info-title{font-size:.8rem;font-weight:700;color:#1e293b}
 .zd-info-desc{font-size:.7rem;color:#94a3b8}
 @media(max-width:640px){.zd-pick{grid-template-columns:1fr}}
+
+/* QR code display */
+.zd-qr-wrap{display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:1.1rem;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:14px;margin-top:1rem;}
+.zd-qr-wrap canvas,.zd-qr-wrap img{border-radius:8px;display:block;}
+.zd-qr-label{font-size:.7rem;font-weight:700;color:#0284c7;text-transform:uppercase;letter-spacing:.06em;}
+.zd-qr-sub{font-size:.68rem;color:#0891b2;}
+
+/* QR scanner */
+.zd-scan-btn{width:100%;padding:.55rem;border:2px dashed #0891b2;border-radius:10px;background:#f0f9ff;color:#0891b2;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:.5rem;transition:all .15s;}
+.zd-scan-btn:hover{background:#e0f2fe;}
+.zd-scan-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:1rem;}
+.zd-scan-overlay.show{display:flex;}
+.zd-scan-video-wrap{position:relative;width:min(320px,90vw);height:min(320px,90vw);border-radius:16px;overflow:hidden;background:#000;}
+#zdScanVideo{width:100%;height:100%;object-fit:cover;}
+.zd-scan-frame{position:absolute;inset:20px;border:2.5px solid #0891b2;border-radius:10px;box-shadow:0 0 0 4000px rgba(0,0,0,.5);}
+.zd-scan-corners::before,.zd-scan-corners::after{content:'';position:absolute;width:24px;height:24px;border-color:#0891b2;border-style:solid;}
+.zd-scan-corners::before{top:0;left:0;border-width:3px 0 0 3px;border-radius:4px 0 0 0;}
+.zd-scan-corners::after{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 4px 0;}
+.zd-scan-label{color:#fff;font-size:.82rem;font-weight:600;letter-spacing:.03em;}
+.zd-scan-cancel{color:#94a3b8;font-size:.8rem;font-weight:700;cursor:pointer;padding:.5rem 1.5rem;border:1.5px solid #334155;border-radius:10px;background:none;transition:border-color .15s;}
+.zd-scan-cancel:hover{border-color:#0891b2;color:#fff;}
+.zd-or-divider{display:flex;align-items:center;gap:.5rem;margin:.4rem 0;color:#94a3b8;font-size:.72rem;}
+.zd-or-divider::before,.zd-or-divider::after{content:'';flex:1;height:1px;background:#e2e8f0;}
+
+/* join tabs */
+.zd-join-tabs{display:flex;gap:5px;margin-bottom:.65rem;}
+.zd-join-tab{flex:1;border:1.5px solid #e2e8f0;border-radius:8px;padding:.35rem;font-size:.75rem;font-weight:700;cursor:pointer;text-align:center;color:#666;background:#f8fafc;transition:all .15s;}
+.zd-join-tab.active{border-color:#0891b2;background:#f0f9ff;color:#0891b2;}
+
+/* mobile-to-mobile tip */
+.zd-m2m-tip{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:1.5px solid #bae6fd;border-radius:14px;padding:1rem 1.25rem;margin-top:1.2rem;display:flex;gap:.75rem;align-items:flex-start;}
+.zd-m2m-icon{font-size:1.5rem;flex-shrink:0;}
+.zd-m2m-title{font-size:.82rem;font-weight:800;color:#0369a1;margin-bottom:.2rem;}
+.zd-m2m-desc{font-size:.74rem;color:#0891b2;line-height:1.5;}
 </style>{% endblock %}
 
 {% block content %}
+<!-- QR Scanner overlay -->
+<div class="zd-scan-overlay" id="zdScanOverlay">
+  <div class="zd-scan-label"><i class="fa-solid fa-qrcode"></i> Point camera at the host's QR code</div>
+  <div class="zd-scan-video-wrap">
+    <video id="zdScanVideo" autoplay playsinline muted></video>
+    <div class="zd-scan-frame"><div class="zd-scan-corners"></div></div>
+  </div>
+  <canvas id="zdScanCanvas" style="display:none"></canvas>
+  <button class="zd-scan-cancel" onclick="stopQRScan()"><i class="fa-solid fa-xmark"></i> Cancel</button>
+</div>
+
 <div class="zd-wrap">
 
   <div id="zdPick">
@@ -99,12 +147,28 @@
       <div class="zd-card">
         <div class="zd-card-icon">🔗</div>
         <h2>Join a Session</h2>
-        <p>Enter the 9-digit code from the person sharing their screen to connect and take control.</p>
-        <div class="zd-join-row">
-          <input id="zdJoinInput" type="text" class="zd-code-input" maxlength="11" placeholder="123-456-789" oninput="fmtCode(this)">
-          <button class="zd-btn zd-btn-primary" id="zdJoinBtn" onclick="viewerJoin()"><i class="fa-solid fa-plug"></i> Connect</button>
+        <p>Scan the QR code shown on the host's screen, or enter the 9-digit code manually.</p>
+        <div class="zd-join-tabs">
+          <div class="zd-join-tab active" id="jtTabQR" onclick="setJoinTab('qr')"><i class="fa-solid fa-qrcode"></i> Scan QR</div>
+          <div class="zd-join-tab" id="jtTabCode" onclick="setJoinTab('code')"><i class="fa-solid fa-keyboard"></i> Enter Code</div>
+        </div>
+        <div id="jtQRPanel">
+          <button class="zd-scan-btn" onclick="startQRScan()"><i class="fa-solid fa-camera"></i> Open Camera &amp; Scan QR</button>
+        </div>
+        <div id="jtCodePanel" style="display:none">
+          <div class="zd-join-row">
+            <input id="zdJoinInput" type="text" class="zd-code-input" maxlength="11" placeholder="123-456-789" oninput="fmtCode(this)" inputmode="numeric">
+            <button class="zd-btn zd-btn-primary" id="zdJoinBtn" onclick="viewerJoin()"><i class="fa-solid fa-plug"></i> Connect</button>
+          </div>
         </div>
         <div class="zd-err" id="zdJoinErr"></div>
+      </div>
+    </div>
+    <div class="zd-m2m-tip">
+      <div class="zd-m2m-icon">📱↔📱</div>
+      <div>
+        <div class="zd-m2m-title">Mobile-to-Mobile Screen Share</div>
+        <div class="zd-m2m-desc"><strong>Phone A (Host):</strong> Tap <em>Start Sharing</em> → choose screen → QR appears.<br><strong>Phone B (Viewer):</strong> Tap <em>Scan QR</em> → point camera → connected instantly.<br>Phone B can then tap/swipe to fully control Phone A's screen.</div>
       </div>
     </div>
     <div class="zd-info">
@@ -125,7 +189,13 @@
       <button class="zd-copy-btn" onclick="copyCode()"><i class="fa-solid fa-copy"></i> Copy</button>
       <div class="zd-status-pill zd-pill-sharing" id="zdHostPill"><i class="fa-solid fa-circle" style="color:#2563eb;font-size:.55rem"></i> Sharing — waiting for viewer</div>
     </div>
-    <button class="zd-stop-btn" onclick="hostStop('Session ended.')"><i class="fa-solid fa-stop"></i> Stop &amp; Disconnect</button>
+    <!-- QR code for mobile viewers to scan -->
+    <div class="zd-qr-wrap" id="zdQRWrap">
+      <div class="zd-qr-label"><i class="fa-solid fa-qrcode"></i> Scan to Join</div>
+      <div id="zdQRCode"></div>
+      <div class="zd-qr-sub">Viewer opens camera → scans this → connects instantly</div>
+    </div>
+    <button class="zd-stop-btn" onclick="hostStop('Session ended.')" style="margin-top:.8rem"><i class="fa-solid fa-stop"></i> Stop &amp; Disconnect</button>
     <div class="zd-host-preview" id="zdHostPreview">
       <div class="zd-preview-placeholder" id="zdHostPlaceholder"><i class="fa-solid fa-desktop"></i><br>Screen preview will appear here</div>
       <video id="zdHostVideo" autoplay muted playsinline style="display:none"></video>
@@ -259,6 +329,7 @@ async function hostStart(){
   document.getElementById('zdPick').style.display='none';
   document.getElementById('zdHostRoom').classList.add('show');
   document.getElementById('zdCodeDisplay').textContent=d.display;
+  generateQR(d.code);
 
   const vid=document.getElementById('zdHostVideo');
   vid.srcObject=stream; vid.style.display='block';
@@ -448,6 +519,119 @@ function attachViewerEvents(){
   document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return; sendCtrl({type:'keydown',key:e.key,code:e.code,ctrl:e.ctrlKey,alt:e.altKey,shift:e.shiftKey});});
   document.addEventListener('keyup',  e=>{if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return; sendCtrl({type:'keyup',  key:e.key,code:e.code,ctrl:e.ctrlKey,alt:e.altKey,shift:e.shiftKey});});
 }
+
+/* ── QR code generation (host) ── */
+function generateQR(code) {
+  const el = document.getElementById('zdQRCode');
+  el.innerHTML = '';
+  const joinUrl = location.origin + location.pathname + '?join=' + code;
+  new QRCode(el, {
+    text: joinUrl,
+    width: 180,
+    height: 180,
+    colorDark: '#0c4a6e',
+    colorLight: '#f0f9ff',
+    correctLevel: QRCode.CorrectLevel.M,
+  });
+}
+
+/* ── Join tabs ── */
+function setJoinTab(t) {
+  document.getElementById('jtTabQR').classList.toggle('active', t === 'qr');
+  document.getElementById('jtTabCode').classList.toggle('active', t === 'code');
+  document.getElementById('jtQRPanel').style.display  = t === 'qr'   ? '' : 'none';
+  document.getElementById('jtCodePanel').style.display = t === 'code' ? '' : 'none';
+}
+
+/* ── QR scanner (viewer) ── */
+let _scanStream = null, _scanRaf = null;
+
+async function startQRScan() {
+  clearJoinErr();
+  const overlay = document.getElementById('zdScanOverlay');
+  overlay.classList.add('show');
+  try {
+    _scanStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    const vid = document.getElementById('zdScanVideo');
+    vid.srcObject = _scanStream;
+    await vid.play();
+    tickQRScan();
+  } catch(e) {
+    stopQRScan();
+    showJoinErr('Camera access denied. Use "Enter Code" tab instead.');
+    setJoinTab('code');
+  }
+}
+
+function tickQRScan() {
+  const vid = document.getElementById('zdScanVideo');
+  const cvs = document.getElementById('zdScanCanvas');
+  if (!vid.videoWidth) { _scanRaf = requestAnimationFrame(tickQRScan); return; }
+  cvs.width  = vid.videoWidth;
+  cvs.height = vid.videoHeight;
+  const ctx2 = cvs.getContext('2d');
+  ctx2.drawImage(vid, 0, 0);
+  const img = ctx2.getImageData(0, 0, cvs.width, cvs.height);
+  const code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' });
+  if (code && code.data) {
+    stopQRScan();
+    handleQRData(code.data);
+    return;
+  }
+  _scanRaf = requestAnimationFrame(tickQRScan);
+}
+
+function stopQRScan() {
+  if (_scanRaf) { cancelAnimationFrame(_scanRaf); _scanRaf = null; }
+  if (_scanStream) { _scanStream.getTracks().forEach(t => t.stop()); _scanStream = null; }
+  document.getElementById('zdScanVideo').srcObject = null;
+  document.getElementById('zdScanOverlay').classList.remove('show');
+}
+
+function handleQRData(data) {
+  // data is either a full URL like https://…/?join=CODE or just a 9-digit code
+  let code = data.trim();
+  try {
+    const u = new URL(data);
+    code = u.searchParams.get('join') || code;
+  } catch(e) {}
+  code = code.replace(/-/g, '').replace(/\D/g, '').slice(0, 9);
+  if (code.length !== 9) { showJoinErr('Invalid QR code. Try again.'); return; }
+  // format and auto-join
+  const fmt = code.slice(0,3) + '-' + code.slice(3,6) + '-' + code.slice(6);
+  const inp = document.getElementById('zdJoinInput');
+  if (inp) inp.value = fmt;
+  // store and join directly
+  roomCode = code;
+  role = 'viewer';
+  document.getElementById('zdPick').style.display = 'none';
+  document.getElementById('zdViewerRoom').classList.add('show');
+  document.getElementById('zdConnectMsg').textContent = 'QR scanned — connecting…';
+  startViewerPoll();
+}
+
+/* ── Auto-join from URL ?join=CODE ── */
+(function autoJoin() {
+  const p = new URLSearchParams(location.search);
+  const j = p.get('join');
+  if (!j) return;
+  const code = j.replace(/-/g, '').replace(/\D/g, '').slice(0, 9);
+  if (code.length !== 9) return;
+  // remove ?join from URL without reload
+  history.replaceState({}, '', location.pathname);
+  // auto-connect
+  window.addEventListener('DOMContentLoaded', () => {}, { once: true });
+  setTimeout(() => {
+    roomCode = code;
+    role = 'viewer';
+    document.getElementById('zdPick').style.display = 'none';
+    document.getElementById('zdViewerRoom').classList.add('show');
+    document.getElementById('zdConnectMsg').textContent = 'Auto-joining from QR link…';
+    startViewerPoll();
+  }, 300);
+})();
 
 function toggleCtrl(){
   controlEnabled=!controlEnabled;
