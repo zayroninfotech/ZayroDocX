@@ -300,6 +300,13 @@ function setPill(state){
 /* ── HOST ── */
 async function hostStart(){
   clearPickErr();
+
+  const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if(isMobile || !navigator.mediaDevices?.getDisplayMedia){
+    showPickErr('Screen sharing is not supported on mobile browsers. Please open ZayroDesk on a desktop/laptop computer to share your screen. On mobile you can only join as a viewer.');
+    return;
+  }
+
   const btn=document.getElementById('zdStartBtn');
   btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Starting…';
 
