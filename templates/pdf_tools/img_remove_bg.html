@@ -25,13 +25,14 @@
 
 /* before / after layers */
 #rbBefore{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:none;}
-/* after wrap — clipped to divider */
+/* after wrap — clips from the right */
 #rbAfterWrap{position:absolute;top:0;right:0;bottom:0;width:50%;overflow:hidden;display:none;}
-#rbAfterInner{position:absolute;top:0;right:0;bottom:0;width:200%;/* double so image fills */background:repeating-conic-gradient(#d0d0d0 0% 25%,#fff 0% 50%) 0 0/20px 20px;}
-#rbAfterImg{position:absolute;top:0;left:0;width:50%;height:100%;object-fit:contain;}
+/* inner is full viewer width, anchored to right so image aligns with before */
+#rbAfterInner{position:absolute;top:0;right:0;bottom:0;background:repeating-conic-gradient(#d0d0d0 0% 25%,#fff 0% 50%) 0 0/20px 20px;}
+#rbAfterImg{position:absolute;top:0;right:0;height:100%;object-fit:contain;}
 
 /* solid bg overlay */
-#rbSolidBg{position:absolute;top:0;left:0;width:100%;height:100%;display:none;}
+#rbSolidBg{position:absolute;inset:0;display:none;}
 
 /* divider */
 #rbDivider{position:absolute;top:0;left:50%;width:3px;height:100%;background:#fff;cursor:col-resize;z-index:10;transform:translateX(-50%);display:none;box-shadow:0 0 6px rgba(0,0,0,.4);}
@@ -210,13 +211,12 @@ const fileInput   = document.getElementById('fileInput');
 // ── Divider drag ──────────────────────────────────────────────────────────
 function setDivider(pct) {
   dividerPct = Math.max(5, Math.min(95, pct));
+  const vw = document.getElementById('rbViewer').offsetWidth;
   document.getElementById('rbAfterWrap').style.width = (100 - dividerPct) + '%';
   document.getElementById('rbDivider').style.left    = dividerPct + '%';
-  // after image must be positioned to align with full viewer
-  const w = document.getElementById('rbViewer').offsetWidth;
-  const aw = w * (1 - dividerPct / 100);
-  document.getElementById('rbAfterImg').style.width  = (w / aw * 100) + '%';
-  document.getElementById('rbAfterInner').style.width = '100%';
+  // inner and image must span full viewer width so image aligns with left side
+  document.getElementById('rbAfterInner').style.width = vw + 'px';
+  document.getElementById('rbAfterImg').style.width   = vw + 'px';
 }
 
 document.getElementById('rbDivHandle').addEventListener('mousedown', e => {
