@@ -18,26 +18,14 @@
 .rb-split{display:none;grid-template-columns:1fr 340px;gap:20px;align-items:start;}
 .rb-split.show{display:grid;}
 
-/* ── viewer ── */
-.rb-viewer{border-radius:16px;overflow:hidden;position:relative;background:#1e293b;min-height:380px;display:flex;align-items:center;justify-content:center;user-select:none;}
-.rb-viewer-loading{color:#94a3b8;font-size:.9rem;padding:2rem;display:flex;flex-direction:column;align-items:center;gap:.8rem;z-index:2;}
-.rb-viewer-loading i{font-size:2rem;}
+/* ── canvas viewer ── */
+.rb-viewer{border-radius:16px;overflow:hidden;position:relative;background:#1e293b;display:flex;align-items:center;justify-content:center;user-select:none;}
+.rb-viewer-loading{color:#94a3b8;padding:3rem;display:flex;flex-direction:column;align-items:center;gap:.8rem;}
+#rbCanvas{display:block;border-radius:12px;cursor:col-resize;}
 
-/* before / after layers */
-#rbBefore{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:none;}
-/* after wrap — clips from the right */
-#rbAfterWrap{position:absolute;top:0;right:0;bottom:0;width:50%;overflow:hidden;display:none;}
-/* inner is full viewer width, anchored to right so image aligns with before */
-#rbAfterInner{position:absolute;top:0;right:0;bottom:0;background:repeating-conic-gradient(#d0d0d0 0% 25%,#fff 0% 50%) 0 0/20px 20px;}
-#rbAfterImg{position:absolute;top:0;right:0;height:100%;object-fit:contain;}
-
-/* solid bg overlay */
-#rbSolidBg{position:absolute;inset:0;display:none;}
-
-/* divider */
-#rbDivider{position:absolute;top:0;left:50%;width:3px;height:100%;background:#fff;cursor:col-resize;z-index:10;transform:translateX(-50%);display:none;box-shadow:0 0 6px rgba(0,0,0,.4);}
-#rbDivHandle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.35);cursor:col-resize;}
-#rbDivHandle i{color:#dc2626;font-size:.8rem;pointer-events:none;}
+/* divider handle overlay */
+#rbDivHandle{position:absolute;top:50%;width:36px;height:36px;background:#fff;border-radius:50%;display:none;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.4);cursor:col-resize;transform:translate(-50%,-50%);pointer-events:none;}
+#rbDivHandle i{color:#dc2626;font-size:.8rem;}
 
 /* badges */
 .rb-badge{position:absolute;bottom:12px;font-size:.7rem;font-weight:700;padding:.25rem .65rem;border-radius:20px;z-index:5;display:none;}
@@ -64,14 +52,12 @@
 .rb-opts-title{font-size:.72rem;font-weight:800;color:#b91c1c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.65rem;}
 .rb-field-label{font-size:.73rem;font-weight:700;color:#555;margin:.7rem 0 .35rem;}
 
-/* bg color swatches */
 .rb-bg-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem;}
 .rb-swatch{width:28px;height:28px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;transition:border-color .15s,transform .12s;}
 .rb-swatch:hover,.rb-swatch.active{border-color:#dc2626;transform:scale(1.12);}
 .rb-swatch.transparent{background:repeating-conic-gradient(#ccc 0% 25%,#fff 0% 50%) 0 0/10px 10px;border-color:#e8e8e8;}
 .rb-swatch.transparent.active{border-color:#dc2626;}
 
-/* convert / dl */
 .rb-convert-btn{width:100%;padding:.85rem;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:opacity .15s;}
 .rb-convert-btn:disabled{opacity:.6;cursor:not-allowed;}
 .rb-result-card{display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:1.1rem 1.2rem;}
@@ -103,28 +89,17 @@
 </div>
 
 <div class="rb-split" id="rbSplit">
-  <!-- VIEWER -->
+  <!-- CANVAS VIEWER -->
   <div class="rb-viewer" id="rbViewer">
     <div class="rb-viewer-loading" id="rbViewerLoad">
       <i class="fa-solid fa-spinner" style="animation:spin 1s linear infinite;font-size:2rem;color:#dc2626"></i>
       <span style="color:#94a3b8">Loading…</span>
     </div>
 
-    <!-- before (original) -->
-    <img id="rbBefore" alt="Original">
+    <canvas id="rbCanvas" style="display:none"></canvas>
 
-    <!-- after (result) -->
-    <div id="rbAfterWrap">
-      <div id="rbAfterInner">
-        <div id="rbSolidBg"></div>
-        <img id="rbAfterImg" alt="No BG">
-      </div>
-    </div>
-
-    <!-- divider -->
-    <div id="rbDivider">
-      <div id="rbDivHandle"><i class="fa-solid fa-left-right"></i></div>
-    </div>
+    <!-- draggable handle overlaid on canvas -->
+    <div id="rbDivHandle" style="display:none"><i class="fa-solid fa-left-right"></i></div>
 
     <!-- badges -->
     <span class="rb-badge left"  id="rbBadgeOrig">Original</span>
@@ -155,22 +130,20 @@
 
     <div class="rb-card">
       <div class="rb-opts-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Background Removal</div>
-      <p style="font-size:.78rem;color:#64748b;margin:0 0 .7rem">AI detects edges and removes the background. After removal you can pick a background colour for preview.</p>
-
+      <p style="font-size:.78rem;color:#64748b;margin:0 0 .7rem">AI detects edges and removes the background. Pick a colour to preview it.</p>
       <div class="rb-field-label">Preview Background</div>
       <div class="rb-bg-row" id="rbSwatches">
         <div class="rb-swatch transparent active" title="Transparent" data-color="transparent" onclick="setBg(this)"></div>
-        <div class="rb-swatch" style="background:#ffffff" title="White"  data-color="#ffffff" onclick="setBg(this)"></div>
         <div class="rb-swatch" style="background:#000000" title="Black"  data-color="#000000" onclick="setBg(this)"></div>
+        <div class="rb-swatch" style="background:#ffffff" title="White"  data-color="#ffffff" onclick="setBg(this)"></div>
         <div class="rb-swatch" style="background:#1e40af" title="Blue"   data-color="#1e40af" onclick="setBg(this)"></div>
         <div class="rb-swatch" style="background:#15803d" title="Green"  data-color="#15803d" onclick="setBg(this)"></div>
         <div class="rb-swatch" style="background:#dc2626" title="Red"    data-color="#dc2626" onclick="setBg(this)"></div>
         <div class="rb-swatch" style="background:#f59e0b" title="Yellow" data-color="#f59e0b" onclick="setBg(this)"></div>
-        <div class="rb-swatch" style="background:#e2e8f0" title="Light grey" data-color="#e2e8f0" onclick="setBg(this)"></div>
-        <!-- custom color -->
+        <div class="rb-swatch" style="background:#e2e8f0" title="Grey"   data-color="#e2e8f0" onclick="setBg(this)"></div>
         <div style="position:relative">
-          <div class="rb-swatch" style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)" title="Custom colour" onclick="document.getElementById('rbColorPicker').click()"></div>
-          <input type="color" id="rbColorPicker" style="position:absolute;opacity:0;width:0;height:0" onchange="setCustomBg(this.value)">
+          <div class="rb-swatch" style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)" title="Custom" onclick="document.getElementById('rbColorPicker').click()"></div>
+          <input type="color" id="rbColorPicker" style="position:absolute;opacity:0;width:0;height:0" onchange="setBgColor(this.value)">
         </div>
       </div>
     </div>
@@ -202,117 +175,193 @@
 {% endblock %}
 
 {% block extra_js %}<script>
+// ── state ──────────────────────────────────────────────────────────────────
 let currentFile   = null;
-let resultUrl     = null;  // server download URL
+let beforeImg     = null;   // Image object — original
+let afterImg      = null;   // Image object — result (transparent PNG)
 let dividerPct    = 50;
-let currentBgColor = 'transparent';
-const fileInput   = document.getElementById('fileInput');
+let bgColor       = 'transparent';
+let hasResult     = false;
+let checkerPat    = null;   // OffscreenCanvas pattern
 
-// ── Divider drag ──────────────────────────────────────────────────────────
-function setDivider(pct) {
-  dividerPct = Math.max(5, Math.min(95, pct));
-  const vw = document.getElementById('rbViewer').offsetWidth;
-  document.getElementById('rbAfterWrap').style.width = (100 - dividerPct) + '%';
-  document.getElementById('rbDivider').style.left    = dividerPct + '%';
-  // inner and image must span full viewer width so image aligns with left side
-  document.getElementById('rbAfterInner').style.width = vw + 'px';
-  document.getElementById('rbAfterImg').style.width   = vw + 'px';
+const canvas  = document.getElementById('rbCanvas');
+const ctx     = canvas.getContext('2d');
+const handle  = document.getElementById('rbDivHandle');
+const fileInput = document.getElementById('fileInput');
+
+// ── Checker pattern ────────────────────────────────────────────────────────
+function makeChecker() {
+  const sz = 16;
+  const oc = document.createElement('canvas');
+  oc.width = oc.height = sz * 2;
+  const ox = oc.getContext('2d');
+  ox.fillStyle = '#cccccc';
+  ox.fillRect(0,   0,   sz, sz);
+  ox.fillRect(sz,  sz,  sz, sz);
+  ox.fillStyle = '#ffffff';
+  ox.fillRect(sz,  0,   sz, sz);
+  ox.fillRect(0,   sz,  sz, sz);
+  checkerPat = ctx.createPattern(oc, 'repeat');
 }
 
-document.getElementById('rbDivHandle').addEventListener('mousedown', e => {
-  e.preventDefault();
-  document.body.style.cursor = 'col-resize';
-  const onMove = ev => {
-    const rect = document.getElementById('rbViewer').getBoundingClientRect();
-    setDivider((ev.clientX - rect.left) / rect.width * 100);
-  };
-  const onUp = () => { document.body.style.cursor = ''; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup',   onUp);
-});
+// ── Draw ───────────────────────────────────────────────────────────────────
+function drawFrame() {
+  if (!beforeImg) return;
+  const W = canvas.width, H = canvas.height;
+  const divX = Math.round(W * dividerPct / 100);
 
-document.getElementById('rbDivHandle').addEventListener('touchstart', e => {
-  const onMove = ev => {
-    const rect = document.getElementById('rbViewer').getBoundingClientRect();
-    setDivider((ev.touches[0].clientX - rect.left) / rect.width * 100);
-  };
-  const onUp = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); };
-  document.addEventListener('touchmove', onMove, {passive:true});
-  document.addEventListener('touchend',  onUp);
+  // compute contain-fit rect (same for both images, they have same natural size ideally)
+  // Use beforeImg natural size as reference
+  const bw = beforeImg.naturalWidth, bh = beforeImg.naturalHeight;
+  const scale = Math.min(W / bw, H / bh);
+  const dw = Math.round(bw * scale), dh = Math.round(bh * scale);
+  const dx = Math.round((W - dw) / 2), dy = Math.round((H - dh) / 2);
+
+  ctx.clearRect(0, 0, W, H);
+
+  if (!hasResult) {
+    // just draw original filling viewer
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(0, 0, W, H);
+    ctx.drawImage(beforeImg, dx, dy, dw, dh);
+    return;
+  }
+
+  // LEFT side — original
+  ctx.save();
+  ctx.beginPath(); ctx.rect(0, 0, divX, H); ctx.clip();
+  ctx.fillStyle = '#1e293b'; ctx.fillRect(0, 0, W, H);
+  ctx.drawImage(beforeImg, dx, dy, dw, dh);
+  ctx.restore();
+
+  // RIGHT side — result on checker or solid bg
+  ctx.save();
+  ctx.beginPath(); ctx.rect(divX, 0, W - divX, H); ctx.clip();
+  if (bgColor === 'transparent') {
+    if (!checkerPat) makeChecker();
+    ctx.fillStyle = checkerPat;
+    ctx.fillRect(0, 0, W, H);
+  } else {
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, W, H);
+  }
+  if (afterImg) ctx.drawImage(afterImg, dx, dy, dw, dh);
+  ctx.restore();
+
+  // divider line
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.fillRect(divX - 1, 0, 2, H);
+
+  // badges
+  ctx.font = 'bold 11px system-ui,sans-serif';
+  // original badge
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  const ob = ctx.measureText('Original');
+  ctx.beginPath(); ctx.roundRect(12, H - 34, ob.width + 16, 22, 11); ctx.fill();
+  ctx.fillStyle = '#e2e8f0'; ctx.fillText('Original', 20, H - 18);
+  // result badge
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  const rb = ctx.measureText('No Background');
+  ctx.beginPath(); ctx.roundRect(W - rb.width - 28, H - 34, rb.width + 16, 22, 11); ctx.fill();
+  ctx.fillStyle = '#dc2626'; ctx.fillText('No Background', W - rb.width - 20, H - 18);
+
+  // update handle position
+  handle.style.left = divX + 'px';
+}
+
+// ── Canvas sizing ──────────────────────────────────────────────────────────
+function sizeCanvas(img) {
+  const viewer = document.getElementById('rbViewer');
+  const vw = viewer.offsetWidth;
+  const ar = img.naturalHeight / img.naturalWidth;
+  const vh = Math.min(Math.round(vw * ar), 560);
+  canvas.width  = vw;
+  canvas.height = vh;
+  viewer.style.height = vh + 'px';
+  makeChecker();
+}
+
+// ── Divider drag on canvas ─────────────────────────────────────────────────
+function pctFromEvent(ev) {
+  const rect = canvas.getBoundingClientRect();
+  const x = (ev.touches ? ev.touches[0].clientX : ev.clientX) - rect.left;
+  return Math.max(5, Math.min(95, x / rect.width * 100));
+}
+
+canvas.addEventListener('mousedown', e => {
+  if (!hasResult) return;
+  document.body.style.cursor = 'col-resize';
+  const move = ev => { dividerPct = pctFromEvent(ev); drawFrame(); };
+  const up   = () => { document.body.style.cursor = ''; document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
+  document.addEventListener('mousemove', move);
+  document.addEventListener('mouseup',   up);
+});
+canvas.addEventListener('touchstart', e => {
+  if (!hasResult) return;
+  const move = ev => { dividerPct = pctFromEvent(ev); drawFrame(); };
+  const up   = () => { document.removeEventListener('touchmove', move); document.removeEventListener('touchend', up); };
+  document.addEventListener('touchmove', move, {passive:true});
+  document.addEventListener('touchend',  up);
 }, {passive:true});
 
-// ── Background colour swatches ────────────────────────────────────────────
+// ── Background colour ──────────────────────────────────────────────────────
 function setBg(el) {
   document.querySelectorAll('.rb-swatch').forEach(s => s.classList.remove('active'));
   el.classList.add('active');
-  applyBg(el.dataset.color);
+  bgColor = el.dataset.color;
+  drawFrame();
+  updateJpgBtn();
 }
-function setCustomBg(hex) {
-  currentBgColor = hex;
-  applyBg(hex);
+function setBgColor(hex) {
+  bgColor = hex;
+  drawFrame();
+  updateJpgBtn();
 }
-function applyBg(color) {
-  currentBgColor = color;
-  const solid = document.getElementById('rbSolidBg');
-  const inner = document.getElementById('rbAfterInner');
-  if (color === 'transparent') {
-    solid.style.display = 'none';
-    inner.style.background = 'repeating-conic-gradient(#d0d0d0 0% 25%,#fff 0% 50%) 0 0/20px 20px';
-  } else {
-    solid.style.cssText = `display:block;position:absolute;inset:0;background:${color};z-index:0;`;
-    inner.style.background = color;
-  }
-  // if result is shown with color bg, offer JPG download too
+function updateJpgBtn() {
   const jpgBtn = document.getElementById('rbDlJpg');
-  if (resultUrl && color !== 'transparent') {
-    jpgBtn.style.display = '';
-    jpgBtn.href = resultUrl.replace(/\.png$/i, '_bg.jpg');
-  } else {
-    jpgBtn.style.display = 'none';
-  }
+  jpgBtn.style.display = (hasResult && bgColor !== 'transparent') ? '' : 'none';
 }
 
-// ── Reset / setFile ───────────────────────────────────────────────────────
-function resetTool() {
-  currentFile = null; resultUrl = null;
-  fileInput.value = '';
-  document.getElementById('rbDrop').style.display = '';
-  document.getElementById('rbSplit').classList.remove('show');
-  document.getElementById('rbInfoStrip').style.display = '';
-  ['rbResultCard','rbErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
-  document.getElementById('rbConvertBtn').disabled = false;
-  document.getElementById('rbBefore').style.display  = 'none';
-  document.getElementById('rbAfterWrap').style.display  = 'none';
-  document.getElementById('rbDivider').style.display    = 'none';
-  document.getElementById('rbBadgeOrig').style.display  = 'none';
-  document.getElementById('rbBadgeNew').style.display   = 'none';
-  document.getElementById('rbProcessing').style.display = 'none';
-  document.getElementById('rbViewerLoad').style.display = 'flex';
-}
-
+// ── Load file ──────────────────────────────────────────────────────────────
 function setFile(f) {
   if (!f) return;
   currentFile = f;
+  hasResult   = false;
+  afterImg    = null;
   document.getElementById('rbFileName').textContent = f.name;
   document.getElementById('rbFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   document.getElementById('rbDrop').style.display = 'none';
   document.getElementById('rbInfoStrip').style.display = 'none';
   ['rbResultCard','rbErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
   document.getElementById('rbSplit').classList.add('show');
+  document.getElementById('rbConvertBtn').disabled = false;
 
-  const before = document.getElementById('rbBefore');
-  const src    = URL.createObjectURL(f);
-  before.src   = src;
-  before.onload = () => {
+  const img = new Image();
+  img.onload = () => {
+    beforeImg = img;
+    sizeCanvas(img);
+    canvas.style.display = 'block';
     document.getElementById('rbViewerLoad').style.display = 'none';
-    before.style.display = 'block';
-    // set viewer height based on aspect
-    const ar = before.naturalHeight / before.naturalWidth;
-    document.getElementById('rbViewer').style.height = Math.min(Math.round(document.getElementById('rbViewer').offsetWidth * ar), 580) + 'px';
+    drawFrame();
   };
+  img.src = URL.createObjectURL(f);
 }
 
-// ── Process ───────────────────────────────────────────────────────────────
+// ── Reset ──────────────────────────────────────────────────────────────────
+function resetTool() {
+  currentFile = null; beforeImg = null; afterImg = null; hasResult = false;
+  fileInput.value = '';
+  document.getElementById('rbDrop').style.display = '';
+  document.getElementById('rbSplit').classList.remove('show');
+  document.getElementById('rbInfoStrip').style.display = '';
+  ['rbResultCard','rbErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
+  handle.style.display = 'none';
+  canvas.style.display = 'none';
+  document.getElementById('rbViewerLoad').style.display = 'flex';
+  document.getElementById('rbViewer').style.height = '';
+}
+
+// ── API call ───────────────────────────────────────────────────────────────
 async function doRemove() {
   if (!currentFile) return;
   document.getElementById('rbConvertBtn').disabled = true;
@@ -326,29 +375,25 @@ async function doRemove() {
     const res  = await fetch('/tools/api/img/remove-bg/', { method: 'POST', body: fd });
     const text = await res.text();
     let d;
-    try { d = JSON.parse(text); } catch { throw new Error('Server error (status ' + res.status + '). Check if rembg is installed.'); }
+    try { d = JSON.parse(text); } catch { throw new Error('Server error (status ' + res.status + '). rembg may not be installed.'); }
     if (d.error) throw new Error(d.error);
 
-    resultUrl = d.download_url;
+    // load result image
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      afterImg   = img;
+      hasResult  = true;
+      handle.style.display = 'flex';
+      dividerPct = 50;
+      drawFrame();
+    };
+    img.src = d.download_url + '?t=' + Date.now();
+
     document.getElementById('rbDlPng').href     = d.download_url;
     document.getElementById('rbDlPng').download = d.filename || 'no_bg.png';
     document.getElementById('rbResultCard').classList.add('show');
-
-    // show result in after panel
-    const afterImg = document.getElementById('rbAfterImg');
-    afterImg.src   = d.download_url;
-    afterImg.style.zIndex = '1';
-    afterImg.style.position = 'absolute';
-    afterImg.style.top = '0'; afterImg.style.left = '0';
-    afterImg.style.height = '100%';
-    afterImg.style.objectFit = 'contain';
-
-    document.getElementById('rbAfterWrap').style.display = 'block';
-    document.getElementById('rbDivider').style.display   = 'block';
-    document.getElementById('rbBadgeOrig').style.display = '';
-    document.getElementById('rbBadgeNew').style.display  = '';
-    setDivider(50);
-    applyBg(currentBgColor);
+    updateJpgBtn();
 
   } catch (e) {
     document.getElementById('rbErrorMsg').textContent = e.message || 'Failed.';
@@ -359,9 +404,13 @@ async function doRemove() {
   }
 }
 
+// ── File input / drop ──────────────────────────────────────────────────────
 fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
 const rbDrop = document.getElementById('rbDrop');
 rbDrop.addEventListener('dragover',  e => { e.preventDefault(); rbDrop.classList.add('drag-over'); });
 rbDrop.addEventListener('dragleave', () => rbDrop.classList.remove('drag-over'));
 rbDrop.addEventListener('drop', e => { e.preventDefault(); rbDrop.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
+
+// redraw on resize
+window.addEventListener('resize', () => { if (beforeImg) { sizeCanvas(beforeImg); drawFrame(); } });
 </script>{% endblock %}
