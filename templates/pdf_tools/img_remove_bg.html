@@ -3,36 +3,363 @@
 {% block title %}Remove Background — ZayroDocX{% endblock %}
 {% block active_img_remove_bg %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Remove Background</span>{% endblock %}
-{% block extra_head %}<style>{% include "pdf_tools/_img_split_css.html" %}</style>{% endblock %}
+
+{% block extra_head %}<style>
+/* ── drop ── */
+.rb-drop{border:2.5px dashed #cbd5e1;border-radius:20px;padding:3rem 2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:#f8fafc;}
+.rb-drop:hover,.rb-drop.drag-over{border-color:#dc2626;background:#fff8f8;}
+.rb-drop-icon{font-size:3rem;color:#dc2626;margin-bottom:.8rem;}
+.rb-drop h3{font-size:1.3rem;font-weight:700;color:#1e293b;margin:0 0 .4rem;}
+.rb-drop p{color:#64748b;margin:0 0 1.2rem;}
+.rb-drop-btn{background:#dc2626;color:#fff;border:none;border-radius:10px;padding:.6rem 1.4rem;font-size:.9rem;font-weight:600;cursor:pointer;}
+.rb-drop-btn:hover{background:#b91c1c;}
+
+/* ── layout ── */
+.rb-split{display:none;grid-template-columns:1fr 340px;gap:20px;align-items:start;}
+.rb-split.show{display:grid;}
+
+/* ── viewer ── */
+.rb-viewer{border-radius:16px;overflow:hidden;position:relative;background:#1e293b;min-height:380px;display:flex;align-items:center;justify-content:center;user-select:none;}
+.rb-viewer-loading{color:#94a3b8;font-size:.9rem;padding:2rem;display:flex;flex-direction:column;align-items:center;gap:.8rem;z-index:2;}
+.rb-viewer-loading i{font-size:2rem;}
+
+/* before / after layers */
+#rbBefore{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:none;}
+/* after wrap — clipped to divider */
+#rbAfterWrap{position:absolute;top:0;right:0;bottom:0;width:50%;overflow:hidden;display:none;}
+#rbAfterInner{position:absolute;top:0;right:0;bottom:0;width:200%;/* double so image fills */background:repeating-conic-gradient(#d0d0d0 0% 25%,#fff 0% 50%) 0 0/20px 20px;}
+#rbAfterImg{position:absolute;top:0;left:0;width:50%;height:100%;object-fit:contain;}
+
+/* solid bg overlay */
+#rbSolidBg{position:absolute;top:0;left:0;width:100%;height:100%;display:none;}
+
+/* divider */
+#rbDivider{position:absolute;top:0;left:50%;width:3px;height:100%;background:#fff;cursor:col-resize;z-index:10;transform:translateX(-50%);display:none;box-shadow:0 0 6px rgba(0,0,0,.4);}
+#rbDivHandle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.35);cursor:col-resize;}
+#rbDivHandle i{color:#dc2626;font-size:.8rem;pointer-events:none;}
+
+/* badges */
+.rb-badge{position:absolute;bottom:12px;font-size:.7rem;font-weight:700;padding:.25rem .65rem;border-radius:20px;z-index:5;display:none;}
+.rb-badge.left{left:12px;background:rgba(0,0,0,.55);color:#e2e8f0;}
+.rb-badge.right{right:12px;background:rgba(255,255,255,.9);color:#dc2626;}
+
+/* processing overlay */
+#rbProcessing{position:absolute;inset:0;background:rgba(15,23,42,.75);display:none;flex-direction:column;align-items:center;justify-content:center;gap:1rem;z-index:20;border-radius:16px;}
+#rbProcessing .rb-proc-text{color:#fff;font-size:.95rem;font-weight:600;}
+.rb-proc-bar{width:180px;height:6px;background:#334155;border-radius:3px;overflow:hidden;}
+.rb-proc-fill{height:100%;background:#dc2626;border-radius:3px;animation:rbfill 2s ease-in-out infinite;}
+@keyframes rbfill{0%{width:5%}60%{width:85%}100%{width:95%}}
+
+/* right panel */
+.rb-right{display:flex;flex-direction:column;gap:14px;position:sticky;top:16px;max-height:calc(100vh - 100px);overflow-y:auto;padding-right:4px;scrollbar-width:thin;}
+.rb-card{background:#fff;border:1.5px solid #e8e8e8;border-radius:14px;padding:1.1rem 1.3rem;}
+.rb-file-row{display:flex;align-items:center;gap:.9rem;}
+.rb-file-icon{width:44px;height:44px;border-radius:11px;background:#fff8f8;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#dc2626;flex-shrink:0;}
+.rb-file-name{font-size:.88rem;font-weight:700;color:#111;word-break:break-all;}
+.rb-file-size{font-size:.75rem;color:#aaa;margin-top:.1rem;}
+.rb-change-btn{margin-left:auto;background:#fff;border:1.5px solid #e8e8e8;border-radius:8px;padding:.35rem .75rem;font-size:.75rem;font-weight:600;color:#666;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.rb-change-btn:hover{border-color:#fca5a5;color:#dc2626;}
+
+.rb-opts-title{font-size:.72rem;font-weight:800;color:#b91c1c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.65rem;}
+.rb-field-label{font-size:.73rem;font-weight:700;color:#555;margin:.7rem 0 .35rem;}
+
+/* bg color swatches */
+.rb-bg-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem;}
+.rb-swatch{width:28px;height:28px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;transition:border-color .15s,transform .12s;}
+.rb-swatch:hover,.rb-swatch.active{border-color:#dc2626;transform:scale(1.12);}
+.rb-swatch.transparent{background:repeating-conic-gradient(#ccc 0% 25%,#fff 0% 50%) 0 0/10px 10px;border-color:#e8e8e8;}
+.rb-swatch.transparent.active{border-color:#dc2626;}
+
+/* convert / dl */
+.rb-convert-btn{width:100%;padding:.85rem;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:opacity .15s;}
+.rb-convert-btn:disabled{opacity:.6;cursor:not-allowed;}
+.rb-result-card{display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:1.1rem 1.2rem;}
+.rb-result-card.show{display:block;}
+.rb-result-title{font-size:.82rem;font-weight:700;color:#166534;display:flex;align-items:center;gap:.4rem;margin-bottom:.7rem;}
+.rb-dl-btns{display:flex;flex-direction:column;gap:.5rem;}
+.rb-dl-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.62rem;border:none;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;text-decoration:none;}
+.rb-dl-btn.png{background:#16a34a;color:#fff;}
+.rb-dl-btn.png:hover{background:#15803d;}
+.rb-dl-btn.jpg{background:#0284c7;color:#fff;}
+.rb-dl-btn.jpg:hover{background:#0369a1;}
+.rb-error-card{display:none;background:#fff1f2;border:1.5px solid #fca5a5;border-radius:14px;padding:1rem 1.2rem;}
+.rb-error-card.show{display:block;}
+.rb-error-msg{font-size:.82rem;color:#dc2626;}
+
+@media(max-width:1050px){.rb-split{grid-template-columns:1fr;}.rb-right{position:static;max-height:none;}}
+</style>{% endblock %}
+
 {% block content %}
 <input type="file" id="fileInput" accept="image/*" style="display:none">
-<div class="it-drop" id="itDrop" onclick="document.getElementById('fileInput').click()">
-  <div class="it-drop-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-  <h3>Drop your image here</h3><p>AI will automatically detect and remove the background</p>
-  <button type="button" class="it-drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()"><i class="fa-solid fa-folder-open"></i> Select Image</button>
+
+<div class="rb-drop" id="rbDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="rb-drop-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+  <h3>Drop your image here</h3>
+  <p>AI will automatically detect and remove the background</p>
+  <button type="button" class="rb-drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-folder-open"></i> Select Image
+  </button>
 </div>
-<div class="it-split" id="itSplit">
-  <div class="it-viewer"><div class="it-viewer-loading" id="itViewerLoad"><i class="fa-solid fa-spinner it-spin"></i><span>Loading…</span></div><img id="itPreviewImg" style="display:none;max-width:100%;max-height:100%;border-radius:8px;object-fit:contain;" alt="preview"></div>
-  <div class="it-right">
-    <div class="it-card"><div class="it-file-row"><div class="it-file-icon"><i class="fa-solid fa-image"></i></div><div><div class="it-file-name" id="itFileName">—</div><div class="it-file-size" id="itFileSize">—</div></div><button type="button" class="it-change-btn" onclick="resetTool()"><i class="fa-solid fa-rotate-left"></i> Change</button></div></div>
-    <div class="it-card"><div class="it-opts-title"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Background Removal</div><p style="font-size:.78rem;color:#64748b;margin:.4rem 0 0">AI detects edges and removes the background — output is a transparent PNG.</p></div>
-    <button type="button" class="it-convert-btn" id="itConvertBtn" onclick="doConvert()"><i class="fa-solid fa-wand-magic-sparkles"></i> Remove Background</button>
-    <div class="it-loading-card" id="itLoadingCard"><i class="fa-solid fa-spinner it-spin"></i><span style="font-size:.88rem;font-weight:600;color:#b91c1c">Removing background…</span></div>
-    <div class="it-result-card" id="itResultCard"><div class="it-result-title"><i class="fa-solid fa-circle-check"></i> Background removed!</div><a class="it-dl-btn" id="itDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download PNG</a></div>
-    <div class="it-error-card" id="itErrorCard"><div class="it-error-msg" id="itErrorMsg"></div></div>
+
+<div class="rb-split" id="rbSplit">
+  <!-- VIEWER -->
+  <div class="rb-viewer" id="rbViewer">
+    <div class="rb-viewer-loading" id="rbViewerLoad">
+      <i class="fa-solid fa-spinner" style="animation:spin 1s linear infinite;font-size:2rem;color:#dc2626"></i>
+      <span style="color:#94a3b8">Loading…</span>
+    </div>
+
+    <!-- before (original) -->
+    <img id="rbBefore" alt="Original">
+
+    <!-- after (result) -->
+    <div id="rbAfterWrap">
+      <div id="rbAfterInner">
+        <div id="rbSolidBg"></div>
+        <img id="rbAfterImg" alt="No BG">
+      </div>
+    </div>
+
+    <!-- divider -->
+    <div id="rbDivider">
+      <div id="rbDivHandle"><i class="fa-solid fa-left-right"></i></div>
+    </div>
+
+    <!-- badges -->
+    <span class="rb-badge left"  id="rbBadgeOrig">Original</span>
+    <span class="rb-badge right" id="rbBadgeNew">No Background</span>
+
+    <!-- processing overlay -->
+    <div id="rbProcessing">
+      <i class="fa-solid fa-wand-magic-sparkles" style="font-size:2rem;color:#dc2626"></i>
+      <div class="rb-proc-text">AI removing background…</div>
+      <div class="rb-proc-bar"><div class="rb-proc-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="rb-right">
+    <div class="rb-card">
+      <div class="rb-file-row">
+        <div class="rb-file-icon"><i class="fa-solid fa-image"></i></div>
+        <div>
+          <div class="rb-file-name" id="rbFileName">—</div>
+          <div class="rb-file-size" id="rbFileSize">—</div>
+        </div>
+        <button type="button" class="rb-change-btn" onclick="resetTool()">
+          <i class="fa-solid fa-rotate-left"></i> Change
+        </button>
+      </div>
+    </div>
+
+    <div class="rb-card">
+      <div class="rb-opts-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Background Removal</div>
+      <p style="font-size:.78rem;color:#64748b;margin:0 0 .7rem">AI detects edges and removes the background. After removal you can pick a background colour for preview.</p>
+
+      <div class="rb-field-label">Preview Background</div>
+      <div class="rb-bg-row" id="rbSwatches">
+        <div class="rb-swatch transparent active" title="Transparent" data-color="transparent" onclick="setBg(this)"></div>
+        <div class="rb-swatch" style="background:#ffffff" title="White"  data-color="#ffffff" onclick="setBg(this)"></div>
+        <div class="rb-swatch" style="background:#000000" title="Black"  data-color="#000000" onclick="setBg(this)"></div>
+        <div class="rb-swatch" style="background:#1e40af" title="Blue"   data-color="#1e40af" onclick="setBg(this)"></div>
+        <div class="rb-swatch" style="background:#15803d" title="Green"  data-color="#15803d" onclick="setBg(this)"></div>
+        <div class="rb-swatch" style="background:#dc2626" title="Red"    data-color="#dc2626" onclick="setBg(this)"></div>
+        <div class="rb-swatch" style="background:#f59e0b" title="Yellow" data-color="#f59e0b" onclick="setBg(this)"></div>
+        <div class="rb-swatch" style="background:#e2e8f0" title="Light grey" data-color="#e2e8f0" onclick="setBg(this)"></div>
+        <!-- custom color -->
+        <div style="position:relative">
+          <div class="rb-swatch" style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)" title="Custom colour" onclick="document.getElementById('rbColorPicker').click()"></div>
+          <input type="color" id="rbColorPicker" style="position:absolute;opacity:0;width:0;height:0" onchange="setCustomBg(this.value)">
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="rb-convert-btn" id="rbConvertBtn" onclick="doRemove()">
+      <i class="fa-solid fa-wand-magic-sparkles"></i> Remove Background
+    </button>
+
+    <div class="rb-result-card" id="rbResultCard">
+      <div class="rb-result-title"><i class="fa-solid fa-circle-check"></i> Background removed!</div>
+      <div class="rb-dl-btns">
+        <a class="rb-dl-btn png" id="rbDlPng" href="#" download><i class="fa-solid fa-download"></i> Download PNG (transparent)</a>
+        <a class="rb-dl-btn jpg" id="rbDlJpg" href="#" download style="display:none"><i class="fa-solid fa-download"></i> Download JPG (with background)</a>
+      </div>
+    </div>
+
+    <div class="rb-error-card" id="rbErrorCard">
+      <div class="rb-error-msg" id="rbErrorMsg"></div>
+    </div>
   </div>
 </div>
-<div class="cv-info-strip" id="itInfoStrip">
+
+<div class="cv-info-strip" id="rbInfoStrip">
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div><div class="cv-info-title">AI Powered</div><div class="cv-info-desc">Smart edge detection</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-file-image"></i></div><div><div class="cv-info-title">PNG Output</div><div class="cv-info-desc">Transparent background</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
 </div>
 {% endblock %}
+
 {% block extra_js %}<script>
-let currentFile=null;const fileInput=document.getElementById('fileInput');
-function resetTool(){fileInput.value='';currentFile=null;document.getElementById('itDrop').style.display='';document.getElementById('itSplit').classList.remove('show');document.getElementById('itInfoStrip').style.display='';['itLoadingCard','itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itConvertBtn').disabled=false;}
-function setFile(f){if(!f)return;currentFile=f;document.getElementById('itFileName').textContent=f.name;document.getElementById('itFileSize').textContent=(f.size/1024).toFixed(1)+' KB';document.getElementById('itDrop').style.display='none';document.getElementById('itInfoStrip').style.display='none';['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itSplit').classList.add('show');const img=document.getElementById('itPreviewImg');img.src=URL.createObjectURL(f);img.style.display='block';document.getElementById('itViewerLoad').style.display='none';}
-async function doConvert(){if(!currentFile)return;document.getElementById('itConvertBtn').disabled=true;document.getElementById('itLoadingCard').classList.add('show');['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));const fd=new FormData();fd.append('file',currentFile);fd.append('csrfmiddlewaretoken','{{ csrf_token }}');try{const res=await fetch('/tools/api/img/remove-bg/',{method:'POST',body:fd});const d=await res.json();if(d.error)throw new Error(d.error);document.getElementById('itDlBtn').href=d.download_url;document.getElementById('itDlBtn').download=d.filename||'no_bg.png';document.getElementById('itResultCard').classList.add('show');}catch(e){document.getElementById('itErrorMsg').textContent=e.message||'Failed.';document.getElementById('itErrorCard').classList.add('show');}finally{document.getElementById('itLoadingCard').classList.remove('show');document.getElementById('itConvertBtn').disabled=false;}}
-fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));const drop=document.getElementById('itDrop');drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+let currentFile   = null;
+let resultUrl     = null;  // server download URL
+let dividerPct    = 50;
+let currentBgColor = 'transparent';
+const fileInput   = document.getElementById('fileInput');
+
+// ── Divider drag ──────────────────────────────────────────────────────────
+function setDivider(pct) {
+  dividerPct = Math.max(5, Math.min(95, pct));
+  document.getElementById('rbAfterWrap').style.width = (100 - dividerPct) + '%';
+  document.getElementById('rbDivider').style.left    = dividerPct + '%';
+  // after image must be positioned to align with full viewer
+  const w = document.getElementById('rbViewer').offsetWidth;
+  const aw = w * (1 - dividerPct / 100);
+  document.getElementById('rbAfterImg').style.width  = (w / aw * 100) + '%';
+  document.getElementById('rbAfterInner').style.width = '100%';
+}
+
+document.getElementById('rbDivHandle').addEventListener('mousedown', e => {
+  e.preventDefault();
+  document.body.style.cursor = 'col-resize';
+  const onMove = ev => {
+    const rect = document.getElementById('rbViewer').getBoundingClientRect();
+    setDivider((ev.clientX - rect.left) / rect.width * 100);
+  };
+  const onUp = () => { document.body.style.cursor = ''; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup',   onUp);
+});
+
+document.getElementById('rbDivHandle').addEventListener('touchstart', e => {
+  const onMove = ev => {
+    const rect = document.getElementById('rbViewer').getBoundingClientRect();
+    setDivider((ev.touches[0].clientX - rect.left) / rect.width * 100);
+  };
+  const onUp = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); };
+  document.addEventListener('touchmove', onMove, {passive:true});
+  document.addEventListener('touchend',  onUp);
+}, {passive:true});
+
+// ── Background colour swatches ────────────────────────────────────────────
+function setBg(el) {
+  document.querySelectorAll('.rb-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  applyBg(el.dataset.color);
+}
+function setCustomBg(hex) {
+  currentBgColor = hex;
+  applyBg(hex);
+}
+function applyBg(color) {
+  currentBgColor = color;
+  const solid = document.getElementById('rbSolidBg');
+  const inner = document.getElementById('rbAfterInner');
+  if (color === 'transparent') {
+    solid.style.display = 'none';
+    inner.style.background = 'repeating-conic-gradient(#d0d0d0 0% 25%,#fff 0% 50%) 0 0/20px 20px';
+  } else {
+    solid.style.cssText = `display:block;position:absolute;inset:0;background:${color};z-index:0;`;
+    inner.style.background = color;
+  }
+  // if result is shown with color bg, offer JPG download too
+  const jpgBtn = document.getElementById('rbDlJpg');
+  if (resultUrl && color !== 'transparent') {
+    jpgBtn.style.display = '';
+    jpgBtn.href = resultUrl.replace(/\.png$/i, '_bg.jpg');
+  } else {
+    jpgBtn.style.display = 'none';
+  }
+}
+
+// ── Reset / setFile ───────────────────────────────────────────────────────
+function resetTool() {
+  currentFile = null; resultUrl = null;
+  fileInput.value = '';
+  document.getElementById('rbDrop').style.display = '';
+  document.getElementById('rbSplit').classList.remove('show');
+  document.getElementById('rbInfoStrip').style.display = '';
+  ['rbResultCard','rbErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
+  document.getElementById('rbConvertBtn').disabled = false;
+  document.getElementById('rbBefore').style.display  = 'none';
+  document.getElementById('rbAfterWrap').style.display  = 'none';
+  document.getElementById('rbDivider').style.display    = 'none';
+  document.getElementById('rbBadgeOrig').style.display  = 'none';
+  document.getElementById('rbBadgeNew').style.display   = 'none';
+  document.getElementById('rbProcessing').style.display = 'none';
+  document.getElementById('rbViewerLoad').style.display = 'flex';
+}
+
+function setFile(f) {
+  if (!f) return;
+  currentFile = f;
+  document.getElementById('rbFileName').textContent = f.name;
+  document.getElementById('rbFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
+  document.getElementById('rbDrop').style.display = 'none';
+  document.getElementById('rbInfoStrip').style.display = 'none';
+  ['rbResultCard','rbErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
+  document.getElementById('rbSplit').classList.add('show');
+
+  const before = document.getElementById('rbBefore');
+  const src    = URL.createObjectURL(f);
+  before.src   = src;
+  before.onload = () => {
+    document.getElementById('rbViewerLoad').style.display = 'none';
+    before.style.display = 'block';
+    // set viewer height based on aspect
+    const ar = before.naturalHeight / before.naturalWidth;
+    document.getElementById('rbViewer').style.height = Math.min(Math.round(document.getElementById('rbViewer').offsetWidth * ar), 580) + 'px';
+  };
+}
+
+// ── Process ───────────────────────────────────────────────────────────────
+async function doRemove() {
+  if (!currentFile) return;
+  document.getElementById('rbConvertBtn').disabled = true;
+  document.getElementById('rbProcessing').style.display = 'flex';
+  ['rbResultCard','rbErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
+
+  const fd = new FormData();
+  fd.append('file', currentFile);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  try {
+    const res = await fetch('/tools/api/img/remove-bg/', { method: 'POST', body: fd });
+    const d   = await res.json();
+    if (d.error) throw new Error(d.error);
+
+    resultUrl = d.download_url;
+    document.getElementById('rbDlPng').href     = d.download_url;
+    document.getElementById('rbDlPng').download = d.filename || 'no_bg.png';
+    document.getElementById('rbResultCard').classList.add('show');
+
+    // show result in after panel
+    const afterImg = document.getElementById('rbAfterImg');
+    afterImg.src   = d.download_url;
+    afterImg.style.zIndex = '1';
+    afterImg.style.position = 'absolute';
+    afterImg.style.top = '0'; afterImg.style.left = '0';
+    afterImg.style.height = '100%';
+    afterImg.style.objectFit = 'contain';
+
+    document.getElementById('rbAfterWrap').style.display = 'block';
+    document.getElementById('rbDivider').style.display   = 'block';
+    document.getElementById('rbBadgeOrig').style.display = '';
+    document.getElementById('rbBadgeNew').style.display  = '';
+    setDivider(50);
+    applyBg(currentBgColor);
+
+  } catch (e) {
+    document.getElementById('rbErrorMsg').textContent = e.message || 'Failed.';
+    document.getElementById('rbErrorCard').classList.add('show');
+  } finally {
+    document.getElementById('rbProcessing').style.display = 'none';
+    document.getElementById('rbConvertBtn').disabled = false;
+  }
+}
+
+fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+const rbDrop = document.getElementById('rbDrop');
+rbDrop.addEventListener('dragover',  e => { e.preventDefault(); rbDrop.classList.add('drag-over'); });
+rbDrop.addEventListener('dragleave', () => rbDrop.classList.remove('drag-over'));
+rbDrop.addEventListener('drop', e => { e.preventDefault(); rbDrop.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
 </script>{% endblock %}
