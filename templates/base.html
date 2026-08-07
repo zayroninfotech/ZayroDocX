@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   {% block extra_head %}{% endblock %}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 
 <body>
@@ -486,18 +487,50 @@
 
   <script src="{% static 'js/main.js' %}"></script>
   <script>
-    // Mobile nav hamburger
-    var ham = document.getElementById('mhHamburger'), nav = document.getElementById('mhNav');
-    if (ham) ham.addEventListener('click', function () { nav.classList.toggle('mobile-open'); });
+  (function () {
+    var nav = document.getElementById('mhNav');
+    var ham = document.getElementById('mhHamburger');
 
-    // Close nav when clicking outside
+    // 1. Hamburger toggles the whole mobile menu
+    if (ham && nav) {
+      ham.addEventListener('click', function (e) {
+        e.stopPropagation();
+        nav.classList.toggle('mobile-open');
+      });
+    }
+
+    // 2. Each top-level menu item toggles its own dropdown on tap
+    if (nav) {
+      nav.querySelectorAll('.mh-item.has-drop > .mh-link').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var item = link.parentElement;
+          // Close sibling dropdowns, toggle this one
+          nav.querySelectorAll('.mh-item.has-drop.open').forEach(function (other) {
+            if (other !== item) other.classList.remove('open');
+          });
+          item.classList.toggle('open');
+        });
+      });
+    }
+
+    // 3. Tap outside closes everything
     document.addEventListener('click', function (e) {
-      if (!e.target.closest('.main-header')) nav.classList.remove('mobile-open');
+      if (!e.target.closest('.main-header')) {
+        if (nav) nav.classList.remove('mobile-open');
+        if (nav) nav.querySelectorAll('.mh-item.has-drop.open').forEach(function (d) {
+          d.classList.remove('open');
+        });
+      }
       if (!e.target.closest('.mh-user-drop')) {
-        document.querySelectorAll('.mh-user-drop.open').forEach(function (d) { d.classList.remove('open'); });
+        document.querySelectorAll('.mh-user-drop.open').forEach(function (d) {
+          d.classList.remove('open');
+        });
       }
     });
-  </script>
+  })();
+</script>
   {% block extra_js %}{% endblock %}
 </body>
 

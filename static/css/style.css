@@ -109,7 +109,8 @@ body { padding-top: var(--mh-h); }
   z-index: 300; animation: dropFade .15s ease;
 }
 @keyframes dropFade { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
-.mh-item:hover .mh-drop { display: block; }
+.mh-item.open > .mh-drop,
+.mh-item:hover > .mh-drop { display: block; }
 .mh-drop-wide { min-width: 240px; }
 .mh-drop-mega { min-width: 340px; }
 .mhd-mega-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
@@ -734,7 +735,7 @@ tr:hover td { background: var(--brand-pale); }
   .mh-nav.mobile-open .mh-all-tools { display: flex; width: 100%; height: auto; padding: .65rem .85rem; border-bottom: none; }
   .mh-nav.mobile-open .mh-link { height: auto; padding: .65rem .85rem; line-height: 1.4; border-bottom: none; }
   .mh-nav.mobile-open .mh-drop { position: static; box-shadow: none; border: none; border-radius: 0; background: #fafafa; padding: 0 0 0 1rem; margin: 0; display: none; animation: none; }
-  .mh-nav.mobile-open .mh-item:hover .mh-drop { display: block; }
+  .mh-nav.mobile-open .mh-item.open > .mh-drop { display: block; }
   .mh-nav:not(.mobile-open) { display: none; }
   .mh-nav:not(.mobile-open) .mh-item { display: flex; }
 }
@@ -811,3 +812,83 @@ tr:hover td { background: var(--brand-pale); }
 .cv-info-icon { width:36px; height:36px; border-radius:10px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:.88rem; background:#fee2e2; color:#dc2626; }
 .cv-info-title { font-size:.78rem; font-weight:700; color:#111; }
 .cv-info-desc  { font-size:.68rem; color:#aaa; margin-top:.1rem; }
+
+
+/* ── Mobile responsive adjustments ─────────────────────────── */
+
+@media (max-width: 768px) {
+
+  /* Stack everything vertically */
+  .container, .wrapper, main {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 8px !important;
+    margin: 0 !important;
+  }
+
+  /* Tool cards: one per row instead of grid */
+  .tool-grid, .cards, .dashboard-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* Bigger tap targets */
+  button, .btn, input[type="submit"], input[type="button"] {
+    min-height: 44px !important;
+    padding: 12px 16px !important;
+    font-size: 16px !important;   /* prevents iOS zoom on focus */
+  }
+
+  /* Inputs */
+  input[type="text"], input[type="file"], textarea, select {
+    width: 100% !important;
+    font-size: 16px !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Hide desktop nav, show mobile menu */
+  .desktop-nav { display: none !important; }
+  .mobile-nav  { display: block !important; }
+
+  /* Sidebars collapse */
+  .sidebar, aside {
+    width: 100% !important;
+    margin-bottom: 12px !important;
+  }
+
+  /* Reduce font size of headings so things fit */
+  h1 { font-size: 1.4rem !important; }
+  h2 { font-size: 1.2rem !important; }
+  h3 { font-size: 1.05rem !important; }
+
+  /* Tables scroll horizontally instead of breaking layout */
+  table {
+    display: block !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+  }
+
+  /* Modals full-screen on phones */
+  .modal, .popup {
+    width: 100vw !important;
+    height: 100vh !important;
+    top: 0 !important;
+    left: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  /* PDF viewer — fit to width */
+  iframe, .pdf-viewer {
+    width: 100% !important;
+    height: 70vh !important;
+  }
+}
+
+/* Tablets — slightly less aggressive */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .tool-grid, .cards {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
