@@ -445,8 +445,8 @@ function attachViewerEvents(){
     if(lt){const r=vid.getBoundingClientRect(); sendCtrl({type:'click',x:(lt.clientX-r.left)/r.width,y:(lt.clientY-r.top)/r.height,button:0});}
     lt=null;
   },{passive:false});
-  document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return; sendCtrl({type:'keydown',key:e.key,code:e.code});});
-  document.addEventListener('keyup',  e=>{if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return; sendCtrl({type:'keyup',  key:e.key,code:e.code});});
+  document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return; sendCtrl({type:'keydown',key:e.key,code:e.code,ctrl:e.ctrlKey,alt:e.altKey,shift:e.shiftKey});});
+  document.addEventListener('keyup',  e=>{if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return; sendCtrl({type:'keyup',  key:e.key,code:e.code,ctrl:e.ctrlKey,alt:e.altKey,shift:e.shiftKey});});
 }
 
 function toggleCtrl(){
