@@ -115,6 +115,7 @@ urlpatterns = [
     path('connectspace/',         tool_page('live_share.html',         'connectspace'),          name='connectspace_page'),
     path('ai-resume-analyzer/',   tool_page('resume_analyzer.html',    'ai-resume-analyzer'),    name='resume_analyzer_page'),
     path('zayrodesk/',            tool_page('zayrodesk.html',          'zayrodesk'),             name='zayrodesk_page'),
+    path('zayrodesk-app/',        tool_page('zayrodesk_app.html',      'zayrodesk'),             name='zayrodesk_app_page'),
     path('product-recommender/',  tool_page('product_recommender.html','product-recommender'),   name='product_recommender_page'),
     path('pdf-chat/',             tool_page('pdf_chat.html',           'pdf-chat'),              name='pdf_chat_page'),
     path('zayro-eye/',            zayro_eye_page,                                               name='zayro_eye_page'),

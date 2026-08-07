@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ZayroDesk</title>
+<meta name="theme-color" content="#0891b2">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f9ff;min-height:100vh;color:#1e293b}
+.zd-header{background:#fff;border-bottom:1.5px solid #e0f2fe;padding:.8rem 1.2rem;display:flex;align-items:center;gap:.7rem;position:sticky;top:0;z-index:100}
+.zd-logo{width:34px;height:34px;background:linear-gradient(135deg,#0891b2,#0e7490);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.zd-logo svg{width:20px;height:20px;fill:#fff}
+.zd-brand{font-size:1.05rem;font-weight:900;color:#0891b2;letter-spacing:-.01em}
+.zd-brand span{color:#0e7490;font-size:.7rem;font-weight:600;display:block;line-height:1;margin-top:-1px}
+.zd-wrap{max-width:480px;margin:0 auto;padding:1.2rem 1rem 3rem}
+.zd-hero{text-align:center;padding:1.4rem 1rem 1.2rem}
+.zd-hero-icon{font-size:3rem;margin-bottom:.5rem}
+.zd-hero h1{font-size:1.5rem;font-weight:900;color:#0891b2;margin:0 0 .3rem}
+.zd-hero p{font-size:.82rem;color:#64748b;line-height:1.5}
+.zd-card{background:#fff;border:1.5px solid #e0f2fe;border-radius:18px;padding:1.4rem 1.2rem;margin-bottom:1rem;text-align:center}
+.zd-card-icon{font-size:2rem;margin-bottom:.6rem}
+.zd-card h2{font-size:.95rem;font-weight:800;color:#1e293b;margin:0 0 .3rem}
+.zd-card p{font-size:.78rem;color:#64748b;margin:0 0 1rem;line-height:1.5}
+.zd-btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.7rem 1.6rem;border-radius:12px;font-size:.85rem;font-weight:700;border:none;cursor:pointer;transition:opacity .15s;width:100%}
+.zd-btn-primary{background:linear-gradient(135deg,#0891b2,#0e7490);color:#fff}
+.zd-btn:hover{opacity:.88}
+.zd-btn:disabled{opacity:.45;cursor:not-allowed}
+.zd-join-col{display:flex;flex-direction:column;gap:.5rem;margin-top:.3rem}
+.zd-code-input{width:100%;border:2px solid #bae6fd;border-radius:12px;padding:.65rem .9rem;font-size:1.3rem;font-weight:800;letter-spacing:.2em;text-align:center;font-family:monospace;color:#0891b2;outline:none;background:#f0f9ff}
+.zd-code-input:focus{border-color:#0891b2;box-shadow:0 0 0 3px rgba(8,145,178,.12)}
+.zd-err{font-size:.78rem;color:#dc2626;font-weight:600;margin-top:.4rem;display:none;text-align:left}
+.zd-err.show{display:block}
+.zd-pick-err{color:#dc2626;font-size:.8rem;font-weight:700;text-align:center;padding:.6rem 1rem;background:#fee2e2;border-radius:10px;display:none;margin-bottom:.8rem}
+.zd-pick-err.show{display:block}
+/* host room */
+.zd-room{display:none}
+.zd-room.show{display:block}
+.zd-session-bar{background:#fff;border:1.5px solid #bae6fd;border-radius:16px;padding:1rem 1.2rem;margin-bottom:.8rem;text-align:center}
+.zd-session-label{font-size:.65rem;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem}
+.zd-session-code{font-size:2rem;font-weight:900;letter-spacing:.2em;color:#0891b2;font-family:monospace;margin-bottom:.6rem}
+.zd-copy-btn{display:inline-flex;align-items:center;gap:.3rem;padding:.35rem 1rem;border:1.5px solid #bae6fd;border-radius:8px;font-size:.78rem;font-weight:700;color:#0891b2;background:#f0f9ff;cursor:pointer}
+.zd-pill{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .8rem;border-radius:20px;font-size:.72rem;font-weight:700;margin-top:.6rem}
+.zd-pill-wait{background:#fef9c3;color:#ca8a04}
+.zd-pill-live{background:#dcfce7;color:#16a34a}
+.zd-qr-wrap{text-align:center;padding:.8rem;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:14px;margin-bottom:.8rem}
+.zd-qr-label{font-size:.68rem;font-weight:700;color:#0284c7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem}
+.zd-stop-btn{width:100%;padding:.65rem;border-radius:12px;font-size:.84rem;font-weight:700;border:2px solid #dc2626;color:#dc2626;background:#fff;cursor:pointer;margin-bottom:.8rem}
+.zd-host-preview{background:#0f172a;border-radius:14px;overflow:hidden;min-height:180px;display:flex;align-items:center;justify-content:center;position:relative}
+.zd-host-preview video{width:100%;max-height:320px;object-fit:contain;display:block}
+.zd-preview-ph{color:#475569;font-size:.82rem;text-align:center;padding:1.5rem}
+.zd-preview-ph div{font-size:2rem;margin-bottom:.4rem}
+/* viewer */
+.zd-viewer-wrap{position:relative;background:#000;border-radius:14px;overflow:hidden;min-height:240px;user-select:none}
+.zd-viewer-video{width:100%;display:block;cursor:none}
+.zd-connect-overlay{position:absolute;inset:0;background:#0f172a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;color:#94a3b8;font-size:.85rem;font-weight:600;border-radius:14px}
+.spin{animation:zdSpin 1s linear infinite;font-size:2rem;color:#0891b2}
+@keyframes zdSpin{to{transform:rotate(360deg)}}
+.zd-toolbar{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.6rem}
+.zd-tb-btn{flex:1;min-width:80px;padding:.5rem .3rem;border-radius:10px;font-size:.72rem;font-weight:700;border:1.5px solid #e0f2fe;background:#fff;color:#0891b2;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.25rem}
+.zd-tb-btn.red{border-color:#fca5a5;color:#dc2626}
+.zd-viewer-status{font-size:.72rem;color:#86efac;font-weight:600;text-align:center;margin-top:.4rem}
+.zd-touch-hint{font-size:.7rem;color:#94a3b8;text-align:center;margin-top:.4rem}
+</style>
+</head>
+<body>
+
+<div class="zd-header">
+  <div class="zd-logo">
+    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="13" rx="2"/><path d="M8 21h8M12 16v5"/></svg>
+  </div>
+  <div class="zd-brand">ZayroDesk <span>Remote Screen Access</span></div>
+</div>
+
+<div class="zd-wrap">
+  <div id="zdPick">
+    <div class="zd-hero">
+      <div class="zd-hero-icon">🖥️</div>
+      <h1>ZayroDesk</h1>
+      <p>Share your screen securely. Control from any device with touch.</p>
+    </div>
+
+    <div class="zd-pick-err" id="zdPickErr"></div>
+
+    <div class="zd-card">
+      <div class="zd-card-icon">📤</div>
+      <h2>Share My Screen</h2>
+      <p>Start a session and share the code with the viewer.</p>
+      <button class="zd-btn zd-btn-primary" id="zdStartBtn" onclick="hostStart()">▶ Start Sharing</button>
+    </div>
+
+    <div class="zd-card">
+      <div class="zd-card-icon">🔗</div>
+      <h2>Join a Session</h2>
+      <p>Enter the 9-digit code shown on the host's screen.</p>
+      <div class="zd-join-col">
+        <input id="zdJoinInput" type="text" class="zd-code-input" maxlength="11" placeholder="123-456-789" oninput="fmtCode(this)" inputmode="numeric">
+        <button class="zd-btn zd-btn-primary" id="zdJoinBtn" onclick="viewerJoin()">⚡ Connect</button>
+      </div>
+      <div class="zd-err" id="zdJoinErr"></div>
+    </div>
+  </div>
+
+  <!-- HOST ROOM -->
+  <div id="zdHostRoom" class="zd-room">
+    <div class="zd-pick-err" id="zdPickErr2"></div>
+    <div class="zd-session-bar">
+      <div class="zd-session-label">Your Session Code — share this</div>
+      <div class="zd-session-code" id="zdCodeDisplay">—</div>
+      <button class="zd-copy-btn" onclick="copyCode()">📋 Copy</button>
+      <div class="zd-pill zd-pill-wait" id="zdHostPill">⏳ Waiting for viewer…</div>
+    </div>
+    <div class="zd-qr-wrap" id="zdQRWrap">
+      <div class="zd-qr-label">📱 Scan to Join</div>
+      <div id="zdQRCode"></div>
+    </div>
+    <button class="zd-stop-btn" onclick="hostStop('Stopped.')">⏹ Stop &amp; Disconnect</button>
+    <div class="zd-host-preview" id="zdHostPreview">
+      <div class="zd-preview-ph" id="zdHostPh"><div>📡</div>Capturing your screen…</div>
+      <video id="zdHostVideo" autoplay muted playsinline style="display:none"></video>
+    </div>
+  </div>
+
+  <!-- VIEWER ROOM -->
+  <div id="zdViewerRoom" class="zd-room">
+    <div class="zd-viewer-wrap" id="zdViewerWrap">
+      <div class="zd-connect-overlay" id="zdConnectOverlay">
+        <div class="spin">⟳</div>
+        <span id="zdConnectMsg">Connecting…</span>
+      </div>
+      <video id="zdViewerVideo" class="zd-viewer-video" autoplay playsinline></video>
+    </div>
+    <div class="zd-viewer-status" id="zdViewerStatus" style="display:none">● Live</div>
+    <div class="zd-toolbar">
+      <button class="zd-tb-btn" onclick="toggleCtrl()" id="zdCtrlBtn">👆 Control: ON</button>
+      <button class="zd-tb-btn" onclick="goFullscreen()">⛶ Fullscreen</button>
+      <button class="zd-tb-btn red" onclick="viewerDisconnect()">✕ Disconnect</button>
+    </div>
+    <div class="zd-touch-hint">Tap · Drag · Pinch to control the host screen</div>
+  </div>
+</div>
+
+<script>
+{% load static %}
+const CSRF='{{ csrf_token }}';
+const ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+let role=null,roomCode=null,pc=null,dc=null,pollTimer=null,iceIdx=0,controlEnabled=true,stream=null;
+let _frameMode=false,_lastFrameTs=0;
+
+async function api(url,body){
+  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},body:JSON.stringify(body)});
+  const ct=res.headers.get('content-type')||'';
+  if(!ct.includes('application/json')) throw new Error('Server error '+res.status);
+  return res.json();
+}
+async function poll(url){
+  const res=await fetch(url);
+  if(!(res.headers.get('content-type')||'').includes('application/json')) return null;
+  return res.json();
+}
+
+function showErr(id,msg){const e=document.getElementById(id);if(e){e.textContent='⚠ '+msg;e.classList.add('show');}}
+function clearErr(id){const e=document.getElementById(id);if(e) e.classList.remove('show');}
+function fmtCode(el){let v=el.value.replace(/\D/g,'').slice(0,9);if(v.length>6)v=v.slice(0,3)+'-'+v.slice(3,6)+'-'+v.slice(6);else if(v.length>3)v=v.slice(0,3)+'-'+v.slice(3);el.value=v;}
+function copyCode(){navigator.clipboard?.writeText(roomCode);}
+
+/* ── HOST ── */
+async function hostStart(){
+  clearErr('zdPickErr');
+  const btn=document.getElementById('zdStartBtn');
+  btn.disabled=true; btn.textContent='⏳ Starting…';
+
+  // Android APK — native MediaProjection
+  if(window.ZayroAndroid){
+    try{
+      const r=await fetch('/tools/api/desk/create/',{method:'POST',headers:{'X-CSRFToken':CSRF}});
+      const d=await r.json();
+      if(d.error) throw new Error(d.error);
+      roomCode=d.code; role='host';
+      document.getElementById('zdPick').style.display='none';
+      document.getElementById('zdHostRoom').classList.add('show');
+      document.getElementById('zdCodeDisplay').textContent=d.display;
+      generateQR(d.code);
+      btn.textContent='▶ Start Sharing'; btn.disabled=false;
+      window.onScreenCaptureError=msg=>showErr('zdPickErr2','Screen capture failed: '+msg);
+      window.ZayroAndroid.startScreenCapture(d.code);
+    }catch(e){
+      showErr('zdPickErr',e.message);
+      btn.textContent='▶ Start Sharing'; btn.disabled=false;
+    }
+    return;
+  }
+
+  // Desktop — WebRTC getDisplayMedia
+  if(!navigator.mediaDevices?.getDisplayMedia){
+    showErr('zdPickErr','Screen sharing requires a desktop browser. On mobile you can only join as a viewer.');
+    btn.textContent='▶ Start Sharing'; btn.disabled=false;
+    return;
+  }
+
+  try{
+    stream=await navigator.mediaDevices.getDisplayMedia({video:{cursor:'always',frameRate:{ideal:30}},audio:false});
+  }catch(e){
+    btn.textContent='▶ Start Sharing'; btn.disabled=false;
+    showErr('zdPickErr',e.name==='NotAllowedError'?'Permission denied. Click "Start Sharing" then "Share".':'Failed: '+e.message);
+    return;
+  }
+
+  try{
+    const d=await api('/tools/api/desk/create/',{});
+    if(d.error) throw new Error(d.error);
+    roomCode=d.code; role='host';
+    document.getElementById('zdPick').style.display='none';
+    document.getElementById('zdHostRoom').classList.add('show');
+    document.getElementById('zdCodeDisplay').textContent=d.display;
+    generateQR(d.code);
+    const vid=document.getElementById('zdHostVideo');
+    vid.srcObject=stream; vid.style.display='block';
+    document.getElementById('zdHostPh').style.display='none';
+    pc=new RTCPeerConnection(ICE);
+    stream.getTracks().forEach(t=>pc.addTrack(t,stream));
+    pc.ondatachannel=e=>{dc=e.channel;dc.onmessage=ev=>{try{handleHostEv(JSON.parse(ev.data));}catch(x){}};};
+    pc.onicecandidate=e=>{if(e.candidate) api('/tools/api/desk/ice/',{code:roomCode,role:'host',candidate:e.candidate.toJSON()});};
+    pc.onconnectionstatechange=()=>{if(pc.connectionState==='connected') document.getElementById('zdHostPill').className='zd-pill zd-pill-live',document.getElementById('zdHostPill').textContent='🟢 Viewer connected';};
+    const offer=await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    await api('/tools/api/desk/offer/',{code:roomCode,sdp:{type:offer.type,sdp:offer.sdp}});
+    stream.getVideoTracks()[0].onended=()=>hostStop('Screen sharing stopped.');
+    startHostPoll();
+    btn.textContent='▶ Start Sharing'; btn.disabled=false;
+  }catch(e){
+    if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+    showErr('zdPickErr',e.message);
+    btn.textContent='▶ Start Sharing'; btn.disabled=false;
+  }
+}
+
+function handleHostEv(ev){
+  const vid=document.getElementById('zdHostVideo');
+  if(!vid) return;
+  const r=vid.getBoundingClientRect();
+  if(['move','click','touch'].includes(ev.type)){
+    const x=(ev.x||0)*r.width,y=(ev.y||0)*r.height;
+    if(ev.type==='click'){const el=document.elementFromPoint(r.left+x,r.top+y);if(el)el.dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:r.left+x,clientY:r.top+y}));}
+  }
+  if(ev.type==='scroll') window.scrollBy(ev.dx||0,ev.dy||0);
+  if(ev.type==='keydown') document.activeElement.dispatchEvent(new KeyboardEvent('keydown',{key:ev.key,code:ev.code,bubbles:true}));
+}
+
+function startHostPoll(){
+  iceIdx=0;
+  pollTimer=setInterval(async()=>{
+    try{
+      const d=await poll(`/tools/api/desk/poll/?code=${roomCode}&role=host&idx=${iceIdx}`);
+      if(!d||d.closed){hostStop('Session closed.');return;}
+      if(d.answer&&pc&&!pc.currentRemoteDescription) await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
+      if(d.ice&&d.ice.length){for(const c of d.ice){if(pc&&c)try{await pc.addIceCandidate(new RTCIceCandidate(c));}catch(x){}}iceIdx=d.ice_total;}
+    }catch(e){}
+  },1500);
+}
+
+async function hostStop(msg){
+  clearInterval(pollTimer); pollTimer=null;
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  if(pc){try{pc.close();}catch(e){}pc=null;}
+  if(window.ZayroAndroid) try{window.ZayroAndroid.stopScreenCapture();}catch(e){}
+  try{if(roomCode)await api('/tools/api/desk/close/',{code:roomCode});}catch(e){}
+  roomCode=null;role=null;
+  document.getElementById('zdHostRoom').classList.remove('show');
+  document.getElementById('zdHostVideo').srcObject=null;
+  document.getElementById('zdHostVideo').style.display='none';
+  document.getElementById('zdHostPh').style.display='';
+  document.getElementById('zdPick').style.display='';
+  document.getElementById('zdStartBtn').textContent='▶ Start Sharing';
+  document.getElementById('zdStartBtn').disabled=false;
+  if(msg) showErr('zdPickErr',msg);
+}
+
+/* ── VIEWER ── */
+async function viewerJoin(){
+  clearErr('zdJoinErr');
+  const raw=document.getElementById('zdJoinInput').value.replace(/-/g,'').trim();
+  if(raw.length!==9){showErr('zdJoinErr','Enter the full 9-digit code.');return;}
+  const btn=document.getElementById('zdJoinBtn');
+  btn.disabled=true; btn.textContent='⏳ Connecting…';
+  try{
+    const d=await api('/tools/api/desk/offer/',{code:raw,sdp:null});
+    if(d.error) throw new Error(d.error);
+  }catch(e){
+    btn.disabled=false; btn.textContent='⚡ Connect';
+    showErr('zdJoinErr',e.message||'Session not found.');
+    return;
+  }
+  roomCode=raw; role='viewer';
+  document.getElementById('zdPick').style.display='none';
+  document.getElementById('zdViewerRoom').classList.add('show');
+  document.getElementById('zdConnectMsg').textContent='Waiting for host…';
+  _frameMode=false; _lastFrameTs=0;
+  startViewerPoll();
+}
+
+function startViewerPoll(){
+  iceIdx=0;
+  _checkFrameMode();
+  pollTimer=setInterval(async()=>{
+    try{
+      if(_frameMode){await _pollFrame();return;}
+      const d=await poll(`/tools/api/desk/poll/?code=${roomCode}&role=viewer&idx=${iceIdx}`);
+      if(!d) return;
+      if(d.error||d.closed){viewerDisconnect();return;}
+      if(d.offer&&!pc) await setupViewer(d.offer);
+      if(d.ice&&d.ice.length&&pc){for(const c of d.ice){if(c)try{await pc.addIceCandidate(new RTCIceCandidate(c));}catch(x){}}iceIdx=d.ice_total;}
+    }catch(e){}
+  },500);
+}
+
+async function _checkFrameMode(){
+  setTimeout(async()=>{
+    if(pc) return;
+    try{
+      const r=await fetch(`/tools/api/desk/frame/?code=${roomCode}`);
+      const d=await r.json();
+      if(d.frame){_frameMode=true;_showFrameViewer();}
+    }catch(e){}
+  },3000);
+}
+
+function _showFrameViewer(){
+  const vid=document.getElementById('zdViewerVideo');
+  vid.style.display='none';
+  let img=document.getElementById('zdFrameImg');
+  if(!img){
+    img=document.createElement('img');
+    img.id='zdFrameImg';
+    img.style.cssText='width:100%;height:100%;object-fit:contain;display:block;background:#000;';
+    vid.parentNode.insertBefore(img,vid);
+  }
+  document.getElementById('zdConnectOverlay').style.display='none';
+  const st=document.getElementById('zdViewerStatus');
+  st.style.display='block'; st.textContent='● Live — Mobile Host';
+  attachFrameTouchEvents();
+}
+
+async function _pollFrame(){
+  try{
+    const r=await fetch(`/tools/api/desk/frame/?code=${roomCode}`);
+    const d=await r.json();
+    if(!d.frame||d.ts===_lastFrameTs) return;
+    _lastFrameTs=d.ts;
+    const img=document.getElementById('zdFrameImg');
+    if(img) img.src='data:image/jpeg;base64,'+d.frame;
+  }catch(e){}
+}
+
+async function setupViewer(offerSdp){
+  pc=new RTCPeerConnection(ICE);
+  pc.ontrack=e=>{
+    const vid=document.getElementById('zdViewerVideo');
+    if(vid.srcObject!==e.streams[0]){
+      vid.srcObject=e.streams[0];
+      vid.onloadedmetadata=()=>{
+        document.getElementById('zdConnectOverlay').style.display='none';
+        const st=document.getElementById('zdViewerStatus');
+        st.style.display='block'; st.textContent='● Live';
+        attachViewerEvents();
+      };
+    }
+  };
+  pc.onicecandidate=e=>{if(e.candidate) api('/tools/api/desk/ice/',{code:roomCode,role:'viewer',candidate:e.candidate.toJSON()});};
+  pc.onconnectionstatechange=()=>{if(pc.connectionState==='disconnected'||pc.connectionState==='failed') viewerDisconnect();};
+  dc=pc.createDataChannel('ctrl',{ordered:true});
+  await pc.setRemoteDescription(new RTCSessionDescription(offerSdp));
+  const answer=await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  await api('/tools/api/desk/answer/',{code:roomCode,sdp:{type:answer.type,sdp:answer.sdp}});
+}
+
+let _cmdBuf=[],_cmdTimer=null;
+function sendCtrl(obj){
+  if(!controlEnabled) return;
+  if(dc&&dc.readyState==='open') try{dc.send(JSON.stringify(obj));}catch(e){}
+  _cmdBuf.push(obj);
+  if(!_cmdTimer) _cmdTimer=setInterval(flushCmds,80);
+}
+async function flushCmds(){
+  if(!_cmdBuf.length||!roomCode) return;
+  const batch=_cmdBuf.splice(0);
+  try{await fetch('/tools/api/desk/cmd/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},body:JSON.stringify({code:roomCode,cmds:batch})});}catch(e){}
+}
+
+function attachViewerEvents(){
+  const vid=document.getElementById('zdViewerVideo');
+  vid.addEventListener('mousemove',e=>{const r=vid.getBoundingClientRect();sendCtrl({type:'move',x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height});});
+  vid.addEventListener('click',e=>{const r=vid.getBoundingClientRect();sendCtrl({type:'click',x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height,button:e.button});});
+  vid.addEventListener('wheel',e=>{e.preventDefault();sendCtrl({type:'scroll',dx:e.deltaX,dy:e.deltaY});},{passive:false});
+  attachTouchEvents(vid);
+}
+
+function attachFrameTouchEvents(){
+  const img=document.getElementById('zdFrameImg');
+  if(img) attachTouchEvents(img);
+}
+
+function attachTouchEvents(el){
+  let lt=null;
+  el.addEventListener('touchstart',e=>{e.preventDefault();lt=e.touches[0];},{passive:false});
+  el.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    const r=el.getBoundingClientRect(),t=e.touches[0];
+    sendCtrl({type:'touch',x:(t.clientX-r.left)/r.width,y:(t.clientY-r.top)/r.height});
+    if(lt) sendCtrl({type:'scroll',dx:lt.clientX-t.clientX,dy:lt.clientY-t.clientY});
+    lt=t;
+  },{passive:false});
+  el.addEventListener('touchend',e=>{
+    e.preventDefault();
+    if(lt){const r=el.getBoundingClientRect();sendCtrl({type:'click',x:(lt.clientX-r.left)/r.width,y:(lt.clientY-r.top)/r.height,button:0});}
+    lt=null;
+  },{passive:false});
+}
+
+function generateQR(code){
+  const el=document.getElementById('zdQRCode');
+  el.innerHTML='';
+  new QRCode(el,{text:location.origin+'/tools/zayrodesk-app/?join='+code,width:160,height:160,colorDark:'#0c4a6e',colorLight:'#f0f9ff',correctLevel:QRCode.CorrectLevel.M});
+}
+
+function toggleCtrl(){
+  controlEnabled=!controlEnabled;
+  const btn=document.getElementById('zdCtrlBtn');
+  btn.textContent=controlEnabled?'👆 Control: ON':'🚫 Control: OFF';
+}
+function goFullscreen(){const el=document.getElementById('zdViewerWrap');(el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen).call(el);}
+
+async function viewerDisconnect(){
+  clearInterval(pollTimer); pollTimer=null;
+  if(pc){try{pc.close();}catch(e){}pc=null;}
+  await api('/tools/api/desk/close/',{code:roomCode}).catch(()=>{});
+  roomCode=null; role=null; iceIdx=0; _frameMode=false;
+  document.getElementById('zdViewerRoom').classList.remove('show');
+  document.getElementById('zdViewerVideo').srcObject=null;
+  document.getElementById('zdConnectOverlay').style.display='flex';
+  document.getElementById('zdConnectMsg').textContent='Connecting…';
+  document.getElementById('zdViewerStatus').style.display='none';
+  document.getElementById('zdPick').style.display='';
+  document.getElementById('zdJoinBtn').disabled=false;
+  document.getElementById('zdJoinBtn').textContent='⚡ Connect';
+}
+
+// Auto-join from ?join=CODE in URL
+(function(){
+  const p=new URLSearchParams(location.search);
+  const j=p.get('join');
+  if(!j) return;
+  const code=j.replace(/\D/g,'').slice(0,9);
+  if(code.length!==9) return;
+  history.replaceState({},'',location.pathname);
+  setTimeout(()=>{
+    roomCode=code; role='viewer';
+    document.getElementById('zdPick').style.display='none';
+    document.getElementById('zdViewerRoom').classList.add('show');
+    document.getElementById('zdConnectMsg').textContent='Auto-joining…';
+    _frameMode=false; startViewerPoll();
+  },300);
+})();
+</script>
+</body>
+</html>

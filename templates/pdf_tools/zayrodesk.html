@@ -303,21 +303,15 @@ async function hostStart(){
       const d=await r.json();
       if(d.error) throw new Error(d.error);
       sessionCode=d.code;
-      document.getElementById('zdPickCode').textContent=d.display;
-      document.getElementById('zdQRWrap') && generateQR(d.code);
-      document.getElementById('zdHostRoom').style.display='block';
       document.getElementById('zdPick').style.display='none';
+      document.getElementById('zdHostRoom').classList.add('show');
+      document.getElementById('zdCodeDisplay').textContent=d.display;
+      generateQR(d.code);
       btn.innerHTML='<i class="fa-solid fa-desktop"></i> Start Sharing';
       btn.disabled=false;
       // Tell native app to start screen capture & stream frames
+      window.onScreenCaptureError=function(msg){ showPickErr('Screen capture failed: '+msg); };
       window.ZayroAndroid.startScreenCapture(d.code);
-      window.onScreenCaptureStarted=function(){
-        document.getElementById('zdHostStatus') && (document.getElementById('zdHostStatus').textContent='📱 Capturing screen…');
-      };
-      window.onScreenCaptureError=function(msg){
-        showPickErr('Screen capture failed: '+msg);
-      };
-      startHostPing(d.code);
     } catch(e){
       showPickErr(e.message);
       document.getElementById('zdStartBtn').disabled=false;
