@@ -1,4 +1,4 @@
-import json, string, random, time, os
+import json, string, random, time, os, base64
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
@@ -156,6 +156,29 @@ def rc_close(request):
     from apps.pdf_tools.models import RCRoom
     RCRoom.objects.filter(code=code).update(closed=True)
     return JsonResponse({'ok': True})
+
+
+@csrf_exempt
+def rc_frame(request):
+    """Mobile host POSTs JPEG frames (base64); viewer GETs latest frame."""
+    from django.core.cache import cache
+    code = (request.GET.get('code') or '').replace('-', '')
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body)
+            code = body.get('code', code).replace('-', '')
+            frame_b64 = body.get('frame', '')
+        except Exception:
+            return JsonResponse({'error': 'Bad JSON'}, status=400)
+        if not code or not frame_b64:
+            return JsonResponse({'error': 'Missing code or frame'}, status=400)
+        cache.set(f'zdframe_{code}', frame_b64, timeout=30)
+        cache.set(f'zdframe_ts_{code}', time.time(), timeout=30)
+        return JsonResponse({'ok': True})
+    else:
+        frame = cache.get(f'zdframe_{code}', '')
+        ts = cache.get(f'zdframe_ts_{code}', 0)
+        return JsonResponse({'frame': frame, 'ts': ts})
 
 
 def zayrodesk_sw(request):

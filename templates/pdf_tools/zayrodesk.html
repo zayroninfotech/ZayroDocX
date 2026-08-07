@@ -154,19 +154,10 @@
       <div class="zd-card">
         <div class="zd-card-icon">🔗</div>
         <h2>Join a Session</h2>
-        <p>Scan the QR code shown on the host's screen, or enter the 9-digit code manually.</p>
-        <div class="zd-join-tabs">
-          <div class="zd-join-tab active" id="jtTabQR" onclick="setJoinTab('qr')"><i class="fa-solid fa-qrcode"></i> Scan QR</div>
-          <div class="zd-join-tab" id="jtTabCode" onclick="setJoinTab('code')"><i class="fa-solid fa-keyboard"></i> Enter Code</div>
-        </div>
-        <div id="jtQRPanel">
-          <button class="zd-scan-btn" onclick="startQRScan()"><i class="fa-solid fa-camera"></i> Open Camera &amp; Scan QR</button>
-        </div>
-        <div id="jtCodePanel" style="display:none">
-          <div class="zd-join-row">
-            <input id="zdJoinInput" type="text" class="zd-code-input" maxlength="11" placeholder="123-456-789" oninput="fmtCode(this)" inputmode="numeric">
-            <button class="zd-btn zd-btn-primary" id="zdJoinBtn" onclick="viewerJoin()"><i class="fa-solid fa-plug"></i> Connect</button>
-          </div>
+        <p>Enter the 9-digit code shown on the host's screen to connect.</p>
+        <div class="zd-join-row">
+          <input id="zdJoinInput" type="text" class="zd-code-input" maxlength="11" placeholder="123-456-789" oninput="fmtCode(this)" inputmode="numeric">
+          <button class="zd-btn zd-btn-primary" id="zdJoinBtn" onclick="viewerJoin()"><i class="fa-solid fa-plug"></i> Connect</button>
         </div>
         <div class="zd-err" id="zdJoinErr"></div>
       </div>
@@ -175,7 +166,7 @@
       <div class="zd-m2m-icon">📱↔📱</div>
       <div>
         <div class="zd-m2m-title">Mobile-to-Mobile Screen Share</div>
-        <div class="zd-m2m-desc"><strong>Phone A (Host):</strong> Tap <em>Start Sharing</em> → choose screen → QR appears.<br><strong>Phone B (Viewer):</strong> Tap <em>Scan QR</em> → point camera → connected instantly.<br>Phone B can then tap/swipe to fully control Phone A's screen.</div>
+        <div class="zd-m2m-desc"><strong>To share your screen:</strong> Open ZayroDesk on a PC/laptop → click Start Sharing → share the 9-digit code.<br><strong>To view on mobile:</strong> Enter the code here → tap Connect. You can then control the PC screen with touch.</div>
       </div>
     </div>
     <div class="zd-info">
@@ -302,6 +293,39 @@ async function hostStart(){
   clearPickErr();
 
   const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  // Android APK — use native MediaProjection screen capture
+  if(window.ZayroAndroid){
+    const btn=document.getElementById('zdStartBtn');
+    btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Creating session…';
+    try{
+      const r=await fetch('/tools/api/desk/create/',{method:'POST'});
+      const d=await r.json();
+      if(d.error) throw new Error(d.error);
+      sessionCode=d.code;
+      document.getElementById('zdPickCode').textContent=d.display;
+      document.getElementById('zdQRWrap') && generateQR(d.code);
+      document.getElementById('zdHostRoom').style.display='block';
+      document.getElementById('zdPick').style.display='none';
+      btn.innerHTML='<i class="fa-solid fa-desktop"></i> Start Sharing';
+      btn.disabled=false;
+      // Tell native app to start screen capture & stream frames
+      window.ZayroAndroid.startScreenCapture(d.code);
+      window.onScreenCaptureStarted=function(){
+        document.getElementById('zdHostStatus') && (document.getElementById('zdHostStatus').textContent='📱 Capturing screen…');
+      };
+      window.onScreenCaptureError=function(msg){
+        showPickErr('Screen capture failed: '+msg);
+      };
+      startHostPing(d.code);
+    } catch(e){
+      showPickErr(e.message);
+      document.getElementById('zdStartBtn').disabled=false;
+      document.getElementById('zdStartBtn').innerHTML='<i class="fa-solid fa-desktop"></i> Start Sharing';
+    }
+    return;
+  }
+
   if(isMobile || !navigator.mediaDevices?.getDisplayMedia){
     showPickErr('Screen sharing is not supported on mobile browsers. Please open ZayroDesk on a desktop/laptop computer to share your screen. On mobile you can only join as a viewer.');
     return;
@@ -440,10 +464,18 @@ async function viewerJoin(){
   startViewerPoll();
 }
 
+let _frameMode=false, _lastFrameTs=0;
+
 async function startViewerPoll(){
   iceIdx=0;
+  // Check if this is a mobile-hosted frame-relay session
+  _checkFrameMode();
   pollTimer=setInterval(async()=>{
     try{
+      if(_frameMode){
+        await _pollFrame();
+        return;
+      }
       const d=await poll(`/tools/api/desk/poll/?code=${roomCode}&role=viewer&idx=${iceIdx}`);
       if(!d) return;
       if(d.error||d.closed){viewerDisconnect(); return;}
@@ -454,6 +486,47 @@ async function startViewerPoll(){
       }
     }catch(e){}
   },1500);
+}
+
+async function _checkFrameMode(){
+  // If frames arrive before WebRTC offer, switch to frame mode
+  setTimeout(async()=>{
+    if(pc) return; // WebRTC already set up
+    try{
+      const r=await fetch(`/tools/api/desk/frame/?code=${roomCode}`);
+      const d=await r.json();
+      if(d.frame){
+        _frameMode=true;
+        _showFrameViewer();
+      }
+    }catch(e){}
+  },3000);
+}
+
+function _showFrameViewer(){
+  const vid=document.getElementById('zdViewerVideo');
+  vid.style.display='none';
+  let img=document.getElementById('zdFrameImg');
+  if(!img){
+    img=document.createElement('img');
+    img.id='zdFrameImg';
+    img.style.cssText='width:100%;height:100%;object-fit:contain;display:block;background:#000;';
+    vid.parentNode.insertBefore(img,vid);
+  }
+  document.getElementById('zdConnectOverlay').style.display='none';
+  document.getElementById('zdViewerStatus').textContent='● Live (Mobile)';
+}
+
+async function _pollFrame(){
+  try{
+    const r=await fetch(`/tools/api/desk/frame/?code=${roomCode}`);
+    const d=await r.json();
+    if(!d.frame) return;
+    if(d.ts===_lastFrameTs) return;
+    _lastFrameTs=d.ts;
+    const img=document.getElementById('zdFrameImg');
+    if(img) img.src='data:image/jpeg;base64,'+d.frame;
+  }catch(e){}
 }
 
 async function setupViewer(offerSdp){
