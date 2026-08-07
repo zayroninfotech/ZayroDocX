@@ -120,14 +120,17 @@
         <input type="file" name="signature" class="sg-input" accept="image/*" style="text-align:left;padding:.5rem .8rem;">
       </div>
 
-      <div class="sg-field-label" style="margin-top:.9rem">Placement <span style="font-size:.7rem;color:#aaa;font-weight:400;">(page + coordinates in points)</span></div>
-      <div class="sg-coords-grid">
-        <div><div class="sg-field-label" style="margin-top:0">Page</div><input type="number" name="page" class="sg-input" value="1" min="1"></div>
-        <div><div class="sg-field-label" style="margin-top:0">X1</div><input type="number" name="x1" class="sg-input" value="50"></div>
-        <div><div class="sg-field-label" style="margin-top:0">Y1</div><input type="number" name="y1" class="sg-input" value="700"></div>
-        <div><div class="sg-field-label" style="margin-top:0">X2</div><input type="number" name="x2" class="sg-input" value="250"></div>
-        <div><div class="sg-field-label" style="margin-top:0">Y2</div><input type="number" name="y2" class="sg-input" value="760"></div>
+      <div class="sg-field-label" style="margin-top:.9rem">Page & Size</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem;margin-bottom:.4rem">
+        <div><div class="sg-field-label" style="margin-top:0">Page</div><input type="number" name="page" id="sgPage" class="sg-input" value="1" min="1"></div>
+        <div><div class="sg-field-label" style="margin-top:0">Width (pt)</div><input type="number" id="sgSigW" class="sg-input" value="200" min="20" max="500"></div>
+        <div><div class="sg-field-label" style="margin-top:0">Height (pt)</div><input type="number" id="sgSigH" class="sg-input" value="60" min="10" max="300"></div>
       </div>
+      <div style="font-size:.7rem;color:#94a3b8;margin-bottom:.3rem"><i class="fa-solid fa-hand-pointer"></i> Drag the signature box on the PDF preview to place it</div>
+      <input type="hidden" name="x1" id="sgX1" value="50">
+      <input type="hidden" name="y1" id="sgY1" value="700">
+      <input type="hidden" name="x2" id="sgX2" value="250">
+      <input type="hidden" name="y2" id="sgY2" value="760">
     </div>
 
     <button type="button" class="sg-convert-btn" id="sgConvertBtn" onclick="doSign()">
@@ -159,20 +162,172 @@
 {% endblock %}
 
 {% block extra_js %}<script>
-const fileInput      = document.getElementById('fileInput');
-const sgDrop         = document.getElementById('sgDrop');
-const sgSplit        = document.getElementById('sgSplit');
-const sgPagesEl      = document.getElementById('sgPages');
-const sgViewerLoad   = document.getElementById('sgViewerLoading');
-const sgConvertBtn   = document.getElementById('sgConvertBtn');
-const sgLoadingCard  = document.getElementById('sgLoadingCard');
-const sgResultCard   = document.getElementById('sgResultCard');
-const sgErrorCard    = document.getElementById('sgErrorCard');
-const sgInfoStrip    = document.getElementById('sgInfoStrip');
-let currentFile = null;
+const fileInput     = document.getElementById('fileInput');
+const sgDrop        = document.getElementById('sgDrop');
+const sgSplit       = document.getElementById('sgSplit');
+const sgPagesEl     = document.getElementById('sgPages');
+const sgViewerLoad  = document.getElementById('sgViewerLoading');
+const sgConvertBtn  = document.getElementById('sgConvertBtn');
+const sgLoadingCard = document.getElementById('sgLoadingCard');
+const sgResultCard  = document.getElementById('sgResultCard');
+const sgErrorCard   = document.getElementById('sgErrorCard');
+const sgInfoStrip   = document.getElementById('sgInfoStrip');
 
+let currentFile  = null;
+let pageDims     = [];   // [{w,h} in PDF points] per page
+let sigDataUrl   = null; // current signature as data URL
+let overlay      = null; // the draggable div on the viewer
+
+// ── Signature canvas (draw mode) ──────────────────────────────────────────
+initSignatureCanvas('signatureCanvas');
+
+// After every stroke, refresh the overlay
+document.getElementById('signatureCanvas').addEventListener('mouseup',  refreshSigOverlay);
+document.getElementById('signatureCanvas').addEventListener('touchend', refreshSigOverlay);
+
+document.getElementById('clearCanvas').addEventListener('click', () => {
+  const cv = document.getElementById('signatureCanvas');
+  cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+  sigDataUrl = null;
+  if (overlay) { overlay.style.backgroundImage = ''; overlay.style.display = 'none'; }
+});
+
+// Upload mode — preview signature immediately
+document.querySelector('[name="signature"]').addEventListener('change', function() {
+  const f = this.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = e => { sigDataUrl = e.target.result; placeOverlay(); };
+  reader.readAsDataURL(f);
+});
+
+function refreshSigOverlay() {
+  const cv = document.getElementById('signatureCanvas');
+  sigDataUrl = cv.toDataURL('image/png');
+  placeOverlay();
+}
+
+// ── Overlay: draggable signature box on the PDF page ──────────────────────
+function placeOverlay() {
+  if (!sigDataUrl || !pageDims.length) return;
+
+  const pageIdx  = Math.min(parseInt(document.getElementById('sgPage').value, 10) - 1, pageDims.length - 1);
+  const pageWrap = sgPagesEl.querySelectorAll('.sg-page-wrap')[pageIdx];
+  if (!pageWrap) return;
+
+  // Remove old overlay from all pages
+  sgPagesEl.querySelectorAll('.sg-sig-overlay').forEach(el => el.remove());
+
+  const img      = pageWrap.querySelector('img');
+  const dispW    = img.offsetWidth;
+  const dispH    = img.offsetHeight;
+  const pdfW     = pageDims[pageIdx].w;
+  const pdfH     = pageDims[pageIdx].h;
+
+  const sigWPt   = parseInt(document.getElementById('sgSigW').value, 10) || 200;
+  const sigHPt   = parseInt(document.getElementById('sgSigH').value, 10) || 60;
+  const x1Pt     = parseInt(document.getElementById('sgX1').value, 10) || 50;
+  const y1Pt     = parseInt(document.getElementById('sgY1').value, 10) || 700;
+
+  // Convert PDF points → display pixels
+  const scale    = dispW / pdfW;
+  let   left     = x1Pt  * scale;
+  let   top      = y1Pt  * scale;
+  const w        = sigWPt * scale;
+  const h        = sigHPt * scale;
+
+  overlay = document.createElement('div');
+  overlay.className = 'sg-sig-overlay';
+  overlay.style.cssText = `
+    position:absolute; left:${left}px; top:${top}px;
+    width:${w}px; height:${h}px;
+    background-image:url('${sigDataUrl}');
+    background-size:contain; background-repeat:no-repeat; background-position:center;
+    border:2px dashed #dc2626; border-radius:4px; cursor:move; box-sizing:border-box;
+    user-select:none; touch-action:none;
+  `;
+
+  // Resize handle (bottom-right corner)
+  const handle = document.createElement('div');
+  handle.style.cssText = 'position:absolute;right:-5px;bottom:-5px;width:14px;height:14px;background:#dc2626;border-radius:50%;cursor:se-resize;';
+  overlay.appendChild(handle);
+
+  pageWrap.appendChild(overlay);
+
+  // ── drag to move ──
+  let dragStartX, dragStartY, startLeft, startTop;
+  overlay.addEventListener('mousedown', e => {
+    if (e.target === handle) return;
+    e.preventDefault();
+    dragStartX = e.clientX; dragStartY = e.clientY;
+    startLeft  = overlay.offsetLeft; startTop = overlay.offsetTop;
+    const onMove = ev => {
+      left = Math.max(0, Math.min(startLeft + ev.clientX - dragStartX, dispW - overlay.offsetWidth));
+      top  = Math.max(0, Math.min(startTop  + ev.clientY - dragStartY, dispH - overlay.offsetHeight));
+      overlay.style.left = left + 'px'; overlay.style.top = top + 'px';
+      updateCoords(pageIdx, left, top, left + overlay.offsetWidth, top + overlay.offsetHeight, pdfW, pdfH, dispW, dispH);
+    };
+    const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  // Touch drag
+  overlay.addEventListener('touchstart', e => {
+    if (e.target === handle) return;
+    const t = e.touches[0];
+    dragStartX = t.clientX; dragStartY = t.clientY;
+    startLeft = overlay.offsetLeft; startTop = overlay.offsetTop;
+    const onMove = ev => {
+      const tt = ev.touches[0];
+      left = Math.max(0, Math.min(startLeft + tt.clientX - dragStartX, dispW - overlay.offsetWidth));
+      top  = Math.max(0, Math.min(startTop  + tt.clientY - dragStartY, dispH - overlay.offsetHeight));
+      overlay.style.left = left + 'px'; overlay.style.top = top + 'px';
+      updateCoords(pageIdx, left, top, left + overlay.offsetWidth, top + overlay.offsetHeight, pdfW, pdfH, dispW, dispH);
+    };
+    const onUp = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); };
+    document.addEventListener('touchmove', onMove, {passive:true});
+    document.addEventListener('touchend', onUp);
+  }, {passive:true});
+
+  // ── resize handle ──
+  let rStartX, rStartY, rStartW, rStartH;
+  handle.addEventListener('mousedown', e => {
+    e.preventDefault(); e.stopPropagation();
+    rStartX = e.clientX; rStartY = e.clientY;
+    rStartW = overlay.offsetWidth; rStartH = overlay.offsetHeight;
+    const onMove = ev => {
+      const nw = Math.max(30, rStartW + ev.clientX - rStartX);
+      const nh = Math.max(15, rStartH + ev.clientY - rStartY);
+      overlay.style.width  = nw + 'px';
+      overlay.style.height = nh + 'px';
+      document.getElementById('sgSigW').value = Math.round(nw / scale);
+      document.getElementById('sgSigH').value = Math.round(nh / scale);
+      updateCoords(pageIdx, overlay.offsetLeft, overlay.offsetTop, overlay.offsetLeft + nw, overlay.offsetTop + nh, pdfW, pdfH, dispW, dispH);
+    };
+    const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  updateCoords(pageIdx, left, top, left + w, top + h, pdfW, pdfH, dispW, dispH);
+}
+
+function updateCoords(pageIdx, px1, py1, px2, py2, pdfW, pdfH, dispW, dispH) {
+  const sx = pdfW / dispW, sy = pdfH / dispH;
+  document.getElementById('sgX1').value = Math.round(px1 * sx);
+  document.getElementById('sgY1').value = Math.round(py1 * sy);
+  document.getElementById('sgX2').value = Math.round(px2 * sx);
+  document.getElementById('sgY2').value = Math.round(py2 * sy);
+  document.getElementById('sgPage').value = pageIdx + 1;
+}
+
+// Re-place overlay when page/size inputs change
+['sgPage','sgSigW','sgSigH'].forEach(id => document.getElementById(id).addEventListener('change', () => { if (sigDataUrl) placeOverlay(); }));
+
+// ── Load preview ──────────────────────────────────────────────────────────
 function resetTool() {
-  fileInput.value = ''; currentFile = null;
+  fileInput.value = ''; currentFile = null; pageDims = []; sigDataUrl = null; overlay = null;
   sgDrop.style.display = ''; sgSplit.classList.remove('show');
   sgPagesEl.innerHTML = ''; sgPagesEl.style.display = 'none';
   sgViewerLoad.style.display = 'flex'; sgConvertBtn.disabled = false;
@@ -181,59 +336,94 @@ function resetTool() {
 }
 
 async function loadPreview(file) {
-  const fd = new FormData(); fd.append('file', file); fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
   try {
-    const res = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
+    const res  = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
+    pageDims = data.page_dims || [];
     sgPagesEl.innerHTML = '';
-    data.page_images.forEach((b64, i) => { const img = document.createElement('img'); img.src = 'data:image/jpeg;base64,' + b64; img.alt = 'Page ' + (i+1); sgPagesEl.appendChild(img); });
-    sgViewerLoad.style.display = 'none'; sgPagesEl.style.display = 'flex';
-  } catch (e) { sgViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>'; }
+    data.page_images.forEach((b64, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'sg-page-wrap';
+      wrap.style.cssText = 'position:relative;width:100%;max-width:680px';
+      const img = document.createElement('img');
+      img.src   = 'data:image/jpeg;base64,' + b64;
+      img.alt   = 'Page ' + (i + 1);
+      img.style.cssText = 'width:100%;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,.5);display:block';
+      img.onload = () => { if (i === 0 && sigDataUrl) placeOverlay(); };
+      wrap.appendChild(img);
+      sgPagesEl.appendChild(wrap);
+    });
+    document.getElementById('sgPage').max = data.page_count;
+    sgViewerLoad.style.display = 'none';
+    sgPagesEl.style.display    = 'flex';
+  } catch (e) {
+    sgViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>';
+  }
 }
 
 function setFile(f) {
-  if (!f) return; currentFile = f;
+  if (!f) return;
+  currentFile = f;
   document.getElementById('sgFileName').textContent = f.name;
-  document.getElementById('sgFileSize').textContent = (f.size/1024).toFixed(1) + ' KB';
+  document.getElementById('sgFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
   sgDrop.style.display = 'none'; sgInfoStrip.style.display = 'none';
   sgResultCard.classList.remove('show'); sgErrorCard.classList.remove('show');
-  sgSplit.classList.add('show'); loadPreview(f);
+  sgSplit.classList.add('show');
+  loadPreview(f);
 }
 
 async function doSign() {
   if (!currentFile) return;
-  if (document.querySelector('input[name="sig_method"]:checked').value === 'draw')
-    document.getElementById('signatureData').value = document.getElementById('signatureCanvas').toDataURL('image/png');
-  sgConvertBtn.disabled = true; sgLoadingCard.classList.add('show');
-  sgResultCard.classList.remove('show'); sgErrorCard.classList.remove('show');
+  const method = document.querySelector('input[name="sig_method"]:checked').value;
+  if (method === 'draw') {
+    const cv = document.getElementById('signatureCanvas');
+    document.getElementById('signatureData').value = cv.toDataURL('image/png');
+  }
+  sgConvertBtn.disabled = true;
+  sgLoadingCard.classList.add('show');
+  sgResultCard.classList.remove('show');
+  sgErrorCard.classList.remove('show');
+
   const fd = new FormData();
-  fd.append('file', currentFile); fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-  fd.append('sig_method', document.querySelector('input[name="sig_method"]:checked').value);
+  fd.append('file', currentFile);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fd.append('sig_method', method);
   fd.append('signature_data', document.getElementById('signatureData').value);
-  const sigFile = document.querySelector('[name="signature"]'); if (sigFile?.files[0]) fd.append('signature', sigFile.files[0]);
-  ['page','x1','y1','x2','y2'].forEach(n => { const el = document.querySelector(`[name="${n}"]`); if (el) fd.append(n, el.value); });
+  const sigFile = document.querySelector('[name="signature"]');
+  if (sigFile?.files[0]) fd.append('signature', sigFile.files[0]);
+  ['page','x1','y1','x2','y2'].forEach(n => {
+    const el = document.querySelector(`[name="${n}"]`); if (el) fd.append(n, el.value);
+  });
   try {
-    const res = await fetch('{% url "api_sign_pdf" %}', { method: 'POST', body: fd });
+    const res  = await fetch('{% url "api_sign_pdf" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    document.getElementById('sgDlBtn').href = data.download_url;
+    document.getElementById('sgDlBtn').href     = data.download_url;
     document.getElementById('sgDlBtn').download = data.filename || 'signed.pdf';
     sgResultCard.classList.add('show');
-  } catch (e) { document.getElementById('sgErrorMsg').textContent = e.message || 'Failed.'; sgErrorCard.classList.add('show'); }
-  finally { sgLoadingCard.classList.remove('show'); sgConvertBtn.disabled = false; }
+  } catch (e) {
+    document.getElementById('sgErrorMsg').textContent = e.message || 'Failed.';
+    sgErrorCard.classList.add('show');
+  } finally {
+    sgLoadingCard.classList.remove('show');
+    sgConvertBtn.disabled = false;
+  }
 }
 
 fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
-sgDrop.addEventListener('dragover', e => { e.preventDefault(); sgDrop.classList.add('drag-over'); });
+sgDrop.addEventListener('dragover',  e => { e.preventDefault(); sgDrop.classList.add('drag-over'); });
 sgDrop.addEventListener('dragleave', () => sgDrop.classList.remove('drag-over'));
 sgDrop.addEventListener('drop', e => { e.preventDefault(); sgDrop.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
 
 document.querySelectorAll('input[name="sig_method"]').forEach(r => r.addEventListener('change', function() {
-  document.getElementById('sgDrawSection').style.display = this.value === 'draw' ? 'block' : 'none';
+  document.getElementById('sgDrawSection').style.display   = this.value === 'draw'   ? 'block' : 'none';
   document.getElementById('sgUploadSection').style.display = this.value === 'upload' ? 'block' : 'none';
+  sigDataUrl = null;
+  if (overlay) { overlay.remove(); overlay = null; }
 }));
-
-initSignatureCanvas('signatureCanvas');
 </script>{% endblock %}

@@ -121,7 +121,9 @@ def render_pdf_pages(request):
         validate_pdf(saved_path, f.name)
         doc = fitz.open(saved_path)
         page_images = []
+        page_dims = []
         for page in doc:
+            page_dims.append({'w': page.rect.width, 'h': page.rect.height})
             pix = page.get_pixmap(dpi=150)
             img = Image.open(BytesIO(pix.tobytes('png'))).convert('RGB')
             img = ImageEnhance.Sharpness(img).enhance(1.3)
@@ -129,7 +131,7 @@ def render_pdf_pages(request):
             img.save(buf, 'JPEG', quality=80, optimize=True)
             page_images.append(base64.b64encode(buf.getvalue()).decode())
         doc.close()
-        return JsonResponse({'page_images': page_images, 'page_count': len(page_images)})
+        return JsonResponse({'page_images': page_images, 'page_count': len(page_images), 'page_dims': page_dims})
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
