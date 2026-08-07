@@ -13,14 +13,20 @@
 .cr-drop-btn { background: #dc2626; color: #fff; border: none; border-radius: 10px; padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer; }
 .cr-drop-btn:hover { background: #b91c1c; }
 
-.cr-split { display: none; grid-template-columns: 1fr 440px; gap: 20px; align-items: start; }
+.cr-split { display: none; grid-template-columns: 1fr 420px; gap: 20px; align-items: start; }
 .cr-split.show { display: grid; }
 
 .cr-viewer { background: #0f172a; border-radius: 16px; padding: 16px; min-height: 400px; display: flex; align-items: flex-start; justify-content: center; overflow: auto; scroll-behavior: smooth; }
 .cr-viewer-pages { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
-.cr-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; }
 .cr-viewer-loading { color: #94a3b8; font-size: .9rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
 .cr-viewer-loading i { font-size: 2rem; }
+
+/* page wrap + crop canvas */
+.cr-page-wrap { position: relative; width: 100%; max-width: 680px; user-select: none; }
+.cr-page-wrap img { width: 100%; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; }
+.cr-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 6px; pointer-events: none; }
+/* the interactive canvas sits on top for the first page */
+.cr-canvas.interactive { pointer-events: all; cursor: crosshair; }
 
 .cr-right { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
 .cr-card { background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 1.1rem 1.3rem; }
@@ -32,20 +38,16 @@
 .cr-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
 
 .cr-opts-title { font-size: .72rem; font-weight: 800; color: #b91c1c; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .65rem; }
-.cr-diagram { display: flex; align-items: center; justify-content: center; padding: .8rem 0; }
-.cr-box { width: 110px; height: 72px; border: 2.5px solid #dc2626; border-radius: 7px; position: relative; background: #fff8f8; display: flex; align-items: center; justify-content: center; }
-.cr-lbl { font-size: .58rem; font-weight: 700; color: #dc2626; position: absolute; }
-.cr-lbl.top    { top: -16px; left: 50%; transform: translateX(-50%); }
-.cr-lbl.bottom { bottom: -16px; left: 50%; transform: translateX(-50%); }
-.cr-lbl.left   { left: -22px; top: 50%; transform: translateY(-50%); }
-.cr-lbl.right  { right: -26px; top: 50%; transform: translateY(-50%); }
-.cr-box-center { font-size: .58rem; color: #dc2626; opacity: .5; }
-.cr-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .6rem; }
+.cr-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
 .cr-field-label { font-size: .73rem; font-weight: 700; color: #555; margin-bottom: .35rem; }
 .cr-field { position: relative; }
 .cr-input { width: 100%; box-sizing: border-box; border: 1.5px solid #e8e8e8; border-radius: 9px; padding: .55rem .8rem; padding-right: 2.4rem; font-size: .82rem; color: #111; outline: none; transition: border-color .15s; }
 .cr-input:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
 .cr-unit { position: absolute; right: .75rem; top: 50%; transform: translateY(-50%); font-size: .7rem; color: #aaa; font-weight: 600; pointer-events: none; }
+.cr-reset-link { font-size: .72rem; color: #dc2626; cursor: pointer; text-decoration: underline; float: right; margin-top: -.1rem; }
+
+.cr-apply-btn { display: none; width: 100%; padding: .55rem; background: #fff8f8; border: 1.5px solid #dc2626; color: #dc2626; border-radius: 9px; font-size: .8rem; font-weight: 700; cursor: pointer; text-align: center; }
+.cr-apply-btn.show { display: block; }
 
 .cr-convert-btn { width: 100%; padding: .85rem; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: opacity .15s; }
 .cr-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
@@ -83,7 +85,7 @@
       <i class="fa-solid fa-spinner cr-spin"></i>
       <span>Loading pages…</span>
     </div>
-    <div class="cr-viewer-pages" id="crPages" style="display:none"></div>
+    <div class="cr-viewer-pages" id="crPages" style="display:none;flex-direction:column;gap:12px;align-items:center;width:100%"></div>
   </div>
 
   <div class="cr-right">
@@ -101,21 +103,19 @@
     </div>
 
     <div class="cr-card">
-      <div class="cr-opts-title"><i class="fa-solid fa-crop-simple"></i> Crop Margins</div>
-      <div class="cr-diagram">
-        <div class="cr-box">
-          <span class="cr-lbl top">TOP</span>
-          <span class="cr-lbl bottom">BOTTOM</span>
-          <span class="cr-lbl left">LEFT</span>
-          <span class="cr-lbl right">RIGHT</span>
-          <span class="cr-box-center">PDF Page</span>
-        </div>
+      <div class="cr-opts-title"><i class="fa-solid fa-crop-simple"></i> Crop Margins
+        <span class="cr-reset-link" onclick="resetMargins()">Reset</span>
       </div>
+      <div style="font-size:.7rem;color:#94a3b8;margin-bottom:.7rem"><i class="fa-solid fa-hand-pointer"></i> Drag on the first page to draw crop box, or type values below</div>
       <div class="cr-grid2">
-        <div><div class="cr-field-label">Top (mm)</div><div class="cr-field"><input type="number" id="top_mm" class="cr-input" value="0" min="0" max="200"><span class="cr-unit">mm</span></div></div>
-        <div><div class="cr-field-label">Bottom (mm)</div><div class="cr-field"><input type="number" id="bottom_mm" class="cr-input" value="0" min="0" max="200"><span class="cr-unit">mm</span></div></div>
-        <div><div class="cr-field-label">Left (mm)</div><div class="cr-field"><input type="number" id="left_mm" class="cr-input" value="0" min="0" max="200"><span class="cr-unit">mm</span></div></div>
-        <div><div class="cr-field-label">Right (mm)</div><div class="cr-field"><input type="number" id="right_mm" class="cr-input" value="0" min="0" max="200"><span class="cr-unit">mm</span></div></div>
+        <div><div class="cr-field-label">Top (mm)</div>   <div class="cr-field"><input type="number" id="top_mm"    class="cr-input" value="0" min="0" max="200" step="0.5"><span class="cr-unit">mm</span></div></div>
+        <div><div class="cr-field-label">Bottom (mm)</div><div class="cr-field"><input type="number" id="bottom_mm" class="cr-input" value="0" min="0" max="200" step="0.5"><span class="cr-unit">mm</span></div></div>
+        <div><div class="cr-field-label">Left (mm)</div>  <div class="cr-field"><input type="number" id="left_mm"   class="cr-input" value="0" min="0" max="200" step="0.5"><span class="cr-unit">mm</span></div></div>
+        <div><div class="cr-field-label">Right (mm)</div> <div class="cr-field"><input type="number" id="right_mm"  class="cr-input" value="0" min="0" max="200" step="0.5"><span class="cr-unit">mm</span></div></div>
+      </div>
+      <div style="margin-top:.7rem;display:flex;gap:.5rem;align-items:center">
+        <input type="checkbox" id="crAllPages" checked style="accent-color:#dc2626;width:14px;height:14px">
+        <label for="crAllPages" style="font-size:.75rem;font-weight:600;color:#555;cursor:pointer">Apply to all pages</label>
       </div>
     </div>
 
@@ -159,62 +159,391 @@ const crLoadingCard = document.getElementById('crLoadingCard');
 const crResultCard  = document.getElementById('crResultCard');
 const crErrorCard   = document.getElementById('crErrorCard');
 const crInfoStrip   = document.getElementById('crInfoStrip');
-let currentFile = null;
 
+let currentFile = null;
+let pageDims    = [];   // [{w,h} PDF points]
+let iCanvas     = null; // interactive canvas on first page
+
+// ── Overlay drawing ───────────────────────────────────────────────────────
+function getMM() {
+  return {
+    top:    parseFloat(document.getElementById('top_mm').value)    || 0,
+    bottom: parseFloat(document.getElementById('bottom_mm').value) || 0,
+    left:   parseFloat(document.getElementById('left_mm').value)   || 0,
+    right:  parseFloat(document.getElementById('right_mm').value)  || 0,
+  };
+}
+
+function drawCropOverlay(canvas, pdfW, pdfH) {
+  const img = canvas.previousElementSibling;
+  const W   = img.offsetWidth  || img.naturalWidth;
+  const H   = img.offsetHeight || img.naturalHeight;
+  canvas.width  = W;
+  canvas.height = H;
+
+  const ctx   = canvas.getContext('2d');
+  const scaleX = W / pdfW;
+  const scaleY = H / pdfH;
+  const mm     = getMM();
+
+  const lPx = mm.left   * MM2PT * scaleX;
+  const rPx = mm.right  * MM2PT * scaleX;
+  const tPx = mm.top    * MM2PT * scaleY;
+  const bPx = mm.bottom * MM2PT * scaleY;
+
+  const cx1 = lPx, cy1 = tPx;
+  const cx2 = W - rPx, cy2 = H - bPx;
+
+  ctx.clearRect(0, 0, W, H);
+
+  if (cx2 <= cx1 || cy2 <= cy1) return; // nothing to draw
+
+  // Dark shade outside crop area
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.fillRect(0, 0, W, cy1);                   // top band
+  ctx.fillRect(0, cy2, W, H - cy2);             // bottom band
+  ctx.fillRect(0, cy1, cx1, cy2 - cy1);         // left band
+  ctx.fillRect(cx2, cy1, W - cx2, cy2 - cy1);   // right band
+
+  // Crop border
+  ctx.strokeStyle = '#dc2626';
+  ctx.lineWidth   = 2;
+  ctx.setLineDash([6, 4]);
+  ctx.strokeRect(cx1, cy1, cx2 - cx1, cy2 - cy1);
+  ctx.setLineDash([]);
+
+  // Corner handles
+  const handles = getHandlePositions(cx1, cy1, cx2, cy2);
+  handles.forEach(h => {
+    ctx.fillStyle   = '#fff';
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth   = 2;
+    ctx.beginPath();
+    ctx.arc(h.x, h.y, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  });
+
+  // Edge midpoint handles
+  const midHandles = getMidHandlePositions(cx1, cy1, cx2, cy2);
+  midHandles.forEach(h => {
+    ctx.fillStyle   = '#dc2626';
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth   = 1.5;
+    ctx.beginPath();
+    ctx.arc(h.x, h.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  });
+
+  // Size label
+  const wMM = Math.max(0, (pdfW - (mm.left + mm.right) * MM2PT) / MM2PT * (pdfW > 0 ? 1 : 0)).toFixed(0);
+  const hMM = Math.max(0, (pdfH - (mm.top  + mm.bottom) * MM2PT) / MM2PT).toFixed(0);
+  if (cx2 - cx1 > 60 && cy2 - cy1 > 20) {
+    ctx.fillStyle    = 'rgba(220,38,38,0.85)';
+    ctx.font         = 'bold 11px Arial';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'top';
+    const label = `${Math.round((cx2-cx1)/scaleX/MM2PT*10)/10} × ${Math.round((cy2-cy1)/scaleY/MM2PT*10)/10} mm`;
+    const tw = ctx.measureText(label).width;
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillRect((cx1+cx2)/2 - tw/2 - 4, cy1 + 6, tw + 8, 16);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(label, (cx1+cx2)/2, cy1 + 8);
+  }
+}
+
+function drawAllOverlays() {
+  document.querySelectorAll('.cr-canvas').forEach(cv => {
+    const wrap = cv.closest('.cr-page-wrap');
+    const idx  = Array.from(crPagesEl.querySelectorAll('.cr-page-wrap')).indexOf(wrap);
+    if (idx >= 0 && pageDims[idx]) drawCropOverlay(cv, pageDims[idx].w, pageDims[idx].h);
+  });
+}
+
+// ── Handle positions ──────────────────────────────────────────────────────
+function getHandlePositions(x1, y1, x2, y2) {
+  return [
+    {x:x1,y:y1,cur:'nw-resize',id:'nw'},
+    {x:x2,y:y1,cur:'ne-resize',id:'ne'},
+    {x:x1,y:y2,cur:'sw-resize',id:'sw'},
+    {x:x2,y:y2,cur:'se-resize',id:'se'},
+  ];
+}
+function getMidHandlePositions(x1, y1, x2, y2) {
+  return [
+    {x:(x1+x2)/2, y:y1, cur:'n-resize',  id:'n' },
+    {x:(x1+x2)/2, y:y2, cur:'s-resize',  id:'s' },
+    {x:x1, y:(y1+y2)/2, cur:'w-resize',  id:'w' },
+    {x:x2, y:(y1+y2)/2, cur:'e-resize',  id:'e' },
+  ];
+}
+
+function hitHandle(px, py, cx1, cy1, cx2, cy2) {
+  const all = [...getHandlePositions(cx1,cy1,cx2,cy2), ...getMidHandlePositions(cx1,cy1,cx2,cy2)];
+  return all.find(h => Math.hypot(px - h.x, py - h.y) <= 9) || null;
+}
+
+function insideBox(px, py, cx1, cy1, cx2, cy2) {
+  return px > cx1 + 9 && px < cx2 - 9 && py > cy1 + 9 && py < cy2 - 9;
+}
+
+// ── Interactive canvas (first page only) ─────────────────────────────────
+function initInteractiveCanvas(canvas, pdfW, pdfH) {
+  iCanvas = canvas;
+  canvas.classList.add('interactive');
+
+  let dragging  = null;   // handle id or 'move' or 'draw'
+  let drawStart = null;
+  let lastCursor = 'crosshair';
+
+  function getCropPx() {
+    const img = canvas.previousElementSibling;
+    const W   = img.offsetWidth, H = img.offsetHeight;
+    const sx  = W / pdfW, sy = H / pdfH;
+    const mm  = getMM();
+    return {
+      x1: mm.left   * MM2PT * sx,
+      y1: mm.top    * MM2PT * sy,
+      x2: W - mm.right  * MM2PT * sx,
+      y2: H - mm.bottom * MM2PT * sy,
+      W, H, sx, sy
+    };
+  }
+
+  function pxToMM(px, py, W, H, sx, sy) {
+    return {
+      left:   Math.max(0, Math.min(px / sx / MM2PT, pdfW / MM2PT - 1)),
+      top:    Math.max(0, Math.min(py / sy / MM2PT, pdfH / MM2PT - 1)),
+      right:  Math.max(0, Math.min((W - px) / sx / MM2PT, pdfW / MM2PT - 1)),
+      bottom: Math.max(0, Math.min((H - py) / sy / MM2PT, pdfH / MM2PT - 1)),
+    };
+  }
+
+  function setMM(vals) {
+    if (vals.top    !== undefined) document.getElementById('top_mm').value    = Math.max(0, +vals.top.toFixed(1));
+    if (vals.bottom !== undefined) document.getElementById('bottom_mm').value = Math.max(0, +vals.bottom.toFixed(1));
+    if (vals.left   !== undefined) document.getElementById('left_mm').value   = Math.max(0, +vals.left.toFixed(1));
+    if (vals.right  !== undefined) document.getElementById('right_mm').value  = Math.max(0, +vals.right.toFixed(1));
+    drawAllOverlays();
+  }
+
+  function evPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const src  = e.touches ? e.touches[0] : e;
+    return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+  }
+
+  canvas.addEventListener('mousemove', e => {
+    const {x, y} = evPos(e);
+    const c = getCropPx();
+    const h = hitHandle(x, y, c.x1, c.y1, c.x2, c.y2);
+    let cur = 'crosshair';
+    if (h) cur = h.cur;
+    else if (insideBox(x, y, c.x1, c.y1, c.x2, c.y2)) cur = 'move';
+    if (cur !== lastCursor) { canvas.style.cursor = cur; lastCursor = cur; }
+  });
+
+  canvas.addEventListener('mousedown', e => {
+    e.preventDefault();
+    const {x, y} = evPos(e);
+    const c = getCropPx();
+    const h = hitHandle(x, y, c.x1, c.y1, c.x2, c.y2);
+    if (h) {
+      dragging = h.id;
+    } else if (insideBox(x, y, c.x1, c.y1, c.x2, c.y2)) {
+      dragging = 'move';
+      drawStart = {x, y, c: {...c}};
+    } else {
+      dragging = 'draw';
+      drawStart = {x, y};
+    }
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const {x, y} = evPos(e);
+    const c = getCropPx();
+    const {W, H, sx, sy} = c;
+
+    if (dragging === 'draw') {
+      const x1 = Math.min(drawStart.x, x), y1 = Math.min(drawStart.y, y);
+      const x2 = Math.max(drawStart.x, x), y2 = Math.max(drawStart.y, y);
+      const tl = pxToMM(x1, y1, W, H, sx, sy);
+      const br = pxToMM(x2, y2, W, H, sx, sy);
+      setMM({ left: tl.left, top: tl.top, right: br.right, bottom: br.bottom });
+    } else if (dragging === 'move') {
+      const dc = drawStart.c;
+      const dx = x - drawStart.x, dy = y - drawStart.y;
+      const nx1 = Math.max(0, Math.min(dc.x1 + dx, W - (dc.x2 - dc.x1)));
+      const ny1 = Math.max(0, Math.min(dc.y1 + dy, H - (dc.y2 - dc.y1)));
+      const nx2 = nx1 + (dc.x2 - dc.x1);
+      const ny2 = ny1 + (dc.y2 - dc.y1);
+      const tl  = pxToMM(nx1, ny1, W, H, sx, sy);
+      const br  = pxToMM(nx2, ny2, W, H, sx, sy);
+      setMM({ left: tl.left, top: tl.top, right: br.right, bottom: br.bottom });
+    } else {
+      // resize handle
+      let {x1, y1, x2, y2} = c;
+      const clampX = v => Math.max(0, Math.min(v, W));
+      const clampY = v => Math.max(0, Math.min(v, H));
+      if (dragging.includes('n')) y1 = clampY(Math.min(y, y2 - 10));
+      if (dragging.includes('s')) y2 = clampY(Math.max(y, y1 + 10));
+      if (dragging.includes('w')) x1 = clampX(Math.min(x, x2 - 10));
+      if (dragging.includes('e')) x2 = clampX(Math.max(x, x1 + 10));
+      if (dragging === 'n' || dragging === 's') { x1 = c.x1; x2 = c.x2; }
+      if (dragging === 'w' || dragging === 'e') { y1 = c.y1; y2 = c.y2; }
+      const tl = pxToMM(x1, y1, W, H, sx, sy);
+      const br = pxToMM(x2, y2, W, H, sx, sy);
+      setMM({ left: tl.left, top: tl.top, right: br.right, bottom: br.bottom });
+    }
+  });
+
+  document.addEventListener('mouseup', e => {
+    if (!dragging) return;
+    document.body.style.cursor = '';
+    dragging = null; drawStart = null;
+  });
+
+  // Touch support
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const {x, y} = evPos(e);
+    const c = getCropPx();
+    const h = hitHandle(x, y, c.x1, c.y1, c.x2, c.y2);
+    if (h) { dragging = h.id; }
+    else if (insideBox(x, y, c.x1, c.y1, c.x2, c.y2)) { dragging = 'move'; drawStart = {x, y, c: {...c}}; }
+    else { dragging = 'draw'; drawStart = {x, y}; }
+  }, {passive: false});
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!dragging) return;
+    const {x, y} = evPos(e);
+    const c = getCropPx();
+    const {W, H, sx, sy} = c;
+    if (dragging === 'draw') {
+      const x1 = Math.min(drawStart.x, x), y1 = Math.min(drawStart.y, y);
+      const x2 = Math.max(drawStart.x, x), y2 = Math.max(drawStart.y, y);
+      const tl = pxToMM(x1, y1, W, H, sx, sy);
+      const br = pxToMM(x2, y2, W, H, sx, sy);
+      setMM({ left: tl.left, top: tl.top, right: br.right, bottom: br.bottom });
+    } else if (dragging === 'move') {
+      const dc = drawStart.c;
+      const dx = x - drawStart.x, dy = y - drawStart.y;
+      const nx1 = Math.max(0, Math.min(dc.x1 + dx, W - (dc.x2 - dc.x1)));
+      const ny1 = Math.max(0, Math.min(dc.y1 + dy, H - (dc.y2 - dc.y1)));
+      const tl = pxToMM(nx1, ny1, W, H, sx, sy);
+      const br = pxToMM(nx1 + (dc.x2-dc.x1), ny1 + (dc.y2-dc.y1), W, H, sx, sy);
+      setMM({ left: tl.left, top: tl.top, right: br.right, bottom: br.bottom });
+    }
+  }, {passive: false});
+
+  canvas.addEventListener('touchend', () => { dragging = null; drawStart = null; });
+}
+
+function resetMargins() {
+  ['top_mm','bottom_mm','left_mm','right_mm'].forEach(id => document.getElementById(id).value = 0);
+  drawAllOverlays();
+}
+
+// ── Input → live overlay ──────────────────────────────────────────────────
+['top_mm','bottom_mm','left_mm','right_mm'].forEach(id =>
+  document.getElementById(id).addEventListener('input', drawAllOverlays)
+);
+
+// ── Load / reset ──────────────────────────────────────────────────────────
 function resetTool() {
-  fileInput.value = ''; currentFile = null;
+  fileInput.value = ''; currentFile = null; pageDims = []; iCanvas = null;
   crDrop.style.display = ''; crSplit.classList.remove('show');
   crPagesEl.innerHTML = ''; crPagesEl.style.display = 'none';
   crViewerLoad.style.display = 'flex'; crConvertBtn.disabled = false;
   crLoadingCard.classList.remove('show'); crResultCard.classList.remove('show');
   crErrorCard.classList.remove('show'); crInfoStrip.style.display = '';
+  resetMargins();
 }
 
 async function loadPreview(file) {
-  const fd = new FormData(); fd.append('file', file); fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
   try {
-    const res = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
+    const res  = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
+    pageDims = data.page_dims || [];
     crPagesEl.innerHTML = '';
-    data.page_images.forEach((b64, i) => { const img = document.createElement('img'); img.src = 'data:image/jpeg;base64,' + b64; img.alt = 'Page ' + (i+1); crPagesEl.appendChild(img); });
-    crViewerLoad.style.display = 'none'; crPagesEl.style.display = 'flex';
-  } catch (e) { crViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>'; }
+    data.page_images.forEach((b64, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'cr-page-wrap';
+      const img = document.createElement('img');
+      img.src   = 'data:image/jpeg;base64,' + b64;
+      img.alt   = 'Page ' + (i + 1);
+      img.style.cssText = 'width:100%;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,.5);display:block';
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'cr-canvas';
+      canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border-radius:6px';
+
+      img.onload = () => {
+        if (pageDims[i]) drawCropOverlay(canvas, pageDims[i].w, pageDims[i].h);
+        if (i === 0) initInteractiveCanvas(canvas, pageDims[i].w, pageDims[i].h);
+      };
+
+      wrap.appendChild(img);
+      wrap.appendChild(canvas);
+      crPagesEl.appendChild(wrap);
+    });
+    crViewerLoad.style.display = 'none';
+    crPagesEl.style.display    = 'flex';
+  } catch (e) {
+    crViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>';
+  }
 }
 
 function setFile(f) {
-  if (!f) return; currentFile = f;
+  if (!f) return;
+  currentFile = f;
   document.getElementById('crFileName').textContent = f.name;
-  document.getElementById('crFileSize').textContent = (f.size/1024).toFixed(1) + ' KB';
+  document.getElementById('crFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
   crDrop.style.display = 'none'; crInfoStrip.style.display = 'none';
   crResultCard.classList.remove('show'); crErrorCard.classList.remove('show');
-  crSplit.classList.add('show'); loadPreview(f);
+  crSplit.classList.add('show');
+  loadPreview(f);
 }
 
 async function doCrop() {
   if (!currentFile) return;
-  crConvertBtn.disabled = true; crLoadingCard.classList.add('show');
-  crResultCard.classList.remove('show'); crErrorCard.classList.remove('show');
+  crConvertBtn.disabled = true;
+  crLoadingCard.classList.add('show');
+  crResultCard.classList.remove('show');
+  crErrorCard.classList.remove('show');
   const fd = new FormData();
-  fd.append('file', currentFile); fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fd.append('file', currentFile);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
   fd.append('top',    (parseFloat(document.getElementById('top_mm').value)    || 0) * MM2PT);
   fd.append('bottom', (parseFloat(document.getElementById('bottom_mm').value) || 0) * MM2PT);
   fd.append('left',   (parseFloat(document.getElementById('left_mm').value)   || 0) * MM2PT);
   fd.append('right',  (parseFloat(document.getElementById('right_mm').value)  || 0) * MM2PT);
   try {
-    const res = await fetch('/tools/api/crop-pdf/', { method: 'POST', body: fd });
+    const res  = await fetch('/tools/api/crop-pdf/', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    document.getElementById('crDlBtn').href = data.download_url;
+    document.getElementById('crDlBtn').href     = data.download_url;
     document.getElementById('crDlBtn').download = data.filename || 'cropped.pdf';
     crResultCard.classList.add('show');
-  } catch (e) { document.getElementById('crErrorMsg').textContent = e.message || 'Crop failed.'; crErrorCard.classList.add('show'); }
-  finally { crLoadingCard.classList.remove('show'); crConvertBtn.disabled = false; }
+  } catch (e) {
+    document.getElementById('crErrorMsg').textContent = e.message || 'Crop failed.';
+    crErrorCard.classList.add('show');
+  } finally {
+    crLoadingCard.classList.remove('show');
+    crConvertBtn.disabled = false;
+  }
 }
 
 fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
-crDrop.addEventListener('dragover', e => { e.preventDefault(); crDrop.classList.add('drag-over'); });
+crDrop.addEventListener('dragover',  e => { e.preventDefault(); crDrop.classList.add('drag-over'); });
 crDrop.addEventListener('dragleave', () => crDrop.classList.remove('drag-over'));
 crDrop.addEventListener('drop', e => { e.preventDefault(); crDrop.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
 </script>{% endblock %}
