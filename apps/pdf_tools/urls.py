@@ -58,7 +58,7 @@ from apps.pdf_tools.views.live_share import (
     create_room, join_room, upload_file, poll_room, download_file,
 )
 from apps.pdf_tools.views.resume_analyzer import analyze_resume
-from apps.pdf_tools.views.remote_control import rc_create, rc_offer, rc_answer, rc_ice, rc_poll, rc_close, rc_cmd, rc_agent_poll
+from apps.pdf_tools.views.remote_control import rc_create, rc_offer, rc_answer, rc_ice, rc_poll, rc_close, rc_cmd, rc_agent_poll, zayrodesk_sw, zayrodesk_icon
 from apps.pdf_tools.views.product_recommender import recommend_products
 from apps.pdf_tools.views.pdf_chat import pdf_chat
 from apps.pdf_tools.views.zayro_eye import (
@@ -195,6 +195,8 @@ urlpatterns = [
     path('api/desk/close/',            rc_close,           name='api_rc_close'),
     path('api/desk/cmd/',              rc_cmd,             name='api_rc_cmd'),
     path('api/desk/agent/',            rc_agent_poll,      name='api_rc_agent'),
+    path('zayrodesk-sw.js',            zayrodesk_sw,       name='zayrodesk_sw'),
+    path('zayrodesk-icon/<int:size>.png', zayrodesk_icon,  name='zayrodesk_icon'),
     path('api/live-share/create/',              create_room,    name='api_ls_create'),
     path('api/live-share/join/',                join_room,      name='api_ls_join'),
     path('api/live-share/upload/',              upload_file,    name='api_ls_upload'),

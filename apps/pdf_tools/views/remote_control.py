@@ -1,5 +1,5 @@
-import json, string, random, time
-from django.http import JsonResponse
+import json, string, random, time, os
+from django.http import JsonResponse, HttpResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from datetime import timedelta
@@ -156,3 +156,51 @@ def rc_close(request):
     from apps.pdf_tools.models import RCRoom
     RCRoom.objects.filter(code=code).update(closed=True)
     return JsonResponse({'ok': True})
+
+
+def zayrodesk_sw(request):
+    """Serve service worker with correct scope header."""
+    sw_path = os.path.join(os.path.dirname(__file__), '../../../static/zayrodesk/sw.js')
+    sw_path = os.path.normpath(sw_path)
+    try:
+        with open(sw_path, 'r') as f:
+            content = f.read()
+    except FileNotFoundError:
+        content = 'self.addEventListener("fetch", () => {});'
+    return HttpResponse(content, content_type='application/javascript',
+                        headers={'Service-Worker-Allowed': '/'})
+
+
+def zayrodesk_icon(request, size):
+    """Generate a ZayroDesk app icon as PNG using Pillow."""
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+        img = Image.new('RGBA', (size, size), (8, 145, 178, 255))
+        draw = ImageDraw.Draw(img)
+        # rounded rect bg
+        margin = size // 8
+        draw.rounded_rectangle([margin, margin, size - margin, size - margin],
+                                radius=size // 5, fill=(255, 255, 255, 40))
+        # monitor icon
+        cx, cy = size // 2, size // 2
+        mw, mh = size * 6 // 10, size * 4 // 10
+        mx1, my1 = cx - mw // 2, cy - mh // 2 - size // 14
+        mx2, my2 = cx + mw // 2, cy + mh // 2 - size // 14
+        draw.rounded_rectangle([mx1, my1, mx2, my2], radius=size // 18, fill=(255, 255, 255, 220))
+        draw.rounded_rectangle([mx1 + size // 18, my1 + size // 18, mx2 - size // 18, my2 - size // 18],
+                                radius=size // 28, fill=(8, 145, 178, 255))
+        # stand
+        sw = size // 10
+        draw.rectangle([cx - sw, my2, cx + sw, my2 + size // 12], fill=(255, 255, 255, 220))
+        draw.ellipse([cx - sw * 2, my2 + size // 12, cx + sw * 2, my2 + size // 8], fill=(255, 255, 255, 220))
+        import io
+        buf = io.BytesIO()
+        img.save(buf, 'PNG')
+        buf.seek(0)
+        return HttpResponse(buf.read(), content_type='image/png',
+                            headers={'Cache-Control': 'public, max-age=86400'})
+    except Exception:
+        # fallback: redirect to logo
+        from django.conf import settings
+        from django.http import HttpResponseRedirect
+        return HttpResponseRedirect('/static/img/logo.png')

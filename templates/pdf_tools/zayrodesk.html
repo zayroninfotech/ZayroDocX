@@ -4,6 +4,13 @@
 {% block active_zayrodesk %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">ZayroDesk</span>{% endblock %}
 {% block extra_head %}
+<link rel="manifest" href="/static/zayrodesk/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ZayroDesk">
+<meta name="theme-color" content="#0891b2">
+<link rel="apple-touch-icon" href="/tools/zayrodesk-icon/192.png">
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <style>
