@@ -238,7 +238,7 @@
   <!-- Left: live HTML preview -->
   <div class="h2p-viewer">
     <div class="h2p-viewer-label">HTML Preview</div>
-    <iframe id="h2pIframe" sandbox="allow-same-origin allow-scripts" title="HTML Preview"></iframe>
+    <iframe id="h2pIframe" sandbox="allow-scripts allow-same-origin allow-popups" title="HTML Preview"></iframe>
   </div>
 
   <!-- Right: controls -->
@@ -311,8 +311,8 @@ function switchSrc(src, el) {
 function resetFile() {
   fileInput.value = '';
   currentFile = null;
-  if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
-  h2pIframe.src = 'about:blank';
+  blobUrl = null;
+  h2pIframe.srcdoc = '';
   h2pSplit.classList.remove('show');
   fileDropWrap.style.display = '';
   h2pConvertBtn.disabled = false;
@@ -329,8 +329,10 @@ function setFile(f) {
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
 
   if (blobUrl) URL.revokeObjectURL(blobUrl);
-  blobUrl = URL.createObjectURL(f);
-  h2pIframe.src = blobUrl;
+  blobUrl = null;
+  const reader = new FileReader();
+  reader.onload = e => { h2pIframe.srcdoc = e.target.result; };
+  reader.readAsText(f);
 
   fileDropWrap.style.display = 'none';
   h2pResultCard.classList.remove('show');
