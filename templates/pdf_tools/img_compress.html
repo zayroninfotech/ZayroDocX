@@ -3,43 +3,387 @@
 {% block title %}Compress Image — ZayroDocX{% endblock %}
 {% block active_img_compress %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Compress Image</span>{% endblock %}
-{% block extra_head %}<style>{% include "pdf_tools/_img_split_css.html" %}</style>{% endblock %}
+
+{% block extra_head %}<style>
+/* ── drop zone ── */
+.ic-drop { border:2.5px dashed #cbd5e1;border-radius:20px;padding:3rem 2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:#f8fafc; }
+.ic-drop:hover,.ic-drop.drag-over{border-color:#dc2626;background:#fff8f8;}
+.ic-drop-icon{font-size:3rem;color:#dc2626;margin-bottom:.8rem;}
+.ic-drop h3{font-size:1.3rem;font-weight:700;color:#1e293b;margin:0 0 .4rem;}
+.ic-drop p{color:#64748b;margin:0 0 1.2rem;}
+.ic-drop-btn{background:#dc2626;color:#fff;border:none;border-radius:10px;padding:.6rem 1.4rem;font-size:.9rem;font-weight:600;cursor:pointer;}
+.ic-drop-btn:hover{background:#b91c1c;}
+
+/* ── split layout ── */
+.ic-split{display:none;grid-template-columns:1fr 380px;gap:20px;align-items:start;}
+.ic-split.show{display:grid;}
+
+/* ── compare viewer ── */
+.ic-viewer{background:#0f172a;border-radius:16px;overflow:hidden;position:relative;min-height:350px;display:flex;align-items:center;justify-content:center;user-select:none;}
+.ic-viewer-loading{color:#94a3b8;font-size:.9rem;padding:2rem;display:flex;flex-direction:column;align-items:center;gap:.8rem;}
+.ic-viewer-loading i{font-size:2rem;}
+
+/* before / after canvases */
+#icBefore,#icAfter{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;}
+#icAfterWrap{position:absolute;top:0;left:0;width:50%;height:100%;overflow:hidden;}
+#icAfterWrap img{width:100%;height:100%;object-fit:contain;position:absolute;top:0;left:0;}
+
+/* divider */
+#icDivider{position:absolute;top:0;left:50%;width:3px;height:100%;background:#dc2626;cursor:col-resize;z-index:10;transform:translateX(-50%);}
+#icDivider::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32px;height:32px;background:#dc2626;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.4);}
+#icDivHandle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32px;height:32px;background:#dc2626;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.4);cursor:col-resize;z-index:11;}
+#icDivHandle i{color:#fff;font-size:.75rem;pointer-events:none;}
+
+/* labels */
+.ic-badge{position:absolute;top:10px;font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:20px;z-index:5;}
+.ic-badge.left{left:10px;background:rgba(15,23,42,.7);color:#94a3b8;}
+.ic-badge.right{right:10px;background:rgba(220,38,38,.85);color:#fff;}
+
+/* right panel */
+.ic-right{display:flex;flex-direction:column;gap:14px;position:sticky;top:16px;max-height:calc(100vh - 100px);overflow-y:auto;padding-right:4px;scrollbar-width:thin;}
+.ic-card{background:#fff;border:1.5px solid #e8e8e8;border-radius:14px;padding:1.1rem 1.3rem;}
+.ic-file-row{display:flex;align-items:center;gap:.9rem;}
+.ic-file-icon{width:44px;height:44px;border-radius:11px;background:#fff8f8;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#dc2626;flex-shrink:0;}
+.ic-file-name{font-size:.88rem;font-weight:700;color:#111;word-break:break-all;}
+.ic-file-size{font-size:.75rem;color:#aaa;margin-top:.1rem;}
+.ic-change-btn{margin-left:auto;background:#fff;border:1.5px solid #e8e8e8;border-radius:8px;padding:.35rem .75rem;font-size:.75rem;font-weight:600;color:#666;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.ic-change-btn:hover{border-color:#fca5a5;color:#dc2626;}
+
+.ic-opts-title{font-size:.72rem;font-weight:800;color:#b91c1c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.65rem;}
+.ic-field-label{font-size:.73rem;font-weight:700;color:#555;margin:.7rem 0 .35rem;}
+.ic-range{width:100%;accent-color:#dc2626;cursor:pointer;}
+
+/* size badges */
+.ic-size-row{display:flex;align-items:center;gap:.5rem;margin:.6rem 0 .2rem;flex-wrap:wrap;}
+.ic-size-badge{font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:20px;}
+.ic-size-orig{background:#f1f5f9;color:#475569;}
+.ic-size-arrow{color:#94a3b8;font-size:.8rem;}
+.ic-size-new{background:#fee2e2;color:#dc2626;}
+.ic-size-saving{background:#dcfce7;color:#16a34a;font-size:.7rem;}
+
+/* format tabs */
+.ic-fmt-tabs{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.4rem;}
+.ic-fmt-tab{display:inline-flex;align-items:center;gap:.3rem;padding:.38rem .75rem;border:1.5px solid #e8e8e8;border-radius:8px;font-size:.75rem;font-weight:600;cursor:pointer;color:#555;background:#fff;transition:all .15s;}
+.ic-fmt-tab input{display:none;}
+.ic-fmt-tab:has(input:checked){border-color:#dc2626;background:#fff8f8;color:#dc2626;}
+.ic-fmt-tab:hover{border-color:#fca5a5;color:#b91c1c;}
+
+.ic-convert-btn{width:100%;padding:.85rem;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:opacity .15s;}
+.ic-convert-btn:disabled{opacity:.6;cursor:not-allowed;}
+.ic-loading-card{display:none;background:#fff8f8;border:1.5px solid #fca5a5;border-radius:14px;padding:1.1rem 1.2rem;align-items:center;gap:.9rem;}
+.ic-loading-card.show{display:flex;}
+.ic-spin{animation:spin 1s linear infinite;font-size:1.3rem;color:#dc2626;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ic-result-card{display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:1.1rem 1.2rem;}
+.ic-result-card.show{display:block;}
+.ic-result-title{font-size:.82rem;font-weight:700;color:#166534;display:flex;align-items:center;gap:.4rem;margin-bottom:.7rem;}
+.ic-dl-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.65rem;background:#16a34a;color:#fff;border:none;border-radius:9px;font-size:.88rem;font-weight:700;cursor:pointer;text-decoration:none;}
+.ic-dl-btn:hover{background:#15803d;}
+.ic-error-card{display:none;background:#fff1f2;border:1.5px solid #fca5a5;border-radius:14px;padding:1rem 1.2rem;}
+.ic-error-card.show{display:block;}
+.ic-error-msg{font-size:.82rem;color:#dc2626;}
+
+@media(max-width:1050px){.ic-split{grid-template-columns:1fr;}.ic-right{position:static;max-height:none;}}
+</style>{% endblock %}
+
 {% block content %}
 <input type="file" id="fileInput" accept="image/*" style="display:none">
-<div class="it-drop" id="itDrop" onclick="document.getElementById('fileInput').click()">
-  <div class="it-drop-icon"><i class="fa-solid fa-image"></i></div>
+
+<div class="ic-drop" id="icDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="ic-drop-icon"><i class="fa-solid fa-image"></i></div>
   <h3>Drop your image here</h3>
   <p>Adjust quality in the panel then compress</p>
-  <button type="button" class="it-drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()"><i class="fa-solid fa-folder-open"></i> Select Image</button>
+  <button type="button" class="ic-drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-folder-open"></i> Select Image
+  </button>
 </div>
-<div class="it-split" id="itSplit">
-  <div class="it-viewer"><div class="it-viewer-loading" id="itViewerLoad"><i class="fa-solid fa-spinner it-spin"></i><span>Loading…</span></div><img id="itPreviewImg" style="display:none;max-width:100%;max-height:100%;border-radius:8px;object-fit:contain;" alt="preview"></div>
-  <div class="it-right">
-    <div class="it-card"><div class="it-file-row"><div class="it-file-icon"><i class="fa-solid fa-image"></i></div><div><div class="it-file-name" id="itFileName">—</div><div class="it-file-size" id="itFileSize">—</div></div><button type="button" class="it-change-btn" onclick="resetTool()"><i class="fa-solid fa-rotate-left"></i> Change</button></div></div>
-    <div class="it-card">
-      <div class="it-opts-title"><i class="fa-solid fa-sliders"></i> Quality</div>
-      <div class="it-field-label">Quality: <span id="qVal">70</span>%</div>
-      <input type="range" id="qualityRange" class="it-range" min="10" max="95" value="70" oninput="document.getElementById('qVal').textContent=this.value">
+
+<div class="ic-split" id="icSplit">
+  <!-- viewer -->
+  <div class="ic-viewer" id="icViewer">
+    <div class="ic-viewer-loading" id="icViewerLoad">
+      <i class="fa-solid fa-spinner ic-spin"></i><span>Loading…</span>
     </div>
-    <button type="button" class="it-convert-btn" id="itConvertBtn" onclick="doConvert()"><i class="fa-solid fa-compress-arrows-alt"></i> Compress Image</button>
-    <div class="it-loading-card" id="itLoadingCard"><i class="fa-solid fa-spinner it-spin"></i><span style="font-size:.88rem;font-weight:600;color:#b91c1c">Compressing…</span></div>
-    <div class="it-result-card" id="itResultCard"><div class="it-result-title"><i class="fa-solid fa-circle-check"></i> <span id="itResultInfo">Done!</span></div><a class="it-dl-btn" id="itDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a></div>
-    <div class="it-error-card" id="itErrorCard"><div class="it-error-msg" id="itErrorMsg"></div></div>
+    <!-- before -->
+    <img id="icBefore" style="display:none" alt="Original">
+    <!-- after (clipped) -->
+    <div id="icAfterWrap" style="display:none">
+      <img id="icAfter" alt="Compressed">
+    </div>
+    <!-- divider -->
+    <div id="icDivider" style="display:none">
+      <div id="icDivHandle"><i class="fa-solid fa-left-right"></i></div>
+    </div>
+    <!-- labels -->
+    <span class="ic-badge left" id="icLabelOrig" style="display:none">Original</span>
+    <span class="ic-badge right" id="icLabelNew"  style="display:none">Compressed</span>
+  </div>
+
+  <!-- right panel -->
+  <div class="ic-right">
+    <div class="ic-card">
+      <div class="ic-file-row">
+        <div class="ic-file-icon"><i class="fa-solid fa-image"></i></div>
+        <div>
+          <div class="ic-file-name" id="icFileName">—</div>
+          <div class="ic-file-size" id="icFileSize">—</div>
+        </div>
+        <button type="button" class="ic-change-btn" onclick="resetTool()">
+          <i class="fa-solid fa-rotate-left"></i> Change
+        </button>
+      </div>
+    </div>
+
+    <div class="ic-card">
+      <div class="ic-opts-title"><i class="fa-solid fa-sliders"></i> Compression</div>
+      <div class="ic-field-label">Quality: <span id="qVal" style="color:#dc2626;font-size:.85rem">70</span>%</div>
+      <input type="range" id="qualityRange" class="ic-range" min="10" max="95" value="70">
+
+      <!-- size estimate row -->
+      <div class="ic-size-row" id="icSizeRow" style="display:none">
+        <span class="ic-size-badge ic-size-orig" id="icOrigKB">— KB</span>
+        <span class="ic-size-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+        <span class="ic-size-badge ic-size-new"  id="icNewKB">— KB</span>
+        <span class="ic-size-badge ic-size-saving" id="icSaving"></span>
+      </div>
+
+      <div class="ic-field-label" style="margin-top:.9rem">Output Format</div>
+      <div class="ic-fmt-tabs">
+        <label class="ic-fmt-tab"><input type="radio" name="fmt" value="auto" checked> <i class="fa-solid fa-wand-magic-sparkles"></i> Auto</label>
+        <label class="ic-fmt-tab"><input type="radio" name="fmt" value="jpg"> JPG</label>
+        <label class="ic-fmt-tab"><input type="radio" name="fmt" value="png"> PNG</label>
+        <label class="ic-fmt-tab"><input type="radio" name="fmt" value="webp"> <i class="fa-brands fa-chrome"></i> WebP</label>
+      </div>
+
+      <div style="margin-top:.9rem">
+        <label style="display:flex;align-items:center;gap:.45rem;font-size:.78rem;font-weight:600;color:#555;cursor:pointer">
+          <input type="checkbox" id="icStripMeta" checked style="accent-color:#dc2626;width:14px;height:14px"> Strip metadata (EXIF)
+        </label>
+      </div>
+    </div>
+
+    <button type="button" class="ic-convert-btn" id="icConvertBtn" onclick="doConvert()">
+      <i class="fa-solid fa-compress-arrows-alt"></i> Compress Image
+    </button>
+
+    <div class="ic-loading-card" id="icLoadingCard">
+      <i class="fa-solid fa-spinner ic-spin"></i>
+      <span style="font-size:.88rem;font-weight:600;color:#b91c1c">Compressing…</span>
+    </div>
+
+    <div class="ic-result-card" id="icResultCard">
+      <div class="ic-result-title"><i class="fa-solid fa-circle-check"></i> <span id="icResultInfo">Done!</span></div>
+      <a class="ic-dl-btn" id="icDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a>
+    </div>
+
+    <div class="ic-error-card" id="icErrorCard">
+      <div class="ic-error-msg" id="icErrorMsg"></div>
+    </div>
   </div>
 </div>
-<div class="cv-info-strip" id="itInfoStrip">
+
+<div class="cv-info-strip" id="icInfoStrip">
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-image"></i></div><div><div class="cv-info-title">All Formats</div><div class="cv-info-desc">JPG, PNG, WebP, BMP</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-sliders"></i></div><div><div class="cv-info-title">Quality Slider</div><div class="cv-info-desc">10%–95% control</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
   <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
 </div>
 {% endblock %}
+
 {% block extra_js %}<script>
-let currentFile=null;
-const fileInput=document.getElementById('fileInput');
-function resetTool(){fileInput.value='';currentFile=null;document.getElementById('itDrop').style.display='';document.getElementById('itSplit').classList.remove('show');document.getElementById('itInfoStrip').style.display='';['itLoadingCard','itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itConvertBtn').disabled=false;}
-function setFile(f){if(!f)return;currentFile=f;document.getElementById('itFileName').textContent=f.name;document.getElementById('itFileSize').textContent=(f.size/1024).toFixed(1)+' KB';document.getElementById('itDrop').style.display='none';document.getElementById('itInfoStrip').style.display='none';['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itSplit').classList.add('show');const img=document.getElementById('itPreviewImg');img.src=URL.createObjectURL(f);img.style.display='block';document.getElementById('itViewerLoad').style.display='none';}
-async function doConvert(){if(!currentFile)return;document.getElementById('itConvertBtn').disabled=true;document.getElementById('itLoadingCard').classList.add('show');['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));const fd=new FormData();fd.append('file',currentFile);fd.append('csrfmiddlewaretoken','{{ csrf_token }}');fd.append('quality',document.getElementById('qualityRange').value);try{const res=await fetch('/tools/api/img/compress/',{method:'POST',body:fd});const d=await res.json();if(d.error)throw new Error(d.error);document.getElementById('itResultInfo').textContent=`${d.orig_kb} KB → ${d.new_kb} KB (saved ${Math.round((1-d.new_kb/d.orig_kb)*100)}%)`;document.getElementById('itDlBtn').href=d.download_url;document.getElementById('itDlBtn').download=d.filename||'compressed';document.getElementById('itResultCard').classList.add('show');}catch(e){document.getElementById('itErrorMsg').textContent=e.message||'Failed.';document.getElementById('itErrorCard').classList.add('show');}finally{document.getElementById('itLoadingCard').classList.remove('show');document.getElementById('itConvertBtn').disabled=false;}}
-fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));
-const drop=document.getElementById('itDrop');drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+let currentFile = null;
+const fileInput   = document.getElementById('fileInput');
+const icDrop      = document.getElementById('icDrop');
+const icSplit     = document.getElementById('icSplit');
+const icViewer    = document.getElementById('icViewer');
+const icViewerLoad= document.getElementById('icViewerLoad');
+const icBefore    = document.getElementById('icBefore');
+const icAfterWrap = document.getElementById('icAfterWrap');
+const icAfter     = document.getElementById('icAfter');
+const icDivider   = document.getElementById('icDivider');
+const icDivHandle = document.getElementById('icDivHandle');
+const icInfoStrip = document.getElementById('icInfoStrip');
+const icConvertBtn= document.getElementById('icConvertBtn');
+
+let origObjectUrl  = null;
+let dividerPct     = 50;   // percentage from left
+let liveDebounce   = null;
+
+// ── Before/After split divider drag ──────────────────────────────────────
+function setDivider(pct) {
+  dividerPct = Math.max(5, Math.min(95, pct));
+  icAfterWrap.style.width   = dividerPct + '%';
+  icDivider.style.left      = dividerPct + '%';
+}
+
+icDivHandle.addEventListener('mousedown', e => {
+  e.preventDefault();
+  document.body.style.cursor = 'col-resize';
+  const onMove = ev => {
+    const rect = icViewer.getBoundingClientRect();
+    setDivider((ev.clientX - rect.left) / rect.width * 100);
+  };
+  const onUp = () => {
+    document.body.style.cursor = '';
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup',   onUp);
+  };
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup',   onUp);
+});
+
+icDivHandle.addEventListener('touchstart', e => {
+  const onMove = ev => {
+    const rect = icViewer.getBoundingClientRect();
+    setDivider((ev.touches[0].clientX - rect.left) / rect.width * 100);
+  };
+  const onUp = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); };
+  document.addEventListener('touchmove', onMove, {passive:true});
+  document.addEventListener('touchend',  onUp);
+}, {passive:true});
+
+// ── Live compressed preview ───────────────────────────────────────────────
+function getLiveFormat() {
+  const fmt = document.querySelector('input[name="fmt"]:checked').value;
+  if (fmt === 'auto' || fmt === 'jpg') return 'image/jpeg';
+  if (fmt === 'png') return 'image/png';
+  if (fmt === 'webp') return 'image/webp';
+  return 'image/jpeg';
+}
+
+function updateLivePreview() {
+  if (!currentFile) return;
+  const quality = parseInt(document.getElementById('qualityRange').value, 10) / 100;
+  const mimeType = getLiveFormat();
+
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width  = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    canvas.getContext('2d').drawImage(img, 0, 0);
+    const dataUrl = canvas.toDataURL(mimeType, quality);
+    icAfter.src = dataUrl;
+
+    // estimate compressed size
+    const base64Len = dataUrl.split(',')[1].length;
+    const estBytes  = Math.round(base64Len * 0.75);
+    const origBytes = currentFile.size;
+    const saving    = Math.round((1 - estBytes / origBytes) * 100);
+    document.getElementById('icOrigKB').textContent = (origBytes / 1024).toFixed(0) + ' KB';
+    document.getElementById('icNewKB').textContent  = (estBytes  / 1024).toFixed(0) + ' KB';
+    document.getElementById('icSaving').textContent = saving > 0 ? `−${saving}% saved` : `+${-saving}% larger`;
+    document.getElementById('icSaving').style.background = saving > 0 ? '#dcfce7' : '#fee2e2';
+    document.getElementById('icSaving').style.color = saving > 0 ? '#16a34a' : '#dc2626';
+    document.getElementById('icSizeRow').style.display = '';
+  };
+  img.src = origObjectUrl;
+}
+
+// quality slider → live preview
+document.getElementById('qualityRange').addEventListener('input', function() {
+  document.getElementById('qVal').textContent = this.value;
+  clearTimeout(liveDebounce);
+  liveDebounce = setTimeout(updateLivePreview, 120);
+});
+
+// format change → live preview
+document.querySelectorAll('input[name="fmt"]').forEach(r =>
+  r.addEventListener('change', updateLivePreview)
+);
+
+// ── File handling ─────────────────────────────────────────────────────────
+function resetTool() {
+  if (origObjectUrl) { URL.revokeObjectURL(origObjectUrl); origObjectUrl = null; }
+  currentFile = null;
+  fileInput.value = '';
+  icDrop.style.display = '';
+  icSplit.classList.remove('show');
+  icInfoStrip.style.display = '';
+  document.getElementById('icSizeRow').style.display = 'none';
+  ['icLoadingCard','icResultCard','icErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
+  icConvertBtn.disabled = false;
+  // reset viewer
+  icBefore.style.display = 'none';
+  icAfterWrap.style.display = 'none';
+  icDivider.style.display = 'none';
+  document.getElementById('icLabelOrig').style.display = 'none';
+  document.getElementById('icLabelNew').style.display  = 'none';
+  icViewerLoad.style.display = 'flex';
+}
+
+function setFile(f) {
+  if (!f) return;
+  if (origObjectUrl) URL.revokeObjectURL(origObjectUrl);
+  currentFile = f;
+  origObjectUrl = URL.createObjectURL(f);
+
+  document.getElementById('icFileName').textContent = f.name;
+  document.getElementById('icFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
+  icDrop.style.display = 'none';
+  icInfoStrip.style.display = 'none';
+  ['icResultCard','icErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
+  icSplit.classList.add('show');
+
+  // load before image
+  icBefore.src = origObjectUrl;
+  icBefore.onload = () => {
+    icViewerLoad.style.display = 'none';
+    icBefore.style.display = 'block';
+    icAfterWrap.style.display = 'block';
+    icDivider.style.display   = 'block';
+    document.getElementById('icLabelOrig').style.display = '';
+    document.getElementById('icLabelNew').style.display  = '';
+    setDivider(50);
+
+    // set viewer height based on image aspect
+    const ar = icBefore.naturalHeight / icBefore.naturalWidth;
+    icViewer.style.height = Math.min(Math.round(icViewer.offsetWidth * ar), 600) + 'px';
+    icAfter.style.width   = (100 / dividerPct * 100) + '%'; // stretch to fill clip div
+    icAfterWrap.style.height = '100%';
+
+    updateLivePreview();
+  };
+
+  // Fix: after image needs to be same size but clipped by wrapper
+  icAfter.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;';
+}
+
+// ── Compress (server) ─────────────────────────────────────────────────────
+async function doConvert() {
+  if (!currentFile) return;
+  icConvertBtn.disabled = true;
+  document.getElementById('icLoadingCard').classList.add('show');
+  ['icResultCard','icErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
+
+  const fd = new FormData();
+  fd.append('file',    currentFile);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fd.append('quality', document.getElementById('qualityRange').value);
+  const fmt = document.querySelector('input[name="fmt"]:checked').value;
+  if (fmt !== 'auto') fd.append('format', fmt);
+  fd.append('strip_meta', document.getElementById('icStripMeta').checked ? '1' : '0');
+
+  try {
+    const res  = await fetch('/tools/api/img/compress/', { method: 'POST', body: fd });
+    const d    = await res.json();
+    if (d.error) throw new Error(d.error);
+    document.getElementById('icResultInfo').textContent =
+      `${d.orig_kb} KB → ${d.new_kb} KB (saved ${Math.round((1 - d.new_kb / d.orig_kb) * 100)}%)`;
+    document.getElementById('icDlBtn').href     = d.download_url;
+    document.getElementById('icDlBtn').download = d.filename || 'compressed';
+    document.getElementById('icResultCard').classList.add('show');
+  } catch (e) {
+    document.getElementById('icErrorMsg').textContent = e.message || 'Failed.';
+    document.getElementById('icErrorCard').classList.add('show');
+  } finally {
+    document.getElementById('icLoadingCard').classList.remove('show');
+    icConvertBtn.disabled = false;
+  }
+}
+
+fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+icDrop.addEventListener('dragover',  e => { e.preventDefault(); icDrop.classList.add('drag-over'); });
+icDrop.addEventListener('dragleave', () => icDrop.classList.remove('drag-over'));
+icDrop.addEventListener('drop', e => { e.preventDefault(); icDrop.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
 </script>{% endblock %}
