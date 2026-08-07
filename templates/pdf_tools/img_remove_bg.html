@@ -323,8 +323,10 @@ async function doRemove() {
   fd.append('file', currentFile);
   fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
   try {
-    const res = await fetch('/tools/api/img/remove-bg/', { method: 'POST', body: fd });
-    const d   = await res.json();
+    const res  = await fetch('/tools/api/img/remove-bg/', { method: 'POST', body: fd });
+    const text = await res.text();
+    let d;
+    try { d = JSON.parse(text); } catch { throw new Error('Server error (status ' + res.status + '). Check if rembg is installed.'); }
     if (d.error) throw new Error(d.error);
 
     resultUrl = d.download_url;
