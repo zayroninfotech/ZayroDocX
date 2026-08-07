@@ -318,15 +318,19 @@ function startViewerPoll(){
   },500);
 }
 
-async function _checkFrameMode(){
-  setTimeout(async()=>{
-    if(pc) return;
+function _checkFrameMode(){
+  let attempts=0;
+  const check=async()=>{
+    if(pc||_frameMode||!roomCode) return;
+    if(++attempts>12) return; // stop after 60s
     try{
       const r=await fetch(`/tools/api/desk/frame/?code=${roomCode}`);
       const d=await r.json();
       if(d.frame){_frameMode=true;_showFrameViewer();}
-    }catch(e){}
-  },3000);
+      else setTimeout(check,5000);
+    }catch(e){setTimeout(check,5000);}
+  };
+  setTimeout(check,3000);
 }
 
 function _showFrameViewer(){
