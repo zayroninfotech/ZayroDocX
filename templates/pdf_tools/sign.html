@@ -111,26 +111,64 @@
       <div id="sgDrawSection">
         <div class="sg-hint">Draw your signature using mouse or touch:</div>
         <div class="sg-canvas-wrap"><canvas id="signatureCanvas" width="600" height="150"></canvas></div>
-        <button type="button" id="clearCanvas" class="sg-clear-btn"><i class="fa-solid fa-eraser"></i> Clear</button>
+        <div style="display:flex;gap:.5rem;margin-top:.5rem">
+          <button type="button" id="clearCanvas" class="sg-clear-btn"><i class="fa-solid fa-trash"></i> Clear</button>
+          <button type="button" id="undoCanvas"  class="sg-clear-btn"><i class="fa-solid fa-rotate-left"></i> Undo</button>
+        </div>
         <input type="hidden" name="signature_data" id="signatureData">
       </div>
 
       <div id="sgUploadSection" style="display:none">
         <div class="sg-field-label">Signature Image <span style="font-size:.7rem;color:#aaa;font-weight:400;">(PNG recommended)</span></div>
-        <input type="file" name="signature" class="sg-input" accept="image/*" style="text-align:left;padding:.5rem .8rem;">
+        <input type="file" name="signature" id="sgUploadFile" class="sg-input" accept="image/*" style="text-align:left;padding:.5rem .8rem;">
       </div>
 
-      <div class="sg-field-label" style="margin-top:.9rem">Page & Size</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem;margin-bottom:.4rem">
+      <!-- Signature preview strip -->
+      <div id="sgPreviewWrap" style="display:none;margin-top:.8rem">
+        <div class="sg-opts-title" style="margin-bottom:.4rem"><i class="fa-solid fa-eye"></i> Signature Preview</div>
+        <div style="background: repeating-conic-gradient(#e5e7eb 0% 25%, #fff 0% 50%) 0 0 / 16px 16px; border-radius:8px; border:1.5px solid #e8e8e8; padding:.5rem; display:flex; align-items:center; justify-content:center; min-height:64px;">
+          <img id="sgPreviewImg" src="" alt="preview" style="max-width:100%;max-height:80px;object-fit:contain;display:block">
+        </div>
+      </div>
+    </div>
+
+    <!-- Page & Size -->
+    <div class="sg-card">
+      <div class="sg-opts-title"><i class="fa-solid fa-ruler-combined"></i> Page & Size</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem;margin-bottom:.5rem">
         <div><div class="sg-field-label" style="margin-top:0">Page</div><input type="number" name="page" id="sgPage" class="sg-input" value="1" min="1"></div>
         <div><div class="sg-field-label" style="margin-top:0">Width (pt)</div><input type="number" id="sgSigW" class="sg-input" value="200" min="20" max="500"></div>
         <div><div class="sg-field-label" style="margin-top:0">Height (pt)</div><input type="number" id="sgSigH" class="sg-input" value="60" min="10" max="300"></div>
       </div>
-      <div style="font-size:.7rem;color:#94a3b8;margin-bottom:.3rem"><i class="fa-solid fa-hand-pointer"></i> Drag the signature box on the PDF preview to place it</div>
+      <label style="display:flex;align-items:center;gap:.45rem;font-size:.78rem;font-weight:600;color:#555;cursor:pointer">
+        <input type="checkbox" id="sgLockAR" checked style="accent-color:#dc2626;width:15px;height:15px"> Lock aspect ratio
+      </label>
+      <div style="font-size:.7rem;color:#94a3b8;margin-top:.4rem"><i class="fa-solid fa-hand-pointer"></i> Drag the signature box on the PDF preview to place it</div>
       <input type="hidden" name="x1" id="sgX1" value="50">
       <input type="hidden" name="y1" id="sgY1" value="700">
       <input type="hidden" name="x2" id="sgX2" value="250">
       <input type="hidden" name="y2" id="sgY2" value="760">
+    </div>
+
+    <!-- Appearance -->
+    <div class="sg-card">
+      <div class="sg-opts-title"><i class="fa-solid fa-sliders"></i> Appearance</div>
+      <div class="sg-field-label" style="margin-top:0">Opacity</div>
+      <div style="display:flex;align-items:center;gap:.7rem">
+        <input type="range" id="sgOpacity" min="10" max="100" value="100" style="flex:1;accent-color:#dc2626">
+        <span id="sgOpacityVal" style="font-size:.8rem;font-weight:700;color:#dc2626;min-width:38px;text-align:right">100%</span>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div class="sg-card">
+      <div class="sg-opts-title"><i class="fa-solid fa-gear"></i> Output</div>
+      <label style="display:flex;align-items:center;gap:.45rem;font-size:.78rem;font-weight:600;color:#555;cursor:pointer;margin-bottom:.5rem">
+        <input type="checkbox" id="sgTransparent" checked style="accent-color:#dc2626;width:15px;height:15px"> Transparent background (PNG)
+      </label>
+      <label style="display:flex;align-items:center;gap:.45rem;font-size:.78rem;font-weight:600;color:#555;cursor:pointer">
+        <input type="checkbox" id="sgHiQuality" checked style="accent-color:#dc2626;width:15px;height:15px"> High quality rendering
+      </label>
     </div>
 
     <button type="button" class="sg-convert-btn" id="sgConvertBtn" onclick="doSign()">
@@ -174,40 +212,90 @@ const sgErrorCard   = document.getElementById('sgErrorCard');
 const sgInfoStrip   = document.getElementById('sgInfoStrip');
 
 let currentFile  = null;
-let pageDims     = [];   // [{w,h} in PDF points] per page
-let sigDataUrl   = null; // current signature as data URL
-let overlay      = null; // the draggable div on the viewer
+let pageDims     = [];
+let sigDataUrl   = null;
+let overlay      = null;
+let sigAspectRatio = null;   // w/h ratio, locked when checkbox on
 
-// ── Signature canvas (draw mode) ──────────────────────────────────────────
+// ── Canvas undo stack ─────────────────────────────────────────────────────
+const _undoStack = [];
+function _saveUndo() {
+  const cv = document.getElementById('signatureCanvas');
+  _undoStack.push(cv.getContext('2d').getImageData(0, 0, cv.width, cv.height));
+  if (_undoStack.length > 30) _undoStack.shift();
+}
+
+// ── Init draw canvas ──────────────────────────────────────────────────────
 initSignatureCanvas('signatureCanvas');
 
-// After every stroke, refresh the overlay
-document.getElementById('signatureCanvas').addEventListener('mouseup',  refreshSigOverlay);
-document.getElementById('signatureCanvas').addEventListener('touchend', refreshSigOverlay);
+const _sigCv  = document.getElementById('signatureCanvas');
+const _sigCtx = _sigCv.getContext('2d');
 
+// Hook into mousedown/touchstart to save undo state before each stroke
+_sigCv.addEventListener('mousedown',  _saveUndo);
+_sigCv.addEventListener('touchstart', _saveUndo, {passive:true});
+
+// After stroke ends, refresh overlay & preview
+_sigCv.addEventListener('mouseup',  refreshSigOverlay);
+_sigCv.addEventListener('touchend', refreshSigOverlay);
+
+// Clear
 document.getElementById('clearCanvas').addEventListener('click', () => {
-  const cv = document.getElementById('signatureCanvas');
-  cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
-  sigDataUrl = null;
-  if (overlay) { overlay.style.backgroundImage = ''; overlay.style.display = 'none'; }
+  _undoStack.length = 0;
+  _sigCtx.clearRect(0, 0, _sigCv.width, _sigCv.height);
+  sigDataUrl = null; sigAspectRatio = null;
+  document.getElementById('sgPreviewWrap').style.display = 'none';
+  if (overlay) { overlay.remove(); overlay = null; }
 });
 
-// Upload mode — preview signature immediately
-document.querySelector('[name="signature"]').addEventListener('change', function() {
+// Undo
+document.getElementById('undoCanvas').addEventListener('click', () => {
+  if (!_undoStack.length) return;
+  _sigCtx.putImageData(_undoStack.pop(), 0, 0);
+  refreshSigOverlay();
+});
+
+// Upload mode
+document.getElementById('sgUploadFile').addEventListener('change', function() {
   const f = this.files[0];
   if (!f) return;
   const reader = new FileReader();
-  reader.onload = e => { sigDataUrl = e.target.result; placeOverlay(); };
+  reader.onload = e => {
+    sigDataUrl = e.target.result;
+    // compute natural aspect ratio
+    const tmp = new Image();
+    tmp.onload = () => { sigAspectRatio = tmp.naturalWidth / tmp.naturalHeight; showPreview(); placeOverlay(); };
+    tmp.src = sigDataUrl;
+  };
   reader.readAsDataURL(f);
 });
 
+// Opacity slider
+document.getElementById('sgOpacity').addEventListener('input', function() {
+  document.getElementById('sgOpacityVal').textContent = this.value + '%';
+  if (overlay) overlay.style.opacity = this.value / 100;
+});
+
 function refreshSigOverlay() {
-  const cv = document.getElementById('signatureCanvas');
-  sigDataUrl = cv.toDataURL('image/png');
+  sigDataUrl = _sigCv.toDataURL('image/png');
+  // measure actual ink bounds for aspect ratio
+  const d = _sigCtx.getImageData(0, 0, _sigCv.width, _sigCv.height).data;
+  let minX = _sigCv.width, maxX = 0, minY = _sigCv.height, maxY = 0, hasInk = false;
+  for (let y = 0; y < _sigCv.height; y++) for (let x = 0; x < _sigCv.width; x++) {
+    if (d[(y * _sigCv.width + x) * 4 + 3] > 10) { minX=Math.min(minX,x); maxX=Math.max(maxX,x); minY=Math.min(minY,y); maxY=Math.max(maxY,y); hasInk=true; }
+  }
+  sigAspectRatio = hasInk && (maxY > minY) ? (maxX - minX) / (maxY - minY) : null;
+  showPreview();
   placeOverlay();
 }
 
-// ── Overlay: draggable signature box on the PDF page ──────────────────────
+function showPreview() {
+  if (!sigDataUrl) return;
+  document.getElementById('sgPreviewImg').src = sigDataUrl;
+  document.getElementById('sgPreviewWrap').style.display = '';
+}
+
+// ── Overlay: draggable + resizable signature box ──────────────────────────
 function placeOverlay() {
   if (!sigDataUrl || !pageDims.length) return;
 
@@ -215,99 +303,122 @@ function placeOverlay() {
   const pageWrap = sgPagesEl.querySelectorAll('.sg-page-wrap')[pageIdx];
   if (!pageWrap) return;
 
-  // Remove old overlay from all pages
   sgPagesEl.querySelectorAll('.sg-sig-overlay').forEach(el => el.remove());
 
-  const img      = pageWrap.querySelector('img');
-  const dispW    = img.offsetWidth;
-  const dispH    = img.offsetHeight;
-  const pdfW     = pageDims[pageIdx].w;
-  const pdfH     = pageDims[pageIdx].h;
+  const img   = pageWrap.querySelector('img');
+  const dispW = img.offsetWidth;
+  const dispH = img.offsetHeight;
+  const pdfW  = pageDims[pageIdx].w;
+  const pdfH  = pageDims[pageIdx].h;
+  const scale = dispW / pdfW;
 
-  const sigWPt   = parseInt(document.getElementById('sgSigW').value, 10) || 200;
-  const sigHPt   = parseInt(document.getElementById('sgSigH').value, 10) || 60;
-  const x1Pt     = parseInt(document.getElementById('sgX1').value, 10) || 50;
-  const y1Pt     = parseInt(document.getElementById('sgY1').value, 10) || 700;
+  let sigWPt = parseInt(document.getElementById('sgSigW').value, 10) || 200;
+  let sigHPt = parseInt(document.getElementById('sgSigH').value, 10) || 60;
+  const x1Pt = parseInt(document.getElementById('sgX1').value, 10) || 50;
+  const y1Pt = parseInt(document.getElementById('sgY1').value, 10) || 700;
+  const opac = parseInt(document.getElementById('sgOpacity').value, 10) / 100;
 
-  // Convert PDF points → display pixels
-  const scale    = dispW / pdfW;
-  let   left     = x1Pt  * scale;
-  let   top      = y1Pt  * scale;
-  const w        = sigWPt * scale;
-  const h        = sigHPt * scale;
+  let left = x1Pt  * scale;
+  let top  = y1Pt  * scale;
+  let w    = sigWPt * scale;
+  let h    = sigHPt * scale;
 
   overlay = document.createElement('div');
   overlay.className = 'sg-sig-overlay';
   overlay.style.cssText = `
-    position:absolute; left:${left}px; top:${top}px;
-    width:${w}px; height:${h}px;
+    position:absolute;left:${left}px;top:${top}px;
+    width:${w}px;height:${h}px;
     background-image:url('${sigDataUrl}');
-    background-size:contain; background-repeat:no-repeat; background-position:center;
-    border:2px dashed #dc2626; border-radius:4px; cursor:move; box-sizing:border-box;
-    user-select:none; touch-action:none;
+    background-size:contain;background-repeat:no-repeat;background-position:center;
+    border:2px dashed #dc2626;border-radius:4px;
+    cursor:grab;box-sizing:border-box;user-select:none;touch-action:none;
+    opacity:${opac};
   `;
 
-  // Resize handle (bottom-right corner)
+  // Resize handle — bottom-right
   const handle = document.createElement('div');
-  handle.style.cssText = 'position:absolute;right:-5px;bottom:-5px;width:14px;height:14px;background:#dc2626;border-radius:50%;cursor:se-resize;';
+  handle.title = 'Drag to resize';
+  handle.style.cssText = `
+    position:absolute;right:-7px;bottom:-7px;
+    width:16px;height:16px;background:#dc2626;border-radius:50%;
+    cursor:se-resize;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);
+  `;
   overlay.appendChild(handle);
+
+  // Page label
+  const badge = document.createElement('div');
+  badge.textContent = 'Pg ' + (pageIdx + 1);
+  badge.style.cssText = 'position:absolute;top:-18px;left:0;font-size:10px;font-weight:700;color:#dc2626;white-space:nowrap;pointer-events:none;';
+  overlay.appendChild(badge);
 
   pageWrap.appendChild(overlay);
 
-  // ── drag to move ──
-  let dragStartX, dragStartY, startLeft, startTop;
+  // ── Move drag ──
   overlay.addEventListener('mousedown', e => {
     if (e.target === handle) return;
     e.preventDefault();
-    dragStartX = e.clientX; dragStartY = e.clientY;
-    startLeft  = overlay.offsetLeft; startTop = overlay.offsetTop;
+    overlay.style.cursor = 'grabbing';
+    const ox = e.clientX - overlay.offsetLeft, oy = e.clientY - overlay.offsetTop;
     const onMove = ev => {
-      left = Math.max(0, Math.min(startLeft + ev.clientX - dragStartX, dispW - overlay.offsetWidth));
-      top  = Math.max(0, Math.min(startTop  + ev.clientY - dragStartY, dispH - overlay.offsetHeight));
-      overlay.style.left = left + 'px'; overlay.style.top = top + 'px';
+      left = Math.max(0, Math.min(ev.clientX - ox, dispW - overlay.offsetWidth));
+      top  = Math.max(0, Math.min(ev.clientY - oy, dispH - overlay.offsetHeight));
+      overlay.style.left = left + 'px';
+      overlay.style.top  = top  + 'px';
       updateCoords(pageIdx, left, top, left + overlay.offsetWidth, top + overlay.offsetHeight, pdfW, pdfH, dispW, dispH);
     };
-    const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+    const onUp = () => {
+      overlay.style.cursor = 'grab';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup',   onUp);
+    };
     document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    document.addEventListener('mouseup',   onUp);
   });
 
-  // Touch drag
+  // Touch move
   overlay.addEventListener('touchstart', e => {
     if (e.target === handle) return;
-    const t = e.touches[0];
-    dragStartX = t.clientX; dragStartY = t.clientY;
-    startLeft = overlay.offsetLeft; startTop = overlay.offsetTop;
+    const t  = e.touches[0];
+    const ox = t.clientX - overlay.offsetLeft, oy = t.clientY - overlay.offsetTop;
     const onMove = ev => {
       const tt = ev.touches[0];
-      left = Math.max(0, Math.min(startLeft + tt.clientX - dragStartX, dispW - overlay.offsetWidth));
-      top  = Math.max(0, Math.min(startTop  + tt.clientY - dragStartY, dispH - overlay.offsetHeight));
-      overlay.style.left = left + 'px'; overlay.style.top = top + 'px';
+      left = Math.max(0, Math.min(tt.clientX - ox, dispW - overlay.offsetWidth));
+      top  = Math.max(0, Math.min(tt.clientY - oy, dispH - overlay.offsetHeight));
+      overlay.style.left = left + 'px';
+      overlay.style.top  = top  + 'px';
       updateCoords(pageIdx, left, top, left + overlay.offsetWidth, top + overlay.offsetHeight, pdfW, pdfH, dispW, dispH);
     };
     const onUp = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); };
     document.addEventListener('touchmove', onMove, {passive:true});
-    document.addEventListener('touchend', onUp);
+    document.addEventListener('touchend',  onUp);
   }, {passive:true});
 
-  // ── resize handle ──
-  let rStartX, rStartY, rStartW, rStartH;
+  // ── Resize handle ──
   handle.addEventListener('mousedown', e => {
     e.preventDefault(); e.stopPropagation();
-    rStartX = e.clientX; rStartY = e.clientY;
-    rStartW = overlay.offsetWidth; rStartH = overlay.offsetHeight;
-    const onMove = ev => {
-      const nw = Math.max(30, rStartW + ev.clientX - rStartX);
-      const nh = Math.max(15, rStartH + ev.clientY - rStartY);
+    document.body.style.cursor = 'se-resize';
+    const rStartX = e.clientX, rStartY = e.clientY;
+    const rStartW = overlay.offsetWidth, rStartH = overlay.offsetHeight;
+    const locked  = document.getElementById('sgLockAR').checked;
+    const ar      = sigAspectRatio || (rStartW / rStartH);
+    const onMove  = ev => {
+      let nw = Math.max(30, rStartW + ev.clientX - rStartX);
+      let nh = locked ? nw / ar : Math.max(15, rStartH + ev.clientY - rStartY);
+      nw = Math.min(nw, dispW - overlay.offsetLeft);
+      nh = Math.min(nh, dispH - overlay.offsetTop);
       overlay.style.width  = nw + 'px';
       overlay.style.height = nh + 'px';
       document.getElementById('sgSigW').value = Math.round(nw / scale);
       document.getElementById('sgSigH').value = Math.round(nh / scale);
       updateCoords(pageIdx, overlay.offsetLeft, overlay.offsetTop, overlay.offsetLeft + nw, overlay.offsetTop + nh, pdfW, pdfH, dispW, dispH);
     };
-    const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+    const onUp = () => {
+      document.body.style.cursor = '';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup',   onUp);
+    };
     document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    document.addEventListener('mouseup',   onUp);
   });
 
   updateCoords(pageIdx, left, top, left + w, top + h, pdfW, pdfH, dispW, dispH);
@@ -315,24 +426,26 @@ function placeOverlay() {
 
 function updateCoords(pageIdx, px1, py1, px2, py2, pdfW, pdfH, dispW, dispH) {
   const sx = pdfW / dispW, sy = pdfH / dispH;
-  document.getElementById('sgX1').value = Math.round(px1 * sx);
-  document.getElementById('sgY1').value = Math.round(py1 * sy);
-  document.getElementById('sgX2').value = Math.round(px2 * sx);
-  document.getElementById('sgY2').value = Math.round(py2 * sy);
+  document.getElementById('sgX1').value   = Math.round(px1 * sx);
+  document.getElementById('sgY1').value   = Math.round(py1 * sy);
+  document.getElementById('sgX2').value   = Math.round(px2 * sx);
+  document.getElementById('sgY2').value   = Math.round(py2 * sy);
   document.getElementById('sgPage').value = pageIdx + 1;
 }
 
-// Re-place overlay when page/size inputs change
-['sgPage','sgSigW','sgSigH'].forEach(id => document.getElementById(id).addEventListener('change', () => { if (sigDataUrl) placeOverlay(); }));
+['sgPage','sgSigW','sgSigH'].forEach(id =>
+  document.getElementById(id).addEventListener('change', () => { if (sigDataUrl) placeOverlay(); })
+);
 
-// ── Load preview ──────────────────────────────────────────────────────────
+// ── Reset / load / set ────────────────────────────────────────────────────
 function resetTool() {
-  fileInput.value = ''; currentFile = null; pageDims = []; sigDataUrl = null; overlay = null;
+  fileInput.value = ''; currentFile = null; pageDims = []; sigDataUrl = null; overlay = null; sigAspectRatio = null;
   sgDrop.style.display = ''; sgSplit.classList.remove('show');
   sgPagesEl.innerHTML = ''; sgPagesEl.style.display = 'none';
   sgViewerLoad.style.display = 'flex'; sgConvertBtn.disabled = false;
   sgLoadingCard.classList.remove('show'); sgResultCard.classList.remove('show');
   sgErrorCard.classList.remove('show'); sgInfoStrip.style.display = '';
+  document.getElementById('sgPreviewWrap').style.display = 'none';
 }
 
 async function loadPreview(file) {
@@ -377,13 +490,13 @@ function setFile(f) {
   loadPreview(f);
 }
 
+// ── Sign (submit) ─────────────────────────────────────────────────────────
 async function doSign() {
   if (!currentFile) return;
   const method = document.querySelector('input[name="sig_method"]:checked').value;
-  if (method === 'draw') {
-    const cv = document.getElementById('signatureCanvas');
-    document.getElementById('signatureData').value = cv.toDataURL('image/png');
-  }
+  if (method === 'draw')
+    document.getElementById('signatureData').value = _sigCv.toDataURL('image/png');
+
   sgConvertBtn.disabled = true;
   sgLoadingCard.classList.add('show');
   sgResultCard.classList.remove('show');
@@ -392,9 +505,12 @@ async function doSign() {
   const fd = new FormData();
   fd.append('file', currentFile);
   fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-  fd.append('sig_method', method);
+  fd.append('sig_method',   method);
   fd.append('signature_data', document.getElementById('signatureData').value);
-  const sigFile = document.querySelector('[name="signature"]');
+  fd.append('opacity',      document.getElementById('sgOpacity').value);
+  fd.append('transparent',  document.getElementById('sgTransparent').checked ? '1' : '0');
+  fd.append('hi_quality',   document.getElementById('sgHiQuality').checked   ? '1' : '0');
+  const sigFile = document.getElementById('sgUploadFile');
   if (sigFile?.files[0]) fd.append('signature', sigFile.files[0]);
   ['page','x1','y1','x2','y2'].forEach(n => {
     const el = document.querySelector(`[name="${n}"]`); if (el) fd.append(n, el.value);
@@ -423,7 +539,8 @@ sgDrop.addEventListener('drop', e => { e.preventDefault(); sgDrop.classList.remo
 document.querySelectorAll('input[name="sig_method"]').forEach(r => r.addEventListener('change', function() {
   document.getElementById('sgDrawSection').style.display   = this.value === 'draw'   ? 'block' : 'none';
   document.getElementById('sgUploadSection').style.display = this.value === 'upload' ? 'block' : 'none';
-  sigDataUrl = null;
+  sigDataUrl = null; sigAspectRatio = null;
+  document.getElementById('sgPreviewWrap').style.display = 'none';
   if (overlay) { overlay.remove(); overlay = null; }
 }));
 </script>{% endblock %}

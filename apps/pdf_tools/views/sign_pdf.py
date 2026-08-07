@@ -19,12 +19,15 @@ def sign_pdf(request):
     """
     f = request.FILES.get('file')
     sig_file = request.FILES.get('signature')
-    sig_data = request.POST.get('signature_data', '')   # base64 PNG from canvas
-    page_num = safe_int(request.POST.get('page', 1), default=1, min_val=1) - 1
-    x1 = safe_float(request.POST.get('x1', 50),  default=50,  min_val=0)
-    y1 = safe_float(request.POST.get('y1', 700), default=700, min_val=0)
-    x2 = safe_float(request.POST.get('x2', 250), default=250, min_val=0)
-    y2 = safe_float(request.POST.get('y2', 770), default=770, min_val=0)
+    sig_data = request.POST.get('signature_data', '')
+    page_num    = safe_int(request.POST.get('page', 1), default=1, min_val=1) - 1
+    x1          = safe_float(request.POST.get('x1', 50),  default=50,  min_val=0)
+    y1          = safe_float(request.POST.get('y1', 700), default=700, min_val=0)
+    x2          = safe_float(request.POST.get('x2', 250), default=250, min_val=0)
+    y2          = safe_float(request.POST.get('y2', 770), default=770, min_val=0)
+    opacity     = safe_float(request.POST.get('opacity', 100), default=100, min_val=1, max_val=100) / 100.0
+    transparent = request.POST.get('transparent', '1') == '1'
+    hi_quality  = request.POST.get('hi_quality',  '1') == '1'
 
     if not f:
         return JsonResponse({'error': 'No PDF uploaded.'}, status=400)
@@ -52,18 +55,27 @@ def sign_pdf(request):
             page_num = doc.page_count - 1
         page = doc[page_num]
 
-        # Remove white background from signature for clean overlay
+        # Process signature image
+        dpi = 300 if hi_quality else 150
         sig_img = Image.open(sig_path).convert('RGBA')
-        datas = sig_img.getdata()
-        new_data = []
-        for item in datas:
-            if item[0] > 230 and item[1] > 230 and item[2] > 230:
-                new_data.append((255, 255, 255, 0))
-            else:
-                new_data.append(item)
-        sig_img.putdata(new_data)
-        clean_sig_path, clean_sig_name = get_output_path('.png', 'sig_clean')
-        sig_img.save(clean_sig_path, 'PNG')
+
+        if transparent:
+            datas = sig_img.getdata()
+            new_data = []
+            for item in datas:
+                if item[0] > 230 and item[1] > 230 and item[2] > 230:
+                    new_data.append((255, 255, 255, 0))
+                else:
+                    # apply opacity to non-white pixels
+                    new_data.append((item[0], item[1], item[2], int(item[3] * opacity)))
+            sig_img.putdata(new_data)
+        elif opacity < 1.0:
+            r, g, b, a = sig_img.split()
+            a = a.point(lambda p: int(p * opacity))
+            sig_img = Image.merge('RGBA', (r, g, b, a))
+
+        clean_sig_path, _ = get_output_path('.png', 'sig_clean')
+        sig_img.save(clean_sig_path, 'PNG', dpi=(dpi, dpi))
 
         sig_rect = fitz.Rect(x1, y1, x2, y2)
         page.insert_image(sig_rect, filename=clean_sig_path, overlay=True)
