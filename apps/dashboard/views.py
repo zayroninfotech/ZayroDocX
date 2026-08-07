@@ -7,6 +7,10 @@ from django.views.decorators.csrf import csrf_exempt
 from apps.pdf_tools.mongo_db import get_recent_jobs, get_stats
 
 
+def about(request):
+    return render(request, 'about.html')
+
+
 def dashboard(request):
     try:
         stats = get_stats()
