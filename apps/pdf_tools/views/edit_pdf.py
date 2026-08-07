@@ -61,8 +61,17 @@ def add_page_numbers(request):
     try:
         validate_pdf(saved_path, f.name)
         doc = fitz.open(saved_path)
+        total_pages = doc.page_count
+        fmt        = request.POST.get('fmt', 'number')
+        custom_fmt = (request.POST.get('custom_fmt', '') or '').strip() or 'Page {n} of {total}'
         for i, page in enumerate(doc):
-            text = str(i + start_num)
+            n = i + start_num
+            if fmt == 'page_of_total':
+                text = f'Page {n} of {total_pages}'
+            elif fmt == 'custom':
+                text = custom_fmt.replace('{n}', str(n)).replace('{total}', str(total_pages))
+            else:
+                text = str(n)
             rect = page.rect
             pos_map = {
                 'bottom-center': (rect.width/2 - 20, rect.height - 30),

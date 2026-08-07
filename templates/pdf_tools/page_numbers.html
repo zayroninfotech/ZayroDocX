@@ -107,9 +107,23 @@
       <div class="pn-pos-grid">
         <div class="pn-pos-opt"><input type="radio" name="position" id="pbc" value="bottom-center" checked><label for="pbc"><i class="fa-solid fa-align-center"></i> Bottom Centre</label></div>
         <div class="pn-pos-opt"><input type="radio" name="position" id="pbr" value="bottom-right"><label for="pbr"><i class="fa-solid fa-align-right"></i> Bottom Right</label></div>
+        <div class="pn-pos-opt"><input type="radio" name="position" id="pbl" value="bottom-left"><label for="pbl"><i class="fa-solid fa-align-left"></i> Bottom Left</label></div>
         <div class="pn-pos-opt"><input type="radio" name="position" id="ptc" value="top-center"><label for="ptc"><i class="fa-solid fa-align-center"></i> Top Centre</label></div>
         <div class="pn-pos-opt"><input type="radio" name="position" id="ptr" value="top-right"><label for="ptr"><i class="fa-solid fa-align-right"></i> Top Right</label></div>
+        <div class="pn-pos-opt"><input type="radio" name="position" id="ptl" value="top-left"><label for="ptl"><i class="fa-solid fa-align-left"></i> Top Left</label></div>
       </div>
+
+      <div class="pn-field-label">Number Format</div>
+      <div class="pn-pos-grid" style="margin-bottom:.5rem">
+        <div class="pn-pos-opt"><input type="radio" name="numfmt" id="fmtNum" value="number" checked><label for="fmtNum"><i class="fa-solid fa-hashtag"></i> 1, 2, 3…</label></div>
+        <div class="pn-pos-opt"><input type="radio" name="numfmt" id="fmtOf" value="page_of_total"><label for="fmtOf"><i class="fa-solid fa-book-open"></i> Page 1 of 5</label></div>
+        <div class="pn-pos-opt" style="grid-column:1/-1"><input type="radio" name="numfmt" id="fmtCustom" value="custom"><label for="fmtCustom"><i class="fa-solid fa-pen"></i> Custom…</label></div>
+      </div>
+      <div id="pnCustomWrap" style="display:none;margin-bottom:.3rem">
+        <input type="text" id="pnCustomFmt" class="pn-input" placeholder="e.g. Page {n} of {total}" value="Page {n} of {total}">
+        <div style="font-size:.7rem;color:#94a3b8;margin-top:.25rem">Use <b>{n}</b> for page number, <b>{total}</b> for total pages</div>
+      </div>
+
       <div class="pn-row2">
         <div>
           <div class="pn-field-label">Starting Number</div>
@@ -153,21 +167,84 @@
 {% endblock %}
 
 {% block extra_js %}<script>
-const fileInput      = document.getElementById('fileInput');
-const pnDrop         = document.getElementById('pnDrop');
-const pnSplit        = document.getElementById('pnSplit');
-const pnPagesEl      = document.getElementById('pnPages');
-const pnViewerLoad   = document.getElementById('pnViewerLoading');
-const pnConvertBtn   = document.getElementById('pnConvertBtn');
-const pnLoadingCard  = document.getElementById('pnLoadingCard');
-const pnResultCard   = document.getElementById('pnResultCard');
-const pnErrorCard    = document.getElementById('pnErrorCard');
-const pnInfoStrip    = document.getElementById('pnInfoStrip');
+const fileInput     = document.getElementById('fileInput');
+const pnDrop        = document.getElementById('pnDrop');
+const pnSplit       = document.getElementById('pnSplit');
+const pnPagesEl     = document.getElementById('pnPages');
+const pnViewerLoad  = document.getElementById('pnViewerLoading');
+const pnConvertBtn  = document.getElementById('pnConvertBtn');
+const pnLoadingCard = document.getElementById('pnLoadingCard');
+const pnResultCard  = document.getElementById('pnResultCard');
+const pnErrorCard   = document.getElementById('pnErrorCard');
+const pnInfoStrip   = document.getElementById('pnInfoStrip');
 
 let currentFile = null;
+let totalPages   = 0;
+
+// ---------- position → canvas anchor (fraction of image width/height) ----------
+const POS_ANCHOR = {
+  'bottom-center': { ax: 0.5,  ay: 0.96, align: 'center' },
+  'bottom-right':  { ax: 0.94, ay: 0.96, align: 'right'  },
+  'bottom-left':   { ax: 0.06, ay: 0.96, align: 'left'   },
+  'top-center':    { ax: 0.5,  ay: 0.05, align: 'center' },
+  'top-right':     { ax: 0.94, ay: 0.05, align: 'right'  },
+  'top-left':      { ax: 0.06, ay: 0.05, align: 'left'   },
+};
+
+function getFormat() {
+  const fmt = document.querySelector('input[name="numfmt"]:checked').value;
+  if (fmt === 'custom') return document.getElementById('pnCustomFmt').value || '{n}';
+  if (fmt === 'page_of_total') return 'Page {n} of {total}';
+  return '{n}';
+}
+
+function formatLabel(template, n, total) {
+  return template.replace('{n}', n).replace('{total}', total);
+}
+
+function drawOverlays() {
+  const pos      = (document.querySelector('input[name="position"]:checked') || {}).value || 'bottom-center';
+  const anchor   = POS_ANCHOR[pos] || POS_ANCHOR['bottom-center'];
+  const start    = parseInt(document.getElementById('pnStart').value, 10) || 1;
+  const fontPt   = parseInt(document.getElementById('pnFontSize').value, 10) || 12;
+  const template = getFormat();
+
+  document.querySelectorAll('.pn-page-wrap').forEach((wrap, i) => {
+    const img    = wrap.querySelector('img');
+    let   canvas = wrap.querySelector('canvas');
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;border-radius:6px';
+      wrap.appendChild(canvas);
+    }
+    const W = img.naturalWidth  || img.offsetWidth;
+    const H = img.naturalHeight || img.offsetHeight;
+    canvas.width  = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+
+    const label   = formatLabel(template, i + start, totalPages);
+    const px      = Math.round(fontPt * (W / 595));  // scale pt→px (assume A4 595pt wide)
+    const fontSize = Math.max(10, Math.min(px, 60));
+    ctx.font      = `bold ${fontSize}px Arial, sans-serif`;
+    ctx.textAlign = anchor.align;
+    ctx.textBaseline = 'middle';
+
+    const x = Math.round(W * anchor.ax);
+    const y = Math.round(H * anchor.ay);
+
+    // shadow for readability
+    ctx.shadowColor   = 'rgba(255,255,255,0.9)';
+    ctx.shadowBlur    = 4;
+    ctx.fillStyle     = '#000';
+    ctx.fillText(label, x, y);
+    ctx.shadowBlur    = 0;
+  });
+}
 
 function resetTool() {
-  fileInput.value = ''; currentFile = null;
+  fileInput.value = ''; currentFile = null; totalPages = 0;
   pnDrop.style.display = ''; pnSplit.classList.remove('show');
   pnPagesEl.innerHTML = ''; pnPagesEl.style.display = 'none';
   pnViewerLoad.style.display = 'flex'; pnConvertBtn.disabled = false;
@@ -180,15 +257,22 @@ async function loadPreview(file) {
   fd.append('file', file);
   fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
   try {
-    const res = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
+    const res  = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     pnPagesEl.innerHTML = '';
+    totalPages = data.page_images.length;
     data.page_images.forEach((b64, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'pn-page-wrap';
+      wrap.style.cssText = 'position:relative;width:100%;max-width:680px';
       const img = document.createElement('img');
-      img.src = 'data:image/jpeg;base64,' + b64;
-      img.alt = 'Page ' + (i + 1);
-      pnPagesEl.appendChild(img);
+      img.src   = 'data:image/jpeg;base64,' + b64;
+      img.alt   = 'Page ' + (i + 1);
+      img.style.cssText = 'width:100%;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,.5);display:block';
+      img.onload = () => drawOverlays();
+      wrap.appendChild(img);
+      pnPagesEl.appendChild(wrap);
     });
     pnViewerLoad.style.display = 'none';
     pnPagesEl.style.display = 'flex';
@@ -216,19 +300,21 @@ async function doConvert() {
   pnResultCard.classList.remove('show');
   pnErrorCard.classList.remove('show');
 
-  const fd = new FormData();
+  const fd  = new FormData();
   fd.append('file', currentFile);
   fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
   const pos = document.querySelector('input[name="position"]:checked');
   if (pos) fd.append('position', pos.value);
-  fd.append('start', document.getElementById('pnStart').value);
-  fd.append('font_size', document.getElementById('pnFontSize').value);
+  fd.append('start',      document.getElementById('pnStart').value);
+  fd.append('font_size',  document.getElementById('pnFontSize').value);
+  fd.append('fmt',        document.querySelector('input[name="numfmt"]:checked').value);
+  fd.append('custom_fmt', document.getElementById('pnCustomFmt').value);
 
   try {
-    const res = await fetch('{% url "api_page_numbers" %}', { method: 'POST', body: fd });
+    const res  = await fetch('{% url "api_page_numbers" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    document.getElementById('pnDlBtn').href = data.download_url;
+    document.getElementById('pnDlBtn').href     = data.download_url;
     document.getElementById('pnDlBtn').download = data.filename || 'numbered.pdf';
     pnResultCard.classList.add('show');
   } catch (e) {
@@ -239,6 +325,17 @@ async function doConvert() {
     pnConvertBtn.disabled = false;
   }
 }
+
+// live preview on any option change
+document.querySelectorAll('input[name="position"], input[name="numfmt"], #pnStart, #pnFontSize, #pnCustomFmt')
+  .forEach(el => el.addEventListener('input', drawOverlays));
+
+// show/hide custom format input
+document.querySelectorAll('input[name="numfmt"]').forEach(el => el.addEventListener('change', () => {
+  document.getElementById('pnCustomWrap').style.display =
+    document.querySelector('input[name="numfmt"]:checked').value === 'custom' ? '' : 'none';
+  drawOverlays();
+}));
 
 fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
 pnDrop.addEventListener('dragover',  e => { e.preventDefault(); pnDrop.classList.add('drag-over'); });
