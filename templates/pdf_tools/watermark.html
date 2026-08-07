@@ -81,7 +81,7 @@
       <i class="fa-solid fa-spinner wm-spin"></i>
       <span>Loading pages…</span>
     </div>
-    <div class="wm-viewer-pages" id="wmPages" style="display:none"></div>
+    <div class="wm-viewer-pages" id="wmPages" style="display:none;flex-direction:column;gap:12px;align-items:center;width:100%"></div>
   </div>
 
   <div class="wm-right">
@@ -160,17 +160,62 @@
 {% endblock %}
 
 {% block extra_js %}<script>
-const fileInput      = document.getElementById('fileInput');
-const wmDrop         = document.getElementById('wmDrop');
-const wmSplit        = document.getElementById('wmSplit');
-const wmPagesEl      = document.getElementById('wmPages');
-const wmViewerLoad   = document.getElementById('wmViewerLoading');
-const wmConvertBtn   = document.getElementById('wmConvertBtn');
-const wmLoadingCard  = document.getElementById('wmLoadingCard');
-const wmResultCard   = document.getElementById('wmResultCard');
-const wmErrorCard    = document.getElementById('wmErrorCard');
-const wmInfoStrip    = document.getElementById('wmInfoStrip');
+const fileInput     = document.getElementById('fileInput');
+const wmDrop        = document.getElementById('wmDrop');
+const wmSplit       = document.getElementById('wmSplit');
+const wmPagesEl     = document.getElementById('wmPages');
+const wmViewerLoad  = document.getElementById('wmViewerLoading');
+const wmConvertBtn  = document.getElementById('wmConvertBtn');
+const wmLoadingCard = document.getElementById('wmLoadingCard');
+const wmResultCard  = document.getElementById('wmResultCard');
+const wmErrorCard   = document.getElementById('wmErrorCard');
+const wmInfoStrip   = document.getElementById('wmInfoStrip');
 let currentFile = null;
+
+// ── live canvas watermark preview ──────────────────────────────────────────
+function drawOverlays() {
+  const type    = document.querySelector('input[name="type"]:checked')?.value || 'text';
+  if (type !== 'text') return;
+
+  const text    = document.querySelector('[name="text"]')?.value || '';
+  const fontSize= parseFloat(document.querySelector('[name="font_size"]')?.value) || 60;
+  const angle   = parseFloat(document.querySelector('[name="angle"]')?.value) || 0;
+  const opacity = parseFloat(document.querySelector('[name="opacity"]')?.value) || 0.3;
+  const hex     = document.getElementById('colorHex')?.value || 'FF0000';
+  const color   = '#' + hex;
+
+  document.querySelectorAll('.wm-page-wrap').forEach(wrap => {
+    const img = wrap.querySelector('img');
+    let canvas = wrap.querySelector('canvas');
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;border-radius:6px';
+      wrap.appendChild(canvas);
+    }
+    const W = img.naturalWidth  || img.offsetWidth  || 600;
+    const H = img.naturalHeight || img.offsetHeight || 850;
+    canvas.width  = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+    if (!text) return;
+
+    // scale font: assume PDF ~595pt wide
+    const px = Math.max(12, Math.round(fontSize * W / 595));
+    ctx.font        = `bold ${px}px Arial, sans-serif`;
+    ctx.textAlign   = 'center';
+    ctx.textBaseline= 'middle';
+    ctx.globalAlpha = Math.min(1, Math.max(0, opacity));
+    ctx.fillStyle   = color;
+
+    ctx.save();
+    ctx.translate(W / 2, H / 2);
+    ctx.rotate(-angle * Math.PI / 180);  // negative: match PDF coordinate system
+    ctx.fillText(text, 0, 0);
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  });
+}
 
 function resetTool() {
   fileInput.value = ''; currentFile = null;
@@ -182,64 +227,100 @@ function resetTool() {
 }
 
 async function loadPreview(file) {
-  const fd = new FormData(); fd.append('file', file); fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
   try {
-    const res = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
+    const res  = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     wmPagesEl.innerHTML = '';
-    data.page_images.forEach((b64, i) => { const img = document.createElement('img'); img.src = 'data:image/jpeg;base64,' + b64; img.alt = 'Page ' + (i+1); wmPagesEl.appendChild(img); });
-    wmViewerLoad.style.display = 'none'; wmPagesEl.style.display = 'flex';
-  } catch (e) { wmViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>'; }
+    data.page_images.forEach((b64, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'wm-page-wrap';
+      wrap.style.cssText = 'position:relative;width:100%;max-width:680px';
+      const img = document.createElement('img');
+      img.src   = 'data:image/jpeg;base64,' + b64;
+      img.alt   = 'Page ' + (i + 1);
+      img.style.cssText = 'width:100%;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,.5);display:block';
+      img.onload = () => drawOverlays();
+      wrap.appendChild(img);
+      wmPagesEl.appendChild(wrap);
+    });
+    wmViewerLoad.style.display = 'none';
+    wmPagesEl.style.display    = 'flex';
+  } catch (e) {
+    wmViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>';
+  }
 }
 
 function setFile(f) {
-  if (!f) return; currentFile = f;
+  if (!f) return;
+  currentFile = f;
   document.getElementById('wmFileName').textContent = f.name;
-  document.getElementById('wmFileSize').textContent = (f.size/1024).toFixed(1) + ' KB';
+  document.getElementById('wmFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
   wmDrop.style.display = 'none'; wmInfoStrip.style.display = 'none';
   wmResultCard.classList.remove('show'); wmErrorCard.classList.remove('show');
-  wmSplit.classList.add('show'); loadPreview(f);
+  wmSplit.classList.add('show');
+  loadPreview(f);
 }
 
 async function doConvert() {
   if (!currentFile) return;
-  wmConvertBtn.disabled = true; wmLoadingCard.classList.add('show');
-  wmResultCard.classList.remove('show'); wmErrorCard.classList.remove('show');
-  const fd = new FormData();
-  fd.append('file', currentFile); fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  wmConvertBtn.disabled = true;
+  wmLoadingCard.classList.add('show');
+  wmResultCard.classList.remove('show');
+  wmErrorCard.classList.remove('show');
+  const fd   = new FormData();
+  fd.append('file', currentFile);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
   const type = document.querySelector('input[name="type"]:checked')?.value || 'text';
   fd.append('type', type);
   if (type === 'text') {
-    ['text','font_size','angle','opacity'].forEach(n => { const el = document.querySelector(`[name="${n}"]`); if (el) fd.append(n, el.value); });
+    ['text','font_size','angle','opacity'].forEach(n => {
+      const el = document.querySelector(`[name="${n}"]`); if (el) fd.append(n, el.value);
+    });
     fd.append('color', document.getElementById('colorHex').value);
   } else {
-    const img = document.querySelector('[name="watermark_image"]'); if (img?.files[0]) fd.append('watermark_image', img.files[0]);
+    const img = document.querySelector('[name="watermark_image"]');
+    if (img?.files[0]) fd.append('watermark_image', img.files[0]);
   }
   try {
-    const res = await fetch('{% url "api_watermark" %}', { method: 'POST', body: fd });
+    const res  = await fetch('{% url "api_watermark" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    document.getElementById('wmDlBtn').href = data.download_url;
+    document.getElementById('wmDlBtn').href     = data.download_url;
     document.getElementById('wmDlBtn').download = data.filename || 'watermarked.pdf';
     wmResultCard.classList.add('show');
-  } catch (e) { document.getElementById('wmErrorMsg').textContent = e.message || 'Failed.'; wmErrorCard.classList.add('show'); }
-  finally { wmLoadingCard.classList.remove('show'); wmConvertBtn.disabled = false; }
+  } catch (e) {
+    document.getElementById('wmErrorMsg').textContent = e.message || 'Failed.';
+    wmErrorCard.classList.add('show');
+  } finally {
+    wmLoadingCard.classList.remove('show');
+    wmConvertBtn.disabled = false;
+  }
 }
 
+// live preview on any option change
+document.querySelectorAll('[name="text"],[name="font_size"],[name="angle"],[name="opacity"]')
+  .forEach(el => el.addEventListener('input', drawOverlays));
+
 fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
-wmDrop.addEventListener('dragover', e => { e.preventDefault(); wmDrop.classList.add('drag-over'); });
+wmDrop.addEventListener('dragover',  e => { e.preventDefault(); wmDrop.classList.add('drag-over'); });
 wmDrop.addEventListener('dragleave', () => wmDrop.classList.remove('drag-over'));
 wmDrop.addEventListener('drop', e => { e.preventDefault(); wmDrop.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
 
 document.querySelectorAll('input[name="type"]').forEach(r => r.addEventListener('change', function() {
   document.getElementById('textOpts').style.display = this.value === 'text' ? 'block' : 'none';
   document.getElementById('imgOpts').style.display  = this.value === 'image' ? 'block' : 'none';
+  drawOverlays();
 }));
+
 document.getElementById('colorPicker').addEventListener('input', function() {
-  const h = this.value.replace('#','');
-  document.getElementById('colorHex').value = h;
-  document.getElementById('colorLabel').textContent = '#' + h;
+  const h = this.value.replace('#', '');
+  document.getElementById('colorHex').value   = h;
+  document.getElementById('colorLabel').textContent = '#' + h.toUpperCase();
+  drawOverlays();
 });
 </script>{% endblock %}
