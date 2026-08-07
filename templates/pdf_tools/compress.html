@@ -434,10 +434,7 @@ cpDrop.addEventListener('drop', e => {
 const EST_RATIO = { high: 0.25, medium: 0.50, low: 0.80 };
 
 function updateEstSize() {
-  if (!currentFile) return;
-  const level = document.querySelector('input[name="level"]:checked').value;
-  const est = currentFile.size * EST_RATIO[level];
-  document.getElementById('cpFileSize').textContent = fmtBytes(est);
+  // show original size — don't overwrite with estimate
 }
 
 /* Level item active highlight */
@@ -466,7 +463,7 @@ async function doCompress() {
     const data = await resp.json();
     loader.classList.remove('show');
 
-    if (data.error) { showError(data.error); compressed = false; }
+    if (data.error) { alert(data.error); compressed = false; }
     else {
       const pct = data.reduction_pct;
       const circumference = 314;
@@ -487,7 +484,7 @@ async function doCompress() {
       compressed = true;
     }
   } catch(err) {
-    loader.classList.remove('show'); showError(err.message); compressed = false;
+    loader.classList.remove('show'); alert('Compression failed: ' + err.message); compressed = false;
   } finally {
     cpSubmit.disabled = false;
   }
