@@ -61,6 +61,7 @@ from apps.pdf_tools.views.resume_analyzer import analyze_resume
 from apps.pdf_tools.views.remote_control import rc_create, rc_offer, rc_answer, rc_ice, rc_poll, rc_close, rc_cmd, rc_agent_poll, rc_frame, zayrodesk_sw, zayrodesk_icon
 from apps.pdf_tools.views.product_recommender import recommend_products
 from apps.pdf_tools.views.pdf_chat import pdf_chat
+from apps.pdf_tools.views.photo_blue import photo_blue
 from apps.pdf_tools.views.zayro_eye import (
     eye_login, eye_logout, zayro_eye_page,
     eye_create, eye_offer, eye_answer, eye_ice, eye_poll, eye_close,
@@ -112,6 +113,7 @@ urlpatterns = [
     path('remove-background/',  tool_page('img_remove_bg.html', 'remove-background'),name='img_remove_bg_page'),
     path('blur-face/',          tool_page('img_blur_face.html', 'blur-face'),       name='img_blur_face_page'),
     path('image-to-text/',      tool_page('img_ocr.html',       'image-to-text'),   name='img_ocr_page'),
+    path('photo-blue/',         tool_page('img_photo_blue.html','photo-blue'),      name='photo_blue_page'),
     path('connectspace/',         tool_page('live_share.html',         'connectspace'),          name='connectspace_page'),
     path('ai-resume-analyzer/',   tool_page('resume_analyzer.html',    'ai-resume-analyzer'),    name='resume_analyzer_page'),
     path('zayrodesk/',            tool_page('zayrodesk.html',          'zayrodesk'),             name='zayrodesk_page'),
@@ -179,6 +181,7 @@ urlpatterns = [
     path('api/img/remove-bg/',  protected_api(_tag(remove_background,'remove-background')), name='api_img_remove_bg'),
     path('api/img/blur-face/',  protected_api(_tag(blur_face,    'blur-face')),       name='api_img_blur_face'),
     path('api/img/ocr/',        protected_api(_tag(img_ocr,      'image-to-text')),   name='api_img_ocr'),
+    path('api/img/photo-blue/', photo_blue,                                          name='api_photo_blue'),
     path('api/resume-analyzer/',       analyze_resume,    name='api_resume_analyzer'),
     path('api/product-recommender/',   recommend_products, name='api_product_recommender'),
     path('api/pdf-chat/',              pdf_chat,           name='api_pdf_chat'),

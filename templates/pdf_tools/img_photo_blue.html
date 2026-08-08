@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Photo Blue Filter — ZayroDocX{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Photo Blue</span>{% endblock %}
+
+{% block extra_head %}<style>
+.pb-drop{border:2.5px dashed #93c5fd;border-radius:20px;padding:3.5rem 2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:#eff6ff;}
+.pb-drop:hover,.pb-drop.drag-over{border-color:#2563eb;background:#dbeafe;}
+.pb-icon{font-size:3rem;color:#2563eb;margin-bottom:.8rem;}
+.pb-drop h3{font-size:1.3rem;font-weight:700;color:#1e3a8a;margin:0 0 .4rem;}
+.pb-drop p{color:#3b82f6;margin:0 0 1.2rem;}
+.pb-btn{background:#2563eb;color:#fff;border:none;border-radius:10px;padding:.6rem 1.6rem;font-size:.9rem;font-weight:600;cursor:pointer;}
+.pb-btn:hover{background:#1d4ed8;}
+
+.pb-split{display:none;grid-template-columns:1fr 360px;gap:20px;align-items:start;}
+.pb-split.show{display:grid;}
+
+.pb-viewer{background:#0f172a;border-radius:16px;overflow:hidden;position:relative;min-height:380px;display:flex;align-items:center;justify-content:center;}
+#pbBefore,#pbAfter{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;}
+#pbAfterWrap{position:absolute;top:0;left:0;width:50%;height:100%;overflow:hidden;}
+#pbAfterWrap img{width:100%;height:100%;object-fit:contain;position:absolute;top:0;left:0;}
+#pbDivider{position:absolute;top:0;left:50%;width:3px;height:100%;background:#2563eb;cursor:col-resize;z-index:10;transform:translateX(-50%);}
+#pbDivHandle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32px;height:32px;background:#2563eb;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.4);cursor:col-resize;z-index:11;}
+#pbDivHandle i{color:#fff;font-size:.75rem;pointer-events:none;}
+.pb-badge{position:absolute;top:10px;font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:20px;z-index:5;}
+.pb-badge.left{left:10px;background:rgba(15,23,42,.7);color:#94a3b8;}
+.pb-badge.right{right:10px;background:rgba(37,99,235,.85);color:#fff;}
+
+.pb-right{display:flex;flex-direction:column;gap:14px;position:sticky;top:16px;}
+.pb-card{background:#fff;border:1.5px solid #bfdbfe;border-radius:14px;padding:1.1rem 1.3rem;}
+.pb-card-title{font-size:.72rem;font-weight:800;color:#1d4ed8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;}
+.pb-file-row{display:flex;align-items:center;gap:.9rem;}
+.pb-file-icon{width:44px;height:44px;border-radius:11px;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#2563eb;flex-shrink:0;}
+.pb-file-name{font-size:.88rem;font-weight:700;color:#111;word-break:break-all;}
+.pb-file-sub{font-size:.74rem;color:#6b7280;margin-top:.1rem;}
+.pb-change{margin-left:auto;background:#fff;border:1.5px solid #bfdbfe;border-radius:8px;padding:.35rem .75rem;font-size:.75rem;font-weight:600;color:#2563eb;cursor:pointer;white-space:nowrap;}
+.pb-change:hover{background:#eff6ff;}
+
+.pb-range{width:100%;accent-color:#2563eb;cursor:pointer;margin:.3rem 0;}
+.pb-field-label{font-size:.73rem;font-weight:700;color:#555;margin:.6rem 0 .3rem;}
+.pb-intensity-val{font-size:.82rem;font-weight:700;color:#2563eb;float:right;}
+
+.pb-apply-btn{width:100%;background:#2563eb;color:#fff;border:none;border-radius:12px;padding:.8rem;font-size:.95rem;font-weight:700;cursor:pointer;transition:background .2s;}
+.pb-apply-btn:hover{background:#1d4ed8;}
+.pb-apply-btn:disabled{background:#93c5fd;cursor:not-allowed;}
+
+.pb-dl-btn{display:none;width:100%;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:.75rem;font-size:.9rem;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;margin-top:6px;}
+.pb-dl-btn:hover{background:#15803d;color:#fff;}
+.pb-dl-btn.show{display:block;}
+
+.pb-spinner{display:none;text-align:center;padding:1rem;color:#2563eb;}
+.pb-spinner.show{display:block;}
+.pb-err{color:#dc2626;font-size:.82rem;margin-top:.5rem;display:none;}
+.pb-err.show{display:block;}
+
+.pb-pdf-preview{display:none;flex-direction:column;gap:8px;margin-top:8px;max-height:260px;overflow-y:auto;}
+.pb-pdf-preview.show{display:flex;}
+.pb-pdf-page{border-radius:8px;overflow:hidden;border:1px solid #bfdbfe;}
+
+@media(max-width:768px){.pb-split.show{grid-template-columns:1fr;}}
+</style>{% endblock %}
+
+{% block content %}
+<div class="tool-wrap" style="max-width:1000px;margin:0 auto;padding:1.5rem 1rem;">
+  <div class="tool-header" style="margin-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.3rem;">
+      <div style="width:44px;height:44px;background:#dbeafe;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#2563eb;">
+        <i class="fa-solid fa-droplet"></i>
+      </div>
+      <h1 style="font-size:1.5rem;font-weight:800;color:#1e3a8a;margin:0;">Photo Blue Filter</h1>
+    </div>
+    <p style="color:#6b7280;font-size:.9rem;margin:0;">Apply a professional blue colour tint to any image or PDF. Upload → adjust intensity → download in the same format.</p>
+  </div>
+
+  <!-- Drop zone -->
+  <div class="pb-drop" id="pbDrop">
+    <div class="pb-icon"><i class="fa-solid fa-droplet"></i></div>
+    <h3>Drop your image or PDF here</h3>
+    <p>Supports JPG, PNG, WebP, BMP, TIFF &amp; PDF</p>
+    <button class="pb-btn" onclick="document.getElementById('pbInput').click()">Choose File</button>
+    <input type="file" id="pbInput" accept="image/*,.pdf" style="display:none">
+  </div>
+
+  <!-- Split layout -->
+  <div class="pb-split" id="pbSplit">
+
+    <!-- Viewer (images only; PDF shows page thumbs) -->
+    <div>
+      <div class="pb-viewer" id="pbViewer">
+        <img id="pbBefore" src="" alt="Original">
+        <div id="pbAfterWrap"><img id="pbAfter" src="" alt="Blue"></div>
+        <div id="pbDivider"><div id="pbDivHandle"><i class="fa-solid fa-arrows-left-right"></i></div></div>
+        <span class="pb-badge left">Original</span>
+        <span class="pb-badge right">Blue</span>
+      </div>
+      <!-- PDF page previews -->
+      <div class="pb-pdf-preview" id="pbPdfPreview"></div>
+    </div>
+
+    <!-- Right panel -->
+    <div class="pb-right">
+      <div class="pb-card">
+        <div class="pb-file-row">
+          <div class="pb-file-icon" id="pbFileIcon"><i class="fa-solid fa-image"></i></div>
+          <div>
+            <div class="pb-file-name" id="pbFileName">—</div>
+            <div class="pb-file-sub" id="pbFileSub">—</div>
+          </div>
+          <button class="pb-change" onclick="document.getElementById('pbInput').click()">Change</button>
+        </div>
+      </div>
+
+      <div class="pb-card">
+        <div class="pb-card-title">Blue Intensity</div>
+        <div class="pb-field-label">Strength <span class="pb-intensity-val" id="pbIntVal">60%</span></div>
+        <input type="range" class="pb-range" id="pbIntensity" min="10" max="100" value="60">
+      </div>
+
+      <button class="pb-apply-btn" id="pbApplyBtn" onclick="applyBlue()">
+        <i class="fa-solid fa-droplet"></i> Apply Blue Filter
+      </button>
+
+      <div class="pb-spinner" id="pbSpinner"><i class="fa-solid fa-spinner fa-spin"></i> Processing…</div>
+      <div class="pb-err" id="pbErr"></div>
+
+      <a class="pb-dl-btn" id="pbDlBtn" href="#" download>
+        <i class="fa-solid fa-download"></i> Download
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+var pbFile = null;
+var pbIsPdf = false;
+
+// drag & drop
+var drop = document.getElementById('pbDrop');
+drop.addEventListener('dragover', function(e){e.preventDefault();drop.classList.add('drag-over');});
+drop.addEventListener('dragleave', function(){drop.classList.remove('drag-over');});
+drop.addEventListener('drop', function(e){e.preventDefault();drop.classList.remove('drag-over');var f=e.dataTransfer.files[0];if(f)loadFile(f);});
+document.getElementById('pbInput').addEventListener('change', function(){if(this.files[0])loadFile(this.files[0]);});
+
+// intensity slider
+document.getElementById('pbIntensity').addEventListener('input', function(){
+  document.getElementById('pbIntVal').textContent = this.value + '%';
+});
+
+function loadFile(f){
+  pbFile = f;
+  pbIsPdf = f.name.toLowerCase().endsWith('.pdf');
+  document.getElementById('pbFileName').textContent = f.name;
+  document.getElementById('pbFileSub').textContent = (f.size/1024 < 1000 ? (f.size/1024).toFixed(1)+' KB' : (f.size/1048576).toFixed(2)+' MB') + (pbIsPdf ? ' · PDF' : ' · Image');
+  document.getElementById('pbFileIcon').innerHTML = pbIsPdf ? '<i class="fa-solid fa-file-pdf"></i>' : '<i class="fa-solid fa-image"></i>';
+
+  drop.style.display = 'none';
+  document.getElementById('pbSplit').classList.add('show');
+  document.getElementById('pbDlBtn').classList.remove('show');
+
+  if(pbIsPdf){
+    document.getElementById('pbViewer').style.display = 'none';
+    document.getElementById('pbPdfPreview').classList.remove('show');
+    document.getElementById('pbPdfPreview').innerHTML = '<p style="color:#3b82f6;font-size:.85rem;padding:.5rem;">PDF loaded. Click Apply Blue Filter to process all pages.</p>';
+    document.getElementById('pbPdfPreview').classList.add('show');
+  } else {
+    document.getElementById('pbViewer').style.display = 'flex';
+    document.getElementById('pbPdfPreview').classList.remove('show');
+    var reader = new FileReader();
+    reader.onload = function(e){
+      document.getElementById('pbBefore').src = e.target.result;
+      document.getElementById('pbAfter').src = e.target.result;
+    };
+    reader.readAsDataURL(f);
+  }
+}
+
+function applyBlue(){
+  if(!pbFile) return;
+  var btn = document.getElementById('pbApplyBtn');
+  btn.disabled = true;
+  document.getElementById('pbSpinner').classList.add('show');
+  document.getElementById('pbErr').classList.remove('show');
+  document.getElementById('pbDlBtn').classList.remove('show');
+
+  var fd = new FormData();
+  fd.append('file', pbFile);
+  fd.append('intensity', (parseInt(document.getElementById('pbIntensity').value)/100).toFixed(2));
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+  fetch('/tools/api/img/photo-blue/', {method:'POST', body:fd})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      btn.disabled = false;
+      document.getElementById('pbSpinner').classList.remove('show');
+      if(d.error){showErr(d.error);return;}
+
+      var dl = document.getElementById('pbDlBtn');
+      dl.href = d.url;
+      dl.download = d.filename;
+      dl.classList.add('show');
+
+      if(d.type === 'image'){
+        document.getElementById('pbAfter').src = d.url + '?t=' + Date.now();
+      } else {
+        document.getElementById('pbPdfPreview').innerHTML = '<p style="color:#16a34a;font-size:.85rem;padding:.5rem;"><i class="fa-solid fa-circle-check"></i> PDF processed successfully. Click Download to save.</p>';
+      }
+    })
+    .catch(function(){
+      btn.disabled = false;
+      document.getElementById('pbSpinner').classList.remove('show');
+      showErr('Something went wrong. Please try again.');
+    });
+}
+
+function showErr(msg){
+  var e = document.getElementById('pbErr');
+  e.textContent = msg;
+  e.classList.add('show');
+}
+
+// before/after divider drag
+(function(){
+  var div = document.getElementById('pbDivider');
+  var wrap = document.getElementById('pbAfterWrap');
+  var viewer = document.getElementById('pbViewer');
+  var dragging = false;
+  div.addEventListener('mousedown', function(){dragging=true;});
+  document.addEventListener('mouseup', function(){dragging=false;});
+  document.addEventListener('mousemove', function(e){
+    if(!dragging) return;
+    var rect = viewer.getBoundingClientRect();
+    var pct = Math.max(0, Math.min(100, (e.clientX - rect.left) / rect.width * 100));
+    wrap.style.width = pct + '%';
+    div.style.left = pct + '%';
+  });
+})();
+</script>
+{% endblock %}
