@@ -536,47 +536,6 @@
 
 {% block content %}
 
-<!-- ══ SPLASH SCREEN ══ -->
-<div id="zd-splash" role="status" aria-label="Loading ZayroDocX">
-  <div class="zd-scene" id="zdScene">
-    <div class="zd-logo3d">
-      <img src="{% static 'img/logo.png' %}" alt="ZayroDocX" width="280" height="280">
-    </div>
-  </div>
-  <div class="zd-word">Zayro<em>DocX</em></div>
-  <div class="zd-sub">AI-Powered PDF Intelligence</div>
-  <div class="zd-bar-wrap"><div class="zd-bar"></div></div>
-</div>
-<script>
-(function(){
-  var el=document.getElementById('zd-splash');
-
-  /* Draw logo.png onto canvas and strip white background */
-  var cvs=document.getElementById('zdLogoCanvas');
-  var ctx=cvs.getContext('2d');
-  var img=new Image();
-  img.onload=function(){
-    ctx.drawImage(img,0,0,500,500);
-    var d=ctx.getImageData(0,0,500,500);
-    var px=d.data;
-    for(var i=0;i<px.length;i+=4){
-      var r=px[i],g=px[i+1],b=px[i+2];
-      if(r>220&&g>220&&b>220){ px[i+3]=0; }
-    }
-    ctx.putImageData(d,0,0);
-  };
-  img.src='{% static "img/logo.png" %}';
-
-  /* start floating after tumble-in completes */
-  setTimeout(function(){
-    var sc=document.getElementById('zdScene');
-    if(sc) sc.classList.add('float');
-  }, 1350);
-  function hide(){el.classList.add('out');setTimeout(function(){el.remove();},700);}
-  setTimeout(hide,5000);
-  el.addEventListener('click',hide);
-})();
-</script>
 
 <!-- ══ HERO ══ -->
 <div class="db-hero">
