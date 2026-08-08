@@ -1,7 +1,8 @@
 import io
 import os
 import logging
-from PIL import Image, ImageEnhance
+from PIL import Image, ImageFilter
+import numpy as np
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
@@ -11,15 +12,13 @@ logger = logging.getLogger(__name__)
 
 
 def _apply_blue(img: Image.Image, intensity: float) -> Image.Image:
-    """Apply blue colour tint to a PIL image (RGB/RGBA safe)."""
-    img = img.convert('RGBA')
-    r, g, b, a = img.split()
-    # reduce red & green, boost blue
-    r = ImageEnhance.Brightness(r.convert('L')).enhance(1 - intensity * 0.55)
-    g = ImageEnhance.Brightness(g.convert('L')).enhance(1 - intensity * 0.30)
-    b = ImageEnhance.Brightness(b.convert('L')).enhance(1 + intensity * 0.25)
-    merged = Image.merge('RGBA', (r.convert('L'), g.convert('L'), b.convert('L'), a))
-    return merged
+    """Apply a blue colour tint by scaling R/G down and B up via numpy."""
+    img = img.convert('RGB')
+    arr = np.array(img, dtype=np.float32)
+    arr[:, :, 0] = np.clip(arr[:, :, 0] * (1 - intensity * 0.55), 0, 255)  # Red down
+    arr[:, :, 1] = np.clip(arr[:, :, 1] * (1 - intensity * 0.30), 0, 255)  # Green down
+    arr[:, :, 2] = np.clip(arr[:, :, 2] * (1 + intensity * 0.40), 0, 255)  # Blue up
+    return Image.fromarray(arr.astype(np.uint8), 'RGB')
 
 
 @csrf_exempt
@@ -57,16 +56,15 @@ def _process_image(src_path, orig_name, intensity):
     result = _apply_blue(img, intensity)
 
     if ext in ('.jpg', '.jpeg'):
-        result = result.convert('RGB')
         result.save(out_path, 'JPEG', quality=92)
     elif ext == '.webp':
         result.save(out_path, 'WEBP', quality=92)
     elif ext == '.bmp':
-        result.convert('RGB').save(out_path, 'BMP')
+        result.save(out_path, 'BMP')
     else:
         result.save(out_path, 'PNG')
 
-    return JsonResponse({'url': media_url(out_path), 'filename': out_name, 'type': 'image'})
+    return JsonResponse({'url': media_url(out_name), 'filename': out_name, 'type': 'image'})
 
 
 def _process_pdf(src_path, orig_name, intensity):
@@ -97,4 +95,4 @@ def _process_pdf(src_path, orig_name, intensity):
     out_doc.close()
     doc.close()
 
-    return JsonResponse({'url': media_url(out_path), 'filename': out_name, 'type': 'pdf'})
+    return JsonResponse({'url': media_url(out_name), 'filename': out_name, 'type': 'pdf'})
