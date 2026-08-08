@@ -395,9 +395,10 @@
   width: 220px; height: 220px; position: relative;
   transform-style: preserve-3d;
 }
-.zd-logo3d img {
+.zd-logo3d img,
+.zd-logo3d canvas {
   width: 100%; height: 100%; object-fit: contain; display: block;
-  border-radius: 28px;
+  border-radius: 0;
   /* tight red glow around the rounded square, rim light upper-left, deep shadow lower-right */
   filter:
     drop-shadow(-10px -8px 16px rgba(255,160,100,.22))
@@ -542,7 +543,7 @@
     <div class="zd-ring2"></div>
     <div class="zd-ring3"></div>
     <div class="zd-logo3d">
-      <img src="{% static 'img/logo.svg' %}" alt="ZayroDocX" width="220" height="220">
+      <canvas id="zdLogoCanvas" width="220" height="220" style="width:220px;height:220px;display:block;border-radius:0"></canvas>
     </div>
     <div class="zd-floor"></div>
   </div>
@@ -555,6 +556,23 @@
   var el=document.getElementById('zd-splash');
   if(sessionStorage.getItem('zdSplashSeen')){el.remove();return;}
   sessionStorage.setItem('zdSplashSeen','1');
+
+  /* Draw logo.png onto canvas and strip white background */
+  var cvs=document.getElementById('zdLogoCanvas');
+  var ctx=cvs.getContext('2d');
+  var img=new Image();
+  img.onload=function(){
+    ctx.drawImage(img,0,0,220,220);
+    var d=ctx.getImageData(0,0,220,220);
+    var px=d.data;
+    for(var i=0;i<px.length;i+=4){
+      var r=px[i],g=px[i+1],b=px[i+2];
+      if(r>220&&g>220&&b>220){ px[i+3]=0; }
+    }
+    ctx.putImageData(d,0,0);
+  };
+  img.src='{% static "img/logo.png" %}';
+
   /* start floating after tumble-in completes */
   setTimeout(function(){
     var sc=document.getElementById('zdScene');
