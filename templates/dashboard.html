@@ -367,14 +367,6 @@
   80%  { transform: scale(1.04); }
   100% { transform: scale(1);   opacity: 1; filter: blur(0); }
 }
-.zd-sheen {
-  position: absolute; inset: 0;
-  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.55) 50%, transparent 70%);
-  transform: translateX(-160%);
-  animation: zdSheen .7s .55s ease forwards;
-  pointer-events: none; border-radius: 8px;
-}
-@keyframes zdSheen { to { transform: translateX(160%); } }
 
 .zd-ring {
   position: absolute; inset: -18px; border-radius: 50%;
@@ -425,7 +417,6 @@
     <div class="zd-ring2"></div>
     <div class="zd-logo">
       <img src="{% static 'img/logo.png' %}" alt="ZayroDocX" width="200" height="200">
-      <div class="zd-sheen"></div>
     </div>
   </div>
   <div class="zd-word">Zayro<em>DocX</em></div>
