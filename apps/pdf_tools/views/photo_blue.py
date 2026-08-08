@@ -12,13 +12,16 @@ logger = logging.getLogger(__name__)
 
 
 def _apply_blue(img: Image.Image, intensity: float) -> Image.Image:
-    """Apply a blue colour tint by scaling R/G down and B up via numpy."""
+    """Blend image with a solid blue overlay at the given intensity (0.1–1.0)."""
     img = img.convert('RGB')
     arr = np.array(img, dtype=np.float32)
-    arr[:, :, 0] = np.clip(arr[:, :, 0] * (1 - intensity * 0.55), 0, 255)  # Red down
-    arr[:, :, 1] = np.clip(arr[:, :, 1] * (1 - intensity * 0.30), 0, 255)  # Green down
-    arr[:, :, 2] = np.clip(arr[:, :, 2] * (1 + intensity * 0.40), 0, 255)  # Blue up
-    return Image.fromarray(arr.astype(np.uint8), 'RGB')
+    # Blue overlay colour: #1a6bff
+    overlay = np.zeros_like(arr)
+    overlay[:, :, 0] = 26    # R
+    overlay[:, :, 1] = 107   # G
+    overlay[:, :, 2] = 255   # B
+    blended = arr * (1.0 - intensity * 0.72) + overlay * (intensity * 0.72)
+    return Image.fromarray(np.clip(blended, 0, 255).astype(np.uint8), 'RGB')
 
 
 @csrf_exempt
