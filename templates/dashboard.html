@@ -435,6 +435,10 @@
 <script>
 (function(){
   var el=document.getElementById('zd-splash');
+  if(sessionStorage.getItem('zdSplashSeen')){
+    el.remove();return;
+  }
+  sessionStorage.setItem('zdSplashSeen','1');
   function hide(){el.classList.add('out');setTimeout(function(){el.remove();},600);}
   setTimeout(hide,4500);
   el.addEventListener('click',hide);
