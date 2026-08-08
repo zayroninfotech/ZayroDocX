@@ -344,9 +344,136 @@
   .db-tools-grid { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
+
+<style>
+/* ── Splash Screen ── */
+#zd-splash {
+  position: fixed; inset: 0; z-index: 99999;
+  background: #0a0000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: opacity .6s ease, visibility .6s ease;
+}
+#zd-splash.hide { opacity: 0; visibility: hidden; }
+#zd-splash canvas { position: absolute; inset: 0; pointer-events: none; }
+.zd-splash-inner { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.zd-logo-wrap { position: relative; width: 180px; height: 180px; display: flex; align-items: center; justify-content: center; }
+.zd-logo-wrap img { width: 160px; height: 160px; object-fit: contain; animation: zdLogoZoom 1.8s cubic-bezier(.22,.97,.36,1) forwards; }
+.zd-logo-glow { position: absolute; inset: -20px; border-radius: 50%; background: radial-gradient(circle, rgba(204,0,0,.6) 0%, transparent 70%); animation: zdGlow 2s ease-in-out infinite; }
+@keyframes zdLogoZoom {
+  0%   { transform: scale(.15) rotate(-8deg); opacity: 0; }
+  60%  { transform: scale(1.08) rotate(2deg);  opacity: 1; }
+  80%  { transform: scale(.96); }
+  100% { transform: scale(1) rotate(0);        opacity: 1; }
+}
+@keyframes zdGlow { 0%,100%{ opacity:.4; transform:scale(.9); } 50%{ opacity:.9; transform:scale(1.1); } }
+.zd-scanner { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 180px; height: 180px; overflow: hidden; border-radius: 12px; pointer-events: none; opacity: 0; animation: zdFadeIn .4s 2s forwards; }
+.zd-scan-line { position: absolute; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, #ff2020, rgba(255,80,80,.8), #ff2020, transparent); box-shadow: 0 0 14px 4px rgba(204,0,0,.6); border-radius: 2px; animation: zdScanDown 3s 2.1s linear infinite; }
+@keyframes zdScanDown { 0%{ top:-4px; opacity:0; } 5%{ opacity:1; } 95%{ opacity:1; } 100%{ top:184px; opacity:0; } }
+.zd-corner { position: absolute; width: 20px; height: 20px; border-color: #cc0000; border-style: solid; opacity: 0; animation: zdFadeIn .4s 2s forwards; }
+.zd-corner.tl { top:4px; left:4px;   border-width: 3px 0 0 3px; }
+.zd-corner.tr { top:4px; right:4px;  border-width: 3px 3px 0 0; }
+.zd-corner.bl { bottom:4px; left:4px;  border-width: 0 0 3px 3px; }
+.zd-corner.br { bottom:4px; right:4px; border-width: 0 3px 3px 0; }
+@keyframes zdFadeIn { to{ opacity:1; } }
+@keyframes zdFadeUp { from{ opacity:0; transform:translateY(12px); } to{ opacity:1; transform:translateY(0); } }
+.zd-brand { color: #fff; font-size: 2rem; font-weight: 800; letter-spacing: .04em; margin-top: 18px; opacity: 0; animation: zdFadeUp .7s 1s ease forwards; }
+.zd-brand span { color: #cc0000; }
+.zd-tagline { color: rgba(255,255,255,.6); font-size: .8rem; letter-spacing: .15em; text-transform: uppercase; opacity: 0; animation: zdFadeUp .7s 1.4s ease forwards; margin-top: 4px; }
+.zd-stats { display: flex; gap: 28px; margin-top: 28px; opacity: 0; animation: zdFadeUp .6s 5s ease forwards; }
+.zd-stat-num { font-size: 1.6rem; font-weight: 800; color: #ff2020; font-variant-numeric: tabular-nums; }
+.zd-stat-lbl { font-size: .65rem; color: rgba(255,255,255,.55); letter-spacing: .1em; text-transform: uppercase; margin-top: 2px; }
+.zd-tools { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 380px; margin-top: 18px; opacity: 0; animation: zdFadeUp .6s 5.4s ease forwards; }
+.zd-chip { background: rgba(204,0,0,.15); border: 1px solid rgba(204,0,0,.35); border-radius: 20px; padding: 5px 13px; color: #fff; font-size: .68rem; letter-spacing: .06em; }
+.zd-prog-wrap { width: 260px; height: 3px; background: rgba(255,255,255,.1); border-radius: 3px; margin-top: 28px; overflow: hidden; opacity: 0; animation: zdFadeUp .5s 8s ease forwards; }
+.zd-prog-bar { height: 100%; width: 0; background: linear-gradient(90deg, #cc0000, #ff2020); border-radius: 3px; animation: zdFillBar 1.8s 8.2s cubic-bezier(.4,0,.2,1) forwards; }
+@keyframes zdFillBar { to{ width: 100%; } }
+.zd-ready { color: #fff; font-size: .85rem; letter-spacing: .2em; text-transform: uppercase; margin-top: 10px; opacity: 0; animation: zdFadeUp .6s 9s ease forwards; }
+.zd-ready em { color: #ff2020; font-style: normal; font-weight: 700; }
+</style>
 {% endblock extra_head %}
 
 {% block content %}
+
+<!-- ══ SPLASH SCREEN ══ -->
+<div id="zd-splash" role="status" aria-label="Loading ZayroDocX">
+  <canvas id="zd-canvas"></canvas>
+  <div class="zd-splash-inner">
+    <div class="zd-logo-wrap">
+      <div class="zd-logo-glow"></div>
+      <img src="{% static 'img/logo.png' %}" alt="ZayroDocX logo" width="160" height="160">
+      <div class="zd-scanner">
+        <div class="zd-scan-line"></div>
+        <div class="zd-corner tl"></div><div class="zd-corner tr"></div>
+        <div class="zd-corner bl"></div><div class="zd-corner br"></div>
+      </div>
+    </div>
+    <div class="zd-brand">Zayro<span>DocX</span></div>
+    <div class="zd-tagline">AI-Powered PDF Intelligence</div>
+    <div class="zd-stats">
+      <div class="zd-stat"><div class="zd-stat-num" id="zdS1">0<small>+</small></div><div class="zd-stat-lbl">Pages OCR'd</div></div>
+      <div class="zd-stat"><div class="zd-stat-num" id="zdS2">0<small>+</small></div><div class="zd-stat-lbl">Languages</div></div>
+      <div class="zd-stat"><div class="zd-stat-num" id="zdS3">0<small>%</small></div><div class="zd-stat-lbl">Accuracy</div></div>
+    </div>
+    <div class="zd-tools">
+      <span class="zd-chip">Merge PDF</span><span class="zd-chip">OCR</span>
+      <span class="zd-chip">Compress</span><span class="zd-chip">Sign</span>
+      <span class="zd-chip">AI Summary</span><span class="zd-chip">Translate</span>
+      <span class="zd-chip">Split</span>
+    </div>
+    <div class="zd-prog-wrap"><div class="zd-prog-bar"></div></div>
+    <div class="zd-ready"><em>Ready</em> &mdash; Dashboard Loading</div>
+  </div>
+</div>
+<script>
+(function(){
+  // Particle canvas
+  var cvs=document.getElementById('zd-canvas'),ctx=cvs.getContext('2d'),W,H,pts=[];
+  function resize(){W=cvs.width=window.innerWidth;H=cvs.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  function mkP(){return{x:W/2+(Math.random()-.5)*360,y:H*.55+Math.random()*80,vx:(Math.random()-.5)*.4,vy:-(0.3+Math.random()*1.1),r:1+Math.random()*2.5,a:0.6+Math.random()*.4,life:0,max:100+Math.random()*200};}
+  for(var i=0;i<70;i++)pts.push(mkP());
+  var t0=null;
+  function loop(ts){
+    if(!t0)t0=ts;
+    var elapsed=(ts-t0)/1000;
+    ctx.clearRect(0,0,W,H);
+    if(elapsed>2){
+      pts.forEach(function(p){
+        p.x+=p.vx;p.y+=p.vy;p.life++;
+        if(p.life>p.max){var n=mkP();Object.assign(p,n);}
+        var prog=p.life/p.max,a=p.a*(prog<.1?prog*10:prog>.8?(1-prog)*5:1);
+        ctx.save();ctx.globalAlpha=a;ctx.fillStyle=Math.random()>.5?'#FF3030':'#FF9090';
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.restore();
+      });
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  // Counter animation
+  function count(id,target,suf,dur,delay){
+    setTimeout(function(){
+      var el=document.getElementById(id),st=null;
+      function tick(ts){
+        if(!st)st=ts;
+        var prog=Math.min((ts-st)/dur,1),val=Math.round(prog*target);
+        el.innerHTML=(id==='zdS1'?val.toLocaleString():val)+'<small>'+suf+'</small>';
+        if(prog<1)requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    },delay);
+  }
+  count('zdS1',10000,'+',2200,5100);
+  count('zdS2',20,'+',1500,5100);
+  count('zdS3',99,'%',2000,5100);
+
+  // Hide splash after 10 s (or on click)
+  var splash=document.getElementById('zd-splash');
+  function hideSplash(){splash.classList.add('hide');setTimeout(function(){splash.remove();},700);}
+  setTimeout(hideSplash, 10000);
+  splash.addEventListener('click', hideSplash);
+})();
+</script>
 
 <!-- ══ HERO ══ -->
 <div class="db-hero">
