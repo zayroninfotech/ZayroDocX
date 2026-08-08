@@ -550,8 +550,6 @@
 <script>
 (function(){
   var el=document.getElementById('zd-splash');
-  if(sessionStorage.getItem('zdSplashSeen')){el.remove();return;}
-  sessionStorage.setItem('zdSplashSeen','1');
 
   /* Draw logo.png onto canvas and strip white background */
   var cvs=document.getElementById('zdLogoCanvas');
