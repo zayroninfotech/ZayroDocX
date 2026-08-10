@@ -7,95 +7,464 @@
 <title>ZayroDocX — Professional PDF & Image Toolkit</title>
 <link rel="icon" href="{% static 'img/logo.png' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Segoe UI',Roboto,sans-serif;background:#fff;color:#111;min-height:100vh;}
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --bg:#FFFFFF;
+  --surface:#FFFFFF;
+  --surface-raised:#FAFAF8;
+  --border:#f0f0f0;
+  --border-strong:#e5e7eb;
+  --text:#111111;
+  --text-secondary:#555555;
+  --text-tertiary:#9ca3af;
+  --accent:#dc2626;
+  --accent-hover:#b91c1c;
+  --accent-tint:#fff5f5;
+  --accent-glow: rgba(220,38,38,0.22);
+  --success:#16a34a;
+  --success-tint:#f0fdf4;
+  --hero-grad: linear-gradient(135deg, #fff 0%, #fff5f5 60%, #ffe4e4 100%);
 
-/* ── NAV ── */
-.ln-nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid #f0f0f0;position:sticky;top:0;background:#fff;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.06);}
-.ln-logo{display:flex;align-items:center;text-decoration:none;}
-.ln-logo-3d{font-size:1.5rem;font-weight:800;line-height:1;letter-spacing:-.02em;}
-.ln-logo-3d .part-zayro{color:#111;}
-.ln-logo-3d .part-docx{color:#dc2626;}
-.ln-nav-btns{display:flex;gap:.75rem;}
-.btn-login{background:#fff;border:1.5px solid #dc2626;color:#dc2626;border-radius:10px;padding:.5rem 1.4rem;font-size:.88rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s;}
-.btn-login:hover{background:#fff5f5;}
-.btn-register{background:#dc2626;color:#fff;border:none;border-radius:10px;padding:.5rem 1.4rem;font-size:.88rem;font-weight:700;cursor:pointer;text-decoration:none;transition:background .2s;}
-.btn-register:hover{background:#b91c1c;}
+  --font-display:'Space Grotesk', 'Segoe UI', sans-serif;
+  --font-body:'Inter', 'Segoe UI', Roboto, sans-serif;
+  --font-mono:'IBM Plex Mono', monospace;
 
-/* ── HERO ── */
-.ln-hero-wrap{background:linear-gradient(135deg,#fff 0%,#fff5f5 60%,#ffe4e4 100%);position:relative;overflow:hidden;}
-.ln-hero-wrap::before{content:'';position:absolute;top:-120px;right:-120px;width:500px;height:500px;background:radial-gradient(circle,rgba(220,38,38,.08) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
-.ln-hero-wrap::after{content:'';position:absolute;bottom:-80px;left:-80px;width:350px;height:350px;background:radial-gradient(circle,rgba(220,38,38,.06) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
-.ln-hero{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;padding:5rem 4rem 4rem;max-width:1200px;margin:0 auto;position:relative;z-index:1;}
-.ln-hero-left h1{font-size:3.2rem;font-weight:900;line-height:1.12;color:#111;margin-bottom:1.2rem;}
-.ln-hero-left h1 span{color:#dc2626;}
-.ln-hero-left p{font-size:1rem;color:#555;line-height:1.75;margin-bottom:1.8rem;max-width:460px;}
-.ln-hero-stats{display:flex;gap:2rem;margin-bottom:2rem;}
-.ln-stat-item{text-align:left;}
-.ln-stat-num{font-size:1.6rem;font-weight:900;color:#dc2626;line-height:1;}
-.ln-stat-label{font-size:.72rem;color:#888;margin-top:.2rem;font-weight:600;}
-.ln-hero-btns{display:flex;gap:1rem;flex-wrap:wrap;}
-.btn-hero-primary{background:#dc2626;color:#fff;border:none;border-radius:12px;padding:.9rem 2rem;font-size:.95rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s;box-shadow:0 4px 18px rgba(220,38,38,.35);}
-.btn-hero-primary:hover{background:#b91c1c;transform:translateY(-2px);box-shadow:0 8px 28px rgba(220,38,38,.45);}
-.btn-hero-secondary{background:#fff;border:2px solid #e5e7eb;color:#374151;border-radius:12px;padding:.9rem 2rem;font-size:.95rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s;}
-.btn-hero-secondary:hover{border-color:#dc2626;color:#dc2626;}
+  --radius-sm:8px;
+  --radius-md:12px;
+  --radius-lg:14px;
+  --radius-xl:20px;
 
-/* ── HERO RIGHT ── */
-.ln-hero-right{position:relative;display:flex;align-items:center;justify-content:center;}
-.ln-hero-img-wrap{position:relative;}
-.ln-hero-img-wrap::before{content:'';position:absolute;inset:-20px;background:radial-gradient(ellipse,rgba(220,38,38,.12) 0%,transparent 70%);border-radius:50%;z-index:0;}
-.ln-hero-img-wrap img{width:100%;max-width:560px;position:relative;z-index:1;filter:drop-shadow(0 20px 50px rgba(0,0,0,.15)) drop-shadow(0 8px 20px rgba(220,38,38,.12));}
-@keyframes heroFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(0);}}
+  --shadow-xs: 0 1px 2px rgba(17,17,17,0.04);
+  --shadow-sm: 0 2px 6px rgba(17,17,17,0.05);
+  --shadow-md: 0 8px 24px rgba(17,17,17,0.07);
+  --shadow-lg: 0 20px 50px rgba(17,17,17,0.10);
+  --shadow-xl: 0 30px 80px rgba(17,17,17,0.14);
+  --shadow-glow: 0 18px 60px -10px var(--accent-glow);
 
-/* floating badges around image */
-.ln-float-badge{position:absolute;background:#fff;border-radius:14px;padding:.55rem 1rem;box-shadow:0 8px 28px rgba(0,0,0,.12);display:flex;align-items:center;gap:.5rem;font-size:.78rem;font-weight:700;color:#111;z-index:2;white-space:nowrap;animation:badgeFloat 3s ease-in-out infinite;}
-.ln-float-badge i{font-size:1rem;}
-.ln-float-badge.b1{top:10%;left:-5%;animation-delay:0s;}
-.ln-float-badge.b2{top:50%;right:-8%;animation-delay:.8s;}
-.ln-float-badge.b3{bottom:12%;left:2%;animation-delay:1.5s;}
-@keyframes badgeFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+  --ease: cubic-bezier(.2,.7,.2,1);
+  --ease-bounce: cubic-bezier(.34,1.56,.64,1);
 
-/* ── BADGES ── */
-.ln-badges{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.8rem;}
-.ln-badge{background:#fff5f5;color:#dc2626;border:1px solid #fecaca;border-radius:20px;padding:.3rem .9rem;font-size:.75rem;font-weight:700;}
+  --max-w: 1200px;
+}
 
-/* ── TOOLS SECTION ── */
-.ln-tools{background:#f9fafb;padding:4rem 2rem;}
-.ln-tools-inner{max-width:1100px;margin:0 auto;}
-.ln-section-label{font-size:.75rem;font-weight:800;color:#dc2626;text-transform:uppercase;letter-spacing:.12em;margin-bottom:.5rem;}
-.ln-section-title{font-size:2rem;font-weight:800;color:#111;margin-bottom:.5rem;}
-.ln-section-sub{font-size:.95rem;color:#6b7280;margin-bottom:2.5rem;}
-.ln-tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
-.ln-tool-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:1.2rem;display:flex;align-items:center;gap:.9rem;text-decoration:none;transition:all .2s;}
-.ln-tool-card:hover{border-color:#fca5a5;box-shadow:0 4px 18px rgba(220,38,38,.1);transform:translateY(-2px);}
-.ln-tool-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
-.ln-tool-name{font-size:.85rem;font-weight:700;color:#111;}
-.ln-tool-desc{font-size:.72rem;color:#6b7280;margin-top:.15rem;}
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+}
 
-/* ── CTA ── */
-.ln-cta{background:linear-gradient(135deg,#dc2626 0%,#991b1b 100%);padding:5rem 2rem;text-align:center;color:#fff;}
-.ln-cta h2{font-size:2.2rem;font-weight:900;margin-bottom:1rem;}
-.ln-cta p{font-size:1rem;opacity:.85;margin-bottom:2rem;max-width:500px;margin-left:auto;margin-right:auto;}
-.btn-cta{background:#fff;color:#dc2626;border:none;border-radius:12px;padding:.9rem 2.5rem;font-size:1rem;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block;transition:box-shadow .2s;}
-.btn-cta:hover{box-shadow:0 6px 24px rgba(0,0,0,.2);}
+*{ box-sizing:border-box; margin:0; padding:0; }
+html{ scroll-behavior:smooth; }
+body{
+  font-family:var(--font-body);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+  line-height:1.55;
+}
+img,svg{ display:block; max-width:100%; }
+a{ color:inherit; text-decoration:none; }
+button{ font-family:inherit; cursor:pointer; }
+.wrap{ max-width:var(--max-w); margin:0 auto; padding:0 32px; }
+.eyebrow{
+  font-family:var(--font-mono);
+  font-size:11.5px;
+  font-weight:500;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--accent);
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+.eyebrow::before{
+  content:''; width:18px; height:1px;
+  background:var(--accent);
+  display:inline-block;
+}
+h1,h2,h3,h4{ font-family:var(--font-display); font-weight:600; letter-spacing:-0.025em; color:var(--text); line-height:1.1; }
+h1{ letter-spacing:-0.035em; }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:6px; }
 
-/* ── FOOTER ── */
-.ln-footer{background:#111;color:#9ca3af;text-align:center;padding:1.5rem;font-size:.82rem;}
-.ln-footer span{color:#dc2626;font-weight:700;}
+/* Reveal on scroll */
+.reveal{ opacity:0; transform:translateY(18px); transition:opacity .7s var(--ease), transform .7s var(--ease); }
+.reveal.in{ opacity:1; transform:none; }
+.reveal-d2{ transition-delay:.08s; }
+.reveal-d3{ transition-delay:.16s; }
+.reveal-d4{ transition-delay:.24s; }
+.reveal-d5{ transition-delay:.32s; }
+.reveal-d6{ transition-delay:.40s; }
 
-@media(max-width:900px){
-  .ln-hero{grid-template-columns:1fr;padding:3rem 1.5rem 2rem;gap:2rem;}
-  .ln-hero-left h1{font-size:2.1rem;}
-  .ln-hero-right{display:none;}
-  .ln-nav{padding:.8rem 1.2rem;}
+/* Subtle grid pattern for hero */
+.grid-noise{
+  position:absolute; inset:0; pointer-events:none;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: -1px -1px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 75%);
+          mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 75%);
+  opacity:.55;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  font-family:var(--font-body); font-weight:600; font-size:14.5px;
+  padding:12px 22px; border-radius:var(--radius-sm);
+  border:1px solid transparent;
+  transition:background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease), transform .15s var(--ease), box-shadow .25s var(--ease);
+  white-space:nowrap;
+  position:relative;
+  letter-spacing:-0.005em;
+}
+.btn:active{ transform:translateY(1px); }
+.btn-primary{
+  background:var(--accent); color:#fff;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.15) inset, 0 6px 20px -6px var(--accent-glow);
+}
+.btn-primary:hover{
+  background:var(--accent-hover);
+  transform:translateY(-1px);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.18) inset, 0 14px 32px -8px var(--accent-glow);
+}
+.btn-secondary{ background:var(--surface); color:var(--text); border-color:var(--border-strong); }
+.btn-secondary:hover{ border-color:var(--text-tertiary); background:var(--bg); transform:translateY(-1px); }
+.btn-ghost{ background:transparent; color:var(--text-secondary); }
+.btn-ghost:hover{ color:var(--text); background:var(--surface-raised); }
+.btn-lg{ padding:15px 28px; font-size:15.5px; border-radius:10px; }
+.btn-sm{ padding:8px 14px; font-size:13px; border-radius:7px; }
+.btn svg, .btn i{ width:16px; height:16px; font-size:16px; }
+
+/* ============================================================
+   HEADER / NAV — Original HTML, enhanced styling
+   ============================================================ */
+.ln-nav{
+  position:sticky; top:0; z-index:100;
+  background:color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter:blur(14px) saturate(180%);
+  -webkit-backdrop-filter:blur(14px) saturate(180%);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1rem 2rem;
+  height:68px;
+  transition:box-shadow .3s var(--ease), background .3s var(--ease);
+  max-width:var(--max-w);
+  margin:0 auto;
+}
+.ln-nav.scrolled{
+  box-shadow: 0 8px 24px -16px rgba(17,17,17,0.18);
+  background:color-mix(in srgb, var(--bg) 92%, transparent);
+}
+.ln-logo{ display:flex; align-items:center; text-decoration:none; }
+.ln-logo-3d{
+  font-family:var(--font-display);
+  font-size:1.5rem; font-weight:800; line-height:1; letter-spacing:-.02em;
+}
+.ln-logo-3d .part-zayro{ color:var(--text); }
+.ln-logo-3d .part-docx{ color:var(--accent); }
+.ln-nav-btns{ display:flex; gap:.75rem; }
+
+/* Map original buttons to redesign style */
+.btn-login{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  font-family:var(--font-body); font-weight:600; font-size:14.5px;
+  padding:10px 22px; border-radius:var(--radius-sm);
+  background:var(--surface); color:var(--text); border:1px solid var(--border-strong);
+  transition:background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease), transform .15s var(--ease), box-shadow .25s var(--ease);
+  white-space:nowrap; position:relative; letter-spacing:-0.005em;
+  text-decoration:none;
+}
+.btn-login:hover{ border-color:var(--text-tertiary); background:var(--bg); transform:translateY(-1px); }
+.btn-register{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  font-family:var(--font-body); font-weight:600; font-size:14.5px;
+  padding:10px 22px; border-radius:var(--radius-sm);
+  border:1px solid transparent;
+  transition:background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease), transform .15s var(--ease), box-shadow .25s var(--ease);
+  white-space:nowrap; position:relative; letter-spacing:-0.005em;
+  text-decoration:none;
+  background:var(--accent); color:#fff;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.15) inset, 0 6px 20px -6px var(--accent-glow);
+}
+.btn-register:hover{
+  background:var(--accent-hover);
+  transform:translateY(-1px);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.18) inset, 0 14px 32px -8px var(--accent-glow);
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  padding:96px 0 110px; position:relative;
+  background:var(--hero-grad);
+  border-bottom:1px solid var(--border);
+  overflow:hidden;
+}
+.hero::before{
+  content:''; position:absolute; top:-120px; right:-120px; width:500px; height:500px;
+  background:radial-gradient(circle, rgba(220,38,38,.08) 0%, transparent 70%);
+  border-radius:50%; pointer-events:none; z-index:0;
+}
+.hero::after{
+  content:''; position:absolute; bottom:-80px; left:-80px; width:350px; height:350px;
+  background:radial-gradient(circle, rgba(220,38,38,.06) 0%, transparent 70%);
+  border-radius:50%; pointer-events:none; z-index:0;
+}
+.hero .wrap{ position:relative; z-index:1; }
+.hero-grid{ display:grid; grid-template-columns:1.05fr 1fr; gap:72px; align-items:center; }
+.hero h1{ font-size:62px; line-height:1.02; margin:22px 0 24px; max-width:580px; }
+.hero h1 .accent-text{ color:var(--accent); position:relative; }
+.hero h1 .accent-text::after{
+  content:''; position:absolute; left:0; right:0; bottom:2px; height:8px;
+  background:var(--accent-tint); border-radius:2px; z-index:-1;
+}
+.hero p.lede{ font-size:18px; line-height:1.6; color:var(--text-secondary); max-width:500px; margin-bottom:36px; }
+.hero-ctas{ display:flex; gap:12px; align-items:center; margin-bottom:44px; flex-wrap:wrap; }
+.hero-meta{ display:flex; gap:36px; flex-wrap:wrap; padding-top:24px; border-top:1px solid var(--border); }
+.hero-meta-item{ display:flex; flex-direction:column; gap:4px; }
+.hero-meta-item .num{ font-family:var(--font-display); font-size:24px; font-weight:700; color:var(--text); letter-spacing:-0.02em; }
+.hero-meta-item .lbl{ font-size:12.5px; color:var(--text-tertiary); font-weight:500; }
+
+/* --- Hero right: original image + floating badges --- */
+.ln-hero-right{ position:relative; display:flex; align-items:center; justify-content:center; }
+.ln-hero-img-wrap{ position:relative; }
+.ln-hero-img-wrap::before{
+  content:''; position:absolute; inset:-20px;
+  background:radial-gradient(ellipse, rgba(220,38,38,.12) 0%, transparent 70%);
+  border-radius:50%; z-index:0;
+}
+.ln-hero-img-wrap img{
+  width:100%; max-width:560px; position:relative; z-index:1;
+  filter:drop-shadow(0 20px 50px rgba(0,0,0,.15)) drop-shadow(0 8px 20px rgba(220,38,38,.12));
+  animation:heroFloat 4s ease-in-out infinite;
+}
+@keyframes heroFloat{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-12px);} }
+
+.ln-float-badge{
+  position:absolute; background:#fff; border-radius:14px;
+  padding:.55rem 1rem; box-shadow:0 8px 28px rgba(0,0,0,.12);
+  display:flex; align-items:center; gap:.5rem;
+  font-size:.78rem; font-weight:700; color:#111; z-index:2; white-space:nowrap;
+  animation:badgeFloat 3s ease-in-out infinite;
+}
+.ln-float-badge i{ font-size:1rem; }
+.ln-float-badge.b1{ top:10%; left:-5%; animation-delay:0s; }
+.ln-float-badge.b2{ top:50%; right:-8%; animation-delay:.8s; }
+.ln-float-badge.b3{ bottom:12%; left:2%; animation-delay:1.5s; }
+@keyframes badgeFloat{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
+
+/* ============================================================
+   TRUST STRIP
+   ============================================================ */
+.trust-strip{ padding:32px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); background:var(--surface-raised); }
+.trust-row{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:24px; }
+.trust-item{ display:flex; align-items:center; gap:10px; color:var(--text-secondary); font-size:13.5px; font-weight:500; }
+.trust-item svg{ width:17px; height:17px; color:var(--accent); flex:none; }
+
+/* ============================================================
+   TOOLS (Ecosystem cards)
+   ============================================================ */
+section{ padding:110px 0; }
+.section-head{ max-width:680px; margin-bottom:64px; }
+.section-head h2{ font-size:42px; margin-top:16px; line-height:1.08; max-width:14ch; }
+.section-head p{ font-size:16.5px; color:var(--text-secondary); margin-top:18px; line-height:1.6; max-width:54ch; }
+.section-head.center{ text-align:center; margin-left:auto; margin-right:auto; }
+.divider{ border:none; border-top:1px solid var(--border); }
+
+.eco-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+.eco-card{
+  background:var(--surface); border:1px solid var(--border);
+  padding:30px 28px; border-radius:var(--radius-lg);
+  transition:transform .3s var(--ease), box-shadow .3s var(--ease), border-color .3s var(--ease);
+  position:relative; overflow:hidden;
+}
+.eco-card::after{
+  content:''; position:absolute; inset:auto -40% -40% auto; width:180px; height:180px;
+  background:radial-gradient(circle, var(--card-glow, var(--accent-glow)), transparent 70%);
+  opacity:0; transition:opacity .3s var(--ease); pointer-events:none;
+}
+.eco-card:hover{
+  transform:translateY(-4px);
+  box-shadow:var(--shadow-lg), 0 0 40px -10px var(--card-glow, var(--accent-glow));
+  border-color:var(--card-border, var(--border-strong));
+}
+.eco-card:hover::after{ opacity:.6; }
+.eco-icon{
+  width:44px; height:44px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center; margin-bottom:20px;
+  transition:transform .3s var(--ease-bounce);
+  font-size:1.1rem;
+}
+.eco-card:hover .eco-icon{ transform:scale(1.08) rotate(-4deg); }
+.eco-card h3{ font-size:19px; margin-bottom:8px; letter-spacing:-0.02em; }
+.eco-card p{ font-size:14px; color:var(--text-secondary); line-height:1.6; margin-bottom:18px; }
+.eco-tools{ display:flex; flex-wrap:wrap; gap:6px; }
+.eco-tools span{ font-family:var(--font-mono); font-size:10.5px; color:var(--text-secondary); background:var(--surface-raised); border:1px solid var(--border); padding:4px 9px; border-radius:20px; }
+
+/* ============================================================
+   PRODUCT SHOWCASE (tabbed)
+   ============================================================ */
+.showcase{ background:var(--surface-raised); border-top:1px solid var(--border); border-bottom:1px solid var(--border); position:relative; }
+.showcase::before{
+  content:''; position:absolute; inset:0;
+  background-image:radial-gradient(circle at 20% 0%, var(--accent-tint), transparent 50%);
+  opacity:.5; pointer-events:none;
+}
+.showcase .wrap{ position:relative; }
+.tabs{ display:flex; gap:6px; margin-bottom:36px; flex-wrap:wrap; padding:5px; background:var(--surface); border:1px solid var(--border); border-radius:14px; width:fit-content; }
+.tab{
+  padding:10px 18px; border-radius:10px; font-size:13.5px; font-weight:600;
+  color:var(--text-secondary); background:transparent; border:1px solid transparent;
+  transition:color .2s var(--ease), background .2s var(--ease);
+  cursor:pointer;
+}
+.tab.active{ background:var(--accent); color:#fff; box-shadow:0 4px 12px -4px var(--accent-glow); }
+.tab:hover:not(.active){ color:var(--text); background:var(--surface-raised); }
+
+.showcase-panel{
+  display:none;
+  grid-template-columns: 1fr 1fr;
+  gap:56px; align-items:center;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl);
+  padding:56px; box-shadow:var(--shadow-md);
+  animation: panelIn .4s var(--ease);
+}
+@keyframes panelIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+.showcase-panel.active{ display:grid; }
+.sp-copy .eyebrow{ margin-bottom:14px; }
+.sp-copy h3{ font-size:30px; margin-bottom:16px; letter-spacing:-0.02em; }
+.sp-copy p{ font-size:15px; color:var(--text-secondary); line-height:1.65; margin-bottom:24px; }
+.sp-list{ list-style:none; display:flex; flex-direction:column; gap:12px; }
+.sp-list li{ display:flex; align-items:flex-start; gap:10px; font-size:14.5px; color:var(--text); }
+.sp-list svg{ width:18px; height:18px; color:var(--success); margin-top:1px; flex:none; padding:3px; background:var(--success-tint); border-radius:50%; }
+.sp-visual{ background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); padding:28px; min-height:280px; display:flex; align-items:center; justify-content:center; }
+.sp-visual svg{ width:100%; height:auto; max-height:280px; }
+
+/* ============================================================
+   HOW IT WORKS
+   ============================================================ */
+.steps{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; position:relative; }
+.step{
+  position:relative; padding:32px 28px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  transition:transform .3s var(--ease), box-shadow .3s var(--ease);
+}
+.step:hover{ transform:translateY(-4px); box-shadow:var(--shadow-md); }
+.step-num{
+  font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:.05em;
+  color:var(--accent); margin-bottom:18px;
+  display:inline-flex; align-items:center; gap:8px;
+  padding:5px 10px; background:var(--accent-tint); border-radius:20px;
+}
+.step h3{ font-size:19px; margin-bottom:10px; letter-spacing:-0.02em; }
+.step p{ font-size:14px; color:var(--text-secondary); line-height:1.6; }
+
+/* ============================================================
+   WORKFLOW FIT (Security section repurposed)
+   ============================================================ */
+.security{
+  background:linear-gradient(135deg, #14110F 0%, #0F0E0C 100%);
+  color:#fff; border-radius:var(--radius-xl); padding:72px;
+  display:grid; grid-template-columns:1.05fr 1fr; gap:64px; align-items:center;
+  position:relative; overflow:hidden;
+}
+.security::before{
+  content:''; position:absolute; top:-30%; right:-10%; width:60%; height:160%;
+  background:radial-gradient(ellipse, var(--accent-glow), transparent 60%);
+  pointer-events:none;
+}
+.security > *{ position:relative; }
+.security .eyebrow{ color:#FF8A7E; }
+.security .eyebrow::before{ background:#FF8A7E; }
+.security h2{ color:#fff; font-size:36px; margin:14px 0 18px; letter-spacing:-0.025em; }
+.security p{ color:#B5B5AB; font-size:15.5px; line-height:1.65; margin-bottom:30px; }
+.sec-list{ list-style:none; display:flex; flex-direction:column; gap:16px; }
+.sec-list li{ display:flex; gap:12px; align-items:flex-start; color:#EDEDE6; font-size:14.5px; }
+.sec-list svg{ width:18px; height:18px; color:#FF8A7E; flex:none; margin-top:1px; padding:3px; background:rgba(255,138,126,0.12); border-radius:50%; }
+.sec-visual{ background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:var(--radius-md); padding:28px; backdrop-filter:blur(8px); }
+.sec-row{ display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.08); font-family:var(--font-mono); font-size:12.5px; }
+.sec-row:last-child{ border-bottom:none; }
+.sec-row .k{ color:#9A9A90; }
+.sec-row .v{ color:#fff; display:flex; align-items:center; gap:8px; font-weight:500; }
+.sec-row .v::before{ content:''; width:7px; height:7px; border-radius:50%; background:#4FAF63; box-shadow:0 0 0 3px rgba(79,175,99,0.2); }
+
+/* ============================================================
+   COPYRIGHT ONLY
+   ============================================================ */
+.copyright{
+  border-top:1px solid var(--border);
+  padding:24px 0;
+  background:var(--surface-raised);
+  text-align:center;
+}
+.copyright p{
+  font-size:12.5px;
+  color:var(--text-tertiary);
+}
+.copyright span{
+  color:var(--accent);
+  font-weight:700;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:1080px){
+  .hero-grid{ gap:48px; }
+  .hero h1{ font-size:52px; }
+  .eco-grid{ grid-template-columns:repeat(2,1fr); }
+  .section-head h2{ font-size:36px; }
+}
+@media(max-width:860px){
+  .ln-nav{ padding:.8rem 1.2rem; }
+  .hero{ padding:64px 0 80px; }
+  .hero-grid{ grid-template-columns:1fr; gap:56px; }
+  .hero h1{ font-size:42px; }
+  .hero p.lede{ font-size:16.5px; }
+  .hero-ctas .btn{ flex:1; min-width:160px; }
+  .ln-hero-right{ display:none; }
+  section{ padding:72px 0; }
+  .section-head{ margin-bottom:44px; }
+  .section-head h2{ font-size:32px; }
+  .eco-grid{ grid-template-columns:1fr; }
+  .showcase-panel{ grid-template-columns:1fr; padding:32px; gap:32px; }
+  .showcase-panel .sp-copy h3{ font-size:24px; }
+  .steps{ grid-template-columns:1fr; }
+  .security{ grid-template-columns:1fr; padding:40px; gap:36px; border-radius:var(--radius-lg); }
+  .security h2{ font-size:28px; }
+  .wrap{ padding:0 22px; }
+}
+@media(max-width:480px){
+  .hero h1{ font-size:34px; }
+  .hero-meta{ gap:20px; padding-top:20px; }
+  .hero-ctas{ flex-direction:column; align-items:stretch; }
+  .hero-ctas .btn{ width:100%; }
+  .trust-row{ justify-content:flex-start; }
+  .section-head h2{ font-size:28px; }
+  .tabs{ width:100%; overflow-x:auto; flex-wrap:nowrap; }
+  .tab{ white-space:nowrap; }
+  .showcase-panel{ padding:24px; }
+  .security{ padding:32px 24px; }
 }
 </style>
+<base target="_blank">
 </head>
 <body>
 
-<!-- NAV -->
-<nav class="ln-nav">
+<!-- ===================== HEADER — Original HTML ===================== -->
+<nav class="ln-nav" id="mainNav">
   <a href="/" class="ln-logo">
     <div class="ln-logo-3d"><span class="part-zayro">Zayro</span><span class="part-docx">DocX</span></div>
   </a>
@@ -105,93 +474,296 @@ body{font-family:'Segoe UI',Roboto,sans-serif;background:#fff;color:#111;min-hei
   </div>
 </nav>
 
-<!-- HERO -->
-<div class="ln-hero-wrap">
-<section class="ln-hero">
-  <div class="ln-hero-left">
-    <h1>Professional PDF &amp; Image Tools — <span>All in One Place</span></h1>
-    <p>Merge, split, compress, convert and edit PDFs. Resize, filter and enhance images. All processing happens on your server — your files never leave your infrastructure.</p>
-    <div class="ln-hero-stats">
-      <div class="ln-stat-item"><div class="ln-stat-num">50+</div><div class="ln-stat-label">Tools Available</div></div>
-      <div class="ln-stat-item"><div class="ln-stat-num">100%</div><div class="ln-stat-label">Free to Use</div></div>
-      <div class="ln-stat-item"><div class="ln-stat-num">AI</div><div class="ln-stat-label">Powered</div></div>
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="grid-noise"></div>
+  <div class="wrap hero-grid">
+    <div class="reveal">
+      <span class="eyebrow">Document tools</span>
+      <h1>Professional PDF &amp; Image Tools — <span class="accent-text">All in One Place</span></h1>
+      <p class="lede">Merge, split, compress, convert and edit PDFs. Resize, filter and enhance images. All processing happens on your server — your files never leave your infrastructure.</p>
+      <div class="hero-ctas">
+        <a href="/register/" class="btn btn-primary btn-lg"><i class="fa-solid fa-rocket"></i> Get Started Free</a>
+        <a href="/login/" class="btn btn-secondary btn-lg"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+      </div>
+      <div class="hero-meta">
+        <div class="hero-meta-item"><span class="num">50+</span><span class="lbl">Tools Available</span></div>
+        <div class="hero-meta-item"><span class="num">100%</span><span class="lbl">Free to Use</span></div>
+        <div class="hero-meta-item"><span class="num">AI</span><span class="lbl">Powered</span></div>
+      </div>
     </div>
-    <div class="ln-hero-btns">
-      <a href="/register/" class="btn-hero-primary"><i class="fa-solid fa-rocket"></i> Get Started Free</a>
-      <a href="/login/" class="btn-hero-secondary"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
-    </div>
-  </div>
-  <div class="ln-hero-right">
-    <div class="ln-hero-img-wrap">
-      <img src="{% static 'img/hero-banner-removebg.png' %}" alt="ZayroDocX Tools">
+
+    <div class="ln-hero-right reveal reveal-d2">
+      <div class="ln-hero-img-wrap">
+        <div class="ln-float-badge b1"><i class="fa-solid fa-file-pdf" style="color:#dc2626"></i> PDF Tools</div>
+        <div class="ln-float-badge b2"><i class="fa-solid fa-wand-magic-sparkles" style="color:#7c3aed"></i> AI Powered</div>
+        <div class="ln-float-badge b3"><i class="fa-solid fa-shield-halved" style="color:#16a34a"></i> 100% Secure</div>
+        <img src="{% static 'img/hero-banner-removebg.png' %}" alt="ZayroDocX Tools">
+      </div>
     </div>
   </div>
 </section>
+
+<!-- ===================== TRUST STRIP ===================== -->
+<div class="trust-strip">
+  <div class="wrap trust-row">
+    <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>New tools and improvements added regularly</div>
+    <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>No account required for most tools</div>
+    <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg>Supports PDF, Word, Excel, PPT &amp; images</div>
+    <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>AI-assisted, human-checked output</div>
+  </div>
 </div>
 
-<!-- TOOLS -->
-<section class="ln-tools">
-  <div class="ln-tools-inner">
-    <div class="ln-section-label">What You Can Do</div>
-    <div class="ln-section-title">50+ Powerful Tools</div>
-    <div class="ln-section-sub">Everything you need to work with PDFs and images — no account required for most tools.</div>
-    <div class="ln-tools-grid">
-      <a href="/tools/merge-pdf/" class="ln-tool-card">
-        <div class="ln-tool-icon" style="background:#fee2e2;color:#dc2626;"><i class="fa-solid fa-object-group"></i></div>
-        <div><div class="ln-tool-name">Merge PDF</div><div class="ln-tool-desc">Combine multiple PDFs</div></div>
+<!-- ===================== TOOLS ===================== -->
+<section id="tools">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">What You Can Do</span>
+      <h2>50+ Powerful Tools</h2>
+      <p>Everything you need to work with PDFs and images — no account required for most tools.</p>
+    </div>
+
+    <div class="eco-grid">
+      <a href="/tools/merge-pdf/" class="eco-card reveal" style="--card-glow:rgba(220,38,38,0.22);--card-border:#fecaca;">
+        <div class="eco-icon" style="background:#fee2e2;color:#dc2626;"><i class="fa-solid fa-object-group"></i></div>
+        <h3>Merge PDF</h3>
+        <p>Combine multiple PDFs into one document quickly and easily.</p>
+        <div class="eco-tools"><span>PDF</span><span>Combine</span></div>
       </a>
-      <a href="/tools/split-pdf/" class="ln-tool-card">
-        <div class="ln-tool-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa-solid fa-scissors"></i></div>
-        <div><div class="ln-tool-name">Split PDF</div><div class="ln-tool-desc">Split into multiple files</div></div>
+
+      <a href="/tools/split-pdf/" class="eco-card reveal reveal-d2" style="--card-glow:rgba(124,58,237,0.22);--card-border:#c4b5fd;">
+        <div class="eco-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa-solid fa-scissors"></i></div>
+        <h3>Split PDF</h3>
+        <p>Split into multiple files by page ranges or extract specific pages.</p>
+        <div class="eco-tools"><span>PDF</span><span>Split</span></div>
       </a>
-      <a href="/tools/compress-pdf/" class="ln-tool-card">
-        <div class="ln-tool-icon" style="background:#f0fdf4;color:#16a34a;"><i class="fa-solid fa-compress"></i></div>
-        <div><div class="ln-tool-name">Compress PDF</div><div class="ln-tool-desc">Reduce file size</div></div>
+
+      <a href="/tools/compress-pdf/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(22,163,74,0.22);--card-border:#86efac;">
+        <div class="eco-icon" style="background:#f0fdf4;color:#16a34a;"><i class="fa-solid fa-compress"></i></div>
+        <h3>Compress PDF</h3>
+        <p>Reduce file size for email or storage while keeping quality intact.</p>
+        <div class="eco-tools"><span>PDF</span><span>Compress</span></div>
       </a>
-      <a href="/tools/ocr-pdf/" class="ln-tool-card">
-        <div class="ln-tool-icon" style="background:#fdf4ff;color:#9333ea;"><i class="fa-solid fa-eye"></i></div>
-        <div><div class="ln-tool-name">OCR PDF</div><div class="ln-tool-desc">Make scans searchable</div></div>
+
+      <a href="/tools/ocr-pdf/" class="eco-card reveal reveal-d2" style="--card-glow:rgba(147,51,234,0.22);--card-border:#d8b4fe;">
+        <div class="eco-icon" style="background:#fdf4ff;color:#9333ea;"><i class="fa-solid fa-eye"></i></div>
+        <h3>OCR PDF</h3>
+        <p>Turn scanned pages and photographed documents into searchable text.</p>
+        <div class="eco-tools"><span>Scan</span><span>Searchable</span></div>
       </a>
-      <a href="/tools/pdf-to-word/" class="ln-tool-card">
-        <div class="ln-tool-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-file-word"></i></div>
-        <div><div class="ln-tool-name">PDF to Word</div><div class="ln-tool-desc">Convert to editable doc</div></div>
+
+      <a href="/tools/pdf-to-word/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(37,99,235,0.22);--card-border:#93c5fd;">
+        <div class="eco-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-file-word"></i></div>
+        <h3>PDF to Word</h3>
+        <p>Convert PDFs to editable Word documents while preserving formatting.</p>
+        <div class="eco-tools"><span>Convert</span><span>Word</span></div>
       </a>
-      <a href="/tools/word-to-pdf/" class="ln-tool-card">
-        <div class="ln-tool-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-file-pdf"></i></div>
-        <div><div class="ln-tool-name">Word to PDF</div><div class="ln-tool-desc">Convert Word to PDF</div></div>
+
+      <a href="/tools/word-to-pdf/" class="eco-card reveal reveal-d4" style="--card-glow:rgba(22,163,74,0.22);--card-border:#86efac;">
+        <div class="eco-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-file-pdf"></i></div>
+        <h3>Word to PDF</h3>
+        <p>Convert Word documents to PDF format with layout preserved.</p>
+        <div class="eco-tools"><span>Convert</span><span>PDF</span></div>
       </a>
-      <a href="/tools/sign-pdf/" class="ln-tool-card">
-        <div class="ln-tool-icon" style="background:#fff0ec;color:#ea580c;"><i class="fa-solid fa-signature"></i></div>
-        <div><div class="ln-tool-name">Sign PDF</div><div class="ln-tool-desc">Add your signature</div></div>
+
+      <a href="/tools/sign-pdf/" class="eco-card reveal reveal-d2" style="--card-glow:rgba(234,88,12,0.22);--card-border:#fdba74;">
+        <div class="eco-icon" style="background:#fff0ec;color:#ea580c;"><i class="fa-solid fa-signature"></i></div>
+        <h3>Sign PDF</h3>
+        <p>Add your signature, initials, or stamps to any PDF document.</p>
+        <div class="eco-tools"><span>Sign</span><span>Annotate</span></div>
       </a>
-      <a href="/tools/ai-summarizer/" class="ln-tool-card">
-        <div class="ln-tool-icon" style="background:#fef9c3;color:#ca8a04;"><i class="fa-solid fa-brain"></i></div>
-        <div><div class="ln-tool-name">AI Summarizer</div><div class="ln-tool-desc">Summarize any PDF</div></div>
+
+      <a href="/tools/ai-summarizer/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(202,138,4,0.22);--card-border:#fde047;">
+        <div class="eco-icon" style="background:#fef9c3;color:#ca8a04;"><i class="fa-solid fa-brain"></i></div>
+        <h3>AI Summarizer</h3>
+        <p>Get the key points from long reports and contracts in seconds.</p>
+        <div class="eco-tools"><span>AI</span><span>Summarize</span></div>
       </a>
-      <a href="/tools/remove-background/" class="ln-tool-card">
-        <div class="ln-tool-icon" style="background:#f0f9ff;color:#0284c7;"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-        <div><div class="ln-tool-name">Remove Background</div><div class="ln-tool-desc">Auto background removal</div></div>
+
+      <a href="/tools/remove-background/" class="eco-card reveal reveal-d4" style="--card-glow:rgba(2,132,199,0.22);--card-border:#7dd3fc;">
+        <div class="eco-icon" style="background:#f0f9ff;color:#0284c7;"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <h3>Remove Background</h3>
+        <p>Automatically remove backgrounds from images with AI precision.</p>
+        <div class="eco-tools"><span>Image</span><span>AI</span></div>
       </a>
-      <a href="/tools/photo-blue/" class="ln-tool-card">
-        <div class="ln-tool-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-droplet"></i></div>
-        <div><div class="ln-tool-name">Photo Blue</div><div class="ln-tool-desc">Blue filter for images</div></div>
+
+      <a href="/tools/photo-blue/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(37,99,235,0.22);--card-border:#93c5fd;">
+        <div class="eco-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-droplet"></i></div>
+        <h3>Photo Blue</h3>
+        <p>Apply a professional blue filter to images in one click.</p>
+        <div class="eco-tools"><span>Image</span><span>Filter</span></div>
       </a>
-      <a href="/tools/compress-image/" class="ln-tool-card">
-        <div class="ln-tool-icon" style="background:#fff7ed;color:#ea580c;"><i class="fa-solid fa-image"></i></div>
-        <div><div class="ln-tool-name">Compress Image</div><div class="ln-tool-desc">Reduce image file size</div></div>
+
+      <a href="/tools/compress-image/" class="eco-card reveal reveal-d4" style="--card-glow:rgba(234,88,12,0.22);--card-border:#fdba74;">
+        <div class="eco-icon" style="background:#fff7ed;color:#ea580c;"><i class="fa-solid fa-image"></i></div>
+        <h3>Compress Image</h3>
+        <p>Reduce image file size without losing visible quality.</p>
+        <div class="eco-tools"><span>Image</span><span>Compress</span></div>
       </a>
-      <a href="/tools/invoice-extractor/" class="ln-tool-card">
-        <div class="ln-tool-icon" style="background:#fef3c7;color:#d97706;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-        <div><div class="ln-tool-name">Invoice Extractor</div><div class="ln-tool-desc">Extract data with AI</div></div>
+
+      <a href="/tools/invoice-extractor/" class="eco-card reveal reveal-d5" style="--card-glow:rgba(217,119,6,0.22);--card-border:#fcd34d;">
+        <div class="eco-icon" style="background:#fef3c7;color:#d97706;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+        <h3>Invoice Extractor</h3>
+        <p>Pull structured data like totals and dates from invoices with AI.</p>
+        <div class="eco-tools"><span>AI</span><span>Extract</span></div>
       </a>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer class="ln-footer">
-  &copy; 2026 <span>ZayroDocX</span> — All rights reserved.
-</footer>
+<!-- ===================== SHOWCASE ===================== -->
+<section class="showcase" id="ai">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">See it in action</span>
+      <h2>Built to feel like part of your workflow</h2>
+      <p>A closer look at three tools people reach for the most.</p>
+    </div>
 
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab active" data-tab="ocr">OCR</button>
+      <button type="button" class="tab" data-tab="merge">Merge PDF</button>
+      <button type="button" class="tab" data-tab="summarize">AI Summarizer</button>
+    </div>
+
+    <div class="showcase-panel active" data-panel="ocr">
+      <div class="sp-copy">
+        <span class="eyebrow">Scan to searchable</span>
+        <h3>Make any scan searchable</h3>
+        <p>Upload a scanned page or a photo of a document. OCR detects the text, its position and its structure, then adds it back as a searchable, selectable layer over the original page.</p>
+        <ul class="sp-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Works on photographed and scanned pages</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Preserves the original page layout</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Text becomes selectable, searchable and copyable</li>
+        </ul>
+      </div>
+      <div class="sp-visual">
+        <svg viewBox="0 0 320 220"><rect x="20" y="10" width="280" height="200" rx="8" fill="none" stroke="var(--border-strong)" stroke-width="1.5"/><rect x="40" y="30" width="140" height="10" rx="2" fill="var(--border-strong)"/><rect x="40" y="52" width="240" height="6" rx="2" fill="var(--border)"/><rect x="40" y="66" width="220" height="6" rx="2" fill="var(--border)"/><rect x="40" y="80" width="200" height="6" rx="2" fill="var(--border)"/><rect x="36" y="24" width="150" height="26" rx="4" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3 3"/><rect x="36" y="46" width="248" height="46" rx="4" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3 3"/><rect x="40" y="110" width="240" height="6" rx="2" fill="var(--border)"/><rect x="40" y="124" width="200" height="6" rx="2" fill="var(--border)"/><rect x="36" y="104" width="248" height="32" rx="4" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3 3"/></svg>
+      </div>
+    </div>
+
+    <div class="showcase-panel" data-panel="merge">
+      <div class="sp-copy">
+        <span class="eyebrow">Combine files</span>
+        <h3>Merge multiple documents into one file</h3>
+        <p>Drop in as many PDFs as you need, drag to reorder, and export a single clean document — page order and formatting stay exactly as you set them.</p>
+        <ul class="sp-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Drag-and-drop reordering</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Mix files of different sizes and orientations</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>No file count limit</li>
+        </ul>
+      </div>
+      <div class="sp-visual">
+        <svg viewBox="0 0 320 220"><rect x="30" y="30" width="90" height="120" rx="6" fill="none" stroke="var(--border-strong)" stroke-width="1.5"/><rect x="45" y="45" width="30" height="6" rx="2" fill="var(--border)"/><rect x="45" y="58" width="60" height="5" rx="2" fill="var(--border)"/><rect x="45" y="68" width="60" height="5" rx="2" fill="var(--border)"/><rect x="115" y="45" width="90" height="120" rx="6" fill="none" stroke="var(--border-strong)" stroke-width="1.5"/><rect x="130" y="60" width="30" height="6" rx="2" fill="var(--border)"/><rect x="130" y="73" width="60" height="5" rx="2" fill="var(--border)"/><rect x="130" y="83" width="60" height="5" rx="2" fill="var(--border)"/><path d="M215 100 L245 100" stroke="var(--accent)" stroke-width="2" marker-end="url(#arrow)"/><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--accent)"/></marker></defs><rect x="250" y="55" width="42" height="110" rx="6" fill="none" stroke="var(--accent)" stroke-width="2"/><rect x="260" y="70" width="20" height="5" rx="2" fill="var(--accent-tint)"/><rect x="260" y="82" width="20" height="4" rx="2" fill="var(--border)"/><rect x="260" y="90" width="20" height="4" rx="2" fill="var(--border)"/></svg>
+      </div>
+    </div>
+
+    <div class="showcase-panel" data-panel="summarize">
+      <div class="sp-copy">
+        <span class="eyebrow">Understand faster</span>
+        <h3>Get the key points from long documents</h3>
+        <p>Point the summarizer at a long report or contract and get the key points back in plain language, with the option to jump to the source section.</p>
+        <ul class="sp-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Works on documents of any length</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Adjustable summary depth</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Links each point back to its source page</li>
+        </ul>
+      </div>
+      <div class="sp-visual">
+        <svg viewBox="0 0 320 220"><rect x="30" y="20" width="120" height="180" rx="6" fill="none" stroke="var(--border-strong)" stroke-width="1.5"/><rect x="44" y="36" width="60" height="6" rx="2" fill="var(--border-strong)"/><rect x="44" y="54" width="92" height="4" rx="2" fill="var(--border)"/><rect x="44" y="63" width="92" height="4" rx="2" fill="var(--border)"/><rect x="44" y="72" width="70" height="4" rx="2" fill="var(--border)"/><rect x="44" y="88" width="92" height="4" rx="2" fill="var(--border)"/><rect x="44" y="97" width="92" height="4" rx="2" fill="var(--border)"/><rect x="44" y="106" width="60" height="4" rx="2" fill="var(--border)"/><rect x="170" y="46" width="120" height="128" rx="8" fill="none" stroke="var(--accent)" stroke-width="1.8"/><circle cx="188" cy="68" r="3" fill="var(--accent)"/><rect x="198" y="64" width="76" height="6" rx="2" fill="var(--accent-tint)"/><circle cx="188" cy="90" r="3" fill="var(--accent)"/><rect x="198" y="86" width="76" height="6" rx="2" fill="var(--accent-tint)"/><circle cx="188" cy="112" r="3" fill="var(--accent)"/><rect x="198" y="108" width="60" height="6" rx="2" fill="var(--accent-tint)"/></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== HOW IT WORKS ===================== -->
+<section id="solutions">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">How it works</span>
+      <h2>Three steps, no learning curve</h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="step-num">01 — Upload</div><h3>Drop in your file</h3><p>Drag in a PDF, Word file, spreadsheet, image or scan. No account needed for most tools.</p></div>
+      <div class="step reveal reveal-d2"><div class="step-num">02 — Configure</div><h3>Choose what to do</h3><p>Pick a tool — convert, compress, merge, OCR or summarize — and adjust the settings that matter to you.</p></div>
+      <div class="step reveal reveal-d3"><div class="step-num">03 — Export</div><h3>Download the result</h3><p>Get your finished file back in seconds, ready to download or share.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== WORKFLOW FIT ===================== -->
+<section>
+  <div class="wrap">
+    <div class="security reveal">
+      <div>
+        <span class="eyebrow">Built for everyday use</span>
+        <h2>Fits into how you already work</h2>
+        <p>No installs, no plugins, no learning curve. Open a browser, drop in a file, and get your result — most tools work without even creating an account.</p>
+        <ul class="sec-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>No account required for most tools</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Works in any modern browser, nothing to install</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Original formatting is preserved on conversion</li>
+        </ul>
+      </div>
+      <div class="sec-visual">
+        <div class="sec-row"><span class="k">upload.pdf</span><span class="v">done</span></div>
+        <div class="sec-row"><span class="k">contract-final.docx</span><span class="v">done</span></div>
+        <div class="sec-row"><span class="k">scan_0142.jpg</span><span class="v">done</span></div>
+        <div class="sec-row"><span class="k">invoice_aug.pdf</span><span class="v">done</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== COPYRIGHT ONLY ===================== -->
+<div class="copyright">
+  <div class="wrap">
+    <p>&copy; 2026 <span>ZayroDocX</span> — All rights reserved.</p>
+  </div>
+</div>
+
+<script>
+// Showcase tabs
+const tabs = document.querySelectorAll('.tab');
+const panels = document.querySelectorAll('.showcase-panel');
+tabs.forEach(tab => {
+  tab.addEventListener('click', (e) => {
+    e.preventDefault();
+    tabs.forEach(t => t.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    const target = document.querySelector('.showcase-panel[data-panel="' + tab.dataset.tab + '"]');
+    if (target) target.classList.add('active');
+  });
+});
+
+// Header scroll state
+const nav = document.getElementById('mainNav');
+let lastScroll = 0;
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY > 8;
+  if (scrolled !== nav.classList.contains('scrolled')) {
+    nav.classList.toggle('scrolled', scrolled);
+  }
+  lastScroll = window.scrollY;
+}, { passive: true });
+
+// Reveal on scroll
+const io = ('IntersectionObserver' in window)
+  ? new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' })
+  : null;
+if (io) {
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+} else {
+  document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+}
+</script>
 </body>
 </html>

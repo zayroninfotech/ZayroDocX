@@ -9,69 +9,224 @@
    DASHBOARD
 ══════════════════════════════════════ */
 
-/* ── Hero ── */
-.db-hero {
+/* ── Upgrade Carousel (replaces old red hero) ── */
+.db-upgrade {
   position: relative; overflow: hidden;
-  background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 40%, #dc2626 75%, #ef4444 100%);
-  border-radius: 20px; padding: 3rem 2.8rem; margin-bottom: 1.75rem;
-  box-shadow: 0 8px 32px rgba(220,38,38,.3);
+  border-radius: 20px; margin-bottom: 1.75rem;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  box-shadow: 0 6px 24px rgba(17,17,17,.06);
 }
-.db-hero::before {
-  content: ''; position: absolute; top: -80px; right: -60px;
-  width: 360px; height: 360px; border-radius: 50%;
-  background: rgba(255,255,255,.07); pointer-events: none;
+.db-upgrade-viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
 }
-.db-hero::after {
-  content: ''; position: absolute; bottom: -60px; left: 10%;
-  width: 220px; height: 220px; border-radius: 50%;
-  background: rgba(255,255,255,.04); pointer-events: none;
+.db-upgrade-track {
+  display: flex;
+  transition: transform .6s cubic-bezier(.2,.7,.2,1);
+  will-change: transform;
 }
-.db-hero-inner {
+.db-upgrade-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+  padding: 2.4rem 2.6rem;
+  position: relative;
+  overflow: hidden;
+}
+.db-upgrade-slide::before {
+  content:''; position:absolute; top:-80px; right:-60px;
+  width: 320px; height: 320px; border-radius:50%;
+  background: var(--slide-glow, rgba(220,38,38,.10));
+  pointer-events:none;
+}
+.db-upgrade-slide::after {
+  content:''; position:absolute; bottom:-60px; left:8%;
+  width: 220px; height: 220px; border-radius:50%;
+  background: var(--slide-glow-2, rgba(220,38,38,.06));
+  pointer-events:none;
+}
+.db-upgrade-slide .db-upgrade-inner {
   position: relative; z-index: 1;
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 2.5rem;
+  align-items: center;
 }
-.db-hero-left { flex: 1; min-width: 260px; }
-.db-hero-eyebrow {
+/* Slide: Plus — light red tint */
+.db-upgrade-slide.plus {
+  --slide-glow: rgba(220,38,38,.10);
+  --slide-glow-2: rgba(220,38,38,.05);
+  background: linear-gradient(135deg, #ffffff 0%, #fff5f5 55%, #ffe4e4 100%);
+}
+/* Slide: Pro — deeper accent with dark inset */
+.db-upgrade-slide.pro {
+  --slide-glow: rgba(124,58,237,.12);
+  --slide-glow-2: rgba(220,38,38,.10);
+  background: linear-gradient(135deg, #14110F 0%, #0F0E0C 60%, #1f0a0a 100%);
+  color: #fff;
+}
+.db-up-tag {
   display: inline-flex; align-items: center; gap: .4rem;
-  background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
-  border-radius: 999px; padding: .28rem .9rem; font-size: .72rem; font-weight: 700;
-  color: #fff; letter-spacing: .04em; text-transform: uppercase; margin-bottom: .9rem;
+  background: rgba(220,38,38,.12); color: #dc2626;
+  border-radius: 999px; padding: .28rem .85rem;
+  font-size: .7rem; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; margin-bottom: .9rem;
 }
-.db-hero-left h1 {
-  font-size: 2.8rem; font-weight: 900; letter-spacing: -.04em; margin-bottom: .6rem; line-height: 1.05;
-  color: #ffffff;
+.db-upgrade-slide.pro .db-up-tag {
+  background: rgba(255,138,126,.14); color: #FF8A7E;
 }
-.db-hero-left h1 span { color: #fecaca; }
-.db-hero-left p {
-  color: rgba(255,255,255,.8); font-size: .92rem; max-width: 480px;
-  margin-bottom: 1.6rem; line-height: 1.7;
+.db-up-grade-name {
+  font-size: 1.9rem; font-weight: 900; letter-spacing: -.03em;
+  margin-bottom: .35rem; line-height: 1.05;
 }
-.db-badges { display: flex; flex-wrap: wrap; gap: .45rem; }
-.db-badge {
-  display: inline-flex; align-items: center; gap: .38rem;
-  background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
-  border-radius: 999px; padding: .32rem .85rem; font-size: .73rem; font-weight: 600; color: #fff;
+.db-upgrade-slide.pro .db-up-grade-name { color: #fff; }
+.db-up-grade-name .accent { color: #dc2626; }
+.db-up-tagline {
+  font-size: .92rem; line-height: 1.55; margin-bottom: 1.4rem;
+  color: #555; max-width: 520px;
 }
-.db-badge i { font-size: .65rem; }
+.db-upgrade-slide.pro .db-up-tagline { color: #B5B5AB; }
 
-/* Hero right stats */
-.db-hero-right {
-  display: flex; gap: 1rem; flex-shrink: 0; flex-wrap: wrap; justify-content: center; align-items: center;
+/* Feature list */
+.db-up-features {
+  list-style: none; display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .55rem 1.2rem;
+  margin: 0 0 1.6rem;
 }
-.db-hero-img {
-  width: 420px; max-width: 100%; object-fit: contain;
-  filter: drop-shadow(0 8px 32px rgba(0,0,0,.35));
-  border-radius: 12px;
+.db-up-features li {
+  display: flex; align-items: flex-start; gap: .55rem;
+  font-size: .82rem; font-weight: 500; line-height: 1.4;
+  color: #1f2937;
 }
-.db-stat-pill {
-  background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.18);
-  border-radius: 16px; padding: 1.2rem 1.6rem; text-align: center; min-width: 100px;
+.db-upgrade-slide.pro .db-up-features li { color: #EDEDE6; }
+.db-up-features li i {
+  flex-shrink: 0; margin-top: 2px;
+  width: 16px; height: 16px; font-size: 11px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #fee2e2; color: #dc2626;
+  border-radius: 50%;
 }
-.db-stat-pill .n {
-  font-size: 2.2rem; font-weight: 900; color: #fff; line-height: 1;
-  display: block; margin-bottom: .2rem;
+.db-upgrade-slide.pro .db-up-features li i {
+  background: rgba(255,138,126,.15); color: #FF8A7E;
 }
-.db-stat-pill .l { font-size: .65rem; color: rgba(255,255,255,.65); text-transform: uppercase; letter-spacing: .08em; }
+
+/* CTA */
+.db-up-cta {
+  display: inline-flex; align-items: center; gap: .55rem;
+  background: var(--accent, #dc2626); color: #fff;
+  font-size: .88rem; font-weight: 700; letter-spacing: -.005em;
+  padding: .85rem 1.5rem; border-radius: 10px;
+  border: 1px solid transparent;
+  text-decoration: none; cursor: pointer;
+  box-shadow: 0 6px 20px -6px rgba(220,38,38,.45);
+  transition: background .2s ease, transform .15s ease, box-shadow .25s ease;
+}
+.db-up-cta:hover {
+  background: #b91c1c; transform: translateY(-1px);
+  box-shadow: 0 12px 30px -8px rgba(220,38,38,.55);
+}
+.db-upgrade-slide.pro .db-up-cta {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 0 6px 24px -4px rgba(220,38,38,.55);
+}
+.db-up-cta-note {
+  margin-left: .9rem; font-size: .72rem;
+  color: #9ca3af; font-weight: 500;
+}
+.db-upgrade-slide.pro .db-up-cta-note { color: #9A9A90; }
+
+/* Right visual card */
+.db-up-visual {
+  background: rgba(255,255,255,.65);
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 16px;
+  padding: 1.4rem 1.4rem 1.2rem;
+  box-shadow: 0 8px 28px rgba(17,17,17,.06);
+  text-align: left;
+}
+.db-upgrade-slide.pro .db-up-visual {
+  background: rgba(255,255,255,.04);
+  border-color: rgba(255,255,255,.10);
+  box-shadow: 0 8px 28px rgba(0,0,0,.35);
+}
+.db-up-visual-label {
+  font-size: .65rem; font-weight: 800; letter-spacing: .1em;
+  text-transform: uppercase; color: #9ca3af; margin-bottom: .9rem;
+}
+.db-upgrade-slide.pro .db-up-visual-label { color: #9A9A90; }
+.db-up-visual-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .7rem 0;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  font-size: .82rem; font-weight: 600; color: #111;
+}
+.db-upgrade-slide.pro .db-up-visual-row {
+  border-bottom-color: rgba(255,255,255,.08);
+  color: #fff;
+}
+.db-up-visual-row:last-child { border-bottom: none; }
+.db-up-visual-row .pct {
+  display: inline-flex; align-items: center; gap: .35rem;
+  font-size: .7rem; font-weight: 700; color: #16a34a;
+  background: #f0fdf4; border: 1px solid #bbf7d0;
+  padding: .15rem .55rem; border-radius: 999px;
+}
+.db-upgrade-slide.pro .db-up-visual-row .pct {
+  background: rgba(22,163,74,.15); color: #4FAF63; border-color: rgba(22,163,74,.3);
+}
+.db-up-visual-note {
+  margin-top: 1rem;
+  font-size: .68rem; color: #9ca3af;
+  display: flex; align-items: center; gap: .35rem;
+}
+.db-upgrade-slide.pro .db-up-visual-note { color: #9A9A90; }
+
+/* Slide dots */
+.db-up-dots {
+  display: flex; gap: 6px;
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  z-index: 2;
+}
+.db-up-dot {
+  width: 22px; height: 5px; border-radius: 3px;
+  background: rgba(0,0,0,.15); border: none; cursor: pointer;
+  transition: background .25s ease, width .25s ease;
+  padding: 0;
+}
+.db-up-dot.active {
+  background: var(--accent, #dc2626);
+  width: 36px;
+}
+.db-upgrade-slide.pro ~ .db-up-dots .db-up-dot { /* dot color stays brand */
+}
+/* Slide arrow nav */
+.db-up-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,.95); border: 1px solid #e8e8e8;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 3;
+  color: #111; font-size: .82rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  transition: background .2s, transform .15s;
+}
+.db-up-arrow:hover { background: #fff; transform: translateY(-50%) scale(1.05); }
+.db-up-arrow.prev { left: 14px; }
+.db-up-arrow.next { right: 14px; }
+
+@media (max-width: 860px) {
+  .db-upgrade-slide .db-upgrade-inner { grid-template-columns: 1fr; gap: 1.6rem; }
+  .db-up-features { grid-template-columns: 1fr; }
+  .db-up-grade-name { font-size: 1.6rem; }
+  .db-up-arrow { display: none; }
+}
+@media (max-width: 480px) {
+  .db-upgrade-slide { padding: 1.6rem 1.3rem 2.4rem; }
+  .db-up-cta { width: 100%; justify-content: center; }
+  .db-up-cta-note { display: none; }
+}
 
 /* ── Stats row ── */
 .db-stats {
@@ -334,9 +489,6 @@
 @media (max-width: 768px) {
   .qa-grid { grid-template-columns: repeat(2, 1fr); }
   .db-stats { grid-template-columns: repeat(2, 1fr); }
-  .db-hero-left h1 { font-size: 2rem; }
-  .db-hero-right { display: none; }
-  .db-hero { padding: 2rem 1.5rem; }
 }
 @media (max-width: 480px) {
   .qa-grid { grid-template-columns: repeat(2, 1fr); }
@@ -537,18 +689,141 @@
 {% block content %}
 
 
-<!-- ══ HERO ══ -->
-<div class="db-hero">
-  <div class="db-hero-inner">
-    <div class="db-hero-left">
-      <h1>ZayroDocX</h1>
-      <p>Professional PDF &amp; image toolkit — all processing happens on your server. Your files never leave your infrastructure.</p>
-    </div>
-    <div class="db-hero-right">
-      <img src="{% static 'img/hero-banner.png' %}" alt="ZayroDocX PDF Tools" class="db-hero-img">
+<!-- ══ UPGRADE CAROUSEL ══ -->
+<div class="db-upgrade" id="dbUpgrade" aria-roledescription="carousel" aria-label="Upgrade options">
+  <button class="db-up-arrow prev" id="dbUpPrev" aria-label="Previous slide" type="button"><i class="fa-solid fa-chevron-left"></i></button>
+  <button class="db-up-arrow next" id="dbUpNext" aria-label="Next slide" type="button"><i class="fa-solid fa-chevron-right"></i></button>
+
+  <div class="db-upgrade-viewport">
+    <div class="db-upgrade-track" id="dbUpgradeTrack">
+
+      <!-- ── Slide 1: Plus ── -->
+      <div class="db-upgrade-slide plus" role="group" aria-roledescription="slide" aria-label="1 of 2">
+        <div class="db-upgrade-inner">
+          <div>
+            <span class="db-up-tag"><i class="fa-solid fa-rocket"></i> Recommended Upgrade</span>
+            <div class="db-up-grade-name">ZayroDocX <span class="accent">Plus</span></div>
+            <p class="db-up-tagline">Unlock more power for daily document work — bigger limits, smarter AI, and faster batch operations.</p>
+            <ul class="db-up-features">
+              <li><i class="fa-solid fa-check"></i> Larger file size limits (up to 500 MB)</li>
+              <li><i class="fa-solid fa-check"></i> Batch processing for all tools</li>
+              <li><i class="fa-solid fa-check"></i> Priority AI — faster OCR & summaries</li>
+              <li><i class="fa-solid fa-check"></i> Watermark-free outputs</li>
+              <li><i class="fa-solid fa-check"></i> Email + chat support</li>
+              <li><i class="fa-solid fa-check"></i> 30-day file history</li>
+            </ul>
+            <a href="#" class="db-up-cta" data-no-pricing>
+              <i class="fa-solid fa-arrow-right"></i> See pricing
+            </a>
+            <span class="db-up-cta-note">Pricing page coming soon</span>
+          </div>
+
+          <div class="db-up-visual" aria-hidden="true">
+            <div class="db-up-visual-label">Plus Highlights</div>
+            <div class="db-up-visual-row"><span>File size limit</span><span class="pct"><i class="fa-solid fa-arrow-up"></i> 10×</span></div>
+            <div class="db-up-visual-row"><span>Batch operations</span><span class="pct"><i class="fa-solid fa-bolt"></i> Enabled</span></div>
+            <div class="db-up-visual-row"><span>AI queue priority</span><span class="pct"><i class="fa-solid fa-bolt"></i> High</span></div>
+            <div class="db-up-visual-row"><span>Support response</span><span class="pct"><i class="fa-solid fa-clock"></i> &lt; 12h</span></div>
+            <div class="db-up-visual-note"><i class="fa-solid fa-shield-halved"></i> All upgrades keep local processing.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Slide 2: Pro ── -->
+      <div class="db-upgrade-slide pro" role="group" aria-roledescription="slide" aria-label="2 of 2">
+        <div class="db-upgrade-inner">
+          <div>
+            <span class="db-up-tag"><i class="fa-solid fa-bolt"></i> For Power Users</span>
+            <div class="db-up-grade-name">ZayroDocX <span style="color:#FF8A7E">Pro</span></div>
+            <p class="db-up-tagline">Everything in Plus — plus unlimited use, advanced AI models, team workspaces, and developer API access.</p>
+            <ul class="db-up-features">
+              <li><i class="fa-solid fa-check"></i> Everything in Plus</li>
+              <li><i class="fa-solid fa-check"></i> No daily limits — unlimited conversions</li>
+              <li><i class="fa-solid fa-check"></i> Advanced AI models (GPT-class)</li>
+              <li><i class="fa-solid fa-check"></i> Team workspaces & shared history</li>
+              <li><i class="fa-solid fa-check"></i> Developer API access</li>
+              <li><i class="fa-solid fa-check"></i> Dedicated priority support</li>
+            </ul>
+            <a href="#" class="db-up-cta" data-no-pricing>
+              <i class="fa-solid fa-arrow-right"></i> See pricing
+            </a>
+            <span class="db-up-cta-note">Pricing page coming soon</span>
+          </div>
+
+          <div class="db-up-visual" aria-hidden="true">
+            <div class="db-up-visual-label">Pro Highlights</div>
+            <div class="db-up-visual-row"><span>Daily limits</span><span class="pct"><i class="fa-solid fa-infinity"></i> Unlimited</span></div>
+            <div class="db-up-visual-row"><span>AI quality</span><span class="pct"><i class="fa-solid fa-bolt"></i> Premium</span></div>
+            <div class="db-up-visual-row"><span>Team seats</span><span class="pct"><i class="fa-solid fa-users"></i> 10</span></div>
+            <div class="db-up-visual-row"><span>API access</span><span class="pct"><i class="fa-solid fa-code"></i> Included</span></div>
+            <div class="db-up-visual-note"><i class="fa-solid fa-shield-halved"></i> Cancel anytime. Local processing stays private.</div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
+
+  <div class="db-up-dots" role="tablist" aria-label="Choose upgrade plan">
+    <button class="db-up-dot active" data-go="0" aria-label="Show Plus" type="button"></button>
+    <button class="db-up-dot" data-go="1" aria-label="Show Pro" type="button"></button>
+  </div>
 </div>
+
+<script>
+(function () {
+  var track = document.getElementById('dbUpgradeTrack');
+  var carousel = document.getElementById('dbUpgrade');
+  if (!track || !carousel) return;
+
+  var dots = carousel.querySelectorAll('.db-up-dot');
+  var prev = document.getElementById('dbUpPrev');
+  var next = document.getElementById('dbUpNext');
+  var slides = carousel.querySelectorAll('.db-upgrade-slide');
+  var total = slides.length;
+  var index = 0;
+  var timer = null;
+  var INTERVAL = 5000; // 5 seconds
+
+  function go(i) {
+    index = (i + total) % total;
+    track.style.transform = 'translateX(' + (-100 * index) + '%)';
+    dots.forEach(function (d, di) { d.classList.toggle('active', di === index); });
+  }
+
+  function start() {
+    stop();
+    timer = setInterval(function () { go(index + 1); }, INTERVAL);
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } }
+
+  dots.forEach(function (d) {
+    d.addEventListener('click', function () {
+      var i = parseInt(d.getAttribute('data-go'), 10) || 0;
+      go(i);
+      start(); // reset timer after manual change
+    });
+  });
+  if (prev) prev.addEventListener('click', function () { go(index - 1); start(); });
+  if (next) next.addEventListener('click', function () { go(index + 1); start(); });
+
+  // Pause on hover
+  carousel.addEventListener('mouseenter', stop);
+  carousel.addEventListener('mouseleave', start);
+  // Pause when tab is hidden, resume on visible
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) stop(); else start();
+  });
+
+  // Respect reduced motion
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    track.style.transition = 'none';
+    start();
+  } else {
+    start();
+  }
+})();
+</script>
 
 
 <!-- ══ QUICK ACCESS ══ -->
