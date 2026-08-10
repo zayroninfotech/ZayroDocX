@@ -1,0 +1,200 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZayroDocX — Professional PDF & Image Toolkit</title>
+<link rel="icon" href="{% static 'img/logo.png' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Roboto,sans-serif;background:#fff;color:#111;min-height:100vh;}
+
+/* ── NAV ── */
+.ln-nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid #f0f0f0;position:sticky;top:0;background:#fff;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.06);}
+.ln-logo{display:flex;align-items:center;text-decoration:none;}
+.ln-logo-3d{font-size:1.5rem;font-weight:800;line-height:1;letter-spacing:-.02em;}
+.ln-logo-3d .part-zayro{color:#111;}
+.ln-logo-3d .part-docx{color:#dc2626;}
+.ln-nav-btns{display:flex;gap:.75rem;}
+.btn-login{background:#fff;border:1.5px solid #dc2626;color:#dc2626;border-radius:10px;padding:.5rem 1.4rem;font-size:.88rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s;}
+.btn-login:hover{background:#fff5f5;}
+.btn-register{background:#dc2626;color:#fff;border:none;border-radius:10px;padding:.5rem 1.4rem;font-size:.88rem;font-weight:700;cursor:pointer;text-decoration:none;transition:background .2s;}
+.btn-register:hover{background:#b91c1c;}
+
+/* ── HERO ── */
+.ln-hero-wrap{background:linear-gradient(135deg,#fff 0%,#fff5f5 60%,#ffe4e4 100%);position:relative;overflow:hidden;}
+.ln-hero-wrap::before{content:'';position:absolute;top:-120px;right:-120px;width:500px;height:500px;background:radial-gradient(circle,rgba(220,38,38,.08) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
+.ln-hero-wrap::after{content:'';position:absolute;bottom:-80px;left:-80px;width:350px;height:350px;background:radial-gradient(circle,rgba(220,38,38,.06) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
+.ln-hero{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;padding:5rem 4rem 4rem;max-width:1200px;margin:0 auto;position:relative;z-index:1;}
+.ln-hero-left h1{font-size:3.2rem;font-weight:900;line-height:1.12;color:#111;margin-bottom:1.2rem;}
+.ln-hero-left h1 span{color:#dc2626;}
+.ln-hero-left p{font-size:1rem;color:#555;line-height:1.75;margin-bottom:1.8rem;max-width:460px;}
+.ln-hero-stats{display:flex;gap:2rem;margin-bottom:2rem;}
+.ln-stat-item{text-align:left;}
+.ln-stat-num{font-size:1.6rem;font-weight:900;color:#dc2626;line-height:1;}
+.ln-stat-label{font-size:.72rem;color:#888;margin-top:.2rem;font-weight:600;}
+.ln-hero-btns{display:flex;gap:1rem;flex-wrap:wrap;}
+.btn-hero-primary{background:#dc2626;color:#fff;border:none;border-radius:12px;padding:.9rem 2rem;font-size:.95rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s;box-shadow:0 4px 18px rgba(220,38,38,.35);}
+.btn-hero-primary:hover{background:#b91c1c;transform:translateY(-2px);box-shadow:0 8px 28px rgba(220,38,38,.45);}
+.btn-hero-secondary{background:#fff;border:2px solid #e5e7eb;color:#374151;border-radius:12px;padding:.9rem 2rem;font-size:.95rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s;}
+.btn-hero-secondary:hover{border-color:#dc2626;color:#dc2626;}
+
+/* ── HERO RIGHT ── */
+.ln-hero-right{position:relative;display:flex;align-items:center;justify-content:center;}
+.ln-hero-img-wrap{position:relative;}
+.ln-hero-img-wrap::before{content:'';position:absolute;inset:-20px;background:radial-gradient(ellipse,rgba(220,38,38,.12) 0%,transparent 70%);border-radius:50%;z-index:0;}
+.ln-hero-img-wrap img{width:100%;max-width:560px;position:relative;z-index:1;filter:drop-shadow(0 20px 50px rgba(0,0,0,.15)) drop-shadow(0 8px 20px rgba(220,38,38,.12));animation:heroFloat 4s ease-in-out infinite;}
+@keyframes heroFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+
+/* floating badges around image */
+.ln-float-badge{position:absolute;background:#fff;border-radius:14px;padding:.55rem 1rem;box-shadow:0 8px 28px rgba(0,0,0,.12);display:flex;align-items:center;gap:.5rem;font-size:.78rem;font-weight:700;color:#111;z-index:2;white-space:nowrap;animation:badgeFloat 3s ease-in-out infinite;}
+.ln-float-badge i{font-size:1rem;}
+.ln-float-badge.b1{top:10%;left:-5%;animation-delay:0s;}
+.ln-float-badge.b2{top:50%;right:-8%;animation-delay:.8s;}
+.ln-float-badge.b3{bottom:12%;left:2%;animation-delay:1.5s;}
+@keyframes badgeFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+
+/* ── BADGES ── */
+.ln-badges{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.8rem;}
+.ln-badge{background:#fff5f5;color:#dc2626;border:1px solid #fecaca;border-radius:20px;padding:.3rem .9rem;font-size:.75rem;font-weight:700;}
+
+/* ── TOOLS SECTION ── */
+.ln-tools{background:#f9fafb;padding:4rem 2rem;}
+.ln-tools-inner{max-width:1100px;margin:0 auto;}
+.ln-section-label{font-size:.75rem;font-weight:800;color:#dc2626;text-transform:uppercase;letter-spacing:.12em;margin-bottom:.5rem;}
+.ln-section-title{font-size:2rem;font-weight:800;color:#111;margin-bottom:.5rem;}
+.ln-section-sub{font-size:.95rem;color:#6b7280;margin-bottom:2.5rem;}
+.ln-tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
+.ln-tool-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:1.2rem;display:flex;align-items:center;gap:.9rem;text-decoration:none;transition:all .2s;}
+.ln-tool-card:hover{border-color:#fca5a5;box-shadow:0 4px 18px rgba(220,38,38,.1);transform:translateY(-2px);}
+.ln-tool-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.ln-tool-name{font-size:.85rem;font-weight:700;color:#111;}
+.ln-tool-desc{font-size:.72rem;color:#6b7280;margin-top:.15rem;}
+
+/* ── CTA ── */
+.ln-cta{background:linear-gradient(135deg,#dc2626 0%,#991b1b 100%);padding:5rem 2rem;text-align:center;color:#fff;}
+.ln-cta h2{font-size:2.2rem;font-weight:900;margin-bottom:1rem;}
+.ln-cta p{font-size:1rem;opacity:.85;margin-bottom:2rem;max-width:500px;margin-left:auto;margin-right:auto;}
+.btn-cta{background:#fff;color:#dc2626;border:none;border-radius:12px;padding:.9rem 2.5rem;font-size:1rem;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block;transition:box-shadow .2s;}
+.btn-cta:hover{box-shadow:0 6px 24px rgba(0,0,0,.2);}
+
+/* ── FOOTER ── */
+.ln-footer{background:#111;color:#9ca3af;text-align:center;padding:1.5rem;font-size:.82rem;}
+.ln-footer span{color:#dc2626;font-weight:700;}
+
+@media(max-width:900px){
+  .ln-hero{grid-template-columns:1fr;padding:3rem 1.5rem 2rem;gap:2rem;}
+  .ln-hero-left h1{font-size:2.1rem;}
+  .ln-hero-right{display:none;}
+  .ln-nav{padding:.8rem 1.2rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="ln-nav">
+  <a href="/" class="ln-logo">
+    <div class="ln-logo-3d"><span class="part-zayro">Zayro</span><span class="part-docx">DocX</span></div>
+  </a>
+  <div class="ln-nav-btns">
+    <a href="/login/" class="btn-login">Login</a>
+    <a href="/register/" class="btn-register">Get Started Free</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="ln-hero-wrap">
+<section class="ln-hero">
+  <div class="ln-hero-left">
+    <h1>Professional PDF &amp; Image Tools — <span>All in One Place</span></h1>
+    <p>Merge, split, compress, convert and edit PDFs. Resize, filter and enhance images. All processing happens on your server — your files never leave your infrastructure.</p>
+    <div class="ln-hero-stats">
+      <div class="ln-stat-item"><div class="ln-stat-num">50+</div><div class="ln-stat-label">Tools Available</div></div>
+      <div class="ln-stat-item"><div class="ln-stat-num">100%</div><div class="ln-stat-label">Free to Use</div></div>
+      <div class="ln-stat-item"><div class="ln-stat-num">AI</div><div class="ln-stat-label">Powered</div></div>
+    </div>
+    <div class="ln-hero-btns">
+      <a href="/register/" class="btn-hero-primary"><i class="fa-solid fa-rocket"></i> Get Started Free</a>
+      <a href="/login/" class="btn-hero-secondary"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+    </div>
+  </div>
+  <div class="ln-hero-right">
+    <div class="ln-hero-img-wrap">
+      <div class="ln-float-badge b1"><i class="fa-solid fa-file-pdf" style="color:#dc2626"></i> PDF Tools</div>
+      <div class="ln-float-badge b2"><i class="fa-solid fa-wand-magic-sparkles" style="color:#7c3aed"></i> AI Powered</div>
+      <div class="ln-float-badge b3"><i class="fa-solid fa-shield-halved" style="color:#16a34a"></i> 100% Secure</div>
+      <img src="{% static 'img/hero-banner-removebg.png' %}" alt="ZayroDocX Tools">
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- TOOLS -->
+<section class="ln-tools">
+  <div class="ln-tools-inner">
+    <div class="ln-section-label">What You Can Do</div>
+    <div class="ln-section-title">50+ Powerful Tools</div>
+    <div class="ln-section-sub">Everything you need to work with PDFs and images — no account required for most tools.</div>
+    <div class="ln-tools-grid">
+      <a href="/tools/merge-pdf/" class="ln-tool-card">
+        <div class="ln-tool-icon" style="background:#fee2e2;color:#dc2626;"><i class="fa-solid fa-object-group"></i></div>
+        <div><div class="ln-tool-name">Merge PDF</div><div class="ln-tool-desc">Combine multiple PDFs</div></div>
+      </a>
+      <a href="/tools/split-pdf/" class="ln-tool-card">
+        <div class="ln-tool-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa-solid fa-scissors"></i></div>
+        <div><div class="ln-tool-name">Split PDF</div><div class="ln-tool-desc">Split into multiple files</div></div>
+      </a>
+      <a href="/tools/compress-pdf/" class="ln-tool-card">
+        <div class="ln-tool-icon" style="background:#f0fdf4;color:#16a34a;"><i class="fa-solid fa-compress"></i></div>
+        <div><div class="ln-tool-name">Compress PDF</div><div class="ln-tool-desc">Reduce file size</div></div>
+      </a>
+      <a href="/tools/ocr-pdf/" class="ln-tool-card">
+        <div class="ln-tool-icon" style="background:#fdf4ff;color:#9333ea;"><i class="fa-solid fa-eye"></i></div>
+        <div><div class="ln-tool-name">OCR PDF</div><div class="ln-tool-desc">Make scans searchable</div></div>
+      </a>
+      <a href="/tools/pdf-to-word/" class="ln-tool-card">
+        <div class="ln-tool-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-file-word"></i></div>
+        <div><div class="ln-tool-name">PDF to Word</div><div class="ln-tool-desc">Convert to editable doc</div></div>
+      </a>
+      <a href="/tools/word-to-pdf/" class="ln-tool-card">
+        <div class="ln-tool-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-file-pdf"></i></div>
+        <div><div class="ln-tool-name">Word to PDF</div><div class="ln-tool-desc">Convert Word to PDF</div></div>
+      </a>
+      <a href="/tools/sign-pdf/" class="ln-tool-card">
+        <div class="ln-tool-icon" style="background:#fff0ec;color:#ea580c;"><i class="fa-solid fa-signature"></i></div>
+        <div><div class="ln-tool-name">Sign PDF</div><div class="ln-tool-desc">Add your signature</div></div>
+      </a>
+      <a href="/tools/ai-summarizer/" class="ln-tool-card">
+        <div class="ln-tool-icon" style="background:#fef9c3;color:#ca8a04;"><i class="fa-solid fa-brain"></i></div>
+        <div><div class="ln-tool-name">AI Summarizer</div><div class="ln-tool-desc">Summarize any PDF</div></div>
+      </a>
+      <a href="/tools/remove-background/" class="ln-tool-card">
+        <div class="ln-tool-icon" style="background:#f0f9ff;color:#0284c7;"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <div><div class="ln-tool-name">Remove Background</div><div class="ln-tool-desc">Auto background removal</div></div>
+      </a>
+      <a href="/tools/photo-blue/" class="ln-tool-card">
+        <div class="ln-tool-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-droplet"></i></div>
+        <div><div class="ln-tool-name">Photo Blue</div><div class="ln-tool-desc">Blue filter for images</div></div>
+      </a>
+      <a href="/tools/compress-image/" class="ln-tool-card">
+        <div class="ln-tool-icon" style="background:#fff7ed;color:#ea580c;"><i class="fa-solid fa-image"></i></div>
+        <div><div class="ln-tool-name">Compress Image</div><div class="ln-tool-desc">Reduce image file size</div></div>
+      </a>
+      <a href="/tools/invoice-extractor/" class="ln-tool-card">
+        <div class="ln-tool-icon" style="background:#fef3c7;color:#d97706;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+        <div><div class="ln-tool-name">Invoice Extractor</div><div class="ln-tool-desc">Extract data with AI</div></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="ln-footer">
+  &copy; 2026 <span>ZayroDocX</span> — All rights reserved.
+</footer>
+
+</body>
+</html>
