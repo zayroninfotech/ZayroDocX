@@ -2,6 +2,7 @@ import os, time, uuid, string, random, mimetypes
 from django.http import JsonResponse, HttpResponse
 from django.http import Http404
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
 
 MAX_FILE_MB = 50
@@ -29,6 +30,7 @@ def _cleanup_old():
     old.delete()
 
 
+@csrf_exempt
 def create_room(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
@@ -44,6 +46,7 @@ def create_room(request):
     return JsonResponse({'code': code, 'peer_id': peer_id})
 
 
+@csrf_exempt
 def join_room(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
@@ -60,6 +63,7 @@ def join_room(request):
     return JsonResponse({'code': code, 'peer_id': peer_id})
 
 
+@csrf_exempt
 def upload_file(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
@@ -95,6 +99,7 @@ def upload_file(request):
     return JsonResponse({'ok': True, 'file_id': file_id})
 
 
+@csrf_exempt
 def poll_room(request):
     from apps.pdf_tools.models import CSRoom, CSPeer, CSFile
     code    = request.GET.get('code', '').strip().upper()
