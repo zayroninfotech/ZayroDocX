@@ -58,7 +58,7 @@
 }
 
 *{ box-sizing:border-box; margin:0; padding:0; }
-html{ scroll-behavior:smooth; }
+html{ scroll-behavior:smooth; overflow-x:hidden; }
 body{
   font-family:var(--font-body);
   background:var(--bg);
@@ -149,22 +149,24 @@ h1{ letter-spacing:-0.035em; }
 /* ============================================================
    HEADER / NAV — Original HTML, enhanced styling
    ============================================================ */
-.ln-nav{
+.ln-nav-wrap{
   position:sticky; top:0; z-index:100;
   background:color-mix(in srgb, var(--bg) 85%, transparent);
   backdrop-filter:blur(14px) saturate(180%);
   -webkit-backdrop-filter:blur(14px) saturate(180%);
   border-bottom:1px solid var(--border);
+  transition:box-shadow .3s var(--ease), background .3s var(--ease);
+}
+.ln-nav-wrap.scrolled{
+  box-shadow: 0 8px 24px -16px rgba(17,17,17,0.18);
+  background:color-mix(in srgb, var(--bg) 92%, transparent);
+}
+.ln-nav{
   display:flex; align-items:center; justify-content:space-between;
   padding:1rem 2rem;
   height:68px;
-  transition:box-shadow .3s var(--ease), background .3s var(--ease);
   max-width:var(--max-w);
   margin:0 auto;
-}
-.ln-nav.scrolled{
-  box-shadow: 0 8px 24px -16px rgba(17,17,17,0.18);
-  background:color-mix(in srgb, var(--bg) 92%, transparent);
 }
 .ln-logo{ display:flex; align-items:center; text-decoration:none; }
 .ln-logo-3d{
@@ -207,7 +209,7 @@ h1{ letter-spacing:-0.035em; }
    HERO
    ============================================================ */
 .hero{
-  padding:96px 0 110px; position:relative;
+  padding:48px 0 80px; position:relative;
   background:var(--hero-grad);
   border-bottom:1px solid var(--border);
   overflow:hidden;
@@ -466,8 +468,9 @@ section{ padding:110px 0; }
 </head>
 <body>
 
-<!-- ===================== HEADER — Original HTML ===================== -->
-<nav class="ln-nav" id="mainNav">
+<!-- ===================== HEADER ===================== -->
+<div class="ln-nav-wrap" id="mainNav">
+<nav class="ln-nav">
   <a href="/" class="ln-logo">
     <div class="ln-logo-3d"><span class="part-zayro">Zayro</span><span class="part-docx">DocX</span></div>
   </a>
@@ -476,6 +479,7 @@ section{ padding:110px 0; }
     <a href="/register/" class="btn-register">Get Started Free</a>
   </div>
 </nav>
+</div>
 
 <!-- ===================== HERO ===================== -->
 <section class="hero">
