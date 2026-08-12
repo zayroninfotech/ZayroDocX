@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZayroDocX — Upload Button (vanilla JS sample)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Tokens — mirrors templates/landing.html so this drops straight in
+   ============================================================ */
+:root{
+  --bg:#FFFFFF;
+  --surface-raised:#FAFAF8;
+  --border:#f0f0f0;
+  --border-strong:#e5e7eb;
+  --text:#111111;
+  --text-secondary:#555555;
+  --text-tertiary:#9ca3af;
+  --accent:#dc2626;
+  --accent-hover:#b91c1c;
+  --accent-tint:#fff5f5;
+  --success:#16a34a;
+  --success-tint:#f0fdf4;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{
+  font-family:'Inter','Segoe UI',sans-serif;
+  background:linear-gradient(180deg,var(--accent-tint) 0%,#fff 40%,var(--surface-raised) 100%);
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  padding:24px; -webkit-font-smoothing:antialiased;
+}
+.demo-shell{ width:100%; max-width:520px; display:flex; flex-direction:column; align-items:center; gap:32px; }
+.demo-brand{ text-align:center; }
+.demo-logo{ font-size:20px; font-weight:800; letter-spacing:-.02em; color:var(--text); }
+.demo-logo span{ color:var(--accent); }
+.demo-kicker{
+  margin-top:6px; font-size:11px; font-weight:500; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--text-tertiary);
+}
+.demo-card{
+  width:100%; background:#fff; border:1px solid var(--border);
+  border-radius:16px; padding:28px;
+  box-shadow:0 1px 3px rgba(0,0,0,.04), 0 8px 32px rgba(0,0,0,.06);
+  display:flex; flex-direction:column; gap:18px;
+}
+
+/* ============================================================
+   THE COMPONENT — everything below ports as-is into Django
+   ============================================================ */
+.zu{ --zu-h:64px; width:100%; }
+.zu input[type=file]{
+  position:absolute; width:1px; height:1px; padding:0;
+  margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+
+.zu-bar{
+  position:relative; width:100%; min-height:var(--zu-h);
+  border:1.5px solid var(--border-strong); border-radius:14px;
+  background:#fff; overflow:hidden;
+  display:flex; align-items:center; gap:10px;
+  padding:0 6px 0 16px;
+  transition:background .35s var(--ease), border-color .35s var(--ease), box-shadow .35s var(--ease);
+}
+.zu-bar.is-dragover{ border-color:var(--accent); background:var(--accent-tint); }
+.zu-bar.is-busy{ background:var(--accent); border-color:transparent; box-shadow:0 4px 20px rgba(220,38,38,.28); }
+.zu-bar.is-done{ background:#111; border-color:transparent; box-shadow:0 4px 16px rgba(17,17,17,.2); }
+.zu-bar.is-error{ background:#fff; border-color:var(--accent); }
+
+/* --- Idle face --- */
+.zu-idle{ display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
+.zu-clip{ flex:none; color:var(--text-tertiary); display:flex; }
+.zu-name{
+  font-size:15px; font-weight:500; color:var(--text);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.zu-name[data-empty="true"]{ color:var(--text-tertiary); font-weight:400; }
+.zu-size{
+  flex:none; font-size:11px; font-weight:500; color:var(--text-tertiary);
+  background:var(--surface-raised); border:1px solid var(--border);
+  padding:2px 8px; border-radius:6px;
+}
+.zu-size:empty{ display:none; }
+
+/* --- Actions --- */
+.zu-actions{ flex:none; display:flex; gap:6px; }
+.zu-btn{
+  height:48px; padding:0 20px; border:none; border-radius:11px;
+  font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+  display:inline-flex; align-items:center; gap:8px;
+  transition:background .2s var(--ease), opacity .2s var(--ease);
+}
+.zu-btn--ghost{ background:var(--surface-raised); color:var(--text-secondary); padding:0 16px; }
+.zu-btn--ghost:hover{ background:var(--border); }
+.zu-btn--primary{ background:var(--accent); color:#fff; }
+.zu-btn--primary:hover{ background:var(--accent-hover); }
+.zu-btn:disabled{ opacity:.45; cursor:not-allowed; }
+.zu-btn:focus-visible, .zu-bar:focus-within{ outline:2px solid var(--accent); outline-offset:2px; }
+
+/* --- Busy / done / error faces (overlay the bar) --- */
+.zu-face{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:10px;
+  opacity:0; pointer-events:none; transition:opacity .3s var(--ease);
+}
+.zu-face.on{ opacity:1; }
+.zu-face-txt{ font-size:15px; font-weight:600; letter-spacing:.01em; }
+.zu-bar.is-busy .zu-idle, .zu-bar.is-busy .zu-actions,
+.zu-bar.is-done .zu-idle, .zu-bar.is-done .zu-actions{ opacity:0; pointer-events:none; }
+
+.zu-spin{ animation:zuSpin .8s linear infinite; }
+@keyframes zuSpin{ to{ transform:rotate(360deg); } }
+.zu-tick{
+  width:28px; height:28px; border-radius:50%; color:#fff;
+  background:rgba(255,255,255,.15);
+  display:flex; align-items:center; justify-content:center;
+  animation:zuPop .4s var(--ease) both;
+}
+@keyframes zuPop{ 0%{transform:scale(.85);opacity:0;} 60%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
+
+/* --- Real progress track --- */
+.zu-track{
+  position:absolute; left:0; right:0; bottom:0; height:3px;
+  opacity:0; transition:opacity .3s var(--ease);
+}
+.zu-bar.is-busy .zu-track{ opacity:1; }
+.zu-fill{
+  height:100%; width:0%; background:rgba(255,255,255,.5);
+  border-radius:0 3px 3px 0; transition:width .2s linear;
+}
+
+/* --- Error row --- */
+.zu-err{
+  display:none; align-items:center; gap:8px; margin-top:10px;
+  font-size:13px; color:var(--accent); font-weight:500;
+}
+.zu-err.on{ display:flex; }
+
+/* --- Accepted types --- */
+.zu-types{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+.zu-types span{
+  font-size:11px; font-weight:600; color:var(--text-tertiary);
+  background:var(--surface-raised); border:1px solid var(--border);
+  padding:3px 10px; border-radius:6px; letter-spacing:.03em;
+}
+
+@media(max-width:520px){
+  .zu-bar{ flex-wrap:wrap; padding:10px 10px; gap:8px; }
+  .zu-idle{ flex:1 1 100%; }
+  .zu-actions{ flex:1 1 100%; }
+  .zu-btn--primary{ flex:1; justify-content:center; }
+}
+
+.demo-note{
+  font-size:12.5px; color:var(--text-tertiary); text-align:center; line-height:1.6;
+}
+.demo-note code{ font-family:ui-monospace,monospace; color:var(--accent); font-size:11.5px; }
+</style>
+</head>
+<body>
+
+<div class="demo-shell">
+  <div class="demo-brand">
+    <div class="demo-logo">Zayro<span>DocX</span></div>
+    <div class="demo-kicker">Upload Component — vanilla JS</div>
+  </div>
+
+  <div class="demo-card">
+
+    <!-- ══════════ COMPONENT MARKUP ══════════ -->
+    <div class="zu" id="zu" data-endpoint="" data-max-mb="100">
+      <!-- Real file input: keyboard accessible, native picker, form-submittable -->
+      <input type="file" id="zuInput" name="file" accept=".pdf,.docx,.png,.jpg,.jpeg">
+
+      <div class="zu-bar" id="zuBar">
+        <div class="zu-idle">
+          <span class="zu-clip" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          </span>
+          <span class="zu-name" id="zuName" data-empty="true">Choose a file or drop it here</span>
+          <span class="zu-size" id="zuSize"></span>
+        </div>
+
+        <div class="zu-actions">
+          <button type="button" class="zu-btn zu-btn--ghost" id="zuBrowse">Browse</button>
+          <button type="button" class="zu-btn zu-btn--primary" id="zuGo" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Upload
+          </button>
+        </div>
+
+        <!-- Uploading face -->
+        <div class="zu-face" id="zuFaceBusy">
+          <svg class="zu-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,.3)" stroke-width="3"/>
+            <path d="M12 2a10 10 0 0 1 10 10" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <span class="zu-face-txt" style="color:#fff" id="zuPct">Uploading… 0%</span>
+        </div>
+
+        <!-- Completed face -->
+        <div class="zu-face" id="zuFaceDone">
+          <span class="zu-tick" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <span class="zu-face-txt" style="color:#fff">Completed</span>
+        </div>
+
+        <div class="zu-track"><div class="zu-fill" id="zuFill"></div></div>
+      </div>
+
+      <!-- Error state -->
+      <div class="zu-err" id="zuErr" role="alert">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="zuErrMsg"></span>
+        <button type="button" class="zu-btn zu-btn--ghost" id="zuRetry" style="height:28px;padding:0 12px;font-size:12px;">Retry</button>
+      </div>
+
+      <!-- Screen-reader live region -->
+      <div id="zuLive" role="status" aria-live="polite" class="zu-sr"
+           style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);"></div>
+    </div>
+    <!-- ══════════ /COMPONENT MARKUP ══════════ -->
+
+    <div class="zu-types">
+      <span>PDF</span><span>DOCX</span><span>PNG</span><span>JPG</span>
+    </div>
+  </div>
+
+  <p class="demo-note">
+    Real file picker, real drag &amp; drop, real byte progress.<br>
+    Set <code>data-endpoint</code> to POST to Django; leave empty to preview locally.
+  </p>
+</div>
+
+<script>
+/* ============================================================
+   ZayroDocX upload control — no dependencies.
+   Progress comes from XHR upload events (real bytes), not a timer.
+   ============================================================ */
+(function () {
+  var root    = document.getElementById('zu');
+  var input   = document.getElementById('zuInput');
+  var bar     = document.getElementById('zuBar');
+  var nameEl  = document.getElementById('zuName');
+  var sizeEl  = document.getElementById('zuSize');
+  var browse  = document.getElementById('zuBrowse');
+  var go      = document.getElementById('zuGo');
+  var faceBusy= document.getElementById('zuFaceBusy');
+  var faceDone= document.getElementById('zuFaceDone');
+  var pctEl   = document.getElementById('zuPct');
+  var fill    = document.getElementById('zuFill');
+  var errBox  = document.getElementById('zuErr');
+  var errMsg  = document.getElementById('zuErrMsg');
+  var retry   = document.getElementById('zuRetry');
+  var live    = document.getElementById('zuLive');
+
+  var ENDPOINT = root.dataset.endpoint || '';
+  var MAX_MB   = parseFloat(root.dataset.maxMb || '100');
+  var file = null, xhr = null;
+
+  function fmtSize(b) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+    return (b / 1048576).toFixed(1) + ' MB';
+  }
+  function say(msg) { live.textContent = msg; }
+
+  function setState(s) {
+    bar.classList.remove('is-busy', 'is-done', 'is-error');
+    faceBusy.classList.remove('on');
+    faceDone.classList.remove('on');
+    errBox.classList.remove('on');
+    if (s === 'busy')  { bar.classList.add('is-busy');  faceBusy.classList.add('on'); }
+    if (s === 'done')  { bar.classList.add('is-done');  faceDone.classList.add('on'); }
+    if (s === 'error') { bar.classList.add('is-error'); errBox.classList.add('on'); }
+    bar.setAttribute('aria-busy', s === 'busy' ? 'true' : 'false');
+  }
+
+  function fail(msg) {
+    setState('error');
+    errMsg.textContent = msg;
+    go.disabled = false;
+    say('Upload failed. ' + msg);
+  }
+
+  function pickFile(f) {
+    if (!f) return;
+    if (f.size > MAX_MB * 1048576) {
+      file = null; go.disabled = true;
+      nameEl.textContent = f.name; nameEl.dataset.empty = 'false';
+      sizeEl.textContent = fmtSize(f.size);
+      return fail('File exceeds the ' + MAX_MB + ' MB limit.');
+    }
+    file = f;
+    nameEl.textContent = f.name;
+    nameEl.dataset.empty = 'false';
+    sizeEl.textContent = fmtSize(f.size);
+    go.disabled = false;
+    setState('idle');
+    say('Selected ' + f.name + ', ' + fmtSize(f.size) + '. Press Upload to send.');
+  }
+
+  function progress(pct) {
+    pct = Math.max(0, Math.min(100, pct));
+    fill.style.width = pct + '%';
+    pctEl.textContent = 'Uploading… ' + Math.round(pct) + '%';
+  }
+
+  function done() {
+    progress(100);
+    setState('done');
+    say('Upload complete.');
+  }
+
+  function upload() {
+    if (!file) return;
+    setState('busy');
+    progress(0);
+    say('Upload started.');
+
+    /* No endpoint configured → local preview.
+       Progress still comes from real FileReader byte events, not a fake timer. */
+    if (!ENDPOINT) {
+      var reader = new FileReader();
+      reader.onprogress = function (e) {
+        if (e.lengthComputable) progress((e.loaded / e.total) * 100);
+      };
+      reader.onload  = function () { setTimeout(done, 250); };
+      reader.onerror = function () { fail('Could not read the file.'); };
+      reader.readAsArrayBuffer(file);
+      return;
+    }
+
+    /* Production path — real POST to Django */
+    var fd = new FormData();
+    fd.append('file', file);
+
+    xhr = new XMLHttpRequest();
+    xhr.open('POST', ENDPOINT, true);
+
+    // Django CSRF
+    var tok = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (tok) xhr.setRequestHeader('X-CSRFToken', tok.value);
+
+    xhr.upload.onprogress = function (e) {
+      if (e.lengthComputable) progress((e.loaded / e.total) * 100);
+    };
+    xhr.onload = function () {
+      if (xhr.status >= 200 && xhr.status < 300) done();
+      else fail('Server returned ' + xhr.status + '.');
+    };
+    xhr.onerror   = function () { fail('Network error — check your connection.'); };
+    xhr.ontimeout = function () { fail('The upload timed out.'); };
+    xhr.send(fd);
+  }
+
+  /* ── Wiring ── */
+  browse.addEventListener('click', function () { input.click(); });
+  input.addEventListener('change', function () { pickFile(input.files[0]); });
+  go.addEventListener('click', upload);
+  retry.addEventListener('click', function () { setState('idle'); if (file) upload(); });
+
+  // Drag & drop
+  ['dragenter', 'dragover'].forEach(function (ev) {
+    bar.addEventListener(ev, function (e) {
+      e.preventDefault(); bar.classList.add('is-dragover');
+    });
+  });
+  ['dragleave', 'drop'].forEach(function (ev) {
+    bar.addEventListener(ev, function (e) {
+      e.preventDefault(); bar.classList.remove('is-dragover');
+    });
+  });
+  bar.addEventListener('drop', function (e) {
+    if (e.dataTransfer.files.length) pickFile(e.dataTransfer.files[0]);
+  });
+})();
+</script>
+</body>
+</html>

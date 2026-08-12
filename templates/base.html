@@ -384,20 +384,29 @@
   <!-- Toast container -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- Global Page Loader -->
-  <div id="globalLoader"
-    style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(255,255,255,0.75);backdrop-filter:blur(3px);align-items:center;justify-content:center;flex-direction:column;gap:1rem;">
-    <div
-      style="width:56px;height:56px;border:5px solid #fee2e2;border-top-color:#dc2626;border-radius:50%;animation:glSpin .8s linear infinite;">
+  <!-- Global Page Loader — ink-fill -->
+  <div id="globalLoader" style="display:none;position:fixed;inset:0;z-index:9999;background:#F7F7F5;align-items:center;justify-content:center;flex-direction:column;gap:22px;">
+    <div class="zl-if-wrap" id="zlIfWrap">
+      <span class="zl-if-base">ZayroDocX</span>
+      <span class="zl-if-fill">ZayroDocX</span>
     </div>
-    <div id="globalLoaderMsg" style="font-size:.95rem;font-weight:600;color:#dc2626;letter-spacing:.01em;">Processing…
-    </div>
+    <div class="zl-if-label" id="globalLoaderMsg">Loading&hellip;</div>
   </div>
   <style>
-    @keyframes glSpin {
-      to {
-        transform: rotate(360deg);
-      }
+    .zl-if-wrap{
+      position:relative; font-family:'Inter','Segoe UI',sans-serif;
+      font-size:clamp(28px,5vw,48px); font-weight:700; letter-spacing:-0.02em;
+    }
+    .zl-if-base{ color:#D3D3CF; }
+    .zl-if-fill{
+      position:absolute; inset:0; color:#dc2626; overflow:hidden; width:0%;
+      white-space:nowrap;
+    }
+    .zl-if-wrap.run .zl-if-fill{ animation:zlIfWipe 1.4s cubic-bezier(.65,0,.35,1) forwards; }
+    @keyframes zlIfWipe{ to{ width:100%; } }
+    .zl-if-label{
+      font-family:'Inter','Segoe UI',sans-serif;
+      font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#9B9B90;
     }
 
     .btn-loading {
@@ -405,7 +414,6 @@
       pointer-events: none;
       opacity: .85;
     }
-
     .btn-loading::after {
       content: '';
       position: absolute;
@@ -417,69 +425,63 @@
       border: 3px solid rgba(255, 255, 255, .4);
       border-top-color: #fff;
       border-radius: 50%;
-      animation: glSpin .7s linear infinite;
+      animation: zlBtnSpin .7s linear infinite;
     }
+    @keyframes zlBtnSpin { to { transform: rotate(360deg); } }
 
-    /* Success flash */
     .btn-success-flash {
       background: #16a34a !important;
       box-shadow: 0 4px 18px rgba(22, 163, 74, .4) !important;
       transition: background .2s !important;
     }
-
-    /* Error flash */
     .btn-error-flash {
       background: #dc2626 !important;
       box-shadow: 0 4px 18px rgba(220, 38, 38, .4) !important;
-      animation: errShake .3s ease;
+      animation: zlErrShake .3s ease;
     }
-
-    @keyframes errShake {
-
-      0%,
-      100% {
-        transform: translateX(0)
-      }
-
-      25% {
-        transform: translateX(-5px)
-      }
-
-      75% {
-        transform: translateX(5px)
-      }
+    @keyframes zlErrShake {
+      0%,100% { transform: translateX(0) }
+      25% { transform: translateX(-5px) }
+      75% { transform: translateX(5px) }
     }
   </style>
   <script>
-    // ── Global loader helpers ──
-    window.ZLoader = {
-      show: function (msg) { var l = document.getElementById('globalLoader'); l.style.display = 'flex'; if (msg) document.getElementById('globalLoaderMsg').textContent = msg; },
-      hide: function () { document.getElementById('globalLoader').style.display = 'none'; },
-      btnLoad: function (btn) { btn.classList.add('btn-loading'); btn.disabled = true; },
-      btnDone: function (btn, status) {
-        btn.classList.remove('btn-loading');
-        if (status === 200) { btn.classList.add('btn-success-flash'); setTimeout(function () { btn.classList.remove('btn-success-flash'); btn.disabled = false; }, 1200); }
-        else if (status === 400 || status >= 400) { btn.classList.add('btn-error-flash'); setTimeout(function () { btn.classList.remove('btn-error-flash'); btn.disabled = false; }, 1200); }
-        else { btn.disabled = false; }
+    (function(){
+      var wrap = document.getElementById('zlIfWrap');
+      var loopId = null;
+      function runInkFill(){
+        wrap.classList.remove('run');
+        void wrap.offsetWidth;
+        wrap.classList.add('run');
       }
-    };
-    // Auto-attach to any button with data-loader="true"
-    document.addEventListener('click', function (e) {
-      var btn = e.target.closest('button[data-loader],a[data-loader]');
-      if (btn) ZLoader.show(btn.dataset.loaderMsg || 'Processing…');
-    });
-
-    // Right-click context menu disabled only on specific elements (not globally)
-
-    // Show loader on page refresh / navigation away
-    window.addEventListener('beforeunload', function () {
-      ZLoader.show('Loading…');
-    });
-
-    // Hide loader once page is fully loaded
-    window.addEventListener('load', function () {
-      ZLoader.hide();
-    });
+      window.ZLoader = {
+        show: function(msg){
+          var l = document.getElementById('globalLoader');
+          l.style.display = 'flex';
+          if(msg) document.getElementById('globalLoaderMsg').textContent = msg;
+          clearInterval(loopId);
+          runInkFill();
+          loopId = setInterval(runInkFill, 2200);
+        },
+        hide: function(){
+          document.getElementById('globalLoader').style.display = 'none';
+          clearInterval(loopId);
+        },
+        btnLoad: function(btn){ btn.classList.add('btn-loading'); btn.disabled = true; },
+        btnDone: function(btn, status){
+          btn.classList.remove('btn-loading');
+          if(status === 200){ btn.classList.add('btn-success-flash'); setTimeout(function(){ btn.classList.remove('btn-success-flash'); btn.disabled = false; }, 1200); }
+          else if(status >= 400){ btn.classList.add('btn-error-flash'); setTimeout(function(){ btn.classList.remove('btn-error-flash'); btn.disabled = false; }, 1200); }
+          else { btn.disabled = false; }
+        }
+      };
+      document.addEventListener('click', function(e){
+        var btn = e.target.closest('button[data-loader],a[data-loader]');
+        if(btn) ZLoader.show(btn.dataset.loaderMsg || 'Processing…');
+      });
+      window.addEventListener('beforeunload', function(){ ZLoader.show('Loading…'); });
+      window.addEventListener('load', function(){ ZLoader.hide(); });
+    })();
   </script>
 
   <script src="{% static 'js/main.js' %}"></script>
