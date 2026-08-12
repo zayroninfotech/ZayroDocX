@@ -1,0 +1,366 @@
+{% load static %}
+{% if not request.user.is_authenticated %}
+
+{# ─────────────────────────────────────────────────────────────────────────── #}
+{# SIGNUP POPUP — landing page auto-show + "Create one" link from login popup  #}
+{# ─────────────────────────────────────────────────────────────────────────── #}
+<div id="signupPopup" class="zp-overlay" role="dialog" aria-modal="true" aria-labelledby="zpSignupTitle" aria-hidden="true">
+  <div class="zp-card">
+    <button class="zp-close" data-close="signupPopup" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+
+    <h2 class="zp-title" id="zpSignupTitle">Create your free account</h2>
+    <p class="zp-sub">Unlock <strong class="zp-accent">OCR and AI tools</strong> for free. No credit card required.</p>
+
+    <div id="zpSignupErr" class="zp-err" style="display:none"></div>
+
+    <div class="zp-fields">
+      <div class="zp-field">
+        <span class="zp-field-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+        <input class="zp-input" type="text" id="zpSuUsername" name="username" placeholder="Username" autocomplete="username" required>
+      </div>
+      <div class="zp-field">
+        <span class="zp-field-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
+        <input class="zp-input" type="email" id="zpSuEmail" name="email" placeholder="Email (optional)" autocomplete="email">
+      </div>
+      <div class="zp-field">
+        <span class="zp-field-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <input class="zp-input" type="password" id="zpSuPassword" name="password" placeholder="Password (min 8 chars)" autocomplete="new-password" required>
+        <button type="button" class="zp-eye" data-target="zpSuPassword" tabindex="-1" aria-label="Show password">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="zp-field">
+        <span class="zp-field-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <input class="zp-input" type="password" id="zpSuPassword2" name="password2" placeholder="Confirm password" autocomplete="new-password" required>
+      </div>
+    </div>
+
+    <button class="zp-btn-primary" id="zpSignupSubmit" type="button">
+      <span class="zp-btn-text">Create Free Account</span>
+      <span class="zp-btn-spin" style="display:none"></span>
+    </button>
+
+    <div class="zp-foot-note">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      No credit card required
+    </div>
+
+    <p class="zp-switch">Already have an account? <button type="button" class="zp-switch-btn" data-open="loginPopup" data-close="signupPopup">Sign in</button></p>
+  </div>
+</div>
+
+{# ─────────────────────────────────────────────────────────────────────────── #}
+{# LOGIN POPUP — dashboard + tool pages auto-show                              #}
+{# ─────────────────────────────────────────────────────────────────────────── #}
+<div id="loginPopup" class="zp-overlay" role="dialog" aria-modal="true" aria-labelledby="zpLoginTitle" aria-hidden="true">
+  <div class="zp-card">
+    <button class="zp-close" data-close="loginPopup" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+
+    <h2 class="zp-title" id="zpLoginTitle">Welcome back</h2>
+    <p class="zp-sub">Sign in to continue to <strong class="zp-accent">ZayroDocX</strong>.</p>
+
+    <div id="zpLoginErr" class="zp-err" style="display:none"></div>
+
+    <div class="zp-fields">
+      <div class="zp-field">
+        <span class="zp-field-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+        <input class="zp-input" type="text" id="zpLiUsername" name="username" placeholder="Username" autocomplete="username" required>
+      </div>
+      <div class="zp-field">
+        <span class="zp-field-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <input class="zp-input" type="password" id="zpLiPassword" name="password" placeholder="Password" autocomplete="current-password" required>
+        <button type="button" class="zp-eye" data-target="zpLiPassword" tabindex="-1" aria-label="Show password">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <button class="zp-btn-primary" id="zpLoginSubmit" type="button">
+      <span class="zp-btn-text">Sign In</span>
+      <span class="zp-btn-spin" style="display:none"></span>
+    </button>
+
+    <p class="zp-switch">Don't have an account? <button type="button" class="zp-switch-btn" data-open="signupPopup" data-close="loginPopup">Create one</button></p>
+  </div>
+</div>
+
+{# ── Shared styles ── #}
+<style>
+.zp-overlay{
+  display:none; position:fixed; inset:0; z-index:10000;
+  background:rgba(15,23,42,.18); backdrop-filter:blur(3px);
+  align-items:center; justify-content:center; padding:1rem;
+}
+.zp-overlay.zp-open{ display:flex; }
+.zp-card{
+  position:relative; background:#fff; border-radius:20px;
+  padding:2rem 2rem 1.8rem; width:100%; max-width:420px;
+  box-shadow:0 2px 8px rgba(0,0,0,.06), 0 24px 64px rgba(15,23,42,.18);
+  animation:zpIn .2s ease;
+}
+@keyframes zpIn{ from{opacity:0;transform:translateY(12px) scale(.975)} to{opacity:1;transform:none} }
+.zp-close{
+  position:absolute; top:.9rem; right:.9rem;
+  width:32px; height:32px; border:none; background:#f1f5f9;
+  border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  color:#64748b; transition:background .15s, color .15s; flex:none;
+}
+.zp-close:hover{ background:#e2e8f0; color:#0f172a; }
+.zp-brand{ display:flex; justify-content:center; margin-bottom:.9rem; }
+.zp-logo{
+  width:48px; height:48px; background:linear-gradient(140deg,#dc2626,#991b1b);
+  border-radius:12px; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 6px 20px rgba(220,38,38,.3); overflow:hidden;
+}
+.zp-logo img{ width:28px; height:28px; object-fit:contain; }
+.zp-title{ font-size:1.25rem; font-weight:700; color:#0f172a; text-align:center; margin:0 0 .35rem; letter-spacing:-.025em; }
+.zp-sub{ font-size:.82rem; color:#64748b; text-align:center; margin:0 0 1.2rem; line-height:1.5; }
+.zp-accent{ color:#dc2626; font-weight:600; }
+.zp-err{
+  background:#fef2f2; border:1.5px solid #fecaca; color:#dc2626;
+  border-radius:10px; padding:.6rem .9rem; font-size:.8rem; margin-bottom:.9rem;
+  display:flex; align-items:center; gap:.5rem;
+}
+.zp-fields{ display:flex; flex-direction:column; gap:.65rem; margin-bottom:.9rem; }
+.zp-row{ display:grid; grid-template-columns:1fr 1fr; gap:.65rem; }
+.zp-field{
+  position:relative; display:flex; align-items:center;
+  border:1.5px solid #e2e8f0; border-radius:12px; background:#fff;
+  transition:border-color .15s, box-shadow .15s;
+}
+.zp-field:focus-within{ border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.1); }
+.zp-field-icon{
+  display:flex; align-items:center; justify-content:center;
+  width:40px; flex:none; color:#94a3b8;
+}
+.zp-input{
+  flex:1; border:none; outline:none; background:transparent;
+  font-size:.88rem; color:#0f172a; padding:.72rem .75rem .72rem 0;
+  font-family:inherit;
+}
+.zp-input::placeholder{ color:#c4cad3; }
+.zp-eye{
+  width:36px; border:none; background:none; cursor:pointer;
+  color:#94a3b8; display:flex; align-items:center; justify-content:center;
+  flex:none; padding:0; transition:color .15s;
+}
+.zp-eye:hover{ color:#64748b; }
+.zp-btn-primary{
+  width:100%; padding:.82rem 1rem; border:none; border-radius:12px;
+  background:linear-gradient(135deg,#dc2626 0%,#991b1b 100%);
+  color:#fff; font-size:.93rem; font-weight:600; cursor:pointer;
+  box-shadow:0 4px 18px rgba(220,38,38,.38); transition:transform .12s, box-shadow .15s;
+  display:flex; align-items:center; justify-content:center; gap:.5rem;
+  font-family:inherit; margin-bottom:.75rem;
+}
+.zp-btn-primary:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 8px 24px rgba(220,38,38,.5); }
+.zp-btn-primary:disabled{ opacity:.7; cursor:not-allowed; transform:none; }
+.zp-btn-spin{
+  width:16px; height:16px; border:2px solid rgba(255,255,255,.35);
+  border-top-color:#fff; border-radius:50%; animation:zpSpin .6s linear infinite; flex:none;
+}
+@keyframes zpSpin{ to{ transform:rotate(360deg); } }
+.zp-foot-note{
+  display:flex; align-items:center; justify-content:center;
+  gap:.4rem; font-size:.74rem; color:#94a3b8; margin-bottom:.75rem;
+}
+.zp-switch{ text-align:center; font-size:.82rem; color:#64748b; margin:0; }
+.zp-switch-btn{
+  background:none; border:none; color:#dc2626; font-weight:700;
+  cursor:pointer; font-size:.82rem; padding:0; font-family:inherit;
+  text-decoration:underline; text-decoration-color:transparent;
+  transition:text-decoration-color .15s;
+}
+.zp-switch-btn:hover{ text-decoration-color:#dc2626; }
+@media(max-width:480px){
+  .zp-card{ padding:1.6rem 1.3rem 1.4rem; border-radius:16px; }
+  .zp-row{ grid-template-columns:1fr; }
+}
+</style>
+
+{# ── Popup controller ── #}
+<script>
+(function(){
+  var INITIAL_DELAY = {{ popup_config.initial_delay_ms }};
+  var SK_SIGNUP = 'zayrox_signup_shown';
+  var SK_LOGIN  = 'zayrox_login_shown';
+
+  function csrfToken(){
+    var m = document.cookie.match(/csrftoken=([^;]+)/);
+    return m ? m[1] : '';
+  }
+
+  /* ── open / close ── */
+  function openPopup(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    el.classList.add('zp-open');
+    el.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+    var first = el.querySelector('input');
+    if(first) setTimeout(function(){ first.focus(); }, 80);
+  }
+  function closePopup(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    el.classList.remove('zp-open');
+    el.setAttribute('aria-hidden','true');
+    if(!document.querySelector('.zp-overlay.zp-open')){
+      document.body.style.overflow = '';
+    }
+  }
+
+  /* ── password eye toggle ── */
+  document.querySelectorAll('.zp-eye').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var inp = document.getElementById(btn.dataset.target);
+      if(!inp) return;
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    });
+  });
+
+  /* ── close buttons ── */
+  document.querySelectorAll('[data-close]').forEach(function(btn){
+    btn.addEventListener('click', function(){ closePopup(btn.dataset.close); });
+  });
+
+  /* ── switch buttons (open one, close another) ── */
+  document.querySelectorAll('[data-open]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(btn.dataset.close) closePopup(btn.dataset.close);
+      openPopup(btn.dataset.open);
+    });
+  });
+
+  /* ── backdrop click closes ── */
+  document.querySelectorAll('.zp-overlay').forEach(function(overlay){
+    overlay.addEventListener('click', function(e){
+      if(e.target === overlay){
+        var id = overlay.id;
+        closePopup(id);
+        if(id === 'loginPopup') sessionStorage.setItem(SK_LOGIN, '1');
+        if(id === 'signupPopup') sessionStorage.setItem(SK_SIGNUP, '1');
+      }
+    });
+  });
+
+  /* ── ESC key ── */
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Escape') return;
+    var open = document.querySelector('.zp-overlay.zp-open');
+    if(open){
+      closePopup(open.id);
+      if(open.id === 'loginPopup') sessionStorage.setItem(SK_LOGIN, '1');
+      if(open.id === 'signupPopup') sessionStorage.setItem(SK_SIGNUP, '1');
+    }
+  });
+
+  /* ── AJAX helper ── */
+  function submitForm(url, fields, errEl, submitBtn, onSuccess){
+    var body = new FormData();
+    body.append('csrfmiddlewaretoken', csrfToken());
+    Object.keys(fields).forEach(function(k){ body.append(k, fields[k]); });
+
+    errEl.style.display = 'none';
+    var txt = submitBtn.querySelector('.zp-btn-text');
+    var spin = submitBtn.querySelector('.zp-btn-spin');
+    txt.style.display = 'none';
+    spin.style.display = '';
+    submitBtn.disabled = true;
+
+    fetch(url, { method:'POST', body:body, credentials:'same-origin' })
+      .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
+      .then(function(res){
+        if(res.data.ok){
+          onSuccess();
+        } else {
+          errEl.textContent = res.data.error || 'Something went wrong.';
+          errEl.style.display = 'flex';
+          txt.style.display = '';
+          spin.style.display = 'none';
+          submitBtn.disabled = false;
+        }
+      })
+      .catch(function(){
+        errEl.textContent = 'Network error — please try again.';
+        errEl.style.display = 'flex';
+        txt.style.display = '';
+        spin.style.display = 'none';
+        submitBtn.disabled = false;
+      });
+  }
+
+  /* ── Signup submit ── */
+  var signupBtn = document.getElementById('zpSignupSubmit');
+  if(signupBtn){
+    signupBtn.addEventListener('click', function(){
+      submitForm(
+        '/ajax/register/',
+        {
+          username:  document.getElementById('zpSuUsername').value,
+          email:     document.getElementById('zpSuEmail').value,
+          password:  document.getElementById('zpSuPassword').value,
+          password2: document.getElementById('zpSuPassword2').value,
+        },
+        document.getElementById('zpSignupErr'),
+        signupBtn,
+        function(){ window.location.reload(); }
+      );
+    });
+  }
+
+  /* ── Login submit ── */
+  var loginBtn = document.getElementById('zpLoginSubmit');
+  if(loginBtn){
+    loginBtn.addEventListener('click', function(){
+      submitForm(
+        '/ajax/login/',
+        {
+          username: document.getElementById('zpLiUsername').value,
+          password: document.getElementById('zpLiPassword').value,
+        },
+        document.getElementById('zpLoginErr'),
+        loginBtn,
+        function(){ window.location.reload(); }
+      );
+    });
+  }
+
+  /* ── Enter key submits ── */
+  document.getElementById('signupPopup').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') signupBtn && signupBtn.click();
+  });
+  document.getElementById('loginPopup').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') loginBtn && loginBtn.click();
+  });
+
+  /* ── Auto-show logic ── */
+  var path = window.location.pathname;
+  var skipAll = ['/login/', '/register/', '/about/'];
+  if(skipAll.indexOf(path) !== -1) return;
+
+  if(path === '/'){
+    /* Signup popup — landing page, once per session */
+    if(!sessionStorage.getItem(SK_SIGNUP)){
+      setTimeout(function(){
+        sessionStorage.setItem(SK_SIGNUP, '1');
+        openPopup('signupPopup');
+      }, INITIAL_DELAY);
+    }
+  } else {
+    /* Login popup — dashboard + tool pages, once per session */
+    if(!sessionStorage.getItem(SK_LOGIN)){
+      setTimeout(function(){
+        sessionStorage.setItem(SK_LOGIN, '1');
+        openPopup('loginPopup');
+      }, INITIAL_DELAY);
+    }
+  }
+
+})();
+</script>
+{% endif %}

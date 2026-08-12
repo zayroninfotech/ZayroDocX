@@ -183,6 +183,13 @@ body { padding-top: var(--mh-h); }
   text-decoration: none; white-space: nowrap; transition: opacity .15s;
 }
 .mh-login-btn:hover { opacity: .88; color: #fff; }
+.mh-signup-btn {
+  display: inline-flex; align-items: center;
+  padding: .35rem .9rem; border-radius: 20px; font-size: .78rem; font-weight: 600;
+  background: var(--brand); color: #fff; border: none; cursor: pointer;
+  white-space: nowrap; transition: opacity .15s; font-family: inherit;
+}
+.mh-signup-btn:hover { opacity: .88; }
 .mh-logout-btn { background: #6b7280; }
 .mh-admin-btn {
   display: inline-flex; align-items: center; gap: .35rem;

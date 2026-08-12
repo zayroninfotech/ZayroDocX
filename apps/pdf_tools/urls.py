@@ -1,33 +1,55 @@
 from django.urls import path
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+from urllib.parse import quote as urlquote
 
-# ── Dynamic privilege check from DB ──────────────────────────────────────────
+
 def tool_page(template, slug):
+    """
+    Serve a tool page after checking plan access.
+    - login_required  → redirect to /login/?next=
+    - upgrade_required / limit_reached → show page with an access notice
+    """
     def view(request):
-        try:
-            from apps.dashboard.models import ToolPrivilege
-            priv = ToolPrivilege.objects.filter(slug=slug).first()
-            if priv and priv.requires_login and not request.user.is_authenticated:
-                return redirect(f'/login/?next={request.path}')
-        except Exception:
-            pass
-        return render(request, f'pdf_tools/{template}')
+        from apps.dashboard.access import check_access
+        status, msg = check_access(request, slug)
+        if status == 'login_required':
+            return redirect(f'/login/?next={urlquote(request.path)}')
+        ctx = {}
+        if status in ('upgrade_required', 'limit_reached'):
+            ctx['access_status'] = status
+            ctx['access_msg'] = msg
+        return render(request, f'pdf_tools/{template}', ctx)
     view.__name__ = slug.replace('-', '_') + '_page_view'
     return view
 
 
 def protected_api(view_func):
+    """
+    Guard an API endpoint with plan-aware access control.
+    Records usage on successful access.
+    """
     def wrapper(request, *args, **kwargs):
-        try:
-            from apps.dashboard.models import ToolPrivilege
-            slug = getattr(view_func, '_tool_slug', None)
-            if slug:
-                priv = ToolPrivilege.objects.filter(slug=slug).first()
-                if priv and priv.requires_login and not request.user.is_authenticated:
-                    return JsonResponse({'error': 'Login required to use this tool.'}, status=401)
-        except Exception:
-            pass
+        slug = getattr(view_func, '_tool_slug', None)
+        if slug:
+            from apps.dashboard.access import check_access, record_usage
+            status, msg = check_access(request, slug)
+            if status == 'login_required':
+                return JsonResponse(
+                    {'error': 'Login required. Create a free account.', 'action': 'login'},
+                    status=401,
+                )
+            if status == 'upgrade_required':
+                return JsonResponse(
+                    {'error': 'Upgrade your plan to access this tool.', 'action': 'upgrade'},
+                    status=403,
+                )
+            if status == 'limit_reached':
+                return JsonResponse(
+                    {'error': msg, 'action': 'upgrade'},
+                    status=429,
+                )
+            record_usage(request, slug)
         return view_func(request, *args, **kwargs)
     wrapper.__name__ = view_func.__name__
     return wrapper

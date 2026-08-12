@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from apps.pdf_tools.mongo_db import get_recent_jobs, get_stats
 
 
@@ -21,6 +21,12 @@ def landing(request):
 def register(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
+
+    next_url = request.GET.get('next') or request.POST.get('next') or '/'
+    from django.utils.http import url_has_allowed_host_and_scheme
+    if not url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        next_url = '/'
+
     error = None
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -36,8 +42,8 @@ def register(request):
         else:
             user = User.objects.create_user(username=username, email=email, password=password)
             login(request, user)
-            return redirect('dashboard')
-    return render(request, 'register.html', {'error': error})
+            return redirect(next_url)
+    return render(request, 'register.html', {'error': error, 'next': next_url})
 
 
 def dashboard(request):
@@ -61,6 +67,42 @@ def dashboard(request):
         'tool_privs': tool_privs,
     }
     return render(request, 'dashboard.html', context)
+
+
+@require_POST
+def ajax_register(request):
+    """Popup inline registration — returns JSON, no page redirect."""
+    if request.user.is_authenticated:
+        return JsonResponse({'ok': True})
+    username  = request.POST.get('username', '').strip()
+    email     = request.POST.get('email', '').strip()
+    password  = request.POST.get('password', '')
+    password2 = request.POST.get('password2', '')
+    if not username or not password:
+        return JsonResponse({'ok': False, 'error': 'Username and password are required.'}, status=400)
+    if len(password) < 8:
+        return JsonResponse({'ok': False, 'error': 'Password must be at least 8 characters.'}, status=400)
+    if password != password2:
+        return JsonResponse({'ok': False, 'error': 'Passwords do not match.'}, status=400)
+    if User.objects.filter(username=username).exists():
+        return JsonResponse({'ok': False, 'error': 'Username already taken.'}, status=400)
+    user = User.objects.create_user(username=username, email=email, password=password)
+    login(request, user)
+    return JsonResponse({'ok': True})
+
+
+@require_POST
+def ajax_login(request):
+    """Popup inline login — returns JSON, no page redirect."""
+    if request.user.is_authenticated:
+        return JsonResponse({'ok': True})
+    username = request.POST.get('username', '').strip()
+    password = request.POST.get('password', '')
+    user = authenticate(request, username=username, password=password)
+    if user is None:
+        return JsonResponse({'ok': False, 'error': 'Incorrect username or password.'}, status=401)
+    login(request, user)
+    return JsonResponse({'ok': True})
 
 
 def superadmin_required(view_func):

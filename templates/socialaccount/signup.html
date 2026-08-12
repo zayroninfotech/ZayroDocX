@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Complete sign up — ZayroDocX{% endblock %}
+{% block content %}
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+.ss-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 120px);padding:2rem;}
+.ss-card{background:#fff;width:100%;max-width:420px;border:1px solid #e2e8f0;border-radius:24px;padding:2.4rem 2.5rem;box-shadow:0 1px 2px rgba(0,0,0,.04),0 12px 48px rgba(0,0,0,.08);}
+.ss-top{text-align:center;margin-bottom:1.6rem;}
+.ss-icon{width:54px;height:54px;margin:0 auto 1.2rem;background:linear-gradient(140deg,#dc2626,#991b1b);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;box-shadow:0 6px 22px rgba(220,38,38,.4);}
+.ss-title{font-size:1.3rem;font-weight:700;color:#0f172a;margin-bottom:.3rem;letter-spacing:-.025em;}
+.ss-sub{font-size:.82rem;color:#94a3b8;}
+.ss-field{margin-bottom:.9rem;}
+.ss-label{display:block;font-size:.72rem;font-weight:600;color:#475569;margin-bottom:.38rem;letter-spacing:.06em;text-transform:uppercase;}
+.ss-input{width:100%;padding:.72rem 1.1rem;border:1.5px solid #e2e8f0;border-radius:12px;font-size:.9rem;color:#0f172a;outline:none;transition:border-color .15s,box-shadow .15s;}
+.ss-input:focus{border-color:#dc2626;box-shadow:0 0 0 4px rgba(220,38,38,.1);}
+.ss-btn{width:100%;padding:.82rem 1rem;background:linear-gradient(135deg,#dc2626 0%,#991b1b 100%);color:#fff;border:none;border-radius:12px;font-size:.93rem;font-weight:600;cursor:pointer;box-shadow:0 4px 18px rgba(220,38,38,.4);transition:transform .12s,box-shadow .15s;}
+.ss-btn:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(220,38,38,.52);}
+</style>
+<div class="ss-wrap">
+  <div class="ss-card">
+    <div class="ss-top">
+      <div class="ss-icon"><i class="fa-brands fa-google"></i></div>
+      <div class="ss-title">Almost there!</div>
+      <div class="ss-sub">Choose a username to complete your ZayroDocX account.</div>
+    </div>
+    <form method="post" action="{% url 'socialaccount_signup' %}">
+      {% csrf_token %}
+      {{ redirect_field }}
+      {% for field in form %}
+      <div class="ss-field">
+        <label class="ss-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        <input class="ss-input" type="{{ field.field.widget.input_type }}"
+               name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+               value="{{ field.value|default:'' }}"
+               {% if field.field.required %}required{% endif %}
+               autofocus>
+        {% if field.errors %}<p style="color:#dc2626;font-size:.75rem;margin-top:.3rem;">{{ field.errors.0 }}</p>{% endif %}
+      </div>
+      {% endfor %}
+      <button class="ss-btn" type="submit"><i class="fa-solid fa-rocket"></i>&nbsp; Complete Sign Up</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

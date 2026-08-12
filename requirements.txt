@@ -1,4 +1,5 @@
 Django==4.2.16
+django-allauth[google]>=0.63.0
 django-cors-headers==4.4.0
 pymongo==4.8.0
 mongoengine==0.29.0

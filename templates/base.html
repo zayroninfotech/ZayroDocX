@@ -24,8 +24,7 @@
 
       <!-- Logo -->
       <a href="{% url 'dashboard' %}" class="mh-brand">
-        <div class="mh-logo"><img src="{% static 'img/logo.png' %}" alt="ZayroDocX"></div>
-        <span class="mh-name">ZayroDocX</span>
+        <span class="mh-name">Zayro<span style="color:#dc2626;">DocX</span></span>
       </a>
 
       <!-- Nav -->
@@ -531,6 +530,8 @@
   })();
 </script>
   {% block extra_js %}{% endblock %}
+
+  {% include 'partials/_auth_popup.html' %}
 </body>
 
 </html>

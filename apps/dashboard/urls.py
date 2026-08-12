@@ -8,4 +8,7 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('zayro-admin/', views.admin_panel, name='admin_panel'),
     path('zayro-admin/toggle/<slug:slug>/', views.toggle_tool_privilege, name='toggle_tool'),
+    # Popup inline auth (no page redirect, JSON only)
+    path('ajax/register/', views.ajax_register, name='ajax_register'),
+    path('ajax/login/',    views.ajax_login,    name='ajax_login'),
 ]

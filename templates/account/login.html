@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Sign in — ZayroDocX{% endblock %}
+{% block content %}
+{# Allauth's /accounts/login/ — styled to match our custom /login/ page #}
+<script>window.location.replace('/login/?next={{ redirect_field_value|urlencode }}');</script>
+<noscript><meta http-equiv="refresh" content="0;url=/login/"></noscript>
+{% endblock %}
