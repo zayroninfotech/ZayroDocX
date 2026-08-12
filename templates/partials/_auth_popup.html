@@ -48,6 +48,10 @@
     </div>
 
     <p class="zp-switch">Already have an account? <button type="button" class="zp-switch-btn" data-open="loginPopup" data-close="signupPopup">Sign in</button></p>
+
+    <div style="text-align:center;margin-top:8px;">
+      <button type="button" onclick="document.getElementById('signupPopup').classList.remove('zp-open'); window.location.href='/tools/guest/';" style="background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;text-decoration:underline;">Skip for now</button>
+    </div>
   </div>
 </div>
 
@@ -341,7 +345,7 @@
 
   /* ── Auto-show logic ── */
   var path = window.location.pathname;
-  var skipAll = ['/login/', '/register/', '/about/'];
+  var skipAll = ['/login/', '/register/', '/about/', '/tools/guest/'];
   if(skipAll.indexOf(path) !== -1) return;
 
   if(path === '/'){

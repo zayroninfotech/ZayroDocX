@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Free PDF Tools — ZayroDocX{% endblock %}
+
+{% block content %}
+<div style="max-width:900px;margin:40px auto;padding:0 20px;">
+
+  <!-- Banner -->
+  <div style="background:linear-gradient(135deg,#fff5f5,#ffe4e4);border:1px solid #fecaca;border-radius:16px;padding:20px 24px;margin-bottom:32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+      <div style="font-size:14px;font-weight:700;color:#dc2626;margin-bottom:4px;">⚡ Free Access — Limited Tools</div>
+      <div style="font-size:13px;color:#6b7280;">Create a free account to unlock all 50+ tools, AI features and more.</div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="document.getElementById('signupPopup').classList.add('zp-open')" style="background:#dc2626;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;">Create Free Account</button>
+      <button onclick="document.getElementById('loginPopup').classList.add('zp-open')" style="background:#fff;color:#374151;border:1px solid #e5e7eb;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;">Sign In</button>
+    </div>
+  </div>
+
+  <h2 style="font-size:22px;font-weight:800;color:#111827;margin-bottom:6px;">Free Tools</h2>
+  <p style="color:#6b7280;font-size:14px;margin-bottom:28px;">Use these tools without an account.</p>
+
+  <!-- Organize PDF -->
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <div style="width:38px;height:38px;background:#fff5f5;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+        <i class="fa-solid fa-layer-group" style="color:#dc2626;font-size:16px;"></i>
+      </div>
+      <span style="font-size:16px;font-weight:800;color:#111827;">Organize PDF</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">
+
+      <a href="{% url 'merge_pdf_page' %}" class="guest-tool-btn">
+        <span class="gt-icon" style="background:#fee2e2;">
+          <img src="{% static 'img/merge-pdf-icon.png' %}" alt="Merge PDF">
+        </span>
+        Merge PDF
+      </a>
+
+      <a href="{% url 'split_pdf_page' %}" class="guest-tool-btn">
+        <span class="gt-icon" style="background:transparent;">
+          <img src="{% static 'img/split-pdf-icon.png' %}" alt="Split PDF">
+        </span>
+        Split PDF
+      </a>
+
+      <a href="{% url 'remove_pages_page' %}" class="guest-tool-btn">
+        <span class="gt-icon" style="background:rgba(220,38,38,0.12);color:#dc2626;">
+          <i class="fa-solid fa-trash-can"></i>
+        </span>
+        Remove Pages
+      </a>
+
+      <a href="{% url 'extract_pages_page' %}" class="guest-tool-btn">
+        <span class="gt-icon" style="background:transparent;">
+          <img src="{% static 'img/extract-pages-icon.png' %}" alt="Extract Pages">
+        </span>
+        Extract Pages
+      </a>
+
+      <a href="{% url 'scan_pdf_page' %}" class="guest-tool-btn">
+        <span class="gt-icon" style="background:transparent;">
+          <img src="{% static 'img/image-to-pdf-icon.png' %}" alt="Image to PDF">
+        </span>
+        Image to PDF
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Convert PDF -->
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <div style="width:38px;height:38px;background:#eff6ff;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+        <i class="fa-solid fa-right-left" style="color:#2563eb;font-size:16px;"></i>
+      </div>
+      <span style="font-size:16px;font-weight:800;color:#111827;">Convert PDF</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">
+
+      <a href="{% url 'word_to_pdf_page' %}" class="guest-tool-btn">
+        <span class="gt-icon" style="background:transparent;">
+          <img src="{% static 'img/word-to-pdf-icon.png' %}" alt="Word to PDF">
+        </span>
+        Word to PDF
+      </a>
+
+      <a href="{% url 'pptx_to_pdf_page' %}" class="guest-tool-btn">
+        <span class="gt-icon" style="background:rgba(240,180,0,0.16);color:#d99e00;">
+          <i class="fa-solid fa-file-powerpoint"></i>
+        </span>
+        PowerPoint to PDF
+      </a>
+
+      <a href="{% url 'excel_to_pdf_page' %}" class="guest-tool-btn">
+        <span class="gt-icon" style="background:rgba(33,115,70,0.14);color:#217346;">
+          <i class="fa-solid fa-file-excel"></i>
+        </span>
+        Excel to PDF
+      </a>
+
+      <a href="{% url 'html_to_pdf_page' %}" class="guest-tool-btn">
+        <span class="gt-icon" style="background:rgba(227,76,38,0.14);color:#e34c26;">
+          <i class="fa-brands fa-html5"></i>
+        </span>
+        HTML to PDF
+      </a>
+
+      <a href="{% url 'pdf_to_jpg_page' %}" class="guest-tool-btn">
+        <span class="gt-icon" style="background:rgba(147,51,234,0.14);color:#9333ea;">
+          <i class="fa-solid fa-file-image"></i>
+        </span>
+        PDF to JPG
+      </a>
+
+      <a href="{% url 'pdf_to_word_page' %}" class="guest-tool-btn">
+        <span class="gt-icon" style="background:transparent;">
+          <img src="{% static 'img/pdf-to-word-icon.png' %}" alt="PDF to Word">
+        </span>
+        PDF to Word
+      </a>
+
+      <a href="{% url 'pdf_to_pptx_page' %}" class="guest-tool-btn">
+        <span class="gt-icon" style="background:rgba(240,180,0,0.16);color:#d99e00;">
+          <i class="fa-solid fa-file-powerpoint"></i>
+        </span>
+        PDF to PowerPoint
+      </a>
+
+      <a href="{% url 'pdf_to_excel_page' %}" class="guest-tool-btn">
+        <span class="gt-icon" style="background:rgba(33,115,70,0.14);color:#217346;">
+          <i class="fa-solid fa-file-excel"></i>
+        </span>
+        PDF to Excel
+      </a>
+
+    </div>
+  </div>
+
+</div>
+
+<style>
+.guest-tool-btn {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 14px; background:#f9fafb;
+  border:1px solid #e5e7eb; border-radius:10px;
+  color:#374151; font-size:13.5px; font-weight:600;
+  text-decoration:none; transition:all .15s;
+}
+.guest-tool-btn:hover { background:#fff5f5; border-color:#fca5a5; color:#dc2626; }
+.gt-icon {
+  flex-shrink:0;
+  width:32px; height:32px; border-radius:7px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:15px;
+}
+.gt-icon img { width:28px; height:28px; object-fit:contain; }
+</style>
+{% endblock %}

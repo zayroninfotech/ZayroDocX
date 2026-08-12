@@ -24,6 +24,12 @@ def register(request):
     return redirect('/')
 
 
+def guest_tools(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    return render(request, 'guest_tools.html')
+
+
 def dashboard(request):
     try:
         stats = get_stats()
