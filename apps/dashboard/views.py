@@ -21,29 +21,7 @@ def landing(request):
 def register(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
-
-    next_url = request.GET.get('next') or request.POST.get('next') or '/'
-    from django.utils.http import url_has_allowed_host_and_scheme
-    if not url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-        next_url = '/'
-
-    error = None
-    if request.method == 'POST':
-        username = request.POST.get('username', '').strip()
-        email = request.POST.get('email', '').strip()
-        password = request.POST.get('password', '')
-        password2 = request.POST.get('password2', '')
-        if not username or not password:
-            error = 'Username and password are required.'
-        elif password != password2:
-            error = 'Passwords do not match.'
-        elif User.objects.filter(username=username).exists():
-            error = 'Username already taken.'
-        else:
-            user = User.objects.create_user(username=username, email=email, password=password)
-            login(request, user)
-            return redirect(next_url)
-    return render(request, 'register.html', {'error': error, 'next': next_url})
+    return redirect('/')
 
 
 def dashboard(request):
@@ -108,7 +86,7 @@ def ajax_login(request):
 def superadmin_required(view_func):
     def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated or not request.user.is_superuser:
-            return redirect('/login/?next=' + request.path)
+            return redirect('/')
         return view_func(request, *args, **kwargs)
     wrapper.__name__ = view_func.__name__
     return wrapper

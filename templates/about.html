@@ -1,304 +1,783 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}About — ZayroDocX{% endblock %}
-{% block extra_head %}<style>
-.ab-wrap { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.2rem 4rem; }
 
-/* Hero */
+{% block extra_head %}
+<style>
+/* ═══ Tokens ═══ */
+:root{
+  --ab-bg:        #ffffff;
+  --ab-bg-tint:   #fdf8f8;
+  --ab-bg-subtle: #f6f6f8;
+  --ab-surface:   #ffffff;
+  --ab-border:    #e8e8eb;
+  --ab-border-s:  #d6d6db;
+  --ab-text-1:    #14161a;
+  --ab-text-2:    #4b4e57;
+  --ab-text-3:    #6a6d76;
+  --ab-brand:     #dc2626;
+  --ab-brand-s:   #fdecec;
+  --ab-brand-ss:  #fcd9d9;
+  --ab-brand-dk:  #b91c1c;
+  --ab-ink:       #12141a;
+  --ab-success:   #059669;
+  --ab-success-s: #ecfdf5;
+  --ab-r-sm: 8px; --ab-r-md: 10px; --ab-r-lg: 14px; --ab-r-xl: 20px; --ab-r-full: 999px;
+  --ab-shadow-sm: 0 1px 2px rgba(15,18,28,.04), 0 1px 3px rgba(15,18,28,.05);
+  --ab-shadow:    0 4px 14px -6px rgba(15,18,28,.10), 0 1px 2px rgba(15,18,28,.04);
+  --ab-shadow-md: 0 16px 40px -18px rgba(15,18,28,.20), 0 2px 6px rgba(15,18,28,.04);
+  --ab-shadow-lg: 0 28px 60px -24px rgba(15,18,28,.28);
+  --ab-shadow-brand: 0 8px 22px -8px rgba(220,38,38,.40);
+  --ab-ease: cubic-bezier(.4,0,.2,1);
+  --ab-ease-out: cubic-bezier(.16,1,.3,1);
+  --ab-t: 200ms;
+  --ab-pad: clamp(28px, 3.5vw, 44px);   /* consistent section padding */
+}
+
+/* ═══ Layout ═══ */
+.ab-page { background: var(--ab-bg); color: var(--ab-text-1); }
+.ab-container { max-width: 1100px; margin: 0 auto; padding-inline: clamp(18px, 3.5vw, 40px); }
+.ab-section { padding-block: var(--ab-pad); }
+
+/* ═══ Eyebrow ═══ */
+.ab-eyebrow {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ab-brand);
+}
+.ab-eyebrow--light { color: #fda4a4; }
+.ab-eyebrow--pill {
+  background: var(--ab-brand-s); border: 1px solid var(--ab-brand-ss);
+  padding: 5px 13px; border-radius: var(--ab-r-full);
+  letter-spacing: 0; text-transform: none; font-size: .78rem; font-weight: 600;
+}
+.ab-eyebrow .dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--ab-brand);
+  box-shadow: 0 0 0 3px rgba(220,38,38,.14);
+  animation: ab-pulse 2.4s var(--ab-ease) infinite;
+}
+@keyframes ab-pulse {
+  0%,100%{ box-shadow: 0 0 0 3px rgba(220,38,38,.14); }
+  50%    { box-shadow: 0 0 0 7px rgba(220,38,38,.04); }
+}
+
+/* ═══ Buttons ═══ */
+.ab-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  font-weight: 600; font-size: .82rem;
+  padding: .6rem 1.25rem; border-radius: var(--ab-r-full);
+  border: 1px solid transparent; cursor: pointer; white-space: nowrap;
+  text-decoration: none; min-height: 38px;
+  transition: background var(--ab-t) var(--ab-ease), color var(--ab-t) var(--ab-ease),
+              border-color var(--ab-t) var(--ab-ease), transform var(--ab-t) var(--ab-ease),
+              box-shadow var(--ab-t) var(--ab-ease);
+}
+.ab-btn--primary { background: var(--ab-brand); color: #fff; box-shadow: 0 3px 10px -4px rgba(220,38,38,.45); }
+.ab-btn--primary:hover { background: var(--ab-brand-dk); transform: translateY(-1px); box-shadow: var(--ab-shadow-brand); }
+.ab-btn--ghost { background: rgba(255,255,255,.08); color: #e9ebf0; border-color: rgba(255,255,255,.15); }
+.ab-btn--ghost:hover { background: rgba(255,255,255,.15); transform: translateY(-1px); }
+.ab-btn--secondary { background: var(--ab-surface); border-color: var(--ab-border-s); color: var(--ab-text-1); }
+.ab-btn--secondary:hover { background: var(--ab-bg-subtle); transform: translateY(-1px); box-shadow: var(--ab-shadow); }
+
+/* ═══ Section head ═══ */
+.ab-sec-head { margin-bottom: 24px; max-width: 680px; }
+.ab-sec-head h2 { font-size: clamp(1.25rem, 2.2vw, 1.75rem); font-weight: 700; letter-spacing: -.025em; color: var(--ab-text-1); margin-top: 10px; line-height: 1.18; text-wrap: balance; }
+.ab-sec-head p { margin-top: 10px; font-size: .875rem; color: var(--ab-text-2); line-height: 1.6; text-wrap: pretty; }
+
+/* ═══════════════════════════════════════
+   1. HERO
+═══════════════════════════════════════ */
 .ab-hero {
-  text-align: center; padding: 3rem 1rem 2.5rem;
-  border-bottom: 1px solid #f0f0f0; margin-bottom: 2.5rem;
+  background:
+    radial-gradient(120% 80% at 0% 0%, var(--ab-bg-tint), transparent 60%),
+    linear-gradient(180deg, var(--ab-bg-tint), var(--ab-bg) 72%);
+  padding-block: clamp(44px, 5.5vw, 72px) clamp(36px, 4.5vw, 56px);
+  position: relative; overflow: hidden; border-bottom: 1px solid var(--ab-border);
 }
-.ab-hero-logo {
-  width: 80px; height: 80px; margin: 0 auto 1.2rem;
-  background: linear-gradient(135deg, #dc2626, #b91c1c);
-  border-radius: 22px; display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 8px 32px rgba(220,38,38,.28);
+.ab-hero::before {
+  content: ""; position: absolute; top: -120px; right: -80px;
+  width: 420px; height: 420px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(220,38,38,.06), transparent 68%);
+  pointer-events: none;
 }
-.ab-hero-logo img { width: 52px; height: 52px; object-fit: contain; }
-.ab-hero h1 { font-size: 2.2rem; font-weight: 900; color: #111; margin: 0 0 .5rem; letter-spacing: -.03em; }
-.ab-hero p { font-size: 1.05rem; color: #555; max-width: 560px; margin: 0 auto 1.4rem; line-height: 1.65; }
-.ab-version-badge {
-  display: inline-flex; align-items: center; gap: .45rem;
-  background: #fff8f8; border: 1.5px solid #fca5a5; color: #dc2626;
-  font-size: .78rem; font-weight: 700; border-radius: 20px; padding: .3rem .85rem;
+.ab-hero-inner {
+  display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(240px, .75fr);
+  gap: clamp(28px, 4vw, 52px); align-items: center; position: relative;
 }
+.ab-hero h1 {
+  font-size: clamp(1.75rem, 4vw, 2.75rem); font-weight: 800;
+  line-height: 1.08; letter-spacing: -.03em;
+  color: var(--ab-text-1); margin: 18px 0 0; text-wrap: balance;
+}
+.ab-hero h1 .accent { color: var(--ab-brand); }
+.ab-hero .ab-lede {
+  margin-top: 14px; font-size: .9rem; line-height: 1.62;
+  color: var(--ab-text-2); max-width: 520px; text-wrap: pretty;
+}
+.ab-hero .ab-sub {
+  margin-top: 10px; font-size: .84rem; line-height: 1.6;
+  color: var(--ab-text-3); max-width: 510px; text-wrap: pretty;
+}
+.ab-hero-cta { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+/* stat card */
+.ab-capbox {
+  background: var(--ab-surface); border: 1px solid var(--ab-border);
+  border-radius: var(--ab-r-xl); box-shadow: var(--ab-shadow-md); overflow: hidden;
+}
+.ab-capbox-head {
+  padding: 11px 18px; border-bottom: 1px solid var(--ab-border);
+  background: var(--ab-bg-subtle);
+  font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ab-text-3); display: flex; align-items: center; gap: 8px;
+}
+.ab-capbox-head i { color: var(--ab-brand); font-size: .72rem; }
+.ab-capbox-grid { display: grid; grid-template-columns: 1fr 1fr; }
+.ab-capbox-cell {
+  padding: 18px 18px;
+  border-right: 1px solid var(--ab-border); border-bottom: 1px solid var(--ab-border);
+  transition: background var(--ab-t) var(--ab-ease);
+}
+.ab-capbox-cell:hover { background: var(--ab-bg-tint); }
+.ab-capbox-cell:nth-child(2n) { border-right: none; }
+.ab-capbox-cell:nth-last-child(-n+2) { border-bottom: none; }
+.ab-capbox-cell .num {
+  font-size: 1.65rem; font-weight: 800; color: var(--ab-text-1);
+  letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums;
+}
+.ab-capbox-cell .num.accent { color: var(--ab-brand); }
+.ab-capbox-cell .lbl { margin-top: 5px; font-size: .72rem; color: var(--ab-text-3); font-weight: 500; line-height: 1.4; }
 
-/* Section title */
-.ab-sec { margin: 2.5rem 0 1rem; display: flex; align-items: center; gap: .7rem; }
-.ab-sec-line { flex: 1; height: 1px; background: #f0f0f0; }
-.ab-sec-label { font-size: .7rem; font-weight: 800; color: #aaa; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
-
-/* Feature grid */
-.ab-feat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: .85rem; }
-.ab-feat-card {
-  background: #fff; border: 1.5px solid #f0f0f0; border-radius: 14px;
-  padding: 1.1rem 1.2rem; display: flex; align-items: flex-start; gap: .9rem;
-  transition: border-color .15s, box-shadow .15s;
+/* ═══════════════════════════════════════
+   2. MISSION — dark band
+═══════════════════════════════════════ */
+.ab-mission {
+  background: linear-gradient(165deg, var(--ab-ink) 0%, #1a1d26 60%, #14161c 100%);
+  position: relative; overflow: hidden;
+  padding-block: clamp(44px, 5.5vw, 72px);
 }
-.ab-feat-card:hover { border-color: #fca5a5; box-shadow: 0 4px 20px rgba(220,38,38,.08); }
-.ab-feat-icon {
-  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+.ab-mission::before {
+  content: ""; position: absolute; top: -140px; left: -60px;
+  width: 480px; height: 480px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(220,38,38,.13), transparent 65%);
+  pointer-events: none;
+}
+.ab-mission::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+  background-size: 52px 52px;
+  mask-image: radial-gradient(75% 70% at 20% 40%, #000, transparent 75%);
+}
+.ab-mission-inner { position: relative; }
+.ab-mission-mark {
+  font-size: clamp(52px, 7vw, 80px); line-height: .72; color: rgba(220,38,38,.2);
+  font-weight: 900; user-select: none; display: block;
+}
+.ab-mission-text {
+  font-size: clamp(1.1rem, 2.2vw, 1.65rem); line-height: 1.38; font-weight: 700;
+  letter-spacing: -.025em; max-width: 880px; color: #f0f1f4; text-wrap: pretty;
+  margin-top: 4px;
+}
+.ab-mission-text .accent { color: #f87171; }
+.ab-mission-credit {
+  margin-top: 22px; font-size: .78rem; color: #7a7e8c;
+  display: flex; align-items: center; gap: 12px;
+}
+.ab-mission-credit strong { color: #c8cad4; font-weight: 600; }
+.ab-mission-credit::before { content: ""; width: 26px; height: 2px; background: var(--ab-brand); flex: none; }
+
+/* ═══════════════════════════════════════
+   3. PRINCIPLES — light
+═══════════════════════════════════════ */
+.ab-principles-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.ab-principle {
+  display: flex; flex-direction: column;
+  padding: 24px 22px; border-radius: var(--ab-r-xl);
+  background: var(--ab-surface); border: 1px solid var(--ab-border);
+  box-shadow: var(--ab-shadow-sm); position: relative; overflow: hidden;
+  transition: border-color var(--ab-t) var(--ab-ease), box-shadow var(--ab-t) var(--ab-ease), transform var(--ab-t) var(--ab-ease);
+}
+.ab-principle::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+  background: var(--ab-brand); transform: scaleX(0); transform-origin: left;
+  transition: transform 320ms var(--ab-ease-out);
+}
+.ab-principle:hover { transform: translateY(-3px); border-color: var(--ab-border-s); box-shadow: var(--ab-shadow-md); }
+.ab-principle:hover::after { transform: scaleX(1); }
+.ab-principle .p-icon {
+  width: 40px; height: 40px; border-radius: var(--ab-r-md);
+  background: var(--ab-brand-s); color: var(--ab-brand);
   display: flex; align-items: center; justify-content: center; font-size: .95rem;
+  transition: transform var(--ab-t) var(--ab-ease), background var(--ab-t) var(--ab-ease), color var(--ab-t) var(--ab-ease);
 }
-.ab-feat-name { font-size: .85rem; font-weight: 800; color: #111; margin-bottom: .2rem; }
-.ab-feat-desc { font-size: .75rem; color: #888; line-height: 1.5; }
-.ab-feat-ai {
-  display: inline-block; font-size: .6rem; font-weight: 700; letter-spacing: .04em;
-  background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #fff;
-  border-radius: 5px; padding: .1rem .38rem; margin-left: .3rem; vertical-align: middle;
-}
-.ab-feat-new {
-  display: inline-block; font-size: .6rem; font-weight: 700;
-  background: #dc2626; color: #fff;
-  border-radius: 5px; padding: .1rem .38rem; margin-left: .3rem; vertical-align: middle;
-}
+.ab-principle:hover .p-icon { transform: rotate(-7deg) scale(1.07); background: var(--ab-brand); color: #fff; }
+.ab-principle .p-title { font-size: .9rem; font-weight: 700; color: var(--ab-text-1); margin: 14px 0 6px; letter-spacing: -.01em; }
+.ab-principle .p-desc { font-size: .82rem; color: var(--ab-text-2); line-height: 1.58; text-wrap: pretty; }
 
-/* Stats row */
-.ab-stats { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.2rem; }
-.ab-stat {
-  flex: 1; min-width: 130px; background: #fff; border: 1.5px solid #f0f0f0;
-  border-radius: 14px; padding: 1.2rem 1rem; text-align: center;
+/* ═══════════════════════════════════════
+   4. OCR — dark centrepiece
+═══════════════════════════════════════ */
+.ab-ocr {
+  background: linear-gradient(175deg, var(--ab-ink) 0%, #191c24 55%, #14161c 100%);
+  position: relative; overflow: hidden;
+  padding-block: clamp(44px, 5.5vw, 72px);
 }
-.ab-stat-num { font-size: 2rem; font-weight: 900; color: #dc2626; line-height: 1; margin-bottom: .3rem; }
-.ab-stat-lbl { font-size: .75rem; color: #888; font-weight: 600; }
-
-/* Tech stack */
-.ab-tech-grid { display: flex; flex-wrap: wrap; gap: .5rem; }
-.ab-tech-tag {
-  display: inline-flex; align-items: center; gap: .35rem;
-  background: #f8f8f8; border: 1px solid #ececec; border-radius: 8px;
-  padding: .35rem .75rem; font-size: .78rem; font-weight: 600; color: #444;
+.ab-ocr::before {
+  content: ""; position: absolute; top: -160px; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 560px;
+  background: radial-gradient(circle, rgba(220,38,38,.15), transparent 62%);
+  pointer-events: none;
 }
+.ab-ocr::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,.026) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,.026) 1px, transparent 1px);
+  background-size: 52px 52px;
+  mask-image: radial-gradient(80% 60% at 50% 40%, #000, transparent 78%);
+}
+.ab-ocr-head { position: relative; text-align: center; max-width: 720px; margin: 0 auto clamp(28px, 3.5vw, 44px); }
+.ab-ocr-head h2 {
+  font-size: clamp(1.4rem, 3vw, 2.1rem); font-weight: 800; letter-spacing: -.03em;
+  line-height: 1.1; color: #fff; margin-top: 14px; text-wrap: balance;
+}
+.ab-ocr-head h2 .accent { color: #f87171; }
+.ab-ocr-head p {
+  margin-top: 14px; font-size: .88rem; line-height: 1.62; color: #a9adb8;
+  max-width: 620px; margin-inline: auto; text-wrap: pretty;
+}
+.ab-ocr-head p strong { color: #e9ebf0; font-weight: 650; }
+/* before → after */
+.ab-ba {
+  position: relative;
+  display: grid; grid-template-columns: 1fr auto 1fr; gap: 18px; align-items: stretch;
+}
+.ab-ba-panel {
+  background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.10);
+  border-radius: var(--ab-r-xl); padding: 20px; backdrop-filter: blur(8px);
+  transition: transform var(--ab-t) var(--ab-ease), border-color var(--ab-t) var(--ab-ease);
+}
+.ab-ba-panel:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.18); }
+.ab-ba-panel.after {
+  background: rgba(255,255,255,.94); border-color: rgba(255,255,255,.6);
+  box-shadow: var(--ab-shadow-lg);
+}
+.ab-ba-label {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,.10);
+}
+.ab-ba-panel.after .ab-ba-label { border-bottom-color: var(--ab-border); }
+.ab-ba-label .t {
+  font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #8e939f;
+  display: flex; align-items: center; gap: 7px;
+}
+.ab-ba-panel.after .ab-ba-label .t { color: var(--ab-text-3); }
+.ab-ba-label .t i { color: #f87171; font-size: .72rem; }
+.ab-ba-panel.after .ab-ba-label .t i { color: var(--ab-brand); }
+.ab-ba-chip {
+  font-size: .65rem; font-weight: 700; letter-spacing: .04em;
+  padding: 3px 9px; border-radius: var(--ab-r-full);
+  background: rgba(255,255,255,.08); color: #a9adb8; border: 1px solid rgba(255,255,255,.10);
+}
+.ab-ba-chip.ok {
+  background: var(--ab-success-s); color: var(--ab-success); border-color: #a7f3d0;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.ab-ba-chip.ok::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--ab-success); }
+/* scan mock */
+.ab-scan {
+  background: #1e2129; border: 1px dashed rgba(255,255,255,.14); border-radius: var(--ab-r-md);
+  padding: 18px 16px; position: relative; overflow: hidden; transform: rotate(-.5deg);
+}
+.ab-scan::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--ab-brand), transparent);
+  animation: ab-scanline 3s var(--ab-ease) infinite; opacity: .75;
+}
+@keyframes ab-scanline {
+  0%   { transform: translateY(0);    opacity: 0; }
+  15%  { opacity: .85; }
+  85%  { opacity: .85; }
+  100% { transform: translateY(200px); opacity: 0; }
+}
+.ab-scan .doc-title { font-size: .75rem; font-weight: 800; color: #d7dae2; letter-spacing: .12em; margin-bottom: 13px; opacity: .82; }
+.ab-scan .line { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+.ab-scan .lbl { font-size: .68rem; color: #7f8492; width: 72px; flex: none; font-weight: 500; }
+.ab-scan .val { height: 8px; border-radius: 3px; background: rgba(255,255,255,.13); flex: 1; }
+.ab-scan .val.blur  { background: repeating-linear-gradient(90deg, rgba(255,255,255,.16) 0 6px, rgba(255,255,255,.05) 6px 10px); width: 72%; }
+.ab-scan .val.faint { background: rgba(255,255,255,.07); width: 54%; }
+.ab-scan .val.skew  { background: rgba(255,255,255,.14); width: 84%; transform: rotate(.6deg); }
+.ab-scan .tbl { margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(255,255,255,.14); }
+.ab-scan .tbl-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.ab-scan .tbl-row span { height: 8px; border-radius: 3px; background: rgba(255,255,255,.10); }
+.ab-scan .noise { margin-top: 13px; font-size: .65rem; color: #6f7482; display: flex; align-items: center; gap: 7px; }
+.ab-scan .noise i { color: #f87171; }
+/* arrow */
+.ab-ba-arrow {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; align-self: center;
+}
+.ab-ba-arrow .ring {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--ab-brand); color: #fff;
+  display: flex; align-items: center; justify-content: center; font-size: .95rem;
+  box-shadow: 0 0 0 7px rgba(220,38,38,.13), 0 10px 24px -8px rgba(220,38,38,.55);
+  animation: ab-nudge 2.6s var(--ab-ease) infinite;
+}
+@keyframes ab-nudge {
+  0%,100% { transform: translateX(0); }
+  50%     { transform: translateX(4px); }
+}
+.ab-ba-arrow .cap { font-size: .6rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #8e939f; white-space: nowrap; text-align: center; }
+/* structured output */
+.ab-out-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px dashed var(--ab-border); font-size: .82rem;
+}
+.ab-out-row:last-of-type { border-bottom: none; }
+.ab-out-row .k { color: var(--ab-text-3); font-weight: 500; }
+.ab-out-row .v { color: var(--ab-text-1); font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+.ab-out-row .v.accent { color: var(--ab-brand); }
+.ab-out-table { margin-top: 14px; border: 1px solid var(--ab-border); border-radius: var(--ab-r-md); overflow: hidden; }
+.ab-out-table .th, .ab-out-table .tr { display: grid; grid-template-columns: 2.1fr 1fr 1fr; gap: 10px; padding: 9px 12px; font-size: .72rem; }
+.ab-out-table .th { background: var(--ab-bg-subtle); color: var(--ab-text-3); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; font-size: .62rem; border-bottom: 1px solid var(--ab-border); }
+.ab-out-table .tr { border-bottom: 1px solid var(--ab-border); color: var(--ab-text-2); }
+.ab-out-table .tr:last-child { border-bottom: none; }
+.ab-out-table .tr span:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; color: var(--ab-text-1); font-weight: 600; }
+.ab-out-foot { margin-top: 13px; display: flex; flex-wrap: wrap; gap: 7px; }
+.ab-out-fmt { font-size: .68rem; font-weight: 650; padding: 4px 10px; border-radius: var(--ab-r-sm); background: var(--ab-bg-subtle); border: 1px solid var(--ab-border); color: var(--ab-text-2); }
+/* capability strip */
+.ab-ocr-caps { position: relative; margin-top: clamp(24px, 3vw, 40px); display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.ab-ocr-cap {
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10);
+  border-radius: var(--ab-r-lg); padding: 18px 16px;
+  transition: transform var(--ab-t) var(--ab-ease), border-color var(--ab-t) var(--ab-ease), background var(--ab-t) var(--ab-ease);
+}
+.ab-ocr-cap:hover { transform: translateY(-2px); border-color: rgba(248,113,113,.4); background: rgba(255,255,255,.075); }
+.ab-ocr-cap i { font-size: .95rem; color: #f87171; }
+.ab-ocr-cap .t { margin-top: 11px; font-size: .84rem; font-weight: 700; color: #fff; letter-spacing: -.01em; }
+.ab-ocr-cap .d { margin-top: 5px; font-size: .72rem; color: #9ba0ab; line-height: 1.5; }
+/* ocr cta */
+.ab-ocr-cta { text-align:center; margin-top: clamp(20px, 2.5vw, 32px); position: relative; }
 
-/* Company */
+/* ═══════════════════════════════════════
+   5. TOOLS SUMMARY — light
+═══════════════════════════════════════ */
+.ab-tools-summary {
+  border-top: 1px solid var(--ab-border);
+  padding-block: var(--ab-pad);
+  background: var(--ab-bg);
+}
+.ab-tools-summary-inner {
+  display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: clamp(28px, 3.5vw, 48px); align-items: center;
+}
+.ab-tools-copy h2 { font-size: clamp(1.2rem, 2vw, 1.55rem); font-weight: 700; letter-spacing: -.025em; color: var(--ab-text-1); line-height: 1.18; text-wrap: balance; margin-top: 10px; }
+.ab-tools-copy p { margin-top: 12px; font-size: .875rem; line-height: 1.6; color: var(--ab-text-2); text-wrap: pretty; }
+.ab-tools-copy .ab-btn { margin-top: 20px; }
+.ab-group-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.ab-group-chip {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--ab-surface); border: 1px solid var(--ab-border);
+  border-radius: var(--ab-r-lg); padding: 12px 14px;
+  text-decoration: none; color: inherit;
+  transition: border-color var(--ab-t) var(--ab-ease), box-shadow var(--ab-t) var(--ab-ease), transform var(--ab-t) var(--ab-ease);
+}
+.ab-group-chip:hover { border-color: var(--ab-brand-ss); box-shadow: 0 4px 14px -8px rgba(220,38,38,.28); transform: translateY(-2px); }
+.ab-group-chip .gc-icon {
+  width: 36px; height: 36px; border-radius: var(--ab-r-md); flex: none;
+  display: flex; align-items: center; justify-content: center; font-size: .88rem;
+}
+.ab-group-chip .gc-name { font-size: .82rem; font-weight: 700; color: var(--ab-text-1); letter-spacing: -.01em; }
+.ab-group-chip .gc-desc { font-size: .72rem; color: var(--ab-text-3); margin-top: 2px; }
+
+/* ═══════════════════════════════════════
+   6. AUDIENCE — tinted
+═══════════════════════════════════════ */
+.ab-audience {
+  background: var(--ab-bg-tint);
+  border-top: 1px solid var(--ab-border); border-bottom: 1px solid var(--ab-border);
+  padding-block: var(--ab-pad);
+}
+.ab-audience-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.ab-a-card {
+  background: var(--ab-surface); border: 1px solid var(--ab-border);
+  border-radius: var(--ab-r-xl); padding: 24px 22px;
+  position: relative; overflow: hidden; box-shadow: var(--ab-shadow-sm);
+  transition: transform var(--ab-t) var(--ab-ease), box-shadow var(--ab-t) var(--ab-ease), border-color var(--ab-t) var(--ab-ease);
+}
+.ab-a-card::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+  background: var(--ab-brand); transform: scaleX(0); transform-origin: left;
+  transition: transform 320ms var(--ab-ease-out);
+}
+.ab-a-card:hover { transform: translateY(-3px); box-shadow: var(--ab-shadow-md); border-color: var(--ab-border-s); }
+.ab-a-card:hover::after { transform: scaleX(1); }
+.ab-a-card .a-icon {
+  width: 40px; height: 40px; border-radius: var(--ab-r-md);
+  background: var(--ab-brand-s); color: var(--ab-brand);
+  display: flex; align-items: center; justify-content: center; font-size: .95rem;
+  transition: transform var(--ab-t) var(--ab-ease), background var(--ab-t) var(--ab-ease), color var(--ab-t) var(--ab-ease);
+}
+.ab-a-card:hover .a-icon { transform: rotate(-7deg) scale(1.07); background: var(--ab-brand); color: #fff; }
+.ab-a-card .a-title { font-size: .88rem; font-weight: 700; color: var(--ab-text-1); margin: 13px 0 7px; letter-spacing: -.01em; }
+.ab-a-card .a-desc { font-size: .82rem; color: var(--ab-text-2); line-height: 1.58; text-wrap: pretty; }
+
+/* ═══════════════════════════════════════
+   7. TRUST BAR — compact
+═══════════════════════════════════════ */
+.ab-trust-bar { padding-block: var(--ab-pad); border-bottom: 1px solid var(--ab-border); }
+.ab-trust-inner { display: flex; align-items: flex-start; gap: clamp(20px, 3vw, 40px); flex-wrap: wrap; }
+.ab-trust-label {
+  flex: none; display: flex; align-items: center; gap: 8px;
+  font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ab-text-3); white-space: nowrap; padding-top: 3px;
+}
+.ab-trust-label i { color: var(--ab-success); font-size: .72rem; }
+.ab-trust-pills { display: flex; flex-wrap: wrap; gap: 9px; flex: 1; }
+.ab-trust-pill {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--ab-success-s); border: 1px solid #bbf7d0;
+  border-radius: var(--ab-r-md); padding: 9px 13px;
+  font-size: .78rem; font-weight: 550; color: #065f46; line-height: 1.35;
+  transition: transform var(--ab-t) var(--ab-ease);
+}
+.ab-trust-pill:hover { transform: translateY(-1px); }
+.ab-trust-pill i { font-size: .72rem; color: var(--ab-success); flex: none; }
+
+/* ═══════════════════════════════════════
+   8. COMPANY — dark premium
+═══════════════════════════════════════ */
+.ab-company-wrap { padding-block: var(--ab-pad); }
 .ab-company {
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  border-radius: 18px; padding: 2rem 2rem; color: #fff; margin-top: 1rem;
-  display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+  background: linear-gradient(140deg, var(--ab-ink) 0%, #1c1f28 60%, #16181f 100%);
+  border-radius: var(--ab-r-xl);
+  padding: clamp(32px, 4vw, 56px) clamp(28px, 3.5vw, 52px);
+  position: relative; overflow: hidden; box-shadow: var(--ab-shadow-lg);
 }
-.ab-company-logo {
-  width: 56px; height: 56px; background: rgba(220,38,38,.2); border-radius: 14px;
-  display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;
+.ab-company::before {
+  content: ""; position: absolute; top: -140px; right: -100px; width: 440px; height: 440px;
+  border-radius: 50%; background: radial-gradient(circle, rgba(220,38,38,.17), transparent 66%); pointer-events: none;
 }
-.ab-company-name { font-size: 1.1rem; font-weight: 900; margin-bottom: .25rem; }
-.ab-company-desc { font-size: .82rem; color: #94a3b8; line-height: 1.6; max-width: 480px; }
-.ab-company-email { font-size: .78rem; color: #fca5a5; margin-top: .5rem; font-weight: 600; }
+.ab-company::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,.024) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,.024) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(70% 80% at 20% 30%, #000, transparent 76%);
+}
+.ab-company-inner {
+  position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 36px); align-items: start;
+}
+.ab-company-mark {
+  width: 60px; height: 60px; border-radius: 16px;
+  background: var(--ab-brand); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.6rem; flex: none; letter-spacing: -.02em;
+  box-shadow: 0 12px 28px -8px rgba(220,38,38,.58);
+  transition: transform 300ms var(--ab-ease);
+}
+.ab-company:hover .ab-company-mark { transform: rotate(-7deg) scale(1.05); }
+.ab-company .eyebrow { font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #f87171; }
+.ab-company .name { color: #fff; font-size: clamp(1rem, 1.8vw, 1.4rem); font-weight: 700; letter-spacing: -.025em; margin: 10px 0 14px; line-height: 1.18; }
+.ab-company .desc { color: #a9adb8; font-size: .875rem; line-height: 1.65; max-width: 620px; text-wrap: pretty; }
+.ab-company-meta { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.ab-company-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: .75rem; font-weight: 600; color: #c9ccd4;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.11);
+  padding: 7px 14px; border-radius: var(--ab-r-full);
+}
+.ab-company-chip i { color: #f87171; font-size: .68rem; }
+.ab-company-mail {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: #fff; background: var(--ab-brand);
+  font-size: .82rem; font-weight: 600; padding: 9px 18px; border-radius: var(--ab-r-full);
+  text-decoration: none; box-shadow: 0 8px 22px -8px rgba(220,38,38,.56);
+  transition: background var(--ab-t) var(--ab-ease), transform var(--ab-t) var(--ab-ease);
+}
+.ab-company-mail:hover { background: var(--ab-brand-dk); transform: translateY(-1px); }
 
-/* Privacy */
-.ab-privacy-list { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
-@media(max-width:560px){ .ab-privacy-list{ grid-template-columns:1fr; } }
-.ab-privacy-item {
-  background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;
-  padding: .7rem .9rem; display: flex; align-items: center; gap: .65rem;
-  font-size: .8rem; font-weight: 600; color: #166534;
+/* ═══ Responsive ═══ */
+@media (max-width: 1040px){
+  .ab-hero-inner { grid-template-columns: 1fr; gap: 28px; }
+  .ab-ocr-caps { grid-template-columns: repeat(2, 1fr); }
+  .ab-tools-summary-inner { grid-template-columns: 1fr; }
 }
-.ab-privacy-item i { color: #16a34a; }
-
-@media(max-width:640px){
-  .ab-hero h1 { font-size: 1.7rem; }
-  .ab-feat-grid { grid-template-columns: 1fr; }
+@media (max-width: 860px){
+  .ab-principles-grid { grid-template-columns: 1fr; }
+  .ab-audience-grid { grid-template-columns: 1fr; }
+  .ab-ba { grid-template-columns: 1fr; gap: 14px; }
+  .ab-ba-arrow { flex-direction: row; }
+  .ab-ba-arrow .ring { animation: none; transform: rotate(90deg); }
+  .ab-company-inner { grid-template-columns: 1fr; }
 }
-</style>{% endblock %}
+@media (max-width: 600px){
+  .ab-capbox-grid { grid-template-columns: 1fr; }
+  .ab-capbox-cell { border-right: none !important; }
+  .ab-ocr-caps { grid-template-columns: 1fr; }
+  .ab-trust-inner { flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce){
+  .ab-scan::before, .ab-ba-arrow .ring, .ab-eyebrow .dot { animation: none !important; }
+  * { transition-duration: .01ms !important; }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="ab-wrap">
+<div class="ab-page">
 
-  <!-- Hero -->
-  <div class="ab-hero">
-    <div class="ab-hero-logo">
-      <img src="{% static 'img/logo.png' %}" alt="ZayroDocX">
+  <!-- ═══ 1. HERO ═══ -->
+  <section class="ab-hero">
+    <div class="ab-container">
+      <div class="ab-hero-inner">
+        <div class="ab-hero-copy">
+          <span class="ab-eyebrow ab-eyebrow--pill"><span class="dot"></span>About ZayroDocX</span>
+          <h1>Built for messy documents.<br><span class="accent">Designed for accuracy.</span></h1>
+          <p class="ab-lede">ZayroDocX is an AI-powered document platform built by Zayron Infotech. We started with one problem: existing OCR tools returned walls of text from invoices, contracts and reports — no structure, no fields, no tables. We fixed that, then kept building.</p>
+          <p class="ab-sub">The result is a platform where accurate extraction is the foundation, not a feature — paired with 40+ tools for conversion, editing and security so your whole document workflow lives in one place.</p>
+          <div class="ab-hero-cta">
+            <a href="{% url 'ocr_pdf_page' %}" class="ab-btn ab-btn--primary"><i class="fa-solid fa-eye"></i> See OCR in action</a>
+            <a href="{% url 'dashboard' %}" class="ab-btn ab-btn--secondary"><i class="fa-solid fa-layer-group"></i> Explore all tools</a>
+          </div>
+        </div>
+        <aside class="ab-capbox">
+          <div class="ab-capbox-head"><i class="fa-solid fa-bolt"></i> At a glance</div>
+          <div class="ab-capbox-grid">
+            <div class="ab-capbox-cell"><div class="num accent">40+</div><div class="lbl">Tools on one platform</div></div>
+            <div class="ab-capbox-cell"><div class="num accent">7</div><div class="lbl">AI-powered workflows</div></div>
+            <div class="ab-capbox-cell"><div class="num">20+</div><div class="lbl">OCR languages supported</div></div>
+            <div class="ab-capbox-cell"><div class="num">0</div><div class="lbl">Files retained after processing</div></div>
+          </div>
+        </aside>
+      </div>
     </div>
-    <h1>ZayroDocX</h1>
-    <p>A professional PDF &amp; image toolkit — built for speed, privacy, and power. Every tool runs on your own server. No uploads to third-party clouds. No limits.</p>
-    <span class="ab-version-badge"><i class="fa-solid fa-tag"></i> Version 1.0 &nbsp;·&nbsp; Built by Zayron Infotech</span>
+  </section>
+
+  <!-- ═══ 2. MISSION — dark ═══ -->
+  <section class="ab-mission">
+    <div class="ab-container ab-mission-inner">
+      <span class="ab-mission-mark">"</span>
+      <p class="ab-mission-text">
+        Most document tools treat accuracy as a detail. We treat it as the <span class="accent">only thing that matters</span> — because one wrong number in an extracted invoice, one missed row in a converted table, costs more than the subscription ever saved.
+      </p>
+      <p class="ab-mission-credit">
+        Zayron Infotech Pvt. Ltd.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══ 3. PRINCIPLES — light ═══ -->
+  <section class="ab-section ab-container">
+    <div class="ab-sec-head">
+      <span class="ab-eyebrow">How we build</span>
+      <h2>Three principles we don't compromise on</h2>
+      <p>They guide every feature we ship — and they're the criteria we use to retire features that no longer earn their place.</p>
+    </div>
+    <div class="ab-principles-grid">
+      <article class="ab-principle">
+        <div class="p-icon"><i class="fa-solid fa-bullseye"></i></div>
+        <div class="p-title">Accuracy first</div>
+        <p class="p-desc">Every model we ship — OCR, extraction, translation, summarisation — is tested against real-world scans before release. Not benchmarks designed to flatter the engine.</p>
+      </article>
+      <article class="ab-principle">
+        <div class="p-icon"><i class="fa-solid fa-table-cells-large"></i></div>
+        <div class="p-title">Structure matters</div>
+        <p class="p-desc">A document isn't useful as a blob of text. Tables need columns, invoices need named fields, reports need page context. We preserve structure at every step — OCR, conversion and export.</p>
+      </article>
+      <article class="ab-principle">
+        <div class="p-icon"><i class="fa-solid fa-tag"></i></div>
+        <div class="p-title">Transparent pricing</div>
+        <p class="p-desc">Free tools stay free. Pro features are priced by usage, not by seat. Enterprise contracts include self-hosted deployment — no surprise telemetry clauses.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ═══ 4. OCR — dark centrepiece ═══ -->
+  <section class="ab-ocr">
+    <div class="ab-container">
+      <div class="ab-ocr-head">
+        <span class="ab-eyebrow ab-eyebrow--light"><i class="fa-solid fa-eye"></i> Document intelligence</span>
+        <h2>OCR that reads the <span class="accent">structure</span>, not just the pixels.</h2>
+        <p>Most engines return a wall of characters. Ours returns <strong>fields, tables and relationships</strong> — invoice numbers, vendor names, dates, totals and line items — from the crooked, low-contrast scans that real work actually produces.</p>
+      </div>
+
+      <div class="ab-ba">
+        <div class="ab-ba-panel">
+          <div class="ab-ba-label">
+            <span class="t"><i class="fa-solid fa-file-image"></i> Before · scanned input</span>
+            <span class="ab-ba-chip">Unstructured</span>
+          </div>
+          <div class="ab-scan">
+            <div class="doc-title">INVOICE</div>
+            <div class="line"><span class="lbl">Invoice #</span><span class="val blur"></span></div>
+            <div class="line"><span class="lbl">Date</span><span class="val faint"></span></div>
+            <div class="line"><span class="lbl">Vendor</span><span class="val skew"></span></div>
+            <div class="line"><span class="lbl">Subtotal</span><span class="val blur"></span></div>
+            <div class="tbl">
+              <div class="tbl-row"><span></span><span></span><span></span></div>
+              <div class="tbl-row"><span></span><span></span><span></span></div>
+              <div class="tbl-row"><span></span><span></span><span></span></div>
+            </div>
+            <div class="noise"><i class="fa-solid fa-triangle-exclamation"></i> Skewed · low contrast · no selectable text</div>
+          </div>
+        </div>
+
+        <div class="ab-ba-arrow">
+          <div class="ring"><i class="fa-solid fa-arrow-right"></i></div>
+          <span class="cap">Layout-aware<br>engine</span>
+        </div>
+
+        <div class="ab-ba-panel after">
+          <div class="ab-ba-label">
+            <span class="t"><i class="fa-solid fa-file-invoice-dollar"></i> After · structured output</span>
+            <span class="ab-ba-chip ok">Extracted</span>
+          </div>
+          <div class="ab-out-row"><span class="k">Invoice number</span><span class="v">INV-2026-0847</span></div>
+          <div class="ab-out-row"><span class="k">Issue date</span><span class="v">04 Aug 2026</span></div>
+          <div class="ab-out-row"><span class="k">Vendor</span><span class="v">Acme Corp Ltd.</span></div>
+          <div class="ab-out-row"><span class="k">Total</span><span class="v accent">₹4,820.00</span></div>
+          <div class="ab-out-table">
+            <div class="th"><span>Line item</span><span>Qty</span><span>Amount</span></div>
+            <div class="tr"><span>Consulting retainer</span><span>1</span><span>₹3,200.00</span></div>
+            <div class="tr"><span>Implementation hours</span><span>8</span><span>₹1,300.00</span></div>
+            <div class="tr"><span>GST (18%)</span><span>—</span><span>₹320.00</span></div>
+          </div>
+          <div class="ab-out-foot">
+            <span class="ab-out-fmt">Searchable PDF</span>
+            <span class="ab-out-fmt">Excel (.xlsx)</span>
+            <span class="ab-out-fmt">JSON</span>
+            <span class="ab-out-fmt">Audit trail</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ab-ocr-caps">
+        <div class="ab-ocr-cap">
+          <i class="fa-solid fa-table-cells-large"></i>
+          <div class="t">Table preservation</div>
+          <div class="d">Rows and columns survive the conversion — line items land in cells, not a paragraph.</div>
+        </div>
+        <div class="ab-ocr-cap">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+          <div class="t">Structured extraction</div>
+          <div class="d">Named fields returned as queryable data — not a text dump.</div>
+        </div>
+        <div class="ab-ocr-cap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <div class="t">Searchable text</div>
+          <div class="d">A text layer written back into the PDF so scans become findable archives.</div>
+        </div>
+        <div class="ab-ocr-cap">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <div class="t">Messy document handling</div>
+          <div class="d">Skew, noise, mixed columns and 20+ languages — no pre-processing needed.</div>
+        </div>
+      </div>
+
+      <div class="ab-ocr-cta">
+        <a href="{% url 'invoice_page' %}" class="ab-btn ab-btn--primary" style="margin-right:10px">
+          <i class="fa-solid fa-file-invoice-dollar"></i> Try Invoice Extractor
+        </a>
+        <a href="{% url 'ocr_pdf_page' %}" class="ab-btn ab-btn--ghost">
+          <i class="fa-solid fa-eye"></i> Try OCR PDF
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 5. TOOLS SUMMARY — light ═══ -->
+  <section class="ab-tools-summary">
+    <div class="ab-container ab-tools-summary-inner">
+      <div class="ab-tools-copy">
+        <span class="ab-eyebrow">The platform</span>
+        <h2>Extraction is the core. Everything else supports it.</h2>
+        <p>Once a document is accurately read and structured, everything else follows — convert it, compress it, sign it, redact it, translate it. All 40+ tools share the same engine, the same security model and the same audit trail.</p>
+        <a href="{% url 'dashboard' %}" class="ab-btn ab-btn--secondary">
+          <i class="fa-solid fa-layer-group"></i> See all tools on the dashboard
+        </a>
+      </div>
+      <div class="ab-group-chips">
+        <a href="{% url 'merge_pdf_page' %}" class="ab-group-chip">
+          <div class="gc-icon" style="background:rgba(37,99,235,.12);color:#2563eb"><i class="fa-solid fa-layer-group"></i></div>
+          <div><div class="gc-name">Organize PDF</div><div class="gc-desc">Merge, split, compress, rotate, redact</div></div>
+        </a>
+        <a href="{% url 'ocr_pdf_page' %}" class="ab-group-chip">
+          <div class="gc-icon" style="background:rgba(220,38,38,.12);color:#dc2626"><i class="fa-solid fa-eye"></i></div>
+          <div><div class="gc-name">AI &amp; OCR</div><div class="gc-desc">Extract, summarize, translate, chat</div></div>
+        </a>
+        <a href="{% url 'word_to_pdf_page' %}" class="ab-group-chip">
+          <div class="gc-icon" style="background:rgba(43,87,154,.12);color:#2b579a"><i class="fa-solid fa-file-word"></i></div>
+          <div><div class="gc-name">Convert</div><div class="gc-desc">Word, Excel, PowerPoint, HTML ↔ PDF</div></div>
+        </a>
+        <a href="{% url 'img_compress_page' %}" class="ab-group-chip">
+          <div class="gc-icon" style="background:rgba(147,51,234,.12);color:#9333ea"><i class="fa-solid fa-images"></i></div>
+          <div><div class="gc-name">Image tools</div><div class="gc-desc">Compress, upscale, remove BG, OCR</div></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 6. AUDIENCE — tinted ═══ -->
+  <section class="ab-audience">
+    <div class="ab-container">
+      <div class="ab-sec-head">
+        <span class="ab-eyebrow">Who uses ZayroDocX</span>
+        <h2>Built for people who touch documents daily — not occasionally.</h2>
+      </div>
+      <div class="ab-audience-grid">
+        <article class="ab-a-card">
+          <div class="a-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+          <div class="a-title">Students &amp; researchers</div>
+          <p class="a-desc">Scanned lecture notes and papers become searchable, citable text. Stop retyping content you already have in a PDF.</p>
+        </article>
+        <article class="ab-a-card">
+          <div class="a-icon"><i class="fa-solid fa-briefcase"></i></div>
+          <div class="a-title">Freelancers &amp; agencies</div>
+          <p class="a-desc">Pull structured data from client documents — invoices, briefs, contracts — without manually copying fields into a spreadsheet.</p>
+        </article>
+        <article class="ab-a-card">
+          <div class="a-icon"><i class="fa-solid fa-building-columns"></i></div>
+          <div class="a-title">Finance, legal &amp; operations</div>
+          <p class="a-desc">Extract line items, totals and vendor fields from batches of invoices. Tables stay as tables. Numbers land in the right cells.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 7. TRUST BAR — minimal ═══ -->
+  <div style="border-bottom:1px solid var(--ab-border); padding-block:14px;">
+    <div class="ab-container">
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:20px;">
+        <span style="font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ab-text-3);display:flex;align-items:center;gap:6px;flex:none;"><i class="fa-solid fa-shield-halved" style="color:var(--ab-success)"></i> Security</span>
+        <span style="font-size:.78rem;color:var(--ab-text-3);display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-clock" style="color:var(--ab-success);font-size:.72rem"></i> Files auto-deleted after every session</span>
+        <span style="font-size:.78rem;color:var(--ab-text-3);display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-lock" style="color:var(--ab-success);font-size:.72rem"></i> AES-256 · CSRF · CSP · HttpOnly cookies</span>
+        <span style="font-size:.78rem;color:var(--ab-text-3);display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-database" style="color:var(--ab-success);font-size:.72rem"></i> Full audit log</span>
+      </div>
+    </div>
   </div>
 
-  <!-- Stats -->
-  <div class="ab-sec"><div class="ab-sec-line"></div><span class="ab-sec-label">By the numbers</span><div class="ab-sec-line"></div></div>
-  <div class="ab-stats">
-    <div class="ab-stat"><div class="ab-stat-num">40+</div><div class="ab-stat-lbl">Tools Available</div></div>
-    <div class="ab-stat"><div class="ab-stat-num">5</div><div class="ab-stat-lbl">AI-Powered Features</div></div>
-    <div class="ab-stat"><div class="ab-stat-num">100%</div><div class="ab-stat-lbl">Private Processing</div></div>
-    <div class="ab-stat"><div class="ab-stat-num">0</div><div class="ab-stat-lbl">Data Shared Externally</div></div>
-  </div>
-
-  <!-- PDF Tools -->
-  <div class="ab-sec"><div class="ab-sec-line"></div><span class="ab-sec-label">PDF Tools</span><div class="ab-sec-line"></div></div>
-  <div class="ab-feat-grid">
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(37,99,235,.1);color:#2563eb"><i class="fa-solid fa-layer-group"></i></div>
-      <div><div class="ab-feat-name">Merge PDF</div><div class="ab-feat-desc">Combine multiple PDF files into one in any order.</div></div>
+  <!-- ═══ 8. COMPANY — dark premium ═══ -->
+  <section class="ab-company-wrap ab-container">
+    <div class="ab-company">
+      <div class="ab-company-inner">
+        <div class="ab-company-mark">Z</div>
+        <div>
+          <div class="eyebrow">The company</div>
+          <div class="name">Operated by Zayron Infotech Pvt. Ltd.</div>
+          <p class="desc">We started ZayroDocX in 2024 after spending too many hours watching professionals manually retype numbers from scanned invoices — because every OCR tool they tried returned unstructured text. We built the extraction engine first, then wrapped it in a full document platform. Today ZayroDocX handles OCR, conversion, signing, redaction and more — all from a single place, with no files stored beyond the session.</p>
+          <div class="ab-company-meta">
+            <span class="ab-company-chip"><i class="fa-solid fa-location-dot"></i> Registered in India</span>
+            <span class="ab-company-chip"><i class="fa-solid fa-calendar"></i> Founded 2024</span>
+            <span class="ab-company-chip"><i class="fa-solid fa-headset"></i> Support within 1 business day</span>
+            <a href="mailto:zayroninfotech@gmail.com" class="ab-company-mail">
+              <i class="fa-solid fa-envelope"></i> zayroninfotech@gmail.com
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(220,38,38,.1);color:#dc2626"><i class="fa-solid fa-scissors"></i></div>
-      <div><div class="ab-feat-name">Split PDF</div><div class="ab-feat-desc">Separate a PDF into individual pages or ranges.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(217,119,6,.1);color:#d97706"><i class="fa-solid fa-compress"></i></div>
-      <div><div class="ab-feat-name">Compress PDF</div><div class="ab-feat-desc">Reduce file size up to 80% with 3 quality levels.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(22,163,74,.1);color:#16a34a"><i class="fa-solid fa-eye"></i></div>
-      <div><div class="ab-feat-name">OCR PDF<span class="ab-feat-ai">AI✧</span></div><div class="ab-feat-desc">Make scanned PDFs searchable using optical character recognition.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(147,51,234,.1);color:#9333ea"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-      <div><div class="ab-feat-name">AI Summarizer<span class="ab-feat-ai">AI✧</span></div><div class="ab-feat-desc">Summarize any PDF document instantly using AI.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(13,148,136,.1);color:#0d9488"><i class="fa-solid fa-language"></i></div>
-      <div><div class="ab-feat-name">Translate PDF<span class="ab-feat-ai">AI✧</span></div><div class="ab-feat-desc">Translate PDF content into 20+ languages using AI.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(220,38,38,.1);color:#dc2626"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-      <div><div class="ab-feat-name">Invoice Extractor<span class="ab-feat-ai">AI✧</span></div><div class="ab-feat-desc">Extract invoice data to Excel automatically with AI.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(8,145,178,.1);color:#0891b2"><i class="fa-solid fa-droplet"></i></div>
-      <div><div class="ab-feat-name">Watermark PDF</div><div class="ab-feat-desc">Add text or image watermarks to any PDF.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(217,119,6,.1);color:#d97706"><i class="fa-solid fa-signature"></i></div>
-      <div><div class="ab-feat-name">Sign PDF</div><div class="ab-feat-desc">Draw, type, or upload a signature and place it on any page.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(22,163,74,.1);color:#16a34a"><i class="fa-solid fa-lock"></i></div>
-      <div><div class="ab-feat-name">Protect / Unlock PDF</div><div class="ab-feat-desc">AES-256 encryption to protect PDFs or remove passwords.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(30,41,59,.1);color:#1e293b"><i class="fa-solid fa-eraser"></i></div>
-      <div><div class="ab-feat-name">Redact PDF</div><div class="ab-feat-desc">Permanently black out sensitive text and information.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(79,70,229,.1);color:#4f46e5"><i class="fa-solid fa-rotate-right"></i></div>
-      <div><div class="ab-feat-name">Rotate / Crop PDF</div><div class="ab-feat-desc">Rotate pages to any angle, or trim page margins precisely.</div></div>
-    </div>
-  </div>
-
-  <!-- Convert Tools -->
-  <div class="ab-sec"><div class="ab-sec-line"></div><span class="ab-sec-label">Convert Tools</span><div class="ab-sec-line"></div></div>
-  <div class="ab-feat-grid">
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(43,87,154,.1);color:#2b579a"><i class="fa-solid fa-file-word"></i></div>
-      <div><div class="ab-feat-name">Word ↔ PDF</div><div class="ab-feat-desc">Convert Word (.docx) to PDF and PDF back to editable Word.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(240,180,0,.12);color:#d99e00"><i class="fa-solid fa-file-powerpoint"></i></div>
-      <div><div class="ab-feat-name">PowerPoint ↔ PDF</div><div class="ab-feat-desc">Convert PPTX to PDF and PDF to editable presentations.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(33,115,70,.1);color:#217346"><i class="fa-solid fa-file-excel"></i></div>
-      <div><div class="ab-feat-name">Excel ↔ PDF</div><div class="ab-feat-desc">Convert Excel spreadsheets to PDF and back to .xlsx.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(227,76,38,.1);color:#e34c26"><i class="fa-brands fa-html5"></i></div>
-      <div><div class="ab-feat-name">HTML to PDF</div><div class="ab-feat-desc">Convert HTML files, URLs, or pasted code to PDF instantly.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(147,51,234,.1);color:#9333ea"><i class="fa-solid fa-images"></i></div>
-      <div><div class="ab-feat-name">PDF ↔ JPG</div><div class="ab-feat-desc">Export PDF pages as images, or convert images into a PDF.</div></div>
-    </div>
-  </div>
-
-  <!-- Image Tools -->
-  <div class="ab-sec"><div class="ab-sec-line"></div><span class="ab-sec-label">Image Tools</span><div class="ab-sec-line"></div></div>
-  <div class="ab-feat-grid">
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(37,99,235,.1);color:#2563eb"><i class="fa-solid fa-magnifying-glass-plus"></i></div>
-      <div><div class="ab-feat-name">Upscale Image<span class="ab-feat-ai">AI✧</span></div><div class="ab-feat-desc">Enhance image resolution with AI upscaling.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(147,51,234,.1);color:#9333ea"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-      <div><div class="ab-feat-name">Remove Background<span class="ab-feat-ai">AI✧</span></div><div class="ab-feat-desc">Automatically remove image backgrounds with one click.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(71,85,105,.1);color:#475569"><i class="fa-solid fa-user-secret"></i></div>
-      <div><div class="ab-feat-name">Blur Face</div><div class="ab-feat-desc">Detect and blur faces in images for privacy.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(202,138,4,.1);color:#ca8a04"><i class="fa-solid fa-font"></i></div>
-      <div><div class="ab-feat-name">Image to Text (OCR)</div><div class="ab-feat-desc">Extract text from any image file.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(217,119,6,.1);color:#d97706"><i class="fa-solid fa-compress-arrows-alt"></i></div>
-      <div><div class="ab-feat-name">Compress / Resize</div><div class="ab-feat-desc">Reduce image file size or resize to exact dimensions.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(219,39,119,.1);color:#db2777"><i class="fa-solid fa-face-laugh-squint"></i></div>
-      <div><div class="ab-feat-name">Meme Generator</div><div class="ab-feat-desc">Add custom top and bottom text to any image.</div></div>
-    </div>
-  </div>
-
-  <!-- Special Tools -->
-  <div class="ab-sec"><div class="ab-sec-line"></div><span class="ab-sec-label">Special Tools</span><div class="ab-sec-line"></div></div>
-  <div class="ab-feat-grid">
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(220,38,38,.1);color:#dc2626"><i class="fa-solid fa-arrows-turn-to-dots"></i></div>
-      <div><div class="ab-feat-name">ConnectSpace<span class="ab-feat-new">Live</span></div><div class="ab-feat-desc">Real-time peer-to-peer file sharing with a 6-digit room code. No account needed.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(124,58,237,.1);color:#7c3aed"><i class="fa-solid fa-file-circle-check"></i></div>
-      <div><div class="ab-feat-name">AI Resume Analyzer<span class="ab-feat-ai">AI✧</span></div><div class="ab-feat-desc">Get ATS score, job match analysis, and improvement tips on your resume.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(8,145,178,.1);color:#0891b2"><i class="fa-solid fa-desktop"></i></div>
-      <div><div class="ab-feat-name">ZayroDesk<span class="ab-feat-new">New</span></div><div class="ab-feat-desc">AnyDesk-style remote screen share with full mouse, keyboard, and OS-level control via the ZayroAgent.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(124,58,237,.1);color:#7c3aed"><i class="fa-solid fa-cart-shopping"></i></div>
-      <div><div class="ab-feat-name">AI Product Recommender<span class="ab-feat-ai">AI✧</span></div><div class="ab-feat-desc">Describe what you need — get 5 AI-curated product recommendations with ratings, prices, and pros.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(37,99,235,.1);color:#2563eb"><i class="fa-solid fa-comments"></i></div>
-      <div><div class="ab-feat-name">AI PDF Chat<span class="ab-feat-ai">AI✧</span></div><div class="ab-feat-desc">Upload a PDF and chat with it — get answers with page citations using RAG technology.</div></div>
-    </div>
-    <div class="ab-feat-card">
-      <div class="ab-feat-icon" style="background:rgba(220,38,38,.1);color:#dc2626"><i class="fa-solid fa-video"></i></div>
-      <div><div class="ab-feat-name">ZayroEye<span class="ab-feat-new">Live</span></div><div class="ab-feat-desc">Secure live camera streaming (front/back, mobile/laptop). Login-gated. P2P WebRTC.</div></div>
-    </div>
-  </div>
-
-  <!-- Privacy -->
-  <div class="ab-sec"><div class="ab-sec-line"></div><span class="ab-sec-label">Privacy & Security</span><div class="ab-sec-line"></div></div>
-  <div class="ab-privacy-list">
-    <div class="ab-privacy-item"><i class="fa-solid fa-server"></i> All files processed on your own server</div>
-    <div class="ab-privacy-item"><i class="fa-solid fa-shield-halved"></i> AES-256 encryption for protected PDFs</div>
-    <div class="ab-privacy-item"><i class="fa-solid fa-clock"></i> Files auto-deleted after processing</div>
-    <div class="ab-privacy-item"><i class="fa-solid fa-ban"></i> No third-party file storage — ever</div>
-    <div class="ab-privacy-item"><i class="fa-solid fa-lock"></i> CSRF protection on all API endpoints</div>
-    <div class="ab-privacy-item"><i class="fa-solid fa-file-shield"></i> Content-Security-Policy headers enforced</div>
-    <div class="ab-privacy-item"><i class="fa-solid fa-user-lock"></i> Session-based auth with HttpOnly cookies</div>
-    <div class="ab-privacy-item"><i class="fa-solid fa-database"></i> Audit log for all file operations</div>
-  </div>
-
-  <!-- Tech Stack -->
-  <div class="ab-sec"><div class="ab-sec-line"></div><span class="ab-sec-label">Tech Stack</span><div class="ab-sec-line"></div></div>
-  <div class="ab-tech-grid">
-    <span class="ab-tech-tag"><i class="fa-brands fa-python" style="color:#3776ab"></i> Python / Django</span>
-    <span class="ab-tech-tag"><i class="fa-solid fa-database" style="color:#888"></i> SQLite + MongoDB</span>
-    <span class="ab-tech-tag"><i class="fa-solid fa-file-pdf" style="color:#dc2626"></i> PyMuPDF (fitz)</span>
-    <span class="ab-tech-tag"><i class="fa-solid fa-image" style="color:#9333ea"></i> Pillow</span>
-    <span class="ab-tech-tag"><i class="fa-solid fa-eye" style="color:#16a34a"></i> Tesseract OCR</span>
-    <span class="ab-tech-tag"><i class="fa-solid fa-video" style="color:#0891b2"></i> WebRTC (P2P)</span>
-    <span class="ab-tech-tag"><i class="fa-solid fa-robot" style="color:#7c3aed"></i> Mistral AI</span>
-    <span class="ab-tech-tag"><i class="fa-solid fa-brain" style="color:#10b981"></i> OpenAI GPT</span>
-    <span class="ab-tech-tag"><i class="fa-brands fa-js" style="color:#f7df1e"></i> Vanilla JS</span>
-    <span class="ab-tech-tag"><i class="fa-solid fa-server" style="color:#555"></i> Gunicorn + Nginx</span>
-    <span class="ab-tech-tag"><i class="fa-brands fa-linux" style="color:#333"></i> Ubuntu Server</span>
-    <span class="ab-tech-tag"><i class="fa-solid fa-shield-halved" style="color:#dc2626"></i> WhiteNoise + CSP</span>
-  </div>
-
-  <!-- Company -->
-  <div class="ab-sec"><div class="ab-sec-line"></div><span class="ab-sec-label">About the Company</span><div class="ab-sec-line"></div></div>
-  <div class="ab-company">
-    <div class="ab-company-logo"><i class="fa-solid fa-building"></i></div>
-    <div>
-      <div class="ab-company-name">Zayron Infotech Pvt. Ltd.</div>
-      <div class="ab-company-desc">We build practical software tools for businesses and individuals — focused on privacy-first design, fast performance, and zero dependency on third-party data processors. ZayroDocX is our flagship productivity platform.</div>
-      <div class="ab-company-email"><i class="fa-solid fa-envelope"></i> zayroninfotech@gmail.com</div>
-    </div>
-  </div>
+  </section>
 
 </div>
 {% endblock %}

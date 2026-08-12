@@ -3,6 +3,6 @@
 {% block title %}Create account — ZayroDocX{% endblock %}
 {% block content %}
 {# Allauth's /accounts/signup/ — redirect to our custom /register/ page #}
-<script>window.location.replace('/register/?next={{ redirect_field_value|urlencode }}');</script>
-<noscript><meta http-equiv="refresh" content="0;url=/register/"></noscript>
+<script>window.location.replace('/');</script>
+<noscript><meta http-equiv="refresh" content="0;url=/"></noscript>
 {% endblock %}

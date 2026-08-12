@@ -42,6 +42,8 @@ html, body {
 }
 
 a { color: var(--brand); text-decoration: none; }
+h1, h2, h3, h4 { font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif; }
+
 a:hover { text-decoration: underline; }
 
 body { padding-top: var(--mh-h); }

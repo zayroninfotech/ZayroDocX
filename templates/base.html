@@ -9,8 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   {% block extra_head %}{% endblock %}
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -24,10 +25,11 @@
 
       <!-- Logo -->
       <a href="{% url 'dashboard' %}" class="mh-brand">
-        <span class="mh-name">Zayro<span style="color:#dc2626;">DocX</span></span>
+        <span class="mh-name">Zayro<span style="color:#dc2626">DocX</span></span>
       </a>
 
       <!-- Nav -->
+      {% if request.user.is_authenticated %}
       <nav class="mh-nav" id="mhNav">
 
         <!-- Organize PDF -->
@@ -316,6 +318,7 @@
         </div>
 
       </nav>
+      {% endif %}
 
       <!-- Right actions -->
       <div class="mh-actions">
@@ -344,13 +347,17 @@
             <a href="/zayro-admin/?tab=users" class="mh-user-item"><i class="fa-solid fa-users"></i> Manage Users</a>
             <div class="mh-user-divider"></div>
             {% endif %}
-            <a href="{% url 'logout' %}" class="mh-user-item mh-user-logout"><i
-                class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            <form method="post" action="{% url 'logout' %}" style="margin:0">
+              {% csrf_token %}
+              <button type="submit" class="mh-user-item mh-user-logout" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;font:inherit;padding:0">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+              </button>
+            </form>
           </div>
         </div>
         {% else %}
-        <span style="font-size:.72rem;font-weight:700;color:#94a3b8;letter-spacing:.04em;padding:.28rem .6rem;border:1.5px solid #e2e8f0;border-radius:6px;line-height:1;white-space:nowrap;">V1.0</span>
-        <a href="{% url 'login' %}" class="mh-login-btn">Login</a>
+        <a href="#" class="mh-login-btn" onclick="event.preventDefault();openZpPopup('loginPopup')">Login</a>
+        <a href="#" class="mh-signup-btn" onclick="event.preventDefault();openZpPopup('signupPopup')">Get Started Free</a>
         {% endif %}
 
         <!-- Mobile hamburger -->
@@ -387,24 +394,27 @@
   <div id="globalLoader" style="display:none;position:fixed;inset:0;z-index:9999;background:#F7F7F5;align-items:center;justify-content:center;flex-direction:column;gap:22px;">
     <div class="zl-if-wrap" id="zlIfWrap">
       <span class="zl-if-base">ZayroDocX</span>
-      <span class="zl-if-fill">ZayroDocX</span>
+      <span class="zl-if-fill"><span class="zl-zayro">Zayro</span><span class="zl-docx">DocX</span></span>
     </div>
     <div class="zl-if-label" id="globalLoaderMsg">Loading&hellip;</div>
   </div>
   <style>
     .zl-if-wrap{
-      position:relative; font-family:'Inter','Segoe UI',sans-serif;
+      position:relative; font-family:'Space Grotesk','Inter',sans-serif;
       font-size:clamp(28px,5vw,48px); font-weight:700; letter-spacing:-0.02em;
+      white-space:nowrap;
     }
     .zl-if-base{ color:#D3D3CF; }
     .zl-if-fill{
-      position:absolute; inset:0; color:#dc2626; overflow:hidden; width:0%;
+      position:absolute; inset:0; overflow:hidden; width:0%;
       white-space:nowrap;
     }
+    .zl-zayro{ color:#1A1A1A; }
+    .zl-docx{ color:#E63946; }
     .zl-if-wrap.run .zl-if-fill{ animation:zlIfWipe 1.4s cubic-bezier(.65,0,.35,1) forwards; }
     @keyframes zlIfWipe{ to{ width:100%; } }
     .zl-if-label{
-      font-family:'Inter','Segoe UI',sans-serif;
+      font-family:'IBM Plex Mono','Courier New',monospace;
       font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#9B9B90;
     }
 

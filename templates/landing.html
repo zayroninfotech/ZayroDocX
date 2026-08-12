@@ -5,11 +5,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZayroDocX — Professional PDF & Image Toolkit</title>
-<link rel="icon" href="{% static 'img/logo.png' %}">
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
    TOKENS
@@ -31,9 +31,9 @@
   --success-tint:#f0fdf4;
   --hero-grad: linear-gradient(135deg, #fff 0%, #fff5f5 60%, #ffe4e4 100%);
 
-  --font-display:'Inter', 'Segoe UI', sans-serif;
+  --font-display:'Space Grotesk', 'Inter', 'Segoe UI', sans-serif;
   --font-body:'Inter', 'Segoe UI', sans-serif;
-  --font-mono:'Inter', monospace;
+  --font-mono:'IBM Plex Mono', monospace;
 
   --radius-sm:8px;
   --radius-md:12px;
@@ -58,7 +58,8 @@
 }
 
 *{ box-sizing:border-box; margin:0; padding:0; }
-html{ scroll-behavior:smooth; overflow-x:hidden; }
+html{ scroll-behavior:smooth; overflow-x:hidden; scrollbar-width:none; font-size:15px; }
+html::-webkit-scrollbar{ display:none; }
 body{
   font-family:var(--font-body);
   background:var(--bg);
@@ -150,28 +151,22 @@ h1{ letter-spacing:-0.035em; }
    HEADER / NAV — Original HTML, enhanced styling
    ============================================================ */
 .ln-nav-wrap{
-  position:sticky; top:0; z-index:100;
-  background:color-mix(in srgb, var(--bg) 85%, transparent);
-  backdrop-filter:blur(14px) saturate(180%);
-  -webkit-backdrop-filter:blur(14px) saturate(180%);
-  border-bottom:1px solid var(--border);
-  transition:box-shadow .3s var(--ease), background .3s var(--ease);
-}
-.ln-nav-wrap.scrolled{
-  box-shadow: 0 8px 24px -16px rgba(17,17,17,0.18);
-  background:color-mix(in srgb, var(--bg) 92%, transparent);
+  position:sticky; top:0; z-index:200;
+  background:#ffffff;
+  border-bottom:2px solid #dc2626;
+  box-shadow:0 2px 12px rgba(220,38,38,.1);
 }
 .ln-nav{
   display:flex; align-items:center; justify-content:space-between;
-  padding:1rem 2rem;
-  height:68px;
-  max-width:var(--max-w);
+  padding:0 1.5rem;
+  height:64px;
+  max-width:1400px;
   margin:0 auto;
 }
 .ln-logo{ display:flex; align-items:center; text-decoration:none; }
 .ln-logo-3d{
-  font-family:var(--font-display);
-  font-size:1.5rem; font-weight:800; line-height:1; letter-spacing:-.02em;
+  font-family:'Inter', 'Segoe UI', sans-serif;
+  font-size:1.05rem; font-weight:800; line-height:1; letter-spacing:-.02em;
 }
 .ln-logo-3d .part-zayro{ color:var(--text); }
 .ln-logo-3d .part-docx{ color:var(--accent); }
@@ -180,8 +175,8 @@ h1{ letter-spacing:-0.035em; }
 /* Map original buttons to redesign style */
 .btn-login{
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  font-family:var(--font-body); font-weight:600; font-size:14.5px;
-  padding:10px 22px; border-radius:var(--radius-sm);
+  font-family:var(--font-body); font-weight:600; font-size:.78rem;
+  padding:.35rem .9rem; border-radius:20px;
   background:var(--surface); color:var(--text); border:1px solid var(--border-strong);
   transition:background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease), transform .15s var(--ease), box-shadow .25s var(--ease);
   white-space:nowrap; position:relative; letter-spacing:-0.005em;
@@ -190,8 +185,8 @@ h1{ letter-spacing:-0.035em; }
 .btn-login:hover{ border-color:var(--text-tertiary); background:var(--bg); transform:translateY(-1px); }
 .btn-register{
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  font-family:var(--font-body); font-weight:600; font-size:14.5px;
-  padding:10px 22px; border-radius:var(--radius-sm);
+  font-family:var(--font-body); font-weight:600; font-size:.78rem;
+  padding:.35rem .9rem; border-radius:20px;
   border:1px solid transparent;
   transition:background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease), transform .15s var(--ease), box-shadow .25s var(--ease);
   white-space:nowrap; position:relative; letter-spacing:-0.005em;
@@ -209,7 +204,7 @@ h1{ letter-spacing:-0.035em; }
    HERO
    ============================================================ */
 .hero{
-  padding:48px 0 80px; position:relative;
+  padding:32px 0 52px; position:relative;
   background:var(--hero-grad);
   border-bottom:1px solid var(--border);
   overflow:hidden;
@@ -225,37 +220,35 @@ h1{ letter-spacing:-0.035em; }
   border-radius:50%; pointer-events:none; z-index:0;
 }
 .hero .wrap{ position:relative; z-index:1; }
-.hero-grid{ display:grid; grid-template-columns:1.05fr 1fr; gap:64px; align-items:center; }
-.hero h1{ font-size:62px; line-height:1.02; margin:14px 0 20px; max-width:580px; }
+.hero-grid{ display:grid; grid-template-columns:1.05fr 1fr; gap:44px; align-items:center; }
+.hero h1{ font-size:66px; line-height:1.0; margin:14px 0 20px; max-width:600px; font-weight:800; }
 .hero h1 .accent-text{ color:var(--accent); position:relative; }
 .hero h1 .accent-text::after{
   content:''; position:absolute; left:0; right:0; bottom:2px; height:8px;
   background:var(--accent-tint); border-radius:2px; z-index:-1;
 }
-.hero p.lede{ font-size:18px; line-height:1.6; color:var(--text-secondary); max-width:500px; margin-bottom:28px; }
-.hero-ctas{ display:flex; gap:12px; align-items:center; margin-bottom:36px; flex-wrap:wrap; }
+.hero p.lede{ font-size:18px; line-height:1.6; color:var(--text-secondary); max-width:500px; margin-bottom:18px; }
+.hero-ctas{ display:flex; gap:12px; align-items:center; margin-bottom:24px; flex-wrap:wrap; }
 .hero-meta{
   display:inline-flex; gap:0; flex-wrap:nowrap;
-  margin-top:24px;
-  border:1px solid var(--border);
+  margin-top:16px;
+  border:1px solid var(--border-strong);
   border-radius:10px;
-  background:rgba(255,255,255,0.82);
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
+  background:rgba(255,255,255,0.72);
+  box-shadow:0 2px 8px rgba(17,17,17,0.07);
   overflow:hidden;
-  box-shadow:var(--shadow-xs);
 }
 .hero-meta-item{
   display:flex; flex-direction:column; gap:3px;
   padding:12px 22px;
-  border-right:1px solid var(--border);
+  border-right:1px solid var(--border-strong);
   position:relative;
 }
 .hero-meta-item:last-child{ border-right:none; }
-.hero-meta-item .num{ font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--text); letter-spacing:-0.02em; line-height:1.1; }
-.hero-meta-item .lbl{ font-size:11px; color:var(--text-tertiary); font-weight:500; letter-spacing:0.01em; }
+.hero-meta-item .num{ font-family:var(--font-display); font-size:22px; font-weight:700; color:#111111; letter-spacing:-0.02em; line-height:1.1; }
+.hero-meta-item .lbl{ font-size:11px; color:#6b7280; font-weight:500; letter-spacing:0.01em; }
 .hero-meta-item--accent .num{ color:var(--accent); }
-.hero-meta-item--accent .lbl{ color:var(--accent); opacity:0.75; }
+.hero-meta-item--accent .lbl{ color:var(--accent); opacity:0.85; }
 
 /* --- Hero right: original image + floating badges --- */
 .ln-hero-right{ position:relative; display:flex; align-items:center; justify-content:center; }
@@ -292,7 +285,7 @@ h1{ letter-spacing:-0.035em; }
   display:flex; align-items:center; gap:10px;
   color:var(--text-secondary); font-size:13px; font-weight:500;
   white-space:nowrap; flex:1; justify-content:center;
-  padding:16px 12px;
+  padding:10px 12px;
   border-right:1px solid var(--border);
 }
 .trust-item:last-child{ border-right:none; }
@@ -305,8 +298,8 @@ h1{ letter-spacing:-0.035em; }
 /* ============================================================
    TOOLS (Ecosystem cards)
    ============================================================ */
-section{ padding:88px 0; }
-.section-head{ max-width:680px; margin-bottom:48px; }
+section{ padding:60px 0; }
+.section-head{ max-width:680px; margin-bottom:32px; }
 .section-head h2{ font-size:42px; margin-top:12px; line-height:1.08; max-width:18ch; }
 .section-head p{ font-size:16.5px; color:var(--text-secondary); margin-top:14px; line-height:1.6; max-width:54ch; }
 .section-head.center{ text-align:center; margin-left:auto; margin-right:auto; }
@@ -459,7 +452,7 @@ section{ padding:88px 0; }
    ============================================================ */
 @media(max-width:1080px){
   .hero-grid{ gap:48px; }
-  .hero h1{ font-size:52px; }
+  .hero h1{ font-size:56px; }
   .eco-grid{ grid-template-columns:repeat(2,1fr); }
   .section-head h2{ font-size:36px; }
   .showcase-panel{ min-height:0; }
@@ -524,8 +517,8 @@ section{ padding:88px 0; }
     <div class="ln-logo-3d"><span class="part-zayro">Zayro</span><span class="part-docx">DocX</span></div>
   </a>
   <div class="ln-nav-btns">
-    <a href="/login/" class="btn-login">Login</a>
-    <a href="/register/" class="btn-register">Get Started Free</a>
+    <a href="#" class="btn-login" onclick="event.preventDefault();openZpPopup('loginPopup')">Login</a>
+    <a href="#" class="btn-register" onclick="event.preventDefault();openZpPopup('signupPopup')">Get Started Free</a>
   </div>
 </nav>
 </div>
@@ -537,13 +530,13 @@ section{ padding:88px 0; }
     <div class="reveal">
       <span class="eyebrow">Document tools</span>
       <h1>Professional PDF &amp; Image Tools — <span class="accent-text">All in One Place</span></h1>
-      <p class="lede">Merge, split, compress and convert PDFs. Edit documents, enhance images and extract text with high-accuracy OCR — all in one place.</p>
+      <p class="lede">Merge, split, compress and convert PDFs. Edit documents, enhance images, and extract text with OCR — all in one place.</p>
       <div class="hero-ctas">
-        <a href="/register/" class="btn btn-primary btn-lg"><i class="fa-solid fa-rocket"></i> Get Started Free</a>
+        <a href="#" class="btn btn-primary btn-lg" onclick="event.preventDefault();openZpPopup('signupPopup')"><i class="fa-solid fa-rocket"></i> Get Started Free</a>
       </div>
       <div class="hero-meta">
         <div class="hero-meta-item"><span class="num">50+</span><span class="lbl">Tools Available</span></div>
-        <div class="hero-meta-item"><span class="num">100%</span><span class="lbl">Core Tools Free</span></div>
+        <div class="hero-meta-item"><span class="num">100%</span><span class="lbl">Core Tools Free to Use</span></div>
         <div class="hero-meta-item hero-meta-item--accent"><span class="num">AI OCR</span><span class="lbl">Document Intelligence</span></div>
       </div>
     </div>
@@ -560,9 +553,9 @@ section{ padding:88px 0; }
 <div class="trust-strip">
   <div class="wrap trust-row">
     <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>New tools added regularly</div>
-    <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>No account required for most tools</div>
+    <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>No account required for basic tools</div>
     <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg>PDF, Word, Excel, PPT &amp; image support</div>
-    <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>High-Accuracy OCR</div>
+    <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>OCR for Scanned Documents</div>
   </div>
 </div>
 
@@ -572,7 +565,7 @@ section{ padding:88px 0; }
     <div class="section-head reveal">
       <span class="eyebrow">What You Can Do</span>
       <h2>50+ Powerful Tools</h2>
-      <p>Everything you need to work with PDFs, images and documents — with no account required for most tools.</p>
+      <p>Everything you need to work with PDFs and images — with basic tools available without an account.</p>
     </div>
 
     <div class="eco-grid">
@@ -590,71 +583,71 @@ section{ padding:88px 0; }
         <div class="eco-tools"><span>PDF</span><span>Split</span></div>
       </a>
 
-      <a href="/tools/compress-pdf/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(22,163,74,0.22);--card-border:#86efac;">
-        <div class="eco-icon" style="background:#f0fdf4;color:#16a34a;"><i class="fa-solid fa-compress"></i></div>
+      <a href="/tools/compress-pdf/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(217,119,6,0.22);--card-border:#fde68a;">
+        <div class="eco-icon" style="background:#fef3c7;color:#d97706;"><i class="fa-solid fa-compress"></i></div>
         <h3>Compress PDF</h3>
         <p>Reduce file size for email or storage while keeping quality intact.</p>
         <div class="eco-tools"><span>PDF</span><span>Compress</span></div>
       </a>
 
-      <a href="/tools/ocr-pdf/" class="eco-card reveal reveal-d2" style="--card-glow:rgba(147,51,234,0.22);--card-border:#d8b4fe;">
-        <div class="eco-icon" style="background:#fdf4ff;color:#9333ea;"><i class="fa-solid fa-eye"></i></div>
+      <a href="/tools/ocr-pdf/" class="eco-card reveal reveal-d2" style="--card-glow:rgba(37,99,235,0.22);--card-border:#93c5fd;">
+        <div class="eco-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-eye"></i></div>
         <h3>OCR PDF</h3>
         <p>Turn scanned pages and photographed documents into searchable text.</p>
         <div class="eco-tools"><span>Scan</span><span>Searchable</span></div>
       </a>
 
-      <a href="/tools/pdf-to-word/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(37,99,235,0.22);--card-border:#93c5fd;">
-        <div class="eco-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-file-word"></i></div>
+      <a href="/tools/pdf-to-word/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(43,87,154,0.22);--card-border:#c7d3ee;">
+        <div class="eco-icon" style="background:#e8edf7;color:#2b579a;"><i class="fa-solid fa-file-word"></i></div>
         <h3>PDF to Word</h3>
         <p>Convert PDFs to editable Word documents while preserving formatting.</p>
         <div class="eco-tools"><span>Convert</span><span>Word</span></div>
       </a>
 
-      <a href="/tools/word-to-pdf/" class="eco-card reveal reveal-d4" style="--card-glow:rgba(22,163,74,0.22);--card-border:#86efac;">
-        <div class="eco-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-file-pdf"></i></div>
+      <a href="/tools/word-to-pdf/" class="eco-card reveal reveal-d4" style="--card-glow:rgba(43,87,154,0.22);--card-border:#c7d3ee;">
+        <div class="eco-icon" style="background:#e8edf7;color:#2b579a;"><i class="fa-solid fa-file-word"></i></div>
         <h3>Word to PDF</h3>
         <p>Convert Word documents to PDF format with layout preserved.</p>
         <div class="eco-tools"><span>Convert</span><span>PDF</span></div>
       </a>
 
-      <a href="/tools/sign-pdf/" class="eco-card reveal reveal-d2" style="--card-glow:rgba(234,88,12,0.22);--card-border:#fdba74;">
-        <div class="eco-icon" style="background:#fff0ec;color:#ea580c;"><i class="fa-solid fa-signature"></i></div>
+      <a href="/tools/sign-pdf/" class="eco-card reveal reveal-d2" style="--card-glow:rgba(217,119,6,0.22);--card-border:#fde68a;">
+        <div class="eco-icon" style="background:#fef3c7;color:#d97706;"><i class="fa-solid fa-signature"></i></div>
         <h3>Sign PDF</h3>
         <p>Add your signature, initials, or stamps to any PDF document.</p>
         <div class="eco-tools"><span>Sign</span><span>Annotate</span></div>
       </a>
 
-      <a href="/tools/ai-summarizer/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(202,138,4,0.22);--card-border:#fde047;">
-        <div class="eco-icon" style="background:#fef9c3;color:#ca8a04;"><i class="fa-solid fa-brain"></i></div>
+      <a href="/tools/ai-summarizer/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(147,51,234,0.22);--card-border:#d8b4fe;">
+        <div class="eco-icon" style="background:#f3e8ff;color:#9333ea;"><i class="fa-solid fa-file-lines"></i></div>
         <h3>AI Summarizer</h3>
         <p>Get the key points from long reports and contracts in seconds.</p>
         <div class="eco-tools"><span>AI</span><span>Summarize</span></div>
       </a>
 
-      <a href="/tools/remove-background/" class="eco-card reveal reveal-d4" style="--card-glow:rgba(2,132,199,0.22);--card-border:#7dd3fc;">
-        <div class="eco-icon" style="background:#f0f9ff;color:#0284c7;"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+      <a href="/tools/remove-background/" class="eco-card reveal reveal-d4" style="--card-glow:rgba(147,51,234,0.22);--card-border:#d8b4fe;">
+        <div class="eco-icon" style="background:#f3e8ff;color:#9333ea;"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
         <h3>Remove Background</h3>
         <p>Automatically remove backgrounds from images with AI precision.</p>
         <div class="eco-tools"><span>Image</span><span>AI</span></div>
       </a>
 
-      <a href="/tools/photo-blue/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(37,99,235,0.22);--card-border:#93c5fd;">
-        <div class="eco-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-droplet"></i></div>
+      <a href="/tools/photo-blue/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(8,145,178,0.22);--card-border:#7dd3fc;">
+        <div class="eco-icon" style="background:#e0f7fa;color:#0891b2;"><i class="fa-solid fa-droplet"></i></div>
         <h3>Photo Blue</h3>
         <p>Apply a professional blue filter to images in one click.</p>
         <div class="eco-tools"><span>Image</span><span>Filter</span></div>
       </a>
 
-      <a href="/tools/compress-image/" class="eco-card reveal reveal-d4" style="--card-glow:rgba(234,88,12,0.22);--card-border:#fdba74;">
-        <div class="eco-icon" style="background:#fff7ed;color:#ea580c;"><i class="fa-solid fa-image"></i></div>
+      <a href="/tools/compress-image/" class="eco-card reveal reveal-d4" style="--card-glow:rgba(217,119,6,0.22);--card-border:#fde68a;">
+        <div class="eco-icon" style="background:#fef3c7;color:#d97706;"><i class="fa-solid fa-compress-arrows-alt"></i></div>
         <h3>Compress Image</h3>
         <p>Reduce image file size without losing visible quality.</p>
         <div class="eco-tools"><span>Image</span><span>Compress</span></div>
       </a>
 
-      <a href="/tools/invoice-extractor/" class="eco-card reveal reveal-d5" style="--card-glow:rgba(217,119,6,0.22);--card-border:#fcd34d;">
-        <div class="eco-icon" style="background:#fef3c7;color:#d97706;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+      <a href="/tools/invoice-extractor/" class="eco-card reveal reveal-d5" style="--card-glow:rgba(22,163,74,0.22);--card-border:#86efac;">
+        <div class="eco-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
         <h3>Invoice Extractor</h3>
         <p>Pull structured data like totals and dates from invoices with AI.</p>
         <div class="eco-tools"><span>AI</span><span>Extract</span></div>
@@ -681,7 +674,7 @@ section{ padding:88px 0; }
     <div class="showcase-panel active" data-panel="ocr">
       <div class="sp-copy">
         <span class="eyebrow">Scan to searchable</span>
-        <h3>Turn scanned documents into searchable, editable text</h3>
+        <h3>Make scanned documents searchable</h3>
         <p>Upload a scanned page or document photo. Our OCR detects text, position and structure, then creates a searchable, selectable text layer while preserving the original page layout.</p>
         <ul class="sp-list">
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Works on photographed and scanned pages</li>
@@ -742,7 +735,7 @@ section{ padding:88px 0; }
   <div class="wrap">
     <div class="section-head reveal">
       <span class="eyebrow">How it works</span>
-      <h2>Three simple steps. No learning curve.</h2>
+      <h2>Three steps. No learning curve.</h2>
     </div>
     <div class="steps">
       <div class="step reveal"><div class="step-num">01 — Upload</div><h3>Drop in your file</h3><p>Drag in a PDF, Word file, spreadsheet, image or scan. No account needed for most tools.</p></div>
@@ -759,9 +752,9 @@ section{ padding:88px 0; }
       <div>
         <span class="eyebrow">Built for everyday use</span>
         <h2>Works the way you already work</h2>
-        <p>No installs. No plugins. No learning curve. Open your browser, upload a file and get your result — most tools work without an account.</p>
+        <p>No installs, no plugins, no learning curve. Open your browser, drop in a file, and get your result. Basic tools work without an account.</p>
         <ul class="sec-list">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>No account required for most tools</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>No account required for basic tools</li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Works in any modern browser, nothing to install</li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Original formatting is preserved on conversion</li>
         </ul>
@@ -779,7 +772,7 @@ section{ padding:88px 0; }
 <!-- ===================== COPYRIGHT ONLY ===================== -->
 <div class="copyright">
   <div class="wrap">
-    <p>&copy; 2026 <span>ZayroDocX</span> — All rights reserved.</p>
+    <p>&copy; 2026 Zayron Infotech Pvt. Ltd.</p>
   </div>
 </div>
 
