@@ -117,6 +117,124 @@ body { padding-top: var(--mh-h); }
 .mh-drop-mega { min-width: 340px; }
 .mhd-mega-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
 
+/* All Tools mega-menu — controlled mega-dropdown, centred, capped at 1200px */
+.mh-drop.mh-drop-all-tools {
+  position: fixed;
+  top: var(--mh-h);
+  /* Centre on the viewport; clamp so it never bleeds off either edge */
+  left: clamp(16px, 50vw - 600px, calc(100vw - 1216px));
+  width: min(1200px, calc(100vw - 32px));
+  border-radius: 0 0 14px 14px;
+  min-width: unset;
+  max-width: none;
+  padding: .7rem 0 .95rem;
+  box-sizing: border-box;
+}
+/* Inner padding — no centring needed since container is already sized */
+.mhd-inner {
+  padding: 0 1.25rem;
+}
+.mhd-all-cols {
+  display: grid;
+  /* 6 equal columns; gap narrows as viewport shrinks */
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0 clamp(0px, 0.5vw - 2px, .5rem);
+  align-items: flex-start;
+}
+.mhd-all-col { min-width: 0; }
+
+/* Image Tools — 6-col, 2-row grid */
+.mhd-img-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 2px;
+}
+/* Special Tools — 4 items spanning full width */
+.mhd-special-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px;
+}
+
+/* Scoped overrides inside All Tools: tighter item padding */
+.mh-drop-all-tools .mh-drop-item {
+  padding: .35rem .45rem;
+  gap: .45rem;
+}
+.mh-drop-all-tools .mhd-group-label {
+  padding: .12rem .45rem .05rem;
+}
+/* Subtler AI badge inside mega-menu */
+.mh-drop-all-tools .mhd-ai {
+  background: rgba(220,38,38,.1);
+  color: #c41a1a;
+  font-size: .52rem;
+  padding: 1px 3px;
+}
+/* Subtler Live badge inside mega-menu */
+.mh-drop-all-tools .mh-cs-badge {
+  background: rgba(220,38,38,.15);
+  color: #c41a1a;
+  font-size: .52rem;
+  animation: none;
+  border: 1px solid rgba(220,38,38,.25);
+}
+/* Lower section: Image Tools (left) + Special Tools (right) */
+.mhd-lower {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+}
+.mhd-lower-img {
+  flex: 1;
+  min-width: 0;
+}
+.mhd-vert-divider {
+  width: 1px;
+  background: #e8e8e8;
+  align-self: stretch;
+  margin: 0 .55rem;
+  flex-shrink: 0;
+}
+.mhd-lower-special {
+  width: 215px;
+  flex-shrink: 0;
+}
+.mhd-img-cols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+.mhd-img-col {
+  display: flex;
+  flex-direction: column;
+}
+.mhd-img-col:not(:last-child) {
+  border-right: 1px solid #e8e8e8;
+  padding-right: 2px;
+}
+.mhd-img-col + .mhd-img-col {
+  padding-left: 2px;
+}
+.mhd-special-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* At narrower laptop widths, tighten column gap further */
+@media (max-width: 1400px) {
+  .mhd-all-cols { gap: 0 2px; }
+}
+@media (max-width: 1200px) {
+  .mhd-all-cols {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0 4px;
+  }
+  .mhd-lower { flex-wrap: wrap; }
+  .mhd-lower-special { width: 100%; }
+  .mhd-vert-divider { display: none; }
+}
+
 .mh-drop-item {
   display: flex; align-items: center; gap: .65rem;
   padding: .55rem .65rem; border-radius: 8px;
@@ -233,7 +351,12 @@ body { padding-top: var(--mh-h); }
 .mh-user-item:hover { background: #f9fafb; color: #111; }
 .mh-user-item i { width: 16px; text-align: center; color: #9ca3af; font-size: .8rem; }
 .mh-user-divider { height: 1px; background: #f3f4f6; margin: .3rem 0; }
-.mh-user-logout { color: #dc2626 !important; }
+.mh-user-logout {
+  color: #dc2626 !important; width: 100%; text-align: left;
+  background: none !important; border: none !important;
+  cursor: pointer; font: inherit; box-shadow: none !important;
+}
+.mh-user-logout:hover { background: #fff5f5 !important; }
 .mh-user-logout i { color: #dc2626 !important; }
 .mh-user-name {
   font-size: .78rem; font-weight: 600; color: #444;

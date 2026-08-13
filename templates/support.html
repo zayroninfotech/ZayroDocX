@@ -1,0 +1,1056 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Support — ZayroDocX{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ═══ Tokens ═══ */
+:root{
+  --sp-bg:        #ffffff;
+  --sp-bg-tint:   #fdf8f8;
+  --sp-bg-subtle: #f6f6f8;
+  --sp-surface:   #ffffff;
+  --sp-border:    #e8e8eb;
+  --sp-border-s:  #d6d6db;
+  --sp-text-1:    #14161a;
+  --sp-text-2:    #4b4e57;
+  --sp-text-3:    #6a6d76;
+  --sp-brand:     #dc2626;
+  --sp-brand-s:   #fdecec;
+  --sp-brand-ss:  #fcd9d9;
+  --sp-brand-dk:  #b91c1c;
+  --sp-ink:       #12141a;
+  --sp-success:   #059669;
+  --sp-success-s: #ecfdf5;
+  --sp-purple:    #7c3aed;
+  --sp-purple-s:  #ede9fe;
+  --sp-blue:      #2563eb;
+  --sp-blue-s:    #dbeafe;
+  --sp-orange:    #d97706;
+  --sp-orange-s:  #fef3c7;
+  --sp-r-sm: 8px; --sp-r-md: 10px; --sp-r-lg: 14px; --sp-r-xl: 20px; --sp-r-full: 999px;
+  --sp-shadow-sm: 0 1px 2px rgba(15,18,28,.04), 0 1px 3px rgba(15,18,28,.05);
+  --sp-shadow:    0 4px 14px -6px rgba(15,18,28,.10), 0 1px 2px rgba(15,18,28,.04);
+  --sp-shadow-md: 0 16px 40px -18px rgba(15,18,28,.20), 0 2px 6px rgba(15,18,28,.04);
+  --sp-shadow-lg: 0 28px 60px -24px rgba(15,18,28,.28);
+  --sp-ease: cubic-bezier(.4,0,.2,1);
+  --sp-ease-out: cubic-bezier(.16,1,.3,1);
+  --sp-t: 200ms;
+  --sp-pad: clamp(20px, 2.5vw, 32px);
+}
+
+/* ═══ Layout ═══ */
+.sp-page { background: var(--sp-bg); color: var(--sp-text-1); }
+.sp-container { max-width: 1100px; margin: 0 auto; padding-inline: clamp(18px, 3.5vw, 40px); }
+.sp-section { padding-block: var(--sp-pad); }
+
+/* ═══ Eyebrow ═══ */
+.sp-eyebrow {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--sp-brand);
+}
+.sp-eyebrow--pill {
+  background: var(--sp-brand-s); border: 1px solid var(--sp-brand-ss);
+  padding: 5px 13px; border-radius: var(--sp-r-full);
+  letter-spacing: 0; text-transform: none; font-size: .78rem; font-weight: 600;
+}
+.sp-eyebrow .dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--sp-brand);
+  box-shadow: 0 0 0 3px rgba(220,38,38,.14);
+  animation: sp-pulse 2.4s var(--sp-ease) infinite;
+}
+@keyframes sp-pulse {
+  0%,100%{ box-shadow: 0 0 0 3px rgba(220,38,38,.14); }
+  50%    { box-shadow: 0 0 0 7px rgba(220,38,38,.04); }
+}
+
+/* ═══ Buttons ═══ */
+.sp-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  font-weight: 600; font-size: .82rem;
+  padding: .6rem 1.25rem; border-radius: var(--sp-r-full);
+  border: 1px solid transparent; cursor: pointer; white-space: nowrap;
+  text-decoration: none; min-height: 38px;
+  transition: background var(--sp-t) var(--sp-ease), color var(--sp-t) var(--sp-ease),
+              border-color var(--sp-t) var(--sp-ease), transform var(--sp-t) var(--sp-ease),
+              box-shadow var(--sp-t) var(--sp-ease);
+}
+.sp-btn--primary { background: var(--sp-brand); color: #fff; box-shadow: 0 3px 10px -4px rgba(220,38,38,.45); }
+.sp-btn--primary:hover { background: var(--sp-brand-dk); transform: translateY(-1px); box-shadow: 0 8px 22px -8px rgba(220,38,38,.40); }
+.sp-btn--secondary { background: var(--sp-surface); border-color: var(--sp-border-s); color: var(--sp-text-1); }
+.sp-btn--secondary:hover { background: var(--sp-bg-subtle); transform: translateY(-1px); box-shadow: var(--sp-shadow); }
+.sp-btn--ghost { background: rgba(255,255,255,.08); color: #e9ebf0; border-color: rgba(255,255,255,.15); }
+.sp-btn--ghost:hover { background: rgba(255,255,255,.15); transform: translateY(-1px); }
+
+/* ═══ Section head ═══ */
+.sp-sec-head { margin-bottom: 16px; max-width: 680px; }
+.sp-sec-head h2 { font-size: clamp(1.25rem, 2.2vw, 1.75rem); font-weight: 700; letter-spacing: -.025em; color: var(--sp-text-1); margin-top: 6px; line-height: 1.18; }
+.sp-sec-head p { margin-top: 6px; font-size: .875rem; color: var(--sp-text-2); line-height: 1.6; }
+
+/* ═══════════════════════════════════════
+   1. HERO
+═══════════════════════════════════════ */
+.sp-hero {
+  background:
+    radial-gradient(120% 80% at 0% 0%, var(--sp-bg-tint), transparent 60%),
+    linear-gradient(180deg, var(--sp-bg-tint), var(--sp-bg) 72%);
+  padding-block: clamp(30px, 4vw, 50px) clamp(24px, 3vw, 38px);
+  position: relative; overflow: hidden; border-bottom: 1px solid var(--sp-border);
+}
+.sp-hero::before {
+  content: ""; position: absolute; top: -120px; right: -80px;
+  width: 420px; height: 420px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(220,38,38,.06), transparent 68%);
+  pointer-events: none;
+}
+.sp-hero-inner {
+  display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(240px, .75fr);
+  gap: clamp(28px, 4vw, 52px); align-items: center; position: relative;
+}
+.sp-hero h1 {
+  font-size: clamp(1.75rem, 4vw, 2.75rem); font-weight: 800;
+  line-height: 1.08; letter-spacing: -.03em;
+  color: var(--sp-text-1); margin: 12px 0 0;
+}
+.sp-hero h1 .accent { color: var(--sp-brand); }
+.sp-hero .sp-lede {
+  margin-top: 8px; font-size: .9rem; line-height: 1.62;
+  color: var(--sp-text-2); max-width: 520px;
+}
+.sp-hero-cta { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+/* Search bar */
+.sp-search-wrap { margin-top: 16px; max-width: 520px; }
+.sp-search-bar {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--sp-surface); border: 1.5px solid var(--sp-border-s);
+  border-radius: var(--sp-r-full); padding: 5px 6px 5px 18px;
+  box-shadow: var(--sp-shadow);
+  transition: border-color var(--sp-t) var(--sp-ease), box-shadow var(--sp-t) var(--sp-ease);
+}
+.sp-search-bar:focus-within { border-color: var(--sp-brand); box-shadow: 0 0 0 3px rgba(220,38,38,.10), var(--sp-shadow); }
+.sp-search-bar i { color: var(--sp-text-3); flex: none; font-size: .9rem; }
+.sp-search-bar input {
+  flex: 1; border: none; outline: none; font-size: .85rem; font-family: inherit;
+  background: transparent; color: var(--sp-text-1); padding: 9px 0;
+}
+.sp-search-bar input::placeholder { color: var(--sp-text-3); }
+.sp-search-bar button {
+  background: var(--sp-brand); color: #fff; border: none; border-radius: var(--sp-r-full);
+  padding: 9px 18px; font-size: .82rem; font-weight: 700; cursor: pointer;
+  transition: background var(--sp-t) var(--sp-ease);
+}
+.sp-search-bar button:hover { background: var(--sp-brand-dk); }
+.sp-search-links { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.sp-search-link {
+  font-size: .75rem; font-weight: 600; color: var(--sp-text-2);
+  background: var(--sp-surface); border: 1px solid var(--sp-border);
+  padding: 5px 12px; border-radius: var(--sp-r-full);
+  text-decoration: none;
+  transition: border-color var(--sp-t) var(--sp-ease), color var(--sp-t) var(--sp-ease);
+}
+.sp-search-link:hover { border-color: var(--sp-brand); color: var(--sp-brand); }
+
+/* Popular topics card */
+.sp-topics-card {
+  background: var(--sp-surface); border: 1px solid var(--sp-border);
+  border-radius: var(--sp-r-xl); box-shadow: var(--sp-shadow-md); overflow: hidden;
+}
+.sp-topics-head {
+  padding: 11px 18px; border-bottom: 1px solid var(--sp-border);
+  background: var(--sp-bg-subtle);
+  font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--sp-text-3); display: flex; align-items: center; gap: 8px;
+}
+.sp-topics-head i { color: var(--sp-brand); font-size: .72rem; }
+.sp-topic-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 10px 16px; border-bottom: 1px solid var(--sp-border);
+  text-decoration: none;
+  transition: background var(--sp-t) var(--sp-ease);
+}
+.sp-topic-row:last-child { border-bottom: none; }
+.sp-topic-row:hover { background: var(--sp-bg-tint); }
+.sp-topic-row .t { font-size: .84rem; font-weight: 600; color: var(--sp-text-1); }
+.sp-topic-row .go { font-size: .75rem; font-weight: 700; color: var(--sp-brand); display: flex; align-items: center; gap: 4px; }
+
+/* ═══════════════════════════════════════
+   2. START HERE — quick help cards
+═══════════════════════════════════════ */
+.sp-quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.sp-quick-card {
+  background: var(--sp-surface); border: 1px solid var(--sp-border);
+  border-radius: var(--sp-r-xl); padding: 16px 14px; text-align: center;
+  box-shadow: var(--sp-shadow-sm); cursor: pointer; text-decoration: none; display: block;
+  position: relative; overflow: hidden;
+  transition: transform var(--sp-t) var(--sp-ease), box-shadow var(--sp-t) var(--sp-ease), border-color var(--sp-t) var(--sp-ease);
+}
+.sp-quick-card::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+  background: var(--sp-brand); transform: scaleX(0); transform-origin: left;
+  transition: transform 320ms var(--sp-ease-out);
+}
+.sp-quick-card:hover { transform: translateY(-3px); box-shadow: var(--sp-shadow-md); border-color: var(--sp-border-s); }
+.sp-quick-card:hover::after { transform: scaleX(1); }
+.sp-qc-icon {
+  width: 40px; height: 40px; border-radius: var(--sp-r-lg); margin: 0 auto 10px;
+  display: flex; align-items: center; justify-content: center; font-size: .95rem;
+  transition: transform var(--sp-t) var(--sp-ease), background var(--sp-t) var(--sp-ease), color var(--sp-t) var(--sp-ease);
+}
+.sp-quick-card:hover .sp-qc-icon { transform: rotate(-7deg) scale(1.07); }
+.sp-quick-card h3 { font-size: .9rem; font-weight: 700; margin-bottom: 5px; color: var(--sp-text-1); }
+.sp-quick-card p { font-size: .78rem; color: var(--sp-text-3); line-height: 1.5; }
+
+/* ═══════════════════════════════════════
+   3. TOOL GUIDES
+═══════════════════════════════════════ */
+.sp-guide-block {
+  background: var(--sp-surface); border: 1px solid var(--sp-border);
+  border-radius: var(--sp-r-xl); padding: clamp(14px, 2vw, 22px);
+  display: grid; grid-template-columns: auto 1fr; gap: clamp(14px, 2vw, 22px);
+  align-items: start; box-shadow: var(--sp-shadow-sm); margin-bottom: 8px;
+  transition: border-color var(--sp-t) var(--sp-ease), box-shadow var(--sp-t) var(--sp-ease), transform var(--sp-t) var(--sp-ease);
+}
+.sp-guide-block:hover { border-color: var(--sp-brand-ss); box-shadow: var(--sp-shadow-md); transform: translateY(-2px); }
+.sp-guide-icon {
+  width: 40px; height: 40px; border-radius: var(--sp-r-lg); flex: none;
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+}
+.sp-guide-content h3 { font-size: 1rem; font-weight: 700; color: var(--sp-text-1); letter-spacing: -.015em; margin-bottom: 6px; }
+.sp-guide-content p { font-size: .82rem; color: var(--sp-text-2); line-height: 1.6; margin-bottom: 10px; }
+.sp-guide-links { display: flex; flex-wrap: wrap; gap: 7px; }
+.sp-guide-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: .75rem; font-weight: 600; color: var(--sp-text-2);
+  background: var(--sp-bg-subtle); border: 1px solid var(--sp-border);
+  padding: 5px 11px; border-radius: var(--sp-r-full); text-decoration: none;
+  transition: border-color var(--sp-t) var(--sp-ease), color var(--sp-t) var(--sp-ease), background var(--sp-t) var(--sp-ease);
+}
+.sp-guide-link:hover { border-color: var(--sp-brand); color: var(--sp-brand); background: var(--sp-brand-s); }
+.sp-guide-link i { font-size: .65rem; color: var(--sp-success); }
+
+/* ═══════════════════════════════════════
+   4. FAQ
+═══════════════════════════════════════ */
+.sp-faq-section {
+  background: var(--sp-bg-tint);
+  border-top: 1px solid var(--sp-border); border-bottom: 1px solid var(--sp-border);
+  padding-block: var(--sp-pad);
+}
+.sp-faq-filters { display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+.sp-faq-filter {
+  font-size: .75rem; font-weight: 700; color: var(--sp-text-2);
+  background: var(--sp-surface); border: 1px solid var(--sp-border);
+  padding: 5px 12px; border-radius: var(--sp-r-full); cursor: pointer;
+  transition: all var(--sp-t) var(--sp-ease);
+}
+.sp-faq-filter:hover { border-color: var(--sp-brand); color: var(--sp-brand); }
+.sp-faq-filter.active { background: var(--sp-brand); border-color: var(--sp-brand); color: #fff; }
+.sp-faq-list { max-width: 740px; margin: 0 auto; display: flex; flex-direction: column; gap: 6px; }
+.sp-faq-item {
+  background: var(--sp-surface); border: 1px solid var(--sp-border);
+  border-radius: var(--sp-r-lg); box-shadow: var(--sp-shadow-sm); overflow: hidden;
+}
+.sp-faq-item.hidden { display: none; }
+.sp-faq-q {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 13px 18px; cursor: pointer;
+  transition: background var(--sp-t) var(--sp-ease);
+}
+.sp-faq-q:hover { background: var(--sp-bg-subtle); }
+.sp-faq-q .qtext { font-size: .84rem; font-weight: 700; color: var(--sp-text-1); }
+.sp-faq-q .plus {
+  flex: none; width: 20px; height: 20px; border-radius: var(--sp-r-sm);
+  background: var(--sp-brand-s); color: var(--sp-brand);
+  display: flex; align-items: center; justify-content: center; font-size: .85rem;
+  transition: transform .2s var(--sp-ease);
+}
+.sp-faq-item.open .plus { transform: rotate(45deg); }
+.sp-faq-a { max-height: 0; overflow: hidden; transition: max-height .25s ease; padding: 0 18px; }
+.sp-faq-item.open .sp-faq-a { padding: 0 18px 14px; }
+.sp-faq-a p { font-size: .82rem; color: var(--sp-text-3); line-height: 1.65; }
+
+/* ═══════════════════════════════════════
+   5. CONTACT
+═══════════════════════════════════════ */
+.sp-contact-layout { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; align-items: start; }
+.sp-form-card {
+  background: var(--sp-surface); border: 1px solid var(--sp-border);
+  border-radius: var(--sp-r-xl); padding: clamp(18px, 2.5vw, 28px); box-shadow: var(--sp-shadow);
+}
+.sp-form-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--sp-text-1); margin-bottom: 3px; }
+.sp-form-sub { font-size: .82rem; color: var(--sp-text-3); display: block; margin-bottom: 16px; }
+.sp-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sp-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 11px; }
+.sp-field label { font-size: .75rem; font-weight: 700; color: var(--sp-text-1); }
+.sp-field label .opt { font-weight: 500; color: var(--sp-text-3); }
+.sp-field input, .sp-field select, .sp-field textarea {
+  border: 1px solid var(--sp-border-s); border-radius: var(--sp-r-md);
+  padding: 10px 12px; font-size: .85rem; font-family: inherit;
+  color: var(--sp-text-1); outline: none; background: var(--sp-surface);
+  transition: border-color var(--sp-t) var(--sp-ease), box-shadow var(--sp-t) var(--sp-ease);
+}
+.sp-field input:focus, .sp-field select:focus, .sp-field textarea:focus {
+  border-color: var(--sp-brand); box-shadow: 0 0 0 3px rgba(220,38,38,.10);
+}
+.sp-field textarea { resize: vertical; min-height: 96px; font-family: inherit; }
+.sp-routing-hint {
+  display: none; align-items: flex-start; gap: 8px;
+  background: var(--sp-brand-s); border: 1px solid var(--sp-brand-ss);
+  border-radius: var(--sp-r-md); padding: 11px 13px; margin-bottom: 14px;
+  font-size: .78rem; color: var(--sp-text-2); line-height: 1.5;
+}
+.sp-routing-hint.show { display: flex; }
+.sp-routing-hint i { color: var(--sp-brand); flex: none; margin-top: 1px; }
+.sp-upload-box {
+  border: 1.5px dashed var(--sp-border-s); border-radius: var(--sp-r-md);
+  padding: 13px; text-align: center; cursor: pointer;
+  font-size: .8rem; color: var(--sp-text-3);
+  transition: border-color var(--sp-t) var(--sp-ease), background var(--sp-t) var(--sp-ease);
+}
+.sp-upload-box:hover { border-color: var(--sp-brand); background: var(--sp-brand-s); }
+.sp-upload-box strong { color: var(--sp-brand); }
+.sp-submit-btn {
+  width: 100%; background: var(--sp-brand); color: #fff; border: none;
+  padding: 13px; border-radius: var(--sp-r-md); font-size: .875rem; font-weight: 700;
+  cursor: pointer; margin-top: 5px;
+  transition: background var(--sp-t) var(--sp-ease), transform var(--sp-t) var(--sp-ease);
+}
+.sp-submit-btn:hover:not(:disabled) { background: var(--sp-brand-dk); transform: translateY(-1px); }
+.sp-submit-btn:disabled { opacity: .65; cursor: not-allowed; transform: none; }
+.sp-field-err { display: none; font-size: .73rem; color: #dc2626; margin-top: 3px; }
+
+/* Suggestion card */
+.sp-suggest-card {
+  margin-top: 18px;
+  background: var(--sp-surface); border: 1px solid var(--sp-border);
+  border-radius: var(--sp-r-xl); padding: clamp(16px,2vw,24px);
+  box-shadow: var(--sp-shadow-sm);
+  display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: flex-start;
+}
+.sp-suggest-icon {
+  width: 44px; height: 44px; border-radius: var(--sp-r-md); flex: none;
+  background: var(--sp-brand-s); color: var(--sp-brand);
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+}
+.sp-suggest-body { min-width: 0; }
+.sp-suggest-body h4 { font-size: .95rem; font-weight: 700; color: var(--sp-text-1); margin-bottom: 2px; }
+.sp-suggest-body p  { font-size: .78rem; color: var(--sp-text-3); margin-bottom: 12px; line-height: 1.5; }
+.sp-suggest-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.sp-suggest-row-full { margin-bottom: 10px; }
+.sp-suggest-field label { display: block; font-size: .72rem; font-weight: 600; color: var(--sp-text-2); margin-bottom: 4px; }
+.sp-suggest-field input,
+.sp-suggest-field select,
+.sp-suggest-field textarea {
+  width: 100%; box-sizing: border-box;
+  padding: 7px 10px; border: 1.5px solid var(--sp-border-s);
+  border-radius: var(--sp-r-md); font-size: .82rem; color: var(--sp-text-1);
+  background: var(--sp-bg); outline: none; transition: border-color var(--sp-t);
+}
+.sp-suggest-field input:focus,
+.sp-suggest-field select:focus,
+.sp-suggest-field textarea:focus { border-color: var(--sp-brand); }
+.sp-suggest-field textarea { resize: vertical; min-height: 70px; font-family: inherit; }
+.sp-suggest-field .sp-field-err { font-size: .7rem; }
+.sp-suggest-actions { display: flex; align-items: center; gap: 12px; margin-top: 2px; }
+.sp-suggest-btn {
+  padding: 8px 20px; background: var(--sp-brand); color: #fff; border: none;
+  border-radius: var(--sp-r-md); font-size: .8rem; font-weight: 700; cursor: pointer;
+  transition: background var(--sp-t); white-space: nowrap;
+}
+.sp-suggest-btn:hover:not(:disabled) { background: var(--sp-brand-dk); }
+.sp-suggest-btn:disabled { opacity: .6; cursor: not-allowed; }
+.sp-suggest-char { font-size: .7rem; color: var(--sp-text-3); }
+.sp-suggest-success {
+  display: none; text-align: center; padding: 1.2rem;
+  background: #f0fdf4; border-radius: var(--sp-r-lg); border: 1px solid #bbf7d0;
+}
+.sp-suggest-success i { color: #16a34a; font-size: 1.4rem; display: block; margin-bottom: 6px; }
+.sp-suggest-success p { font-size: .82rem; color: #15803d; font-weight: 600; }
+@media (max-width: 640px) {
+  .sp-suggest-card { grid-template-columns: 1fr; }
+  .sp-suggest-row  { grid-template-columns: 1fr; }
+}
+
+.sp-side-stack { display: flex; flex-direction: column; gap: 12px; }
+.sp-channel-card {
+  background: var(--sp-surface); border: 1px solid var(--sp-border);
+  border-radius: var(--sp-r-lg); padding: 14px; box-shadow: var(--sp-shadow-sm);
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.sp-channel-card .ch-icon {
+  width: 40px; height: 40px; border-radius: var(--sp-r-md); flex: none;
+  display: flex; align-items: center; justify-content: center; font-size: .9rem;
+}
+.sp-channel-card h4 { font-size: .88rem; font-weight: 700; color: var(--sp-text-1); margin-bottom: 4px; }
+.sp-channel-card p { font-size: .78rem; color: var(--sp-text-3); line-height: 1.5; }
+.sp-channel-val {
+  display: inline-block; margin-top: 8px; font-size: .75rem; font-weight: 700;
+  color: var(--sp-text-1); background: var(--sp-bg-subtle); border: 1px solid var(--sp-border);
+  padding: 5px 10px; border-radius: var(--sp-r-sm);
+}
+
+/* ═══════════════════════════════════════
+   6. CTA / Reassurance
+═══════════════════════════════════════ */
+.sp-cta {
+  background: linear-gradient(140deg, var(--sp-ink) 0%, #1c1f28 60%, #16181f 100%);
+  border-radius: var(--sp-r-xl);
+  padding: clamp(22px, 3vw, 36px) clamp(22px, 3vw, 44px);
+  position: relative; overflow: hidden; box-shadow: var(--sp-shadow-lg);
+  text-align: center;
+}
+.sp-cta::before {
+  content: ""; position: absolute; top: -140px; right: -100px; width: 440px; height: 440px;
+  border-radius: 50%; background: radial-gradient(circle, rgba(220,38,38,.17), transparent 66%); pointer-events: none;
+}
+.sp-cta::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,.024) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,.024) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(70% 80% at 20% 30%, #000, transparent 76%);
+}
+.sp-cta-inner { position: relative; }
+.sp-cta h2 { font-size: clamp(1.3rem, 2.5vw, 1.8rem); font-weight: 700; color: #fff; letter-spacing: -.025em; margin-bottom: 10px; }
+.sp-cta p { font-size: .875rem; color: #a9adb8; max-width: 480px; margin: 0 auto 16px; line-height: 1.6; }
+.sp-cta-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.sp-privacy-note { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 12px; font-size: .72rem; color: #7a7e8c; position: relative; }
+.sp-privacy-note .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sp-success); }
+
+/* Scroll reveal */
+.sp-reveal { opacity: 0; transform: translateY(14px); transition: opacity .45s ease, transform .45s ease; }
+.sp-reveal.in { opacity: 1; transform: none; }
+
+/* ═══ Responsive ═══ */
+@media (max-width: 960px){
+  .sp-hero-inner { grid-template-columns: 1fr; }
+  .sp-quick-grid { grid-template-columns: repeat(2, 1fr); }
+  .sp-contact-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px){
+  .sp-quick-grid { grid-template-columns: 1fr 1fr; }
+  .sp-form-row { grid-template-columns: 1fr; }
+  .sp-guide-block { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce){
+  .sp-eyebrow .dot { animation: none !important; }
+  * { transition-duration: .01ms !important; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sp-page">
+
+  <!-- ═══ 1. HERO ═══ -->
+  <section class="sp-hero">
+    <div class="sp-container">
+      <div class="sp-hero-inner">
+        <div>
+          <span class="sp-eyebrow sp-eyebrow--pill"><span class="dot"></span>Support Center</span>
+          <h1>How can we <span class="accent">help</span>?</h1>
+          <p class="sp-lede">Find answers, explore guides, or contact our team. We're here to help you get the most out of ZayroDocX.</p>
+          <div class="sp-search-wrap">
+            <form class="sp-search-bar" onsubmit="event.preventDefault(); handleSearch();">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="heroSearch" placeholder='Search help topics, e.g. "compress PDF"…' autocomplete="off">
+              <button type="submit">Search</button>
+            </form>
+            <div class="sp-search-links">
+              <a href="#start-here" class="sp-search-link">Getting Started</a>
+              <a href="#tool-guides" class="sp-search-link">Tool Guides</a>
+              <a href="#faq" class="sp-search-link">FAQs</a>
+              <a href="#contact" class="sp-search-link">Contact us</a>
+            </div>
+          </div>
+        </div>
+        <div class="sp-topics-card">
+          <div class="sp-topics-head"><i class="fa-solid fa-bolt"></i> Popular Topics</div>
+          <a href="#start-here" class="sp-topic-row"><span class="t">Getting started with ZayroDocX</span><span class="go">Open <i class="fa-solid fa-arrow-right"></i></span></a>
+          <a href="#tool-guides" class="sp-topic-row"><span class="t">Merge, split &amp; compress PDFs</span><span class="go">Open <i class="fa-solid fa-arrow-right"></i></span></a>
+          <a href="#tool-guides" class="sp-topic-row"><span class="t">OCR &amp; AI tools</span><span class="go">Open <i class="fa-solid fa-arrow-right"></i></span></a>
+          <a href="#faq" class="sp-topic-row"><span class="t">Plans &amp; billing questions</span><span class="go">Open <i class="fa-solid fa-arrow-right"></i></span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 2. START HERE ═══ -->
+  <section class="sp-section" id="start-here">
+    <div class="sp-container">
+      <div class="sp-sec-head">
+        <span class="sp-eyebrow"><i class="fa-solid fa-bolt"></i> Start here</span>
+        <h2>Jump to the topic that matches your question.</h2>
+      </div>
+      <div class="sp-quick-grid">
+
+        <a href="#faq" class="sp-quick-card sp-reveal" onclick="filterFAQ('Getting Started'); return true;">
+          <div class="sp-qc-icon" style="background:var(--sp-brand-s); color:var(--sp-brand);"><i class="fa-solid fa-bolt"></i></div>
+          <h3>Getting Started</h3>
+          <p>Create your account and learn the basics of the workspace.</p>
+        </a>
+
+        <a href="#tool-guides" class="sp-quick-card sp-reveal">
+          <div class="sp-qc-icon" style="background:var(--sp-purple-s); color:var(--sp-purple);"><i class="fa-solid fa-file-pdf"></i></div>
+          <h3>PDF Tools</h3>
+          <p>Merge, split, compress, and convert — help for every tool.</p>
+        </a>
+
+        <a href="#tool-guides" class="sp-quick-card sp-reveal">
+          <div class="sp-qc-icon" style="background:var(--sp-success-s); color:var(--sp-success);"><i class="fa-solid fa-eye"></i></div>
+          <h3>OCR &amp; AI</h3>
+          <p>Accurate text extraction, summaries, and invoice data.</p>
+        </a>
+
+        <a href="#faq" class="sp-quick-card sp-reveal" onclick="filterFAQ('Account'); return true;">
+          <div class="sp-qc-icon" style="background:var(--sp-blue-s); color:var(--sp-blue);"><i class="fa-solid fa-circle-user"></i></div>
+          <h3>Account &amp; Billing</h3>
+          <p>Sign-in, password resets, plans, and invoices.</p>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 3. TOOL GUIDES ═══ -->
+  <section class="sp-section" id="tool-guides" style="background:var(--sp-bg-tint); border-top:1px solid var(--sp-border); border-bottom:1px solid var(--sp-border);">
+    <div class="sp-container">
+      <div class="sp-sec-head">
+        <span class="sp-eyebrow"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--sp-brand);display:inline-block;"></span> Explore Tool Guides</span>
+        <h2>Step-by-step help for every tool.</h2>
+        <p>Select a category to jump to its guide section.</p>
+      </div>
+
+      <div class="sp-guide-block sp-reveal">
+        <div class="sp-guide-icon" style="background:var(--sp-blue-s); color:var(--sp-blue);"><i class="fa-solid fa-layer-group"></i></div>
+        <div class="sp-guide-content">
+          <h3>Organize PDF</h3>
+          <p>Merge, split, reorder, remove, and extract pages from your documents.</p>
+          <div class="sp-guide-links">
+            <a href="{% url 'merge_pdf_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> Merge PDF</a>
+            <a href="{% url 'split_pdf_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> Split PDF</a>
+            <a href="{% url 'remove_pages_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> Remove Pages</a>
+            <a href="{% url 'extract_pages_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> Extract Pages</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="sp-guide-block sp-reveal">
+        <div class="sp-guide-icon" style="background:var(--sp-brand-s); color:var(--sp-brand);"><i class="fa-solid fa-eye"></i></div>
+        <div class="sp-guide-content">
+          <h3>OCR &amp; AI</h3>
+          <p>Extract searchable text, summarize documents, and process scanned files with AI.</p>
+          <div class="sp-guide-links">
+            <a href="{% url 'ocr_pdf_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> OCR PDF</a>
+            <a href="{% url 'invoice_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> Invoice Extractor</a>
+            <a href="{% url 'ai_summarizer_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> AI Summarizer</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="sp-guide-block sp-reveal">
+        <div class="sp-guide-icon" style="background:rgba(43,87,154,.12); color:#2b579a;"><i class="fa-solid fa-file-word"></i></div>
+        <div class="sp-guide-content">
+          <h3>Convert PDF</h3>
+          <p>Convert PDFs to Word, Excel, PowerPoint, HTML, and back — in any direction.</p>
+          <div class="sp-guide-links">
+            <a href="{% url 'pdf_to_word_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> PDF to Word</a>
+            <a href="{% url 'word_to_pdf_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> Word to PDF</a>
+            <a href="{% url 'pdf_to_excel_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> PDF to Excel</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="sp-guide-block sp-reveal">
+        <div class="sp-guide-icon" style="background:var(--sp-orange-s); color:var(--sp-orange);"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="sp-guide-content">
+          <h3>Edit &amp; Security</h3>
+          <p>Sign documents, apply passwords, redact sensitive content, and add watermarks.</p>
+          <div class="sp-guide-links">
+            <a href="{% url 'sign_pdf_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> Sign PDF</a>
+            <a href="{% url 'protect_pdf_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> Password Protect</a>
+            <a href="{% url 'redact_pdf_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> Redact Content</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="sp-guide-block sp-reveal">
+        <div class="sp-guide-icon" style="background:var(--sp-purple-s); color:var(--sp-purple);"><i class="fa-solid fa-images"></i></div>
+        <div class="sp-guide-content">
+          <h3>Image Tools</h3>
+          <p>Compress, crop, upscale, remove backgrounds, and run OCR on images.</p>
+          <div class="sp-guide-links">
+            <a href="{% url 'img_remove_bg_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> Remove Background</a>
+            <a href="{% url 'img_compress_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> Compress Image</a>
+            <a href="{% url 'img_ocr_page' %}" class="sp-guide-link"><i class="fa-solid fa-check-circle"></i> OCR on Image</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ 4. FAQ ═══ -->
+  <section class="sp-faq-section" id="faq">
+    <div class="sp-container">
+      <div style="text-align:center; margin-bottom:16px;">
+        <span class="sp-eyebrow" style="justify-content:center; display:inline-flex;"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--sp-brand);display:inline-block;margin-right:6px;"></span> Frequently Asked Questions</span>
+        <h2 style="font-size:clamp(1.25rem,2.2vw,1.75rem); font-weight:700; letter-spacing:-.025em; color:var(--sp-text-1); margin-top:6px;">Common questions answered</h2>
+        <p style="margin-top:5px; font-size:.875rem; color:var(--sp-text-3);">Select a question to expand the answer.</p>
+      </div>
+
+      <div class="sp-faq-filters" id="spFaqFilters">
+        <button class="sp-faq-filter active" data-cat="all">All</button>
+        <button class="sp-faq-filter" data-cat="Getting Started">Getting Started</button>
+        <button class="sp-faq-filter" data-cat="Tools">Tools</button>
+        <button class="sp-faq-filter" data-cat="Account">Account</button>
+        <button class="sp-faq-filter" data-cat="Billing">Billing</button>
+        <button class="sp-faq-filter" data-cat="Troubleshooting">Troubleshooting</button>
+      </div>
+
+      <div class="sp-faq-list" id="spFaqList">
+
+        <div class="sp-faq-item" data-cat="Getting Started">
+          <div class="sp-faq-q"><span class="qtext">How do I upload and edit a PDF in ZayroDocX?</span><span class="plus">+</span></div>
+          <div class="sp-faq-a"><p>From your dashboard, select <strong>Upload</strong> and choose a file from your device. Once uploaded, open the document to access the editing tools. Each tool page shows accepted file types and any size limits upfront.</p></div>
+        </div>
+
+        <div class="sp-faq-item" data-cat="Getting Started">
+          <div class="sp-faq-q"><span class="qtext">Do I need an account to use the tools?</span><span class="plus">+</span></div>
+          <div class="sp-faq-a"><p>Some basic tools are available as a guest. For the full suite — AI tools, OCR, Invoice Extractor, and more — you'll need to create a free account. No credit card required to sign up.</p></div>
+        </div>
+
+        <div class="sp-faq-item" data-cat="Tools">
+          <div class="sp-faq-q"><span class="qtext">Why did my OCR result come out inaccurate?</span><span class="plus">+</span></div>
+          <div class="sp-faq-a"><p>OCR accuracy depends on scan quality, font clarity, and document language. Try re-scanning at a higher resolution (300 DPI or above) or straightening a skewed page. Avoid scans with heavy watermarks or overlapping text.</p></div>
+        </div>
+
+        <div class="sp-faq-item" data-cat="Tools">
+          <div class="sp-faq-q"><span class="qtext">Can I merge files of different formats?</span><span class="plus">+</span></div>
+          <div class="sp-faq-a"><p>The Merge PDF tool combines PDF files only. If you're starting with Word, Excel, or images, convert them to PDF first using the Convert PDF tool, then merge the resulting PDFs.</p></div>
+        </div>
+
+        <div class="sp-faq-item" data-cat="Tools">
+          <div class="sp-faq-q"><span class="qtext">Is there a file size or page limit?</span><span class="plus">+</span></div>
+          <div class="sp-faq-a"><p>Limits vary by tool and account type. The current limit is displayed directly on each tool page before you upload — so you'll know before you start. Larger files are supported on Pro accounts.</p></div>
+        </div>
+
+        <div class="sp-faq-item" data-cat="Account">
+          <div class="sp-faq-q"><span class="qtext">How do I reset my password or update my email?</span><span class="plus">+</span></div>
+          <div class="sp-faq-a"><p>Go to your profile settings and look for the Security section to reset your password or update your email address. You'll need to confirm the change from your current inbox before the update takes effect.</p></div>
+        </div>
+
+        <div class="sp-faq-item" data-cat="Billing">
+          <div class="sp-faq-q"><span class="qtext">What happens to my files if I cancel my plan?</span><span class="plus">+</span></div>
+          <div class="sp-faq-a"><p>ZayroDocX does not retain uploaded files beyond the session — files are deleted immediately after processing regardless of plan. Cancelling your plan only affects which tools and usage limits are available to you going forward.</p></div>
+        </div>
+
+        <div class="sp-faq-item" data-cat="Troubleshooting">
+          <div class="sp-faq-q"><span class="qtext">How do I report a bug or a failed export?</span><span class="plus">+</span></div>
+          <div class="sp-faq-a"><p>Use the Contact Support form below, select <strong>Troubleshooting</strong> as the issue type, and attach a screenshot if possible. Include the tool name and any error message you saw — this speeds up diagnosis significantly.</p></div>
+        </div>
+
+        <div class="sp-faq-item" data-cat="Troubleshooting">
+          <div class="sp-faq-q"><span class="qtext">The tool is stuck or showing an error — what should I do?</span><span class="plus">+</span></div>
+          <div class="sp-faq-a"><p>First, try refreshing the page and re-uploading the file. If the error persists, check that the file type is supported and the size is within the tool's limit. Still stuck? Contact support with the error message and we'll look into it.</p></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 5. CONTACT ═══ -->
+  <section class="sp-section" id="contact">
+    <div class="sp-container">
+      <div style="text-align:center; margin-bottom:18px;">
+        <span class="sp-eyebrow" style="justify-content:center; display:inline-flex;"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--sp-brand);display:inline-block;margin-right:6px;"></span> Contact Support</span>
+        <h2 style="font-size:clamp(1.25rem,2.2vw,1.75rem); font-weight:700; letter-spacing:-.025em; color:var(--sp-text-1); margin-top:6px;">Tell us how we can help</h2>
+        <p style="margin-top:5px; font-size:.875rem; color:var(--sp-text-3);">Share the details of your issue and our support team will help you find the right solution.</p>
+      </div>
+
+      <div class="sp-contact-layout">
+        <div class="sp-form-card">
+          <h3>Contact support</h3>
+          <span class="sp-form-sub">Share a few details so we can diagnose the issue faster.</span>
+
+          <!-- Success state (hidden until confirmed by server) -->
+          <div id="spSuccess" style="display:none; text-align:center; padding:2.5rem 1.5rem;">
+            <div style="width:52px;height:52px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.4rem;color:#16a34a;">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 style="font-size:1.1rem;font-weight:700;color:var(--sp-text-1);margin-bottom:.5rem;">Request received!</h3>
+            <p style="font-size:.85rem;color:var(--sp-text-3);max-width:300px;margin:0 auto;">We've logged your support request and will get back to you at <strong id="spSuccessEmail"></strong>.</p>
+            <button onclick="spResetForm()" style="margin-top:1.4rem;padding:.6rem 1.4rem;background:var(--sp-brand);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;">Submit another request</button>
+          </div>
+
+          <form id="spContactForm" onsubmit="spSubmitForm(event);">
+            {% csrf_token %}
+            <div id="spFormError" style="display:none;margin-bottom:10px;padding:10px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:.8rem;color:#dc2626;"></div>
+            <div class="sp-form-row">
+              <div class="sp-field">
+                <label for="sp-name">Full name</label>
+                <input type="text" id="sp-name" name="name" placeholder="Jane Cooper" required>
+                <span class="sp-field-err" data-field="name"></span>
+              </div>
+              <div class="sp-field">
+                <label for="sp-email">Email address</label>
+                <input type="email" id="sp-email" name="email" placeholder="jane@company.com" required>
+                <span class="sp-field-err" data-field="email"></span>
+              </div>
+            </div>
+            <div class="sp-form-row">
+              <div class="sp-field">
+                <label for="sp-issue">What can we help with?</label>
+                <select id="sp-issue" name="issue_type" required onchange="updateSpRoutingHint()">
+                  <option value="" disabled selected>Select a topic</option>
+                  <option>Getting Started</option>
+                  <option>PDF Tools</option>
+                  <option>OCR &amp; AI</option>
+                  <option>Account &amp; Billing</option>
+                  <option>Troubleshooting</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="sp-field">
+                <label for="sp-tool">Related tool <span class="opt">(optional)</span></label>
+                <select id="sp-tool" name="related_tool">
+                  <option value="" selected>Not applicable</option>
+                  <option>OCR PDF</option><option>Merge PDF</option><option>Compress PDF</option>
+                  <option>Convert PDF</option><option>Split PDF</option><option>Invoice Extractor</option>
+                  <option>AI Summarizer</option><option>Remove Background</option>
+                </select>
+              </div>
+            </div>
+            <div class="sp-routing-hint" id="spRoutingHint">
+              <i class="fa-solid fa-circle-info"></i>
+              <span id="spRoutingHintText"></span>
+            </div>
+            <div class="sp-field">
+              <label for="sp-desc">Describe the issue</label>
+              <textarea id="sp-desc" name="description" placeholder="Tell us what you were trying to do, what happened, and any error messages you saw." required></textarea>
+              <span class="sp-field-err" data-field="description"></span>
+            </div>
+            <div class="sp-field">
+              <label>Attach a screenshot or file <span class="opt">(optional)</span></label>
+              <div class="sp-upload-box" onclick="document.getElementById('spFileInput').click()">
+                <strong>Click to upload</strong> or drag a file here — PNG, JPG, or PDF
+                <input type="file" id="spFileInput" name="attachment" style="display:none" accept=".png,.jpg,.jpeg,.pdf">
+                <div id="spFileName" style="margin-top:6px; font-weight:600; color:var(--sp-text-1); font-size:.78rem;"></div>
+              </div>
+              <span class="sp-field-err" data-field="attachment"></span>
+            </div>
+            <button type="submit" id="spSubmitBtn" class="sp-submit-btn">
+              <i class="fa-solid fa-paper-plane"></i> Send Support Request
+            </button>
+          </form>
+        </div>
+
+        <div class="sp-side-stack">
+          <div class="sp-channel-card">
+            <div class="ch-icon" style="background:var(--sp-brand-s); color:var(--sp-brand);"><i class="fa-solid fa-envelope"></i></div>
+            <div>
+              <h4>Email Support</h4>
+              <p>Have a question or need help with a tool? Send us a message.</p>
+              <a href="mailto:zayroninfotech@gmail.com" class="sp-channel-val">zayroninfotech@gmail.com</a>
+            </div>
+          </div>
+          <div class="sp-channel-card">
+            <div class="ch-icon" style="background:var(--sp-orange-s); color:var(--sp-orange);"><i class="fa-solid fa-circle-info"></i></div>
+            <div>
+              <h4>Before you contact us</h4>
+              <p>Include the tool name, what you were trying to do, and any error message. This helps us diagnose the issue faster.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggestion card -->
+      <div class="sp-suggest-card sp-reveal">
+        <div class="sp-suggest-icon"><i class="fa-solid fa-lightbulb"></i></div>
+        <div class="sp-suggest-body">
+          <h4>Have an idea for ZayroDocX?</h4>
+          <p>Tell us what would make your document workflow better.</p>
+
+          <!-- Success state -->
+          <div id="sgSuccess" class="sp-suggest-success">
+            <i class="fa-solid fa-circle-check"></i>
+            <p>Thanks! Your suggestion has been submitted.</p>
+          </div>
+
+          <!-- Form -->
+          <form id="sgForm" onsubmit="sgSubmit(event);">
+            {% csrf_token %}
+            <div id="sgFormError" style="display:none;margin-bottom:8px;padding:8px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:7px;font-size:.75rem;color:#dc2626;"></div>
+            <div class="sp-suggest-row">
+              <div class="sp-suggest-field">
+                <label for="sg-title">Suggestion title</label>
+                <input type="text" id="sg-title" name="sg_title" placeholder="e.g. Batch PDF compression" maxlength="200" required>
+                <span class="sp-field-err" data-field="sg_title"></span>
+              </div>
+              <div class="sp-suggest-field">
+                <label for="sg-category">Category <span style="font-weight:400;color:var(--sp-text-3)">(optional)</span></label>
+                <select id="sg-category" name="sg_category">
+                  <option value="other">Other</option>
+                  <option value="new_tool">New Tool</option>
+                  <option value="improvement">Existing Tool Improvement</option>
+                  <option value="ocr_ai">OCR / AI</option>
+                  <option value="pdf_workflow">PDF Workflow</option>
+                  <option value="image_tools">Image Tools</option>
+                  <option value="account">Account / Billing</option>
+                </select>
+              </div>
+            </div>
+            <div class="sp-suggest-row-full sp-suggest-field">
+              <label for="sg-desc">Describe your idea</label>
+              <textarea id="sg-desc" name="sg_description" placeholder="What would it do? Who would it help?" maxlength="2000" required></textarea>
+              <span class="sp-field-err" data-field="sg_description"></span>
+            </div>
+            <div class="sp-suggest-actions">
+              <button type="submit" id="sgSubmitBtn" class="sp-suggest-btn">
+                <i class="fa-solid fa-paper-plane"></i> Submit Suggestion
+              </button>
+              <span id="sgCharCount" class="sp-suggest-char"></span>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ 6. CTA ═══ -->
+  <section class="sp-section">
+    <div class="sp-container">
+      <div class="sp-cta">
+        <div class="sp-cta-inner">
+          <h2>Can't find what you need?</h2>
+          <p>Tell us what you're trying to do and we'll help you get unstuck.</p>
+          <div class="sp-cta-btns">
+            <a href="#contact" class="sp-btn sp-btn--primary"><i class="fa-solid fa-headset"></i> Contact Support</a>
+            <a href="#faq" class="sp-btn sp-btn--ghost"><i class="fa-solid fa-circle-question"></i> Browse FAQs</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// FAQ accordion
+document.querySelectorAll('.sp-faq-item').forEach(item => {
+  item.querySelector('.sp-faq-q').addEventListener('click', () => {
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.sp-faq-item').forEach(i => {
+      i.classList.remove('open');
+      i.querySelector('.sp-faq-a').style.maxHeight = null;
+    });
+    if (!isOpen) {
+      item.classList.add('open');
+      const a = item.querySelector('.sp-faq-a');
+      a.style.maxHeight = a.scrollHeight + 40 + 'px';
+    }
+  });
+});
+
+// FAQ filters
+const spFilters = document.querySelectorAll('.sp-faq-filter');
+const spFaqItems = document.querySelectorAll('.sp-faq-item');
+spFilters.forEach(btn => {
+  btn.addEventListener('click', () => {
+    spFilters.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    spFaqItems.forEach(item => {
+      item.classList.remove('open');
+      item.querySelector('.sp-faq-a').style.maxHeight = null;
+      item.classList.toggle('hidden', cat !== 'all' && item.dataset.cat !== cat);
+    });
+  });
+});
+
+function filterFAQ(cat) {
+  const btn = document.querySelector(`.sp-faq-filter[data-cat="${cat}"]`);
+  if (btn) btn.click();
+  document.getElementById('faq').scrollIntoView({ behavior: 'smooth' });
+}
+
+// File upload preview
+const spFileInput = document.getElementById('spFileInput');
+const spFileName = document.getElementById('spFileName');
+spFileInput.addEventListener('change', () => {
+  if (spFileInput.files.length) spFileName.textContent = '✓ ' + spFileInput.files[0].name;
+});
+
+// Routing hints
+const spRoutingCopy = {
+  'Getting Started': 'Tip: let us know which step you got stuck on so we can point you to the right guide.',
+  'PDF Tools': 'Tip: mention which tool you were using and the file type — it speeds up diagnosis.',
+  'OCR & AI': 'Tip: attach the original scan or source file for faster, more accurate diagnosis.',
+  'Account & Billing': 'Tip: include the email on your account and, if relevant, your plan name (no passwords, please).',
+  'Troubleshooting': 'Tip: a screenshot of any error message makes this much faster to resolve.',
+  'Other': ''
+};
+function updateSpRoutingHint() {
+  const val = document.getElementById('sp-issue').value;
+  const hint = document.getElementById('spRoutingHint');
+  const text = spRoutingCopy[val];
+  if (text) {
+    document.getElementById('spRoutingHintText').textContent = text;
+    hint.classList.add('show');
+  } else {
+    hint.classList.remove('show');
+  }
+}
+
+// Hero search → scroll to FAQ
+function handleSearch() {
+  const q = document.getElementById('heroSearch').value.trim();
+  if (q) document.getElementById('faq').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── Suggestion form ─────────────────────────────────────────────────────────
+(function () {
+  const desc = document.getElementById('sg-desc');
+  const charCount = document.getElementById('sgCharCount');
+  if (desc && charCount) {
+    desc.addEventListener('input', () => {
+      const n = desc.value.length;
+      charCount.textContent = n > 0 ? `${n} / 2000` : '';
+      charCount.style.color = n > 1800 ? '#dc2626' : 'var(--sp-text-3)';
+    });
+  }
+})();
+
+async function sgSubmit(e) {
+  e.preventDefault();
+
+  // clear previous errors
+  document.querySelectorAll('#sgForm .sp-field-err').forEach(el => {
+    el.textContent = ''; el.style.display = 'none';
+  });
+  const errBox = document.getElementById('sgFormError');
+  errBox.style.display = 'none';
+
+  const btn = document.getElementById('sgSubmitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending…';
+
+  const fd = new FormData(document.getElementById('sgForm'));
+
+  try {
+    const res = await fetch('{% url "submit_suggestion" %}', {
+      method: 'POST',
+      body: fd,
+      headers: { 'X-CSRFToken': fd.get('csrfmiddlewaretoken') },
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      document.getElementById('sgForm').style.display = 'none';
+      document.getElementById('sgSuccess').style.display = 'block';
+    } else {
+      const errors = data.errors || {};
+      let first = '';
+      for (const [field, msg] of Object.entries(errors)) {
+        const span = document.querySelector(`#sgForm .sp-field-err[data-field="${field}"]`);
+        if (span) { span.textContent = msg; span.style.display = 'block'; }
+        if (!first) first = msg;
+      }
+      if (first) { errBox.textContent = first; errBox.style.display = 'block'; }
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Suggestion';
+    }
+  } catch {
+    errBox.textContent = 'Network error — please try again.';
+    errBox.style.display = 'block';
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Suggestion';
+  }
+}
+
+// Scroll reveal
+const spRevealEls = document.querySelectorAll('.sp-reveal');
+spRevealEls.forEach((el, i) => { el.style.transitionDelay = (i % 6) * 45 + 'ms'; });
+const spIo = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) { entry.target.classList.add('in'); spIo.unobserve(entry.target); }
+  });
+}, { threshold: 0.08 });
+spRevealEls.forEach(el => spIo.observe(el));
+
+// ── Support form submission ──────────────────────────────────────────────────
+function spClearErrors() {
+  document.querySelectorAll('.sp-field-err').forEach(el => { el.textContent = ''; el.style.display = 'none'; });
+  const box = document.getElementById('spFormError');
+  box.textContent = '';
+  box.style.display = 'none';
+}
+
+function spShowFieldErrors(errors) {
+  for (const [field, msg] of Object.entries(errors)) {
+    const span = document.querySelector(`.sp-field-err[data-field="${field}"]`);
+    if (span) { span.textContent = msg; span.style.display = 'block'; }
+  }
+  // Surface the first field error at the top too
+  const first = Object.values(errors)[0];
+  if (first) {
+    const box = document.getElementById('spFormError');
+    box.textContent = first;
+    box.style.display = 'block';
+  }
+}
+
+async function spSubmitForm(e) {
+  e.preventDefault();
+  spClearErrors();
+
+  const btn = document.getElementById('spSubmitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending…';
+
+  const form = document.getElementById('spContactForm');
+  const fd = new FormData(form);
+
+  try {
+    const res = await fetch('{% url "submit_support" %}', {
+      method: 'POST',
+      body: fd,
+      headers: { 'X-CSRFToken': fd.get('csrfmiddlewaretoken') },
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      form.style.display = 'none';
+      document.getElementById('spSuccessEmail').textContent =
+        document.getElementById('sp-email').value;
+      document.getElementById('spSuccess').style.display = 'block';
+    } else {
+      spShowFieldErrors(data.errors || { _: 'Something went wrong. Please try again.' });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Support Request';
+    }
+  } catch {
+    const box = document.getElementById('spFormError');
+    box.textContent = 'Network error — please check your connection and try again.';
+    box.style.display = 'block';
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Support Request';
+  }
+}
+
+function spResetForm() {
+  document.getElementById('spContactForm').reset();
+  document.getElementById('spFileName').textContent = '';
+  document.getElementById('spRoutingHint').classList.remove('show');
+  spClearErrors();
+  document.getElementById('spContactForm').style.display = '';
+  document.getElementById('spSuccess').style.display = 'none';
+  const btn = document.getElementById('spSubmitBtn');
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Support Request';
+}
+</script>
+{% endblock %}

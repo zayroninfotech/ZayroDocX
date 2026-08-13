@@ -9,7 +9,7 @@
   padding:3px 10px; border-radius:20px; }
 
 /* Stats */
-.ap-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:2rem; }
+.ap-stats { display:grid; grid-template-columns:repeat(5,1fr); gap:1rem; margin-bottom:2rem; }
 .ap-stat { background:#fff; border:1px solid #ebebeb; border-radius:14px;
   padding:1.2rem 1.5rem; }
 .ap-stat-num { font-size:2rem; font-weight:800; color:#dc2626; }
@@ -50,6 +50,55 @@
 .free-lbl { color:#16a34a; }
 .lock-lbl { color:#dc2626; }
 
+/* Support tickets table */
+.ap-ticket-status { display:inline-block; font-size:.68rem; font-weight:700;
+  padding:2px 8px; border-radius:10px; }
+.ap-ticket-status.open        { background:#fef9c3; color:#92400e; }
+.ap-ticket-status.in_progress { background:#dbeafe; color:#1d4ed8; }
+.ap-ticket-status.resolved    { background:#dcfce7; color:#15803d; }
+.ap-ticket-status.closed      { background:#f3f4f6; color:#6b7280; }
+.ap-ticket-guest { font-style:italic; color:#9ca3af; font-size:.78rem; }
+
+/* Suggestion status badges */
+.ap-sg-status { display:inline-block; font-size:.68rem; font-weight:700; padding:2px 8px; border-radius:10px; }
+.ap-sg-status.new       { background:#dbeafe; color:#1d4ed8; }
+.ap-sg-status.reviewing { background:#fef9c3; color:#92400e; }
+.ap-sg-status.planned   { background:#ede9fe; color:#6d28d9; }
+.ap-sg-status.completed { background:#dcfce7; color:#15803d; }
+.ap-sg-status.declined  { background:#f3f4f6; color:#6b7280; }
+
+/* Suggestion table row clickable */
+.ap-sg-row { cursor:pointer; transition:background .1s; }
+.ap-sg-row:hover td { background:#fef2f2; }
+
+/* Suggestion detail modal */
+.ap-modal-overlay {
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,.45);
+  z-index:1000; align-items:center; justify-content:center; padding:1rem;
+}
+.ap-modal-overlay.open { display:flex; }
+.ap-modal {
+  background:#fff; border-radius:16px; width:100%; max-width:580px;
+  max-height:90vh; overflow-y:auto; padding:1.5rem;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+}
+.ap-modal-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
+.ap-modal-title { font-size:1rem; font-weight:700; color:#111; line-height:1.3; }
+.ap-modal-close { background:none; border:none; font-size:1.2rem; color:#6b7280; cursor:pointer; flex-shrink:0; }
+.ap-modal-meta  { font-size:.75rem; color:#6b7280; margin-bottom:1rem; display:flex; gap:1rem; flex-wrap:wrap; }
+.ap-modal-desc  { font-size:.85rem; color:#374151; line-height:1.6; white-space:pre-wrap;
+  background:#f9fafb; border-radius:8px; padding:.75rem; margin-bottom:1rem; }
+.ap-modal-label { font-size:.72rem; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+.ap-modal-select { width:100%; padding:.45rem .65rem; border:1.5px solid #e5e7eb;
+  border-radius:8px; font-size:.83rem; margin-bottom:.75rem; }
+.ap-modal-textarea { width:100%; box-sizing:border-box; padding:.5rem .65rem;
+  border:1.5px solid #e5e7eb; border-radius:8px; font-size:.82rem;
+  min-height:80px; resize:vertical; margin-bottom:.75rem; font-family:inherit; }
+.ap-modal-save { background:#dc2626; color:#fff; border:none; padding:.5rem 1.2rem;
+  border-radius:8px; font-size:.83rem; font-weight:700; cursor:pointer; }
+.ap-modal-save:hover { background:#b91c1c; }
+.ap-modal-saved { font-size:.75rem; color:#16a34a; margin-left:.75rem; display:none; }
+
 /* Users table */
 .ap-users-table { width:100%; border-collapse:collapse; background:#fff;
   border:1px solid #ebebeb; border-radius:14px; overflow:hidden; }
@@ -89,12 +138,22 @@
       <div class="ap-stat-num" id="freeCount">—</div>
       <div class="ap-stat-lbl"><i class="fa-solid fa-unlock"></i> Free Tools</div>
     </div>
+    <div class="ap-stat">
+      <div class="ap-stat-num">{{ open_ticket_count }}</div>
+      <div class="ap-stat-lbl"><i class="fa-solid fa-headset"></i> Open Tickets</div>
+    </div>
+    <div class="ap-stat">
+      <div class="ap-stat-num">{{ new_suggestion_count }}</div>
+      <div class="ap-stat-lbl"><i class="fa-solid fa-lightbulb"></i> New Suggestions</div>
+    </div>
   </div>
 
   <!-- Tabs -->
   <div class="ap-tabs">
     <div class="ap-tab active" onclick="showTab('tools',this)"><i class="fa-solid fa-sliders"></i> Tool Privileges</div>
     <div class="ap-tab" onclick="showTab('users',this)"><i class="fa-solid fa-users"></i> Users ({{ total_users }})</div>
+    <div class="ap-tab" onclick="showTab('tickets',this)"><i class="fa-solid fa-headset"></i> Support Tickets ({{ tickets|length }})</div>
+    <div class="ap-tab" onclick="showTab('suggestions',this)"><i class="fa-solid fa-lightbulb"></i> Suggestions ({{ suggestions|length }})</div>
   </div>
 
   <!-- Tool Privileges -->
@@ -121,6 +180,126 @@
       {% endfor %}
     </div>
     {% endfor %}
+  </div>
+
+  <!-- Support Tickets -->
+  <div class="ap-section" id="tab-tickets">
+    {% if tickets %}
+    <table class="ap-users-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name / Email</th>
+          <th>Issue</th>
+          <th>Tool</th>
+          <th>User</th>
+          <th>Status</th>
+          <th>Submitted</th>
+          <th>Attachment</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tickets %}
+        <tr>
+          <td style="color:#9ca3af;font-size:.78rem;">{{ t.pk }}</td>
+          <td>
+            <strong>{{ t.name }}</strong><br>
+            <span style="font-size:.78rem;color:#6b7280;">{{ t.email }}</span>
+          </td>
+          <td>{{ t.issue_type }}</td>
+          <td>{{ t.related_tool|default:"—" }}</td>
+          <td>
+            {% if t.user %}
+              <span class="ap-user-avatar">{{ t.user.username|slice:":1"|upper }}</span>{{ t.user.username }}
+            {% else %}
+              <span class="ap-ticket-guest">Guest</span>
+            {% endif %}
+          </td>
+          <td><span class="ap-ticket-status {{ t.status }}">{{ t.get_status_display }}</span></td>
+          <td style="font-size:.78rem;white-space:nowrap;">{{ t.created_at|date:"d M Y, H:i" }}</td>
+          <td>
+            {% if t.attachment %}
+              <a href="{{ t.attachment.url }}" target="_blank" style="font-size:.78rem;color:#2563eb;">View</a>
+            {% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="text-align:center;padding:3rem 1rem;color:#9ca3af;font-size:.88rem;">
+      <i class="fa-solid fa-inbox" style="font-size:2rem;display:block;margin-bottom:.75rem;"></i>
+      No support tickets yet.
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Suggestions -->
+  <div class="ap-section" id="tab-suggestions">
+    {% if suggestions %}
+    <table class="ap-users-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Category</th>
+          <th>Submitted by</th>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in suggestions %}
+        <tr class="ap-sg-row" onclick="openSuggestion({{ s.pk }}, '{{ s.title|escapejs }}', '{{ s.get_category_display|escapejs }}', '{{ s.description|escapejs }}', '{{ s.status }}', '{{ s.admin_notes|escapejs }}', '{% if s.user %}{{ s.user.username|escapejs }}{% else %}Guest{% endif %}', '{{ s.created_at|date:"d M Y, H:i" }}')">
+          <td style="color:#9ca3af;font-size:.78rem;">{{ s.pk }}</td>
+          <td><strong>{{ s.title }}</strong></td>
+          <td style="font-size:.78rem;color:#6b7280;">{{ s.get_category_display }}</td>
+          <td>
+            {% if s.user %}
+              <span class="ap-user-avatar">{{ s.user.username|slice:":1"|upper }}</span>{{ s.user.username }}
+            {% else %}
+              <span class="ap-ticket-guest">Guest</span>
+            {% endif %}
+          </td>
+          <td style="font-size:.78rem;white-space:nowrap;">{{ s.created_at|date:"d M Y" }}</td>
+          <td><span class="ap-sg-status {{ s.status }}" id="sg-status-badge-{{ s.pk }}">{{ s.get_status_display }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="text-align:center;padding:3rem 1rem;color:#9ca3af;font-size:.88rem;">
+      <i class="fa-solid fa-lightbulb" style="font-size:2rem;display:block;margin-bottom:.75rem;opacity:.4;"></i>
+      No suggestions yet.
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Suggestion detail modal -->
+  <div class="ap-modal-overlay" id="sgModal" onclick="if(event.target===this)closeSgModal()">
+    <div class="ap-modal">
+      <div class="ap-modal-head">
+        <div class="ap-modal-title" id="sgModalTitle"></div>
+        <button class="ap-modal-close" onclick="closeSgModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="ap-modal-meta" id="sgModalMeta"></div>
+      <div class="ap-modal-label">Description</div>
+      <div class="ap-modal-desc" id="sgModalDesc"></div>
+      <div class="ap-modal-label">Status</div>
+      <select class="ap-modal-select" id="sgModalStatus">
+        <option value="new">New</option>
+        <option value="reviewing">Reviewing</option>
+        <option value="planned">Planned</option>
+        <option value="completed">Completed</option>
+        <option value="declined">Declined</option>
+      </select>
+      <div class="ap-modal-label">Internal notes <span style="font-weight:400;text-transform:none;letter-spacing:0;">(never shown to users)</span></div>
+      <textarea class="ap-modal-textarea" id="sgModalNotes" placeholder="Add internal notes…"></textarea>
+      <div style="display:flex;align-items:center;">
+        <button class="ap-modal-save" id="sgModalSaveBtn" onclick="saveSuggestion()">Save changes</button>
+        <span class="ap-modal-saved" id="sgModalSaved"><i class="fa-solid fa-check"></i> Saved</span>
+      </div>
+    </div>
   </div>
 
   <!-- Users -->
@@ -207,5 +386,72 @@ function getCookie(name) {
 }
 
 updateFreeCount();
+
+// ── Suggestion modal ─────────────────────────────────────────────────────────
+let _sgCurrentPk = null;
+
+function openSuggestion(pk, title, category, description, status, notes, submittedBy, date) {
+  _sgCurrentPk = pk;
+  document.getElementById('sgModalTitle').textContent = title;
+  document.getElementById('sgModalMeta').innerHTML =
+    `<span><i class="fa-solid fa-tag"></i> ${category}</span>` +
+    `<span><i class="fa-solid fa-user"></i> ${submittedBy}</span>` +
+    `<span><i class="fa-regular fa-clock"></i> ${date}</span>`;
+  document.getElementById('sgModalDesc').textContent = description;
+  document.getElementById('sgModalStatus').value = status;
+  document.getElementById('sgModalNotes').value = notes;
+  document.getElementById('sgModalSaved').style.display = 'none';
+  document.getElementById('sgModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSgModal() {
+  document.getElementById('sgModal').classList.remove('open');
+  document.body.style.overflow = '';
+  _sgCurrentPk = null;
+}
+
+function saveSuggestion() {
+  if (!_sgCurrentPk) return;
+  const btn   = document.getElementById('sgModalSaveBtn');
+  const saved = document.getElementById('sgModalSaved');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  const fd = new FormData();
+  fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+  fd.append('status',      document.getElementById('sgModalStatus').value);
+  fd.append('admin_notes', document.getElementById('sgModalNotes').value);
+
+  fetch(`/zayro-admin/suggestions/${_sgCurrentPk}/update/`, {
+    method: 'POST',
+    body: fd,
+    headers: { 'X-CSRFToken': getCookie('csrftoken') },
+  })
+  .then(r => r.json())
+  .then(data => {
+    btn.disabled = false;
+    btn.textContent = 'Save changes';
+    if (data.ok) {
+      saved.style.display = 'inline';
+      setTimeout(() => { saved.style.display = 'none'; }, 2500);
+      // Update the badge in the table row without a page reload
+      const badge = document.getElementById(`sg-status-badge-${_sgCurrentPk}`);
+      if (badge) {
+        badge.textContent = data.status_display;
+        badge.className = `ap-sg-status ${data.status}`;
+      }
+    }
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.textContent = 'Save changes';
+  });
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeSgModal();
+});
 </script>
 {% endblock %}

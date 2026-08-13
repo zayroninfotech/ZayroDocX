@@ -158,162 +158,252 @@
           </div>
         </div>
 
-        <!-- Edit PDF -->
+        <!-- All Tools -->
         <div class="mh-item has-drop">
-          <span class="mh-link"><i class="fa-solid fa-pen-to-square mh-nav-icon"></i> Edit PDF <i
-              class="fa-solid fa-chevron-down mh-caret"></i></span>
-          <div class="mh-drop">
-            <a href="{% url 'rotate_pdf_page' %}" class="mh-drop-item {% block active_rotate %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(37,99,235,0.14); color:#2563eb;"><i
-                  class="fa-solid fa-rotate-right"></i></span>
-              <span class="mhd-text"><strong>Rotate PDF</strong><em>Rotate pages any angle</em></span>
-            </a>
-            <a href="{% url 'page_numbers_page' %}" class="mh-drop-item {% block active_pagenum %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(147,51,234,0.14); color:#9333ea;"><i
-                  class="fa-solid fa-list-ol"></i></span>
-              <span class="mhd-text"><strong>Add Page Numbers</strong><em>Number your pages</em></span>
-            </a>
-            <a href="{% url 'watermark_pdf_page' %}" class="mh-drop-item {% block active_watermark %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(6,182,212,0.14); color:#0891b2;"><i
-                  class="fa-solid fa-droplet"></i></span>
-              <span class="mhd-text"><strong>Add Watermark</strong><em>Brand your documents</em></span>
-            </a>
-            <a href="{% url 'sign_pdf_page' %}" class="mh-drop-item {% block active_sign %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(217,119,6,0.14); color:#d97706;"><i
-                  class="fa-solid fa-signature"></i></span>
-              <span class="mhd-text"><strong>Sign PDF</strong><em>Add your signature</em></span>
-            </a>
-            <a href="{% url 'crop_pdf_page' %}" class="mh-drop-item {% block active_crop %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(22,163,74,0.14); color:#16a34a;"><i
-                  class="fa-solid fa-crop-simple"></i></span>
-              <span class="mhd-text"><strong>Crop PDF</strong><em>Trim page margins</em></span>
-            </a>
-          </div>
-        </div>
+          <span class="mh-link"><i class="fa-solid fa-grip mh-nav-icon"></i> All Tools <i class="fa-solid fa-chevron-down mh-caret"></i></span>
+          <div class="mh-drop mh-drop-all-tools">
+            <div class="mhd-inner">
 
-        <!-- PDF Security -->
-        <div class="mh-item has-drop">
-          <span class="mh-link"><i class="fa-solid fa-shield-halved mh-nav-icon"></i> PDF Security <i
-              class="fa-solid fa-chevron-down mh-caret"></i></span>
-          <div class="mh-drop">
-            <a href="{% url 'protect_pdf_page' %}" class="mh-drop-item {% block active_protect %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(22,163,74,0.14); color:#16a34a;"><i
-                  class="fa-solid fa-lock"></i></span>
-              <span class="mhd-text"><strong>Protect PDF</strong><em>AES-256 encryption</em></span>
-            </a>
-            <a href="{% url 'unlock_pdf_page' %}" class="mh-drop-item {% block active_unlock %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(217,119,6,0.14); color:#d97706;"><i
-                  class="fa-solid fa-lock-open"></i></span>
-              <span class="mhd-text"><strong>Unlock PDF</strong><em>Remove password</em></span>
-            </a>
-            <a href="{% url 'redact_pdf_page' %}" class="mh-drop-item {% block active_redact %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(30,41,59,0.12); color:#1e293b;"><i
-                  class="fa-solid fa-eraser"></i></span>
-              <span class="mhd-text"><strong>Redact PDF</strong><em>Black-out sensitive text</em></span>
-            </a>
-          </div>
-        </div>
+            <!-- Row 1: 6 PDF category columns -->
+            <div class="mhd-all-cols">
 
-        <!-- Image Tools -->
-        <div class="mh-item has-drop">
-          <span class="mh-link"><i class="fa-solid fa-image mh-nav-icon"></i> Image Tools <i
-              class="fa-solid fa-chevron-down mh-caret"></i></span>
-          <div class="mh-drop mh-drop-mega">
-            <div class="mhd-mega-grid">
-              <a href="{% url 'img_compress_page' %}"
-                class="mh-drop-item {% block active_img_compress %}{% endblock %}">
-                <span class="mhd-icon" style="background:rgba(217,119,6,0.14); color:#d97706;"><i
-                    class="fa-solid fa-compress-arrows-alt"></i></span>
-                <span class="mhd-text"><strong>Compress</strong></span>
-              </a>
-              <a href="{% url 'img_upscale_page' %}" class="mh-drop-item {% block active_img_upscale %}{% endblock %}">
-                <span class="mhd-icon" style="background:rgba(37,99,235,0.14); color:#2563eb;"><i
-                    class="fa-solid fa-magnifying-glass-plus"></i></span>
-                <span class="mhd-text"><strong>Upscale</strong></span>
-              </a>
-              <a href="{% url 'img_remove_bg_page' %}"
-                class="mh-drop-item {% block active_img_remove_bg %}{% endblock %}">
-                <span class="mhd-icon" style="background:rgba(147,51,234,0.14); color:#9333ea;"><i
-                    class="fa-solid fa-wand-magic-sparkles"></i></span>
-                <span class="mhd-text"><strong>Remove BG</strong></span>
-              </a>
-              <a href="{% url 'img_meme_page' %}" class="mh-drop-item {% block active_img_meme %}{% endblock %}">
-                <span class="mhd-icon" style="background:rgba(219,39,119,0.14); color:#db2777;"><i
-                    class="fa-solid fa-face-laugh-squint"></i></span>
-                <span class="mhd-text"><strong>Meme Generator</strong></span>
-              </a>
-              <a href="{% url 'img_resize_page' %}" class="mh-drop-item {% block active_img_resize %}{% endblock %}">
-                <span class="mhd-icon" style="background:rgba(13,148,136,0.14); color:#0d9488;"><i
-                    class="fa-solid fa-up-right-and-down-left-from-center"></i></span>
-                <span class="mhd-text"><strong>Resize</strong></span>
-              </a>
-              <a href="{% url 'img_crop_page' %}" class="mh-drop-item {% block active_img_crop %}{% endblock %}">
-                <span class="mhd-icon" style="background:rgba(22,163,74,0.14); color:#16a34a;"><i
-                    class="fa-solid fa-crop-simple"></i></span>
-                <span class="mhd-text"><strong>Crop</strong></span>
-              </a>
-              <a href="{% url 'img_rotate_page' %}" class="mh-drop-item {% block active_img_rotate %}{% endblock %}">
-                <span class="mhd-icon" style="background:rgba(79,70,229,0.14); color:#4f46e5;"><i
-                    class="fa-solid fa-rotate-right"></i></span>
-                <span class="mhd-text"><strong>Rotate</strong></span>
-              </a>
-              <a href="{% url 'img_to_jpg_page' %}" class="mh-drop-item {% block active_img_to_jpg %}{% endblock %}">
-                <span class="mhd-icon" style="background:rgba(234,88,12,0.14); color:#ea580c;"><i
-                    class="fa-solid fa-file-image"></i></span>
-                <span class="mhd-text"><strong>To JPG</strong></span>
-              </a>
-              <a href="{% url 'img_from_jpg_page' %}"
-                class="mh-drop-item {% block active_img_from_jpg %}{% endblock %}">
-                <span class="mhd-icon" style="background:rgba(8,145,178,0.14); color:#0891b2;"><i
-                    class="fa-solid fa-images"></i></span>
-                <span class="mhd-text"><strong>From JPG</strong></span>
-              </a>
-              <a href="{% url 'img_watermark_page' %}"
-                class="mh-drop-item {% block active_img_watermark %}{% endblock %}">
-                <span class="mhd-icon" style="background:rgba(146,64,14,0.14); color:#92400e;"><i
-                    class="fa-solid fa-stamp"></i></span>
-                <span class="mhd-text"><strong>Watermark</strong></span>
-              </a>
-              <a href="{% url 'img_blur_face_page' %}"
-                class="mh-drop-item {% block active_img_blur_face %}{% endblock %}">
-                <span class="mhd-icon" style="background:rgba(71,85,105,0.14); color:#475569;"><i
-                    class="fa-solid fa-user-secret"></i></span>
-                <span class="mhd-text"><strong>Blur Face</strong></span>
-              </a>
-              <a href="{% url 'img_ocr_page' %}" class="mh-drop-item {% block active_img_ocr %}{% endblock %}">
-                <span class="mhd-icon" style="background:rgba(202,138,4,0.14); color:#ca8a04;"><i
-                    class="fa-solid fa-font"></i></span>
-                <span class="mhd-text"><strong>Image to Text</strong></span>
-              </a>
+              <!-- Col 1: Organize PDF -->
+              <div class="mhd-all-col">
+                <div class="mhd-group-label">Organize PDF</div>
+                <a href="{% url 'merge_pdf_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon"><img src="{% static 'img/merge-pdf-icon.png' %}" alt="" style="width:22px;height:22px;object-fit:contain;"></span>
+                  <span class="mhd-text"><strong>Merge PDF</strong></span>
+                </a>
+                <a href="{% url 'split_pdf_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:transparent;box-shadow:none;"><img src="{% static 'img/split-pdf-icon.png' %}" alt="" style="width:26px;height:26px;object-fit:contain;"></span>
+                  <span class="mhd-text"><strong>Split PDF</strong></span>
+                </a>
+                <a href="{% url 'remove_pages_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon"><i class="fa-solid fa-trash-can"></i></span>
+                  <span class="mhd-text"><strong>Remove Pages</strong></span>
+                </a>
+                <a href="{% url 'extract_pages_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:transparent;box-shadow:none;"><img src="{% static 'img/extract-pages-icon.png' %}" alt="" style="width:26px;height:26px;object-fit:contain;display:block;"></span>
+                  <span class="mhd-text"><strong>Extract Pages</strong></span>
+                </a>
+                <a href="{% url 'scan_pdf_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:transparent;box-shadow:none;"><img src="{% static 'img/image-to-pdf-icon.png' %}" alt="" style="width:26px;height:26px;object-fit:contain;display:block;"></span>
+                  <span class="mhd-text"><strong>Image to PDF</strong></span>
+                </a>
+              </div>
+
+              <!-- Col 2: Optimize & AI -->
+              <div class="mhd-all-col">
+                <div class="mhd-group-label">Optimize &amp; AI</div>
+                <a href="{% url 'compress_pdf_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:rgba(217,119,6,0.14);color:#d97706;"><i class="fa-solid fa-compress"></i></span>
+                  <span class="mhd-text"><strong>Compress PDF</strong></span>
+                </a>
+                <a href="{% url 'ocr_pdf_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:rgba(37,99,235,0.14);color:#2563eb;"><i class="fa-solid fa-eye"></i></span>
+                  <span class="mhd-text"><strong>OCR PDF</strong><span class="mhd-ai">AI✧</span></span>
+                </a>
+                <a href="{% url 'invoice_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:rgba(22,163,74,0.14);color:#16a34a;"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+                  <span class="mhd-text"><strong>Invoice Extractor</strong><span class="mhd-ai">AI✧</span></span>
+                </a>
+                <a href="{% url 'ai_summarizer_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:rgba(147,51,234,0.14);color:#9333ea;"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                  <span class="mhd-text"><strong>AI Summarizer</strong><span class="mhd-ai">AI✧</span></span>
+                </a>
+                <a href="{% url 'translate_pdf_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:rgba(13,148,136,0.14);color:#0d9488;"><i class="fa-solid fa-language"></i></span>
+                  <span class="mhd-text"><strong>Translate PDF</strong><span class="mhd-ai">AI✧</span></span>
+                </a>
+              </div>
+
+              <!-- Col 3: Convert to PDF -->
+              <div class="mhd-all-col">
+                <div class="mhd-group-label">Convert to PDF</div>
+                <a href="{% url 'word_to_pdf_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:rgba(43,87,154,0.14);color:#2b579a;"><i class="fa-solid fa-file-word"></i></span>
+                  <span class="mhd-text"><strong>Word to PDF</strong></span>
+                </a>
+                <a href="{% url 'pptx_to_pdf_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:rgba(240,180,0,0.16);color:#d99e00;"><i class="fa-solid fa-file-powerpoint"></i></span>
+                  <span class="mhd-text"><strong>PowerPoint to PDF</strong></span>
+                </a>
+                <a href="{% url 'excel_to_pdf_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:rgba(33,115,70,0.14);color:#217346;"><i class="fa-solid fa-file-excel"></i></span>
+                  <span class="mhd-text"><strong>Excel to PDF</strong></span>
+                </a>
+                <a href="{% url 'html_to_pdf_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:rgba(227,76,38,0.14);color:#e34c26;"><i class="fa-brands fa-html5"></i></span>
+                  <span class="mhd-text"><strong>HTML to PDF</strong></span>
+                </a>
+              </div>
+
+              <!-- Col 4: Convert from PDF -->
+              <div class="mhd-all-col">
+                <div class="mhd-group-label">Convert from PDF</div>
+                <a href="{% url 'pdf_to_jpg_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:rgba(147,51,234,0.14);color:#9333ea;"><i class="fa-solid fa-images"></i></span>
+                  <span class="mhd-text"><strong>PDF to JPG</strong></span>
+                </a>
+                <a href="{% url 'pdf_to_word_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:rgba(43,87,154,0.14);color:#2b579a;"><i class="fa-solid fa-file-word"></i></span>
+                  <span class="mhd-text"><strong>PDF to Word</strong></span>
+                </a>
+                <a href="{% url 'pdf_to_pptx_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:rgba(240,180,0,0.16);color:#d99e00;"><i class="fa-solid fa-file-powerpoint"></i></span>
+                  <span class="mhd-text"><strong>PDF to PowerPoint</strong></span>
+                </a>
+                <a href="{% url 'pdf_to_excel_page' %}" class="mh-drop-item">
+                  <span class="mhd-icon" style="background:rgba(33,115,70,0.14);color:#217346;"><i class="fa-solid fa-file-excel"></i></span>
+                  <span class="mhd-text"><strong>PDF to Excel</strong></span>
+                </a>
+              </div>
+
+              <!-- Col 5: Edit PDF -->
+              <div class="mhd-all-col">
+                <div class="mhd-group-label">Edit PDF</div>
+                <a href="{% url 'rotate_pdf_page' %}" class="mh-drop-item {% block active_rotate %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(37,99,235,0.14);color:#2563eb;"><i class="fa-solid fa-rotate-right"></i></span>
+                  <span class="mhd-text"><strong>Rotate PDF</strong></span>
+                </a>
+                <a href="{% url 'page_numbers_page' %}" class="mh-drop-item {% block active_pagenum %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(147,51,234,0.14);color:#9333ea;"><i class="fa-solid fa-list-ol"></i></span>
+                  <span class="mhd-text"><strong>Add Page Numbers</strong></span>
+                </a>
+                <a href="{% url 'watermark_pdf_page' %}" class="mh-drop-item {% block active_watermark %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(6,182,212,0.14);color:#0891b2;"><i class="fa-solid fa-droplet"></i></span>
+                  <span class="mhd-text"><strong>Add Watermark</strong></span>
+                </a>
+                <a href="{% url 'sign_pdf_page' %}" class="mh-drop-item {% block active_sign %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(217,119,6,0.14);color:#d97706;"><i class="fa-solid fa-signature"></i></span>
+                  <span class="mhd-text"><strong>Sign PDF</strong></span>
+                </a>
+                <a href="{% url 'crop_pdf_page' %}" class="mh-drop-item {% block active_crop %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(22,163,74,0.14);color:#16a34a;"><i class="fa-solid fa-crop-simple"></i></span>
+                  <span class="mhd-text"><strong>Crop PDF</strong></span>
+                </a>
+              </div>
+
+              <!-- Col 6: PDF Security -->
+              <div class="mhd-all-col">
+                <div class="mhd-group-label">PDF Security</div>
+                <a href="{% url 'protect_pdf_page' %}" class="mh-drop-item {% block active_protect %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(22,163,74,0.14);color:#16a34a;"><i class="fa-solid fa-lock"></i></span>
+                  <span class="mhd-text"><strong>Protect PDF</strong></span>
+                </a>
+                <a href="{% url 'unlock_pdf_page' %}" class="mh-drop-item {% block active_unlock %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(217,119,6,0.14);color:#d97706;"><i class="fa-solid fa-lock-open"></i></span>
+                  <span class="mhd-text"><strong>Unlock PDF</strong></span>
+                </a>
+                <a href="{% url 'redact_pdf_page' %}" class="mh-drop-item {% block active_redact %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(30,41,59,0.12);color:#1e293b;"><i class="fa-solid fa-eraser"></i></span>
+                  <span class="mhd-text"><strong>Redact PDF</strong></span>
+                </a>
+              </div>
+
             </div>
-          </div>
-        </div>
 
-        <!-- About -->
-        <a href="{% url 'about' %}" class="mh-link {% block active_about %}{% endblock %}" style="text-decoration:none;">
-          <i class="fa-solid fa-circle-info mh-nav-icon"></i> About
-        </a>
+            <!-- Lower section: Image Tools (left) + Special Tools (right) side by side -->
+            <div class="mhd-divider" style="margin:.55rem 0 .35rem;"></div>
+            <div class="mhd-lower">
 
-        <!-- More Tools -->
-        <div class="mh-item has-drop">
-          <span class="mh-link {% block active_more %}{% endblock %}"><i class="fa-solid fa-grip mh-nav-icon"></i> More <i class="fa-solid fa-chevron-down mh-caret"></i></span>
-          <div class="mh-drop mh-drop-wide">
-            <a href="{% url 'connectspace_page' %}" class="mh-drop-item {% block active_connectspace %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(220,38,38,.12);color:#dc2626;"><i class="fa-solid fa-arrows-turn-to-dots"></i></span>
-              <span class="mhd-text"><strong>ConnectSpace</strong><em>Live file sharing</em><span class="mh-cs-badge" style="margin-left:.3rem">Live</span></span>
-            </a>
-            <a href="{% url 'resume_analyzer_page' %}" class="mh-drop-item {% block active_resume_analyzer %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(124,58,237,.12);color:#7c3aed;"><i class="fa-solid fa-file-circle-check"></i></span>
-              <span class="mhd-text"><strong>AI Resume Analyzer</strong><em>ATS score & job match</em><span class="mhd-ai">AI✧</span></span>
-            </a>
-            <a href="{% url 'product_recommender_page' %}" class="mh-drop-item {% block active_product_recommender %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(124,58,237,.12);color:#7c3aed;"><i class="fa-solid fa-cart-shopping"></i></span>
-              <span class="mhd-text"><strong>AI Product Recommender</strong><em>Find best products with AI</em><span class="mhd-ai">AI✧</span></span>
-            </a>
-            <a href="{% url 'pdf_chat_page' %}" class="mh-drop-item {% block active_pdf_chat %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(37,99,235,.12);color:#2563eb;"><i class="fa-solid fa-comments"></i></span>
-              <span class="mhd-text"><strong>AI PDF Chat</strong><em>Chat with your PDF documents</em><span class="mhd-ai">AI✧</span></span>
-            </a>
+              <!-- Image Tools: 3 columns × 4 rows -->
+              <div class="mhd-lower-img">
+                <div class="mhd-group-label" style="margin-bottom:.15rem;">Image Tools</div>
+                <div class="mhd-img-cols">
+
+                  <!-- Col 1: Compress · Rotate · Resize · Crop -->
+                  <div class="mhd-img-col">
+                    <a href="{% url 'img_compress_page' %}" class="mh-drop-item {% block active_img_compress %}{% endblock %}">
+                      <span class="mhd-icon" style="background:rgba(217,119,6,0.14);color:#d97706;"><i class="fa-solid fa-compress-arrows-alt"></i></span>
+                      <span class="mhd-text"><strong>Compress</strong></span>
+                    </a>
+                    <a href="{% url 'img_rotate_page' %}" class="mh-drop-item {% block active_img_rotate %}{% endblock %}">
+                      <span class="mhd-icon" style="background:rgba(79,70,229,0.14);color:#4f46e5;"><i class="fa-solid fa-rotate-right"></i></span>
+                      <span class="mhd-text"><strong>Rotate</strong></span>
+                    </a>
+                    <a href="{% url 'img_resize_page' %}" class="mh-drop-item {% block active_img_resize %}{% endblock %}">
+                      <span class="mhd-icon" style="background:rgba(13,148,136,0.14);color:#0d9488;"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></span>
+                      <span class="mhd-text"><strong>Resize</strong></span>
+                    </a>
+                    <a href="{% url 'img_crop_page' %}" class="mh-drop-item {% block active_img_crop %}{% endblock %}">
+                      <span class="mhd-icon" style="background:rgba(22,163,74,0.14);color:#16a34a;"><i class="fa-solid fa-crop-simple"></i></span>
+                      <span class="mhd-text"><strong>Crop</strong></span>
+                    </a>
+                  </div>
+
+                  <!-- Col 2: Upscale · To JPG · From JPG · Blur Face -->
+                  <div class="mhd-img-col">
+                    <a href="{% url 'img_upscale_page' %}" class="mh-drop-item {% block active_img_upscale %}{% endblock %}">
+                      <span class="mhd-icon" style="background:rgba(37,99,235,0.14);color:#2563eb;"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                      <span class="mhd-text"><strong>Upscale</strong></span>
+                    </a>
+                    <a href="{% url 'img_to_jpg_page' %}" class="mh-drop-item {% block active_img_to_jpg %}{% endblock %}">
+                      <span class="mhd-icon" style="background:rgba(234,88,12,0.14);color:#ea580c;"><i class="fa-solid fa-file-image"></i></span>
+                      <span class="mhd-text"><strong>To JPG</strong></span>
+                    </a>
+                    <a href="{% url 'img_from_jpg_page' %}" class="mh-drop-item {% block active_img_from_jpg %}{% endblock %}">
+                      <span class="mhd-icon" style="background:rgba(8,145,178,0.14);color:#0891b2;"><i class="fa-solid fa-images"></i></span>
+                      <span class="mhd-text"><strong>From JPG</strong></span>
+                    </a>
+                    <a href="{% url 'img_blur_face_page' %}" class="mh-drop-item {% block active_img_blur_face %}{% endblock %}">
+                      <span class="mhd-icon" style="background:rgba(71,85,105,0.14);color:#475569;"><i class="fa-solid fa-user-secret"></i></span>
+                      <span class="mhd-text"><strong>Blur Face</strong></span>
+                    </a>
+                  </div>
+
+                  <!-- Col 3: Remove BG · Meme Generator · Watermark · Image to Text -->
+                  <div class="mhd-img-col">
+                    <a href="{% url 'img_remove_bg_page' %}" class="mh-drop-item {% block active_img_remove_bg %}{% endblock %}">
+                      <span class="mhd-icon" style="background:rgba(147,51,234,0.14);color:#9333ea;"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                      <span class="mhd-text"><strong>Remove BG</strong></span>
+                    </a>
+                    <a href="{% url 'img_meme_page' %}" class="mh-drop-item {% block active_img_meme %}{% endblock %}">
+                      <span class="mhd-icon" style="background:rgba(219,39,119,0.14);color:#db2777;"><i class="fa-solid fa-face-laugh-squint"></i></span>
+                      <span class="mhd-text"><strong>Meme Generator</strong></span>
+                    </a>
+                    <a href="{% url 'img_watermark_page' %}" class="mh-drop-item {% block active_img_watermark %}{% endblock %}">
+                      <span class="mhd-icon" style="background:rgba(146,64,14,0.14);color:#92400e;"><i class="fa-solid fa-stamp"></i></span>
+                      <span class="mhd-text"><strong>Watermark</strong></span>
+                    </a>
+                    <a href="{% url 'img_ocr_page' %}" class="mh-drop-item {% block active_img_ocr %}{% endblock %}">
+                      <span class="mhd-icon" style="background:rgba(202,138,4,0.14);color:#ca8a04;"><i class="fa-solid fa-font"></i></span>
+                      <span class="mhd-text"><strong>Image to Text</strong></span>
+                    </a>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Vertical divider between Image Tools and Special Tools -->
+              <div class="mhd-vert-divider"></div>
+
+              <!-- Special Tools: 1 vertical column -->
+              <div class="mhd-lower-special">
+                <div class="mhd-group-label" style="margin-bottom:.15rem;">Special Tools</div>
+                <div class="mhd-special-col">
+                  <a href="{% url 'connectspace_page' %}" class="mh-drop-item {% block active_connectspace %}{% endblock %}">
+                    <span class="mhd-icon" style="background:rgba(220,38,38,.12);color:#dc2626;"><i class="fa-solid fa-arrows-turn-to-dots"></i></span>
+                    <span class="mhd-text"><strong>ConnectSpace</strong><span class="mh-cs-badge" style="margin-left:.3rem">Live</span></span>
+                  </a>
+                  <a href="{% url 'resume_analyzer_page' %}" class="mh-drop-item {% block active_resume_analyzer %}{% endblock %}">
+                    <span class="mhd-icon" style="background:rgba(124,58,237,.12);color:#7c3aed;"><i class="fa-solid fa-file-circle-check"></i></span>
+                    <span class="mhd-text"><strong>AI Resume Analyzer</strong><span class="mhd-ai">AI✧</span></span>
+                  </a>
+                  <a href="{% url 'product_recommender_page' %}" class="mh-drop-item {% block active_product_recommender %}{% endblock %}">
+                    <span class="mhd-icon" style="background:rgba(124,58,237,.12);color:#7c3aed;"><i class="fa-solid fa-cart-shopping"></i></span>
+                    <span class="mhd-text"><strong>AI Product Recommender</strong><span class="mhd-ai">AI✧</span></span>
+                  </a>
+                  <a href="{% url 'pdf_chat_page' %}" class="mh-drop-item {% block active_pdf_chat %}{% endblock %}">
+                    <span class="mhd-icon" style="background:rgba(37,99,235,.12);color:#2563eb;"><i class="fa-solid fa-comments"></i></span>
+                    <span class="mhd-text"><strong>AI PDF Chat</strong><span class="mhd-ai">AI✧</span></span>
+                  </a>
+                </div>
+              </div>
+
+            </div>
+
+            </div><!-- /mhd-inner -->
           </div>
         </div>
 
@@ -347,11 +437,14 @@
             <a href="/zayro-admin/?tab=users" class="mh-user-item"><i class="fa-solid fa-users"></i> Manage Users</a>
             <div class="mh-user-divider"></div>
             {% endif %}
-            <form method="post" action="{% url 'logout' %}" style="margin:0">
+            <a href="{% url 'about' %}" class="mh-user-item"><i class="fa-solid fa-circle-info"></i> About</a>
+            <a href="{% url 'support' %}" class="mh-user-item"><i class="fa-solid fa-headset"></i> Support</a>
+            <div class="mh-user-divider"></div>
+            <button type="button" class="mh-user-item mh-user-logout" onclick="openLogoutConfirm()">
+              <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </button>
+            <form id="logoutForm" method="post" action="{% url 'logout' %}" style="display:none">
               {% csrf_token %}
-              <button type="submit" class="mh-user-item mh-user-logout" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;font:inherit;padding:0">
-                <i class="fa-solid fa-right-from-bracket"></i> Logout
-              </button>
             </form>
           </div>
         </div>
@@ -493,7 +586,7 @@
       });
       window.addEventListener('beforeunload', function(){ ZLoader.show('Loading…'); });
       window.addEventListener('load', function(){ ZLoader.hide(); });
-      window.addEventListener('pageshow', function(e){ ZLoader.show('Loading…'); setTimeout(function(){ ZLoader.hide(); }, 5000); });
+      window.addEventListener('pageshow', function(e){ ZLoader.show('Loading…'); setTimeout(function(){ ZLoader.hide(); }, 4000); });
     })();
   </script>
 
@@ -546,6 +639,67 @@
   {% block extra_js %}{% endblock %}
 
   {% include 'partials/_auth_popup.html' %}
+
+  <!-- Logout Confirmation Modal -->
+  <div id="logoutModal" style="
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,.45); backdrop-filter:blur(4px);
+    align-items:center; justify-content:center;
+  ">
+    <div style="
+      background:#fff; border-radius:16px; padding:2rem 2rem 1.5rem;
+      width:100%; max-width:360px; box-shadow:0 20px 60px rgba(0,0,0,.18);
+      text-align:center; position:relative;
+    ">
+      <div style="
+        width:52px; height:52px; border-radius:50%;
+        background:#fee2e2; display:flex; align-items:center;
+        justify-content:center; margin:0 auto 1rem;
+      ">
+        <i class="fa-solid fa-right-from-bracket" style="color:#dc2626; font-size:1.2rem;"></i>
+      </div>
+      <h3 style="font-size:1rem; font-weight:700; color:#111; margin:0 0 .4rem;">Sign out?</h3>
+      <p style="font-size:.82rem; color:#6b7280; margin:0 0 1.5rem; line-height:1.5;">
+        You'll need to log in again to access your tools and history.
+      </p>
+      <div style="display:flex; gap:.75rem;">
+        <button onclick="closeLogoutConfirm()" style="
+          flex:1; padding:.6rem; border-radius:8px; border:1px solid #e5e7eb;
+          background:#fff; color:#374151; font-size:.84rem; font-weight:600;
+          cursor:pointer; transition:background .12s;
+        " onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#fff'">
+          Cancel
+        </button>
+        <button onclick="document.getElementById('logoutForm').submit()" style="
+          flex:1; padding:.6rem; border-radius:8px; border:none;
+          background:#dc2626; color:#fff; font-size:.84rem; font-weight:600;
+          cursor:pointer; transition:opacity .12s;
+        " onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openLogoutConfirm() {
+      const m = document.getElementById('logoutModal');
+      m.style.display = 'flex';
+      // close dropdown
+      document.querySelectorAll('.mh-user-drop').forEach(d => d.classList.remove('open'));
+    }
+    function closeLogoutConfirm() {
+      document.getElementById('logoutModal').style.display = 'none';
+    }
+    // close on backdrop click
+    document.getElementById('logoutModal').addEventListener('click', function(e) {
+      if (e.target === this) closeLogoutConfirm();
+    });
+    // close on Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeLogoutConfirm();
+    });
+  </script>
 </body>
 
 </html>
