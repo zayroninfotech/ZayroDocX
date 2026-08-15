@@ -1,16 +1,14 @@
-from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
-from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
-import mimetypes
-import os
+import mimetypes, os
 from django.http import FileResponse, Http404
+from apps.dashboard.views import logout_view
+
 
 def _serve_output(request, path):
-    """Serve files from MEDIA_ROOT/outputs/ only — no directory traversal."""
-    safe = os.path.normpath(path).lstrip('/\\')
+    safe = os.path.normpath(path).lstrip('/\')
     if '..' in safe.split(os.sep):
         raise Http404
     full = os.path.join(settings.MEDIA_ROOT, 'outputs', safe)
@@ -19,12 +17,11 @@ def _serve_output(request, path):
     mime, _ = mimetypes.guess_type(full)
     return FileResponse(open(full, 'rb'), content_type=mime or 'application/octet-stream')
 
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('login/', RedirectView.as_view(url='/', permanent=False), name='login'),
+    path('login/',    RedirectView.as_view(url='/', permanent=False), name='login'),
     path('register/', RedirectView.as_view(url='/', permanent=False), name='register'),
-    path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
-    path('accounts/', include('allauth.urls')),   # Google OAuth + allauth account URLs
+    path('logout/',   logout_view, name='logout'),
     path('', include('apps.dashboard.urls')),
     path('tools/', include('apps.pdf_tools.urls')),
     path('media/outputs/<path:path>', _serve_output),

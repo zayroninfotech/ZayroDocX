@@ -1,8 +1,11 @@
-import json, string, random, time, os, base64
-from django.http import JsonResponse, HttpResponse, FileResponse
+import json, string, random, time, os
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.utils import timezone
-from datetime import timedelta
+from apps.pdf_tools.mongo_models import (
+    rc_create_room, rc_room_exists, rc_get_room, rc_cleanup_old,
+    rc_set_offer, rc_set_answer, rc_add_ice, rc_close,
+    rc_add_commands, rc_get_pending_commands,
+)
 
 
 def _gen_code():
@@ -13,23 +16,16 @@ def _fmt(code):
     return f'{code[:3]}-{code[3:6]}-{code[6:]}'
 
 
-def _cleanup_old():
-    from apps.pdf_tools.models import RCRoom
-    cutoff = timezone.now() - timedelta(hours=1)
-    RCRoom.objects.filter(created__lt=cutoff).delete()
-
-
 @csrf_exempt
 def rc_create(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
-    from apps.pdf_tools.models import RCRoom
-    _cleanup_old()
+    rc_cleanup_old()
     for _ in range(30):
         code = _gen_code()
-        if not RCRoom.objects.filter(code=code).exists():
+        if not rc_room_exists(code):
             break
-    RCRoom.objects.create(code=code)
+    room = rc_create_room(code)
     return JsonResponse({'code': code, 'display': _fmt(code)})
 
 
@@ -40,14 +36,12 @@ def rc_offer(request):
     data = json.loads(request.body)
     code = data.get('code', '').replace('-', '')
     sdp  = data.get('sdp')
-    from apps.pdf_tools.models import RCRoom
     if sdp is None:
-        exists = RCRoom.objects.filter(code=code).exists()
+        exists = rc_room_exists(code)
         if not exists:
             return JsonResponse({'error': 'Session not found.'}, status=404)
         return JsonResponse({'ok': True})
-    updated = RCRoom.objects.filter(code=code).update(offer=sdp)
-    if not updated:
+    if not rc_set_offer(code, sdp):
         return JsonResponse({'error': 'Session not found.'}, status=404)
     return JsonResponse({'ok': True})
 
@@ -59,9 +53,7 @@ def rc_answer(request):
     data = json.loads(request.body)
     code = data.get('code', '').replace('-', '')
     sdp  = data.get('sdp')
-    from apps.pdf_tools.models import RCRoom
-    updated = RCRoom.objects.filter(code=code).update(answer=sdp)
-    if not updated:
+    if not rc_set_answer(code, sdp):
         return JsonResponse({'error': 'Session not found.'}, status=404)
     return JsonResponse({'ok': True})
 
@@ -74,74 +66,49 @@ def rc_ice(request):
     code = data.get('code', '').replace('-', '')
     role = data.get('role')
     cand = data.get('candidate')
-    from apps.pdf_tools.models import RCRoom
-    try:
-        room = RCRoom.objects.get(code=code)
-    except RCRoom.DoesNotExist:
+    if not rc_add_ice(code, role, cand):
         return JsonResponse({'error': 'Session not found.'}, status=404)
-    if role == 'host':
-        room.host_ice = (room.host_ice or []) + [cand]
-    else:
-        room.viewer_ice = (room.viewer_ice or []) + [cand]
-    room.save(update_fields=['host_ice'] if role == 'host' else ['viewer_ice'])
     return JsonResponse({'ok': True})
 
 
 def rc_poll(request):
-    from apps.pdf_tools.models import RCRoom
     code = request.GET.get('code', '').replace('-', '')
     role = request.GET.get('role')
     idx  = int(request.GET.get('idx', 0))
-    try:
-        room = RCRoom.objects.get(code=code)
-    except RCRoom.DoesNotExist:
+    room = rc_get_room(code)
+    if not room:
         return JsonResponse({'error': 'Session not found.'}, status=404)
-    other_ice = (room.viewer_ice if role == 'host' else room.host_ice) or []
+    other_ice = (room['viewer_ice'] if role == 'host' else room['host_ice']) or []
     return JsonResponse({
-        'offer':     room.offer  if role == 'viewer' else None,
-        'answer':    room.answer if role == 'host'   else None,
+        'offer':     room['offer']  if role == 'viewer' else None,
+        'answer':    room['answer'] if role == 'host'   else None,
         'ice':       other_ice[idx:],
         'ice_total': len(other_ice),
-        'closed':    room.closed,
+        'closed':    room['closed'],
     })
 
 
 @csrf_exempt
 def rc_cmd(request):
-    """Viewer posts batched control commands (mouse/keyboard)."""
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
     data = json.loads(request.body)
     code = data.get('code', '').replace('-', '')
     cmds = data.get('cmds', [])
-    from apps.pdf_tools.models import RCRoom, RCCommand
-    try:
-        room = RCRoom.objects.get(code=code)
-    except RCRoom.DoesNotExist:
+    room = rc_get_room(code)
+    if not room:
         return JsonResponse({'error': 'Session not found.'}, status=404)
-    now = time.time()
-    RCCommand.objects.bulk_create([
-        RCCommand(room=room, cmd_type=c.get('type', ''), data=c, ts=now)
-        for c in cmds if c.get('type')
-    ])
-    # Clean up old consumed commands to prevent table bloat
-    RCCommand.objects.filter(room=room, consumed=True, ts__lt=now - 10).delete()
+    rc_add_commands(room['_id'], cmds)
     return JsonResponse({'ok': True})
 
 
 def rc_agent_poll(request):
-    """Agent on host machine polls for pending commands."""
-    from apps.pdf_tools.models import RCRoom, RCCommand
     code = request.GET.get('code', '').replace('-', '')
-    try:
-        room = RCRoom.objects.get(code=code)
-    except RCRoom.DoesNotExist:
+    room = rc_get_room(code)
+    if not room:
         return JsonResponse({'error': 'Session not found.'}, status=404)
-    pending = list(RCCommand.objects.filter(room=room, consumed=False).order_by('ts').values('id', 'cmd_type', 'data'))
-    if pending:
-        ids = [c['id'] for c in pending]
-        RCCommand.objects.filter(id__in=ids).update(consumed=True)
-    return JsonResponse({'commands': [c['data'] for c in pending], 'closed': room.closed})
+    commands = rc_get_pending_commands(room['_id'])
+    return JsonResponse({'commands': commands, 'closed': room['closed']})
 
 
 @csrf_exempt
@@ -153,14 +120,12 @@ def rc_close(request):
         code = data.get('code', '').replace('-', '')
     except Exception:
         return JsonResponse({'error': 'Bad JSON'}, status=400)
-    from apps.pdf_tools.models import RCRoom
-    RCRoom.objects.filter(code=code).update(closed=True)
+    rc_close(code)
     return JsonResponse({'ok': True})
 
 
 @csrf_exempt
 def rc_frame(request):
-    """Mobile host POSTs JPEG frames (base64); viewer GETs latest frame."""
     from django.core.cache import cache
     code = (request.GET.get('code') or '').replace('-', '')
     if request.method == 'POST':
@@ -182,7 +147,6 @@ def rc_frame(request):
 
 
 def zayrodesk_sw(request):
-    """Serve service worker with correct scope header."""
     sw_path = os.path.join(os.path.dirname(__file__), '../../../static/zayrodesk/sw.js')
     sw_path = os.path.normpath(sw_path)
     try:
@@ -195,16 +159,13 @@ def zayrodesk_sw(request):
 
 
 def zayrodesk_icon(request, size):
-    """Generate a ZayroDesk app icon as PNG using Pillow."""
     try:
-        from PIL import Image, ImageDraw, ImageFont
+        from PIL import Image, ImageDraw
         img = Image.new('RGBA', (size, size), (8, 145, 178, 255))
         draw = ImageDraw.Draw(img)
-        # rounded rect bg
         margin = size // 8
         draw.rounded_rectangle([margin, margin, size - margin, size - margin],
                                 radius=size // 5, fill=(255, 255, 255, 40))
-        # monitor icon
         cx, cy = size // 2, size // 2
         mw, mh = size * 6 // 10, size * 4 // 10
         mx1, my1 = cx - mw // 2, cy - mh // 2 - size // 14
@@ -212,7 +173,6 @@ def zayrodesk_icon(request, size):
         draw.rounded_rectangle([mx1, my1, mx2, my2], radius=size // 18, fill=(255, 255, 255, 220))
         draw.rounded_rectangle([mx1 + size // 18, my1 + size // 18, mx2 - size // 18, my2 - size // 18],
                                 radius=size // 28, fill=(8, 145, 178, 255))
-        # stand
         sw = size // 10
         draw.rectangle([cx - sw, my2, cx + sw, my2 + size // 12], fill=(255, 255, 255, 220))
         draw.ellipse([cx - sw * 2, my2 + size // 12, cx + sw * 2, my2 + size // 8], fill=(255, 255, 255, 220))
@@ -223,7 +183,5 @@ def zayrodesk_icon(request, size):
         return HttpResponse(buf.read(), content_type='image/png',
                             headers={'Cache-Control': 'public, max-age=86400'})
     except Exception:
-        # fallback: redirect to logo
-        from django.conf import settings
         from django.http import HttpResponseRedirect
         return HttpResponseRedirect('/static/img/logo.png')

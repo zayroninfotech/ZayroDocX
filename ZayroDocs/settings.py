@@ -17,23 +17,12 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',') if not DEBUG else ['*', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
-    # allauth — social OAuth (Google)
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
     'apps.dashboard',
     'apps.pdf_tools',
 ]
-
-SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -41,12 +30,11 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
+    'apps.dashboard.mongo_auth.MongoAuthMiddleware',   # MongoDB user from session
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'ZayroDocs.middleware.SecurityHeadersMiddleware',  # CSP, Referrer-Policy, Permissions-Policy
-    'ZayroDocs.middleware.AuditLogMiddleware',         # request audit trail
+    'ZayroDocs.middleware.SecurityHeadersMiddleware',
+    'ZayroDocs.middleware.AuditLogMiddleware',
 ]
 
 ROOT_URLCONF = 'ZayroDocs.urls'
@@ -71,11 +59,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ZayroDocs.wsgi.application'
 
 
-# SQLite for Django admin/auth (MongoDB for tool data)
-DATABASES = {
+# No SQL database — all data stored in MongoDB
+DATABASES = {}
+
+# Sessions stored in Redis (no SQL required)
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+CACHES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),
     }
 }
 
@@ -83,12 +75,8 @@ DATABASES = {
 MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
 MONGO_DB_NAME = os.getenv('MONGO_DB_NAME', 'ZayroDocX')
 
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
-]
+# Auth handled by MongoDB (apps.dashboard.mongo_auth) — no Django auth validators needed
+AUTH_PASSWORD_VALIDATORS = []
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
@@ -192,34 +180,4 @@ ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY', '')
 # wkhtmltopdf path (Windows) for pdfkit
 WKHTMLTOPDF_CMD = os.getenv('WKHTMLTOPDF_CMD', r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-LOGIN_URL = '/login/'
-
-# ── Google OAuth credentials (set in .env) ──────────────────────────────────
-# Get from: https://console.cloud.google.com/ → APIs & Services → Credentials
-# Authorized redirect URI: http://127.0.0.1:8000/accounts/google/login/callback/
-GOOGLE_CLIENT_ID     = os.getenv('GOOGLE_CLIENT_ID', '')
-GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
-
-# ── django-allauth ───────────────────────────────────────────────────────────
-ACCOUNT_LOGIN_METHODS = {'username', 'email'}
-ACCOUNT_SIGNUP_FIELDS = ['username*', 'email', 'password1*', 'password2*']
-ACCOUNT_EMAIL_VERIFICATION = 'none'
-ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = False
-SOCIALACCOUNT_AUTO_SIGNUP = True        # skip extra confirm step for Google users
-SOCIALACCOUNT_LOGIN_ON_GET = True       # allow GET-initiated social logins
-SOCIALACCOUNT_EMAIL_REQUIRED = False
-
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'APP': {
-            'client_id': GOOGLE_CLIENT_ID,
-            'secret':    GOOGLE_CLIENT_SECRET,
-            'key':       '',
-        },
-        'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {'access_type': 'online'},
-        'OAUTH_PKCE_ENABLED': True,
-    }
-}
+# Auth is handled by MongoDB (apps.dashboard.mongo_auth) — no Django auth redirects needed
