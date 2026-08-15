@@ -9,6 +9,7 @@ from apps.dashboard.mongo_auth import (
 )
 from apps.dashboard.mongo_models import (
     get_tool_privs_map, get_all_tool_privs, toggle_tool_priv,
+    create_ticket, create_suggestion, get_all_suggestions,
 )
 from apps.pdf_tools.mongo_db import get_recent_jobs, get_stats
 
@@ -122,3 +123,40 @@ def toggle_tool_privilege(request, slug):
     if new_val is None:
         return JsonResponse({'ok': False}, status=404)
     return JsonResponse({'ok': True, 'requires_login': new_val})
+
+
+def support(request):
+    return render(request, 'support.html')
+
+
+@require_POST
+def submit_support(request):
+    user_id = request.user.id if request.user.is_authenticated else None
+    name        = request.POST.get('name', '').strip()
+    email       = request.POST.get('email', '').strip()
+    issue_type  = request.POST.get('issue_type', '').strip()
+    related_tool = request.POST.get('related_tool', '').strip()
+    description = request.POST.get('description', '').strip()
+    if not name or not email or not issue_type or not description:
+        return JsonResponse({'ok': False, 'error': 'Please fill in all required fields.'}, status=400)
+    create_ticket(user_id, name, email, issue_type, related_tool, description)
+    return JsonResponse({'ok': True})
+
+
+@require_POST
+def submit_suggestion(request):
+    user_id    = request.user.id if request.user.is_authenticated else None
+    user_email = request.user.email if request.user.is_authenticated else request.POST.get('email', '')
+    title       = request.POST.get('title', '').strip()
+    description = request.POST.get('description', '').strip()
+    category    = request.POST.get('category', 'other').strip()
+    if not title or not description:
+        return JsonResponse({'ok': False, 'error': 'Title and description are required.'}, status=400)
+    create_suggestion(user_id, user_email, title, description, category)
+    return JsonResponse({'ok': True})
+
+
+@_superadmin_required
+@require_POST
+def update_suggestion(request, pk):
+    return JsonResponse({'ok': True})

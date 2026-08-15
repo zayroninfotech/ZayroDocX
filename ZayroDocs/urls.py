@@ -8,7 +8,7 @@ from apps.dashboard.views import logout_view
 
 
 def _serve_output(request, path):
-    safe = os.path.normpath(path).lstrip('/\')
+    safe = os.path.normpath(path).lstrip('/\\')
     if '..' in safe.split(os.sep):
         raise Http404
     full = os.path.join(settings.MEDIA_ROOT, 'outputs', safe)
