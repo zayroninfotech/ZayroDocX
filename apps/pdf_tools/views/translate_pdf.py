@@ -6,7 +6,6 @@ import urllib.request
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 from apps.pdf_tools.utils import save_uploaded_file, get_output_path, media_url, cleanup_file, validate_pdf
 
 logger = logging.getLogger(__name__)
@@ -79,7 +78,6 @@ def _openai_translate(text, target_lang):
     return response.choices[0].message.content.strip()
 
 
-@csrf_exempt
 @require_POST
 def translate_pdf(request):
     f = request.FILES.get('file')
@@ -119,6 +117,6 @@ def translate_pdf(request):
         return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
         logger.error('translate_pdf error: %s\n%s', e, traceback.format_exc())
-        return JsonResponse({'error': f'Translation failed: {e}'}, status=500)
+        return JsonResponse({'error': 'Translation failed. Ensure the file is a valid PDF with extractable text.'}, status=500)
     finally:
         cleanup_file(saved_path)

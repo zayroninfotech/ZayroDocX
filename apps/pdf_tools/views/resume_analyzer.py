@@ -2,7 +2,6 @@ import json, urllib.request, logging
 import fitz
 from django.conf import settings
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from apps.pdf_tools.utils import save_uploaded_file, cleanup_file
 
@@ -82,7 +81,6 @@ def _call_openai(resume_text):
     return json.loads(resp.choices[0].message.content)
 
 
-@csrf_exempt
 @require_POST
 def analyze_resume(request):
     f = request.FILES.get('file')

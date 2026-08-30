@@ -83,10 +83,16 @@ def _check_password(password, stored):
 
 # ── MongoDB user CRUD ─────────────────────────────────────────────────────────
 
+_users_indexed = False
+
 def _users():
+    global _users_indexed
     db = _get_db()
-    db.users.create_index('username', unique=True, background=True)
-    return db.users
+    col = db.users
+    if not _users_indexed:
+        col.create_index('username', unique=True, background=True)
+        _users_indexed = True
+    return col
 
 
 def create_user(username, password, email='', is_superuser=False):

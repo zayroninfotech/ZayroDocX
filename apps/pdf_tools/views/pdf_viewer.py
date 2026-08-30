@@ -8,7 +8,6 @@ from io import BytesIO
 from PIL import Image, ImageEnhance, ImageFilter
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from apps.pdf_tools.utils import save_uploaded_file, get_output_path, media_url, cleanup_file, validate_pdf
 from apps.pdf_tools.mongo_db import save_job
@@ -18,7 +17,6 @@ logger = logging.getLogger(__name__)
 pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
 
 
-@csrf_exempt
 @require_POST
 def pdf_preview(request):
     """
@@ -73,7 +71,6 @@ def pdf_preview(request):
         cleanup_file(saved_path)
 
 
-@csrf_exempt
 @require_POST
 def extract_pdf_data(request):
     """
@@ -115,7 +112,6 @@ def extract_pdf_data(request):
         cleanup_file(saved_path)
 
 
-@csrf_exempt
 @require_POST
 def download_page_image(request):
     """Return a single page rendered at 200 DPI as PNG for download."""
@@ -137,8 +133,8 @@ def download_page_image(request):
         resp = HttpResponse(buf.read(), content_type='image/png')
         resp['Content-Disposition'] = f'attachment; filename="page_{page+1}.png"'
         return resp
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    except Exception:
+        return JsonResponse({'error': 'Preview generation failed. Ensure the file is a valid PDF.'}, status=500)
     finally:
         cleanup_file(saved_path)
 

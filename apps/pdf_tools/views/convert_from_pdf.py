@@ -5,12 +5,10 @@ from io import BytesIO
 from PIL import Image
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 from apps.pdf_tools.utils import save_uploaded_file, get_output_path, media_url, cleanup_file, validate_pdf, safe_int
 from apps.pdf_tools.mongo_db import save_job
 
 
-@csrf_exempt
 @require_POST
 def pdf_to_jpg(request):
     f = request.FILES.get('file')
@@ -58,7 +56,6 @@ def pdf_to_jpg(request):
         cleanup_file(saved_path)
 
 
-@csrf_exempt
 @require_POST
 def pdf_to_word(request):
     f = request.FILES.get('file')
@@ -79,12 +76,11 @@ def pdf_to_word(request):
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
-        return JsonResponse({'error': f'Conversion failed: {e}'}, status=500)
+        return JsonResponse({'error': 'Conversion failed. Ensure the file is a valid PDF.'}, status=500)
     finally:
         cleanup_file(saved_path)
 
 
-@csrf_exempt
 @require_POST
 def pdf_to_pptx(request):
     """Convert PDF pages to PowerPoint (each page = 1 slide as image)."""
@@ -132,7 +128,6 @@ def pdf_to_pptx(request):
             cleanup_file(ip)
 
 
-@csrf_exempt
 @require_POST
 def pdf_to_excel(request):
     """Extract tables from PDF and save to Excel."""

@@ -12,7 +12,6 @@ _THUMB_DPI = 200   # preview thumbnail resolution
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 from apps.pdf_tools.utils import save_uploaded_file, get_output_path, media_url, cleanup_file, validate_pdf, validate_image, _MAX_OCR_PAGES
 from apps.pdf_tools.mongo_db import save_job
 from apps.pdf_tools.utils import ip_ratelimit
@@ -20,7 +19,6 @@ from apps.pdf_tools.utils import ip_ratelimit
 pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
 
 
-@csrf_exempt
 @require_POST
 def ocr_pdf(request):
     """
@@ -175,7 +173,6 @@ def _prune_jobs():
 
 
 @ip_ratelimit(limit=20)
-@csrf_exempt
 @require_POST
 def ocr_pdf_stream(request):
     """
@@ -259,7 +256,6 @@ def ocr_pdf_progress(request, job_id):
     return JsonResponse({k: v for k, v in job.items() if not k.startswith('_')})
 
 
-@csrf_exempt
 @require_POST
 def extract_page(request):
     """
@@ -269,15 +265,17 @@ def extract_page(request):
     Returns: { text, excel_url, excel_name }
     """
     img_url = request.POST.get('img_url', '')
-    stem    = request.POST.get('stem', '')
+    stem    = re.sub(r'[^a-zA-Z0-9_\-]', '_', request.POST.get('stem', ''))[:60]
     page_no = request.POST.get('page', '1')
     lang    = request.POST.get('lang', 'eng')
 
     if not img_url or not stem:
         return JsonResponse({'error': 'Missing img_url or stem.'}, status=400)
 
-    img_name = img_url.split('/')[-1]
-    img_path = Path(settings.OUTPUT_DIR) / stem / img_name
+    img_name = Path(img_url.split('/')[-1]).name
+    img_path = (Path(settings.OUTPUT_DIR) / stem / img_name).resolve()
+    if not str(img_path).startswith(str(Path(settings.OUTPUT_DIR).resolve())):
+        return JsonResponse({'error': 'Invalid path.'}, status=400)
 
     if not img_path.exists():
         return JsonResponse({'error': f'Image not found: {img_name}'}, status=404)
@@ -482,8 +480,8 @@ def extract_page(request):
             'excel_url':  media_url(out_name),
             'excel_name': out_name,
         })
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    except Exception:
+        return JsonResponse({'error': 'OCR processing failed.'}, status=500)
 
 
 def _clean_amount(s):
@@ -678,7 +676,6 @@ def _extract_bank_table_by_coords(img, lang='eng'):
 
 
 @ip_ratelimit(limit=10)
-@csrf_exempt
 @require_POST
 def extract_page_ai(request):
     """
@@ -1020,18 +1017,10 @@ Rules:
             'fields':     extracted,
         })
 
-    except Exception as e:
-        import urllib.error as _ue
-        if isinstance(e, _ue.HTTPError):
-            try:
-                body = e.read().decode()
-            except Exception:
-                body = ''
-            return JsonResponse({'error': f'AI API {e.code}: {body[:300] or str(e)}'}, status=500)
-        return JsonResponse({'error': str(e)}, status=500)
+    except Exception:
+        return JsonResponse({'error': 'AI processing failed. Please try again.'}, status=500)
 
 
-@csrf_exempt
 @require_POST
 def extract_statement_summary(request):
     """
@@ -1040,13 +1029,15 @@ def extract_statement_summary(request):
     totals and closing balance.  Returns JSON + a formatted Excel download.
     POST: stem (img_folder name)
     """
-    stem = request.POST.get('stem', '').strip()
+    stem = re.sub(r'[^a-zA-Z0-9_\-]', '_', request.POST.get('stem', '').strip())[:60]
     if not stem:
         return JsonResponse({'error': 'Missing stem.'}, status=400)
 
-    img_dir = Path(settings.OUTPUT_DIR) / stem
+    img_dir = (Path(settings.OUTPUT_DIR) / stem).resolve()
+    if not str(img_dir).startswith(str(Path(settings.OUTPUT_DIR).resolve())):
+        return JsonResponse({'error': 'Invalid path.'}, status=400)
     if not img_dir.exists():
-        return JsonResponse({'error': f'Image folder not found: {stem}'}, status=404)
+        return JsonResponse({'error': 'Image folder not found.'}, status=404)
 
     # Collect all saved page images in order
     all_imgs = sorted(img_dir.glob('page_*.jpg'))
@@ -1232,7 +1223,6 @@ def extract_statement_summary(request):
 
 
 @ip_ratelimit(limit=5)
-@csrf_exempt
 @require_POST
 def extract_all_pages_excel(request):
     """
@@ -1240,13 +1230,15 @@ def extract_all_pages_excel(request):
     POST: stem, provider ('ocr' | 'ai')
     Returns: { excel_url, excel_name, pages }
     """
-    stem     = request.POST.get('stem', '').strip()
+    stem     = re.sub(r'[^a-zA-Z0-9_\-]', '_', request.POST.get('stem', '').strip())[:60]
     provider = request.POST.get('provider', 'ocr').lower()
 
     if not stem:
         return JsonResponse({'error': 'Missing stem.'}, status=400)
 
-    img_dir = Path(settings.OUTPUT_DIR) / stem
+    img_dir = (Path(settings.OUTPUT_DIR) / stem).resolve()
+    if not str(img_dir).startswith(str(Path(settings.OUTPUT_DIR).resolve())):
+        return JsonResponse({'error': 'Invalid path.'}, status=400)
     if not img_dir.exists():
         return JsonResponse({'error': 'Image folder not found.'}, status=404)
 
@@ -1446,7 +1438,6 @@ def extract_all_pages_excel(request):
     })
 
 
-@csrf_exempt
 @require_POST
 def crop_extract(request):
     """
@@ -1540,11 +1531,10 @@ def crop_extract(request):
             'excel_url':  media_url(out_name),
             'excel_name': out_name,
         })
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    except Exception:
+        return JsonResponse({'error': 'Statement extraction failed.'}, status=500)
 
 
-@csrf_exempt
 @require_POST
 def extract_invoice(request):
     """
@@ -1743,7 +1733,6 @@ def _parse_invoice(text):
     return data
 
 
-@csrf_exempt
 @require_POST
 def scan_to_pdf(request):
     """Convert uploaded images to a single PDF with optional page size."""
@@ -1761,6 +1750,8 @@ def scan_to_pdf(request):
 
     if not files:
         return JsonResponse({'error': 'No images uploaded.'}, status=400)
+    if len(files) > 50:
+        return JsonResponse({'error': 'Too many files. Maximum 50 images per scan.'}, status=400)
 
     saved_paths = []
     try:
@@ -1816,14 +1807,13 @@ def scan_to_pdf(request):
 
         save_job('scan_to_pdf', [f.name for f in files], [out_name], meta={'ocr': do_ocr, 'page_size': page_size})
         return JsonResponse({'download_url': media_url(out_name), 'filename': out_name})
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    except Exception:
+        return JsonResponse({'error': 'Scan to PDF failed. Ensure all images are valid.'}, status=500)
     finally:
         for sp in saved_paths:
             cleanup_file(sp)
 
 
-@csrf_exempt
 @require_POST
 def invoice_to_excel(request):
     """
@@ -2061,7 +2051,6 @@ def _mistral_vision_b64(img_b64, prompt):
 
 
 @ip_ratelimit(limit=10)
-@csrf_exempt
 @require_POST
 def extract_invoice_ai(request):
     """
@@ -2134,12 +2123,11 @@ Rules:
             merged['line_items'] = all_line_items
 
         return JsonResponse({'invoice': merged, 'raw_text': '\n---\n'.join(raw_texts)})
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    except Exception:
+        return JsonResponse({'error': 'Invoice extraction failed.'}, status=500)
 
 
 @ip_ratelimit(limit=10)
-@csrf_exempt
 @require_POST
 def smart_split_suggest(request):
     """
@@ -2183,13 +2171,12 @@ def smart_split_suggest(request):
         result = _json.loads(raw)
         result['total_pages'] = total
         return JsonResponse(result)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    except Exception:
+        return JsonResponse({'error': 'Split analysis failed.'}, status=500)
     finally:
         cleanup_file(saved_path)
 
 
-@csrf_exempt
 @require_POST
 def detect_blank_pages(request):
     """
@@ -2234,7 +2221,7 @@ def detect_blank_pages(request):
         total = doc.page_count
         doc.close()
         return JsonResponse({'blank': blank, 'near_blank': near_blank, 'duplicates': duplicates, 'total': total})
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    except Exception:
+        return JsonResponse({'error': 'Page detection failed.'}, status=500)
     finally:
         cleanup_file(saved_path)

@@ -5,7 +5,6 @@ from PIL import Image, ImageFilter
 import numpy as np
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 from apps.pdf_tools.utils import save_uploaded_file, get_output_path, media_url, cleanup_file
 
 logger = logging.getLogger(__name__)
@@ -24,7 +23,6 @@ def _apply_blue(img: Image.Image, intensity: float) -> Image.Image:
     return Image.fromarray(np.clip(blended, 0, 255).astype(np.uint8), 'RGB')
 
 
-@csrf_exempt
 @require_POST
 def photo_blue(request):
     f = request.FILES.get('file')

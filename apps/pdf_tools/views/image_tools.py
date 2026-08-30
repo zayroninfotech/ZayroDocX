@@ -5,7 +5,6 @@ import traceback
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 from apps.pdf_tools.utils import save_uploaded_file, get_output_path, media_url, cleanup_file, validate_image
 from django.conf import settings
 from apps.pdf_tools.mongo_db import save_job
@@ -24,7 +23,6 @@ def _open_image(path):
 
 # ── Compress IMAGE ────────────────────────────────────────────────────────────
 
-@csrf_exempt
 @require_POST
 def compress_image(request):
     f = request.FILES.get('file')
@@ -54,14 +52,13 @@ def compress_image(request):
         return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
         logger.error('compress_image: %s\n%s', e, traceback.format_exc())
-        return JsonResponse({'error': f'Compression failed: {e}'}, status=500)
+        return JsonResponse({'error': 'Compression failed. Ensure the file is a valid image.'}, status=500)
     finally:
         cleanup_file(saved_path)
 
 
 # ── Resize IMAGE ──────────────────────────────────────────────────────────────
 
-@csrf_exempt
 @require_POST
 def resize_image(request):
     f = request.FILES.get('file')
@@ -103,7 +100,6 @@ def resize_image(request):
 
 # ── Crop IMAGE ────────────────────────────────────────────────────────────────
 
-@csrf_exempt
 @require_POST
 def crop_image(request):
     f = request.FILES.get('file')
@@ -143,7 +139,6 @@ def crop_image(request):
 
 # ── Rotate IMAGE ──────────────────────────────────────────────────────────────
 
-@csrf_exempt
 @require_POST
 def rotate_image(request):
     f = request.FILES.get('file')
@@ -175,7 +170,6 @@ def rotate_image(request):
 
 # ── Convert to JPG ────────────────────────────────────────────────────────────
 
-@csrf_exempt
 @require_POST
 def convert_to_jpg(request):
     f = request.FILES.get('file')
@@ -205,7 +199,6 @@ def convert_to_jpg(request):
 
 # ── Convert from JPG ──────────────────────────────────────────────────────────
 
-@csrf_exempt
 @require_POST
 def convert_from_jpg(request):
     f = request.FILES.get('file')
@@ -239,7 +232,6 @@ def convert_from_jpg(request):
 
 # ── Watermark IMAGE ───────────────────────────────────────────────────────────
 
-@csrf_exempt
 @require_POST
 def watermark_image(request):
     f = request.FILES.get('file')
@@ -293,7 +285,6 @@ def watermark_image(request):
 
 # ── Meme Generator ────────────────────────────────────────────────────────────
 
-@csrf_exempt
 @require_POST
 def meme_generator(request):
     f = request.FILES.get('file')
@@ -347,7 +338,6 @@ def meme_generator(request):
 
 # ── Upscale IMAGE ─────────────────────────────────────────────────────────────
 
-@csrf_exempt
 @require_POST
 def upscale_image(request):
     f = request.FILES.get('file')
@@ -382,7 +372,6 @@ def upscale_image(request):
 
 # ── Remove Background ─────────────────────────────────────────────────────────
 
-@csrf_exempt
 @require_POST
 def remove_background(request):
     f = request.FILES.get('file')
@@ -414,7 +403,6 @@ def remove_background(request):
 
 # ── Blur Face ─────────────────────────────────────────────────────────────────
 
-@csrf_exempt
 @require_POST
 def blur_face(request):
     f = request.FILES.get('file')
@@ -495,7 +483,6 @@ def blur_face(request):
 
 # ── Image to Text OCR ─────────────────────────────────────────────────────────
 
-@csrf_exempt
 @require_POST
 def img_ocr(request):
     """

@@ -3,14 +3,12 @@ import logging
 import traceback
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 from apps.pdf_tools.utils import save_uploaded_file, get_output_path, media_url, cleanup_file, validate_pdf
 from apps.pdf_tools.mongo_db import save_job
 
 logger = logging.getLogger(__name__)
 
 
-@csrf_exempt
 @require_POST
 def protect_pdf(request):
     f = request.FILES.get('file')
@@ -35,12 +33,11 @@ def protect_pdf(request):
         return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
         logger.error('protect_pdf error: %s\n%s', e, traceback.format_exc())
-        return JsonResponse({'error': f'Protection failed: {e}'}, status=500)
+        return JsonResponse({'error': 'PDF protection failed. Ensure the file is a valid PDF.'}, status=500)
     finally:
         cleanup_file(saved_path)
 
 
-@csrf_exempt
 @require_POST
 def unlock_pdf(request):
     f = request.FILES.get('file')
@@ -65,12 +62,11 @@ def unlock_pdf(request):
         return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
         logger.error('unlock_pdf error: %s\n%s', e, traceback.format_exc())
-        return JsonResponse({'error': f'Unlock failed: {e}'}, status=500)
+        return JsonResponse({'error': 'Unlock failed. Ensure the file is a valid PDF and the password is correct.'}, status=500)
     finally:
         cleanup_file(saved_path)
 
 
-@csrf_exempt
 @require_POST
 def redact_pdf(request):
     """Redact occurrences of given text phrases from a PDF."""
@@ -109,6 +105,6 @@ def redact_pdf(request):
         return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
         logger.error('redact_pdf error: %s\n%s', e, traceback.format_exc())
-        return JsonResponse({'error': f'Redaction failed: {e}'}, status=500)
+        return JsonResponse({'error': 'Redaction failed. Ensure the file is a valid PDF.'}, status=500)
     finally:
         cleanup_file(saved_path)

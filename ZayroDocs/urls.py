@@ -8,10 +8,10 @@ from apps.dashboard.views import logout_view
 
 
 def _serve_output(request, path):
-    safe = os.path.normpath(path).lstrip('/\\')
-    if '..' in safe.split(os.sep):
+    outputs_root = os.path.realpath(os.path.join(settings.MEDIA_ROOT, 'outputs'))
+    full = os.path.realpath(os.path.join(outputs_root, path))
+    if not full.startswith(outputs_root + os.sep):
         raise Http404
-    full = os.path.join(settings.MEDIA_ROOT, 'outputs', safe)
     if not os.path.isfile(full):
         raise Http404
     mime, _ = mimetypes.guess_type(full)

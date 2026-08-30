@@ -2,11 +2,9 @@ import fitz
 import base64
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 from apps.pdf_tools.utils import save_uploaded_file, cleanup_file, validate_pdf
 
 
-@csrf_exempt
 @require_POST
 def pdf_thumbnails(request):
     f = request.FILES.get('file')

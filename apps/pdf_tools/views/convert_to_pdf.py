@@ -11,7 +11,6 @@ from io import BytesIO
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 from apps.pdf_tools.utils import save_uploaded_file, get_output_path, media_url, cleanup_file, validate_image, validate_office
 from apps.pdf_tools.mongo_db import save_job
 from apps.pdf_tools.utils import ip_ratelimit
@@ -19,7 +18,6 @@ from apps.pdf_tools.utils import ip_ratelimit
 logger = logging.getLogger(__name__)
 
 
-@csrf_exempt
 @require_POST
 def jpg_to_pdf(request):
     files = request.FILES.getlist('files')
@@ -63,7 +61,6 @@ def jpg_to_pdf(request):
             cleanup_file(sp)
 
 
-@csrf_exempt
 @require_POST
 def word_to_pdf(request):
     f = request.FILES.get('file')
@@ -91,7 +88,6 @@ def word_to_pdf(request):
         cleanup_file(saved_path)
 
 
-@csrf_exempt
 @require_POST
 def render_word_pages(request):
     """Convert Word file to PDF temporarily and render pages as base64 JPEG images."""
@@ -123,14 +119,13 @@ def render_word_pages(request):
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({'error': 'Conversion failed. Ensure the file is valid.'}, status=500)
     finally:
         cleanup_file(saved_path)
         if os.path.exists(tmp_pdf):
             os.remove(tmp_pdf)
 
 
-@csrf_exempt
 @require_POST
 def render_pptx_pages(request):
     """Convert PowerPoint file to PDF temporarily and render pages as base64 JPEG images."""
@@ -160,14 +155,13 @@ def render_pptx_pages(request):
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({'error': 'Conversion failed. Ensure the file is valid.'}, status=500)
     finally:
         cleanup_file(saved_path)
         if os.path.exists(tmp_pdf):
             os.remove(tmp_pdf)
 
 
-@csrf_exempt
 @require_POST
 def pptx_to_pdf(request):
     f = request.FILES.get('file')
@@ -193,7 +187,6 @@ def pptx_to_pdf(request):
         cleanup_file(saved_path)
 
 
-@csrf_exempt
 @require_POST
 def render_excel_pages(request):
     """Convert Excel file to PDF temporarily and render pages as base64 JPEG images."""
@@ -223,14 +216,13 @@ def render_excel_pages(request):
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({'error': 'Conversion failed. Ensure the file is valid.'}, status=500)
     finally:
         cleanup_file(saved_path)
         if os.path.exists(tmp_pdf):
             os.remove(tmp_pdf)
 
 
-@csrf_exempt
 @require_POST
 def excel_to_pdf(request):
     f = request.FILES.get('file')
@@ -257,7 +249,6 @@ def excel_to_pdf(request):
 
 
 @ip_ratelimit(limit=15)
-@csrf_exempt
 @require_POST
 def html_to_pdf(request):
     html_file = request.FILES.get('file')

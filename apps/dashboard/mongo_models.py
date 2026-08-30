@@ -4,7 +4,11 @@ Collections: tool_privileges, tool_usages, support_tickets, suggestions
 All indexes and seed data are created automatically.
 """
 import datetime
+import threading as _threading
 from apps.pdf_tools.mongo_db import get_db
+
+_seed_lock = _threading.Lock()
+_indexed: set = set()
 
 
 # ═══════════════════════════════ ToolPrivilege ════════════════════════════════
@@ -58,10 +62,12 @@ def _tool_privs():
     global _seeded
     db = get_db()
     col = db.tool_privileges
-    col.create_index('slug', unique=True, background=True)
     if not _seeded:
-        _seed_tools(col)
-        _seeded = True
+        with _seed_lock:
+            if not _seeded:
+                col.create_index('slug', unique=True, background=True)
+                _seed_tools(col)
+                _seeded = True
     return col
 
 
@@ -108,7 +114,9 @@ def count_tools():
 def _tool_usages():
     db = get_db()
     col = db.tool_usages
-    col.create_index([('user_id', 1), ('tool_slug', 1), ('date', 1)], unique=True, background=True)
+    if 'tool_usages' not in _indexed:
+        col.create_index([('user_id', 1), ('tool_slug', 1), ('date', 1)], unique=True, background=True)
+        _indexed.add('tool_usages')
     return col
 
 
@@ -132,8 +140,10 @@ def record_tool_usage(user_id, slug):
 def _tickets():
     db = get_db()
     col = db.support_tickets
-    col.create_index('created_at', background=True)
-    col.create_index('status', background=True)
+    if 'support_tickets' not in _indexed:
+        col.create_index('created_at', background=True)
+        col.create_index('status', background=True)
+        _indexed.add('support_tickets')
     return col
 
 
@@ -168,8 +178,10 @@ def update_ticket_status(ticket_id, status):
 def _suggestions():
     db = get_db()
     col = db.suggestions
-    col.create_index('created_at', background=True)
-    col.create_index('status', background=True)
+    if 'suggestions' not in _indexed:
+        col.create_index('created_at', background=True)
+        col.create_index('status', background=True)
+        _indexed.add('suggestions')
     return col
 
 
@@ -192,3 +204,15 @@ def create_suggestion(user_id, user_email, title, description, category):
 
 def get_all_suggestions():
     return list(_suggestions().find({}).sort('created_at', -1))
+
+
+def update_suggestion_status(suggestion_id, status, admin_notes=''):
+    from bson import ObjectId
+    _suggestions().update_one(
+        {'_id': ObjectId(suggestion_id)},
+        {'$set': {
+            'status': status,
+            'admin_notes': admin_notes,
+            'updated_at': datetime.datetime.utcnow(),
+        }}
+    )

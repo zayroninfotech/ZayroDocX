@@ -244,12 +244,7 @@
   /* ── backdrop click closes ── */
   document.querySelectorAll('.zp-overlay').forEach(function(overlay){
     overlay.addEventListener('click', function(e){
-      if(e.target === overlay){
-        var id = overlay.id;
-        closePopup(id);
-        if(id === 'loginPopup') sessionStorage.setItem(SK_LOGIN, '1');
-        if(id === 'signupPopup') sessionStorage.setItem(SK_SIGNUP, '1');
-      }
+      if(e.target === overlay) closePopup(overlay.id);
     });
   });
 
@@ -257,11 +252,7 @@
   document.addEventListener('keydown', function(e){
     if(e.key !== 'Escape') return;
     var open = document.querySelector('.zp-overlay.zp-open');
-    if(open){
-      closePopup(open.id);
-      if(open.id === 'loginPopup') sessionStorage.setItem(SK_LOGIN, '1');
-      if(open.id === 'signupPopup') sessionStorage.setItem(SK_SIGNUP, '1');
-    }
+    if(open) closePopup(open.id);
   });
 
   /* ── AJAX helper ── */
@@ -343,28 +334,49 @@
     if(e.key === 'Enter') loginBtn && loginBtn.click();
   });
 
-  /* ── Auto-show logic ── */
+  /* ── Auto-show logic — repeats every REDISPLAY_DELAY until logged in ── */
+  var REDISPLAY_DELAY = {{ popup_config.redisplay_delay_ms }};
   var path = window.location.pathname;
   var skipAll = ['/login/', '/register/', '/about/', '/tools/guest/'];
   if(skipAll.indexOf(path) !== -1) return;
 
-  if(path === '/'){
-    /* Signup popup — landing page, once per session */
-    if(!sessionStorage.getItem(SK_SIGNUP)){
-      setTimeout(function(){
-        sessionStorage.setItem(SK_SIGNUP, '1');
-        openPopup('signupPopup');
-      }, INITIAL_DELAY);
-    }
-  } else {
-    /* Login popup — dashboard + tool pages, once per session */
-    if(!sessionStorage.getItem(SK_LOGIN)){
-      setTimeout(function(){
-        sessionStorage.setItem(SK_LOGIN, '1');
-        openPopup('loginPopup');
-      }, INITIAL_DELAY);
-    }
+  var popupId = (path === '/') ? 'signupPopup' : 'loginPopup';
+  var autoTimer = null;
+
+  function scheduleShow(delay){
+    clearTimeout(autoTimer);
+    autoTimer = setTimeout(function(){
+      /* Only show if no popup is already open */
+      if(!document.querySelector('.zp-overlay.zp-open')){
+        openPopup(popupId);
+      }
+      /* Schedule next re-show after dismiss — handled by close hooks below */
+    }, delay);
   }
+
+  /* Hook into every close action to reschedule */
+  function onDismiss(id){
+    if(id !== popupId) return;
+    scheduleShow(REDISPLAY_DELAY);
+  }
+
+  /* Override close buttons to also reschedule */
+  document.querySelectorAll('[data-close]').forEach(function(btn){
+    btn.addEventListener('click', function(){ onDismiss(btn.dataset.close); });
+  });
+  document.querySelectorAll('.zp-overlay').forEach(function(overlay){
+    overlay.addEventListener('click', function(e){
+      if(e.target === overlay) onDismiss(overlay.id);
+    });
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Escape') return;
+    var open = document.querySelector('.zp-overlay.zp-open');
+    if(open) onDismiss(open.id);
+  });
+
+  /* First show after INITIAL_DELAY */
+  scheduleShow(INITIAL_DELAY);
 
 })();
 </script>

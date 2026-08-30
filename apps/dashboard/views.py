@@ -9,7 +9,7 @@ from apps.dashboard.mongo_auth import (
 )
 from apps.dashboard.mongo_models import (
     get_tool_privs_map, get_all_tool_privs, toggle_tool_priv,
-    create_ticket, create_suggestion, get_all_suggestions,
+    create_ticket, create_suggestion, get_all_suggestions, update_suggestion_status,
 )
 from apps.pdf_tools.mongo_db import get_recent_jobs, get_stats
 
@@ -159,4 +159,12 @@ def submit_suggestion(request):
 @_superadmin_required
 @require_POST
 def update_suggestion(request, pk):
-    return JsonResponse({'ok': True})
+    status = request.POST.get('status', '').strip()
+    admin_notes = request.POST.get('admin_notes', '').strip()
+    if not status:
+        return JsonResponse({'ok': False, 'error': 'Status is required.'}, status=400)
+    try:
+        update_suggestion_status(pk, status, admin_notes)
+        return JsonResponse({'ok': True})
+    except Exception:
+        return JsonResponse({'ok': False, 'error': 'Update failed.'}, status=500)

@@ -1,5 +1,5 @@
 import os, time, uuid, string, random, mimetypes
-from django.http import JsonResponse, HttpResponse, Http404
+from django.http import JsonResponse, HttpResponse, Http404, FileResponse
 from django.views.decorators.csrf import csrf_exempt
 from apps.pdf_tools.mongo_models import (
     cs_create_room, cs_room_exists, cs_get_room, cs_cleanup_old,
@@ -8,7 +8,8 @@ from apps.pdf_tools.mongo_models import (
 )
 
 MAX_FILE_MB = 50
-TEMP_DIR = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'tmp_cs')
+from django.conf import settings as _settings
+TEMP_DIR = str(getattr(_settings, 'TMP_CS_DIR', os.path.join(os.path.dirname(__file__), '..', '..', '..', 'tmp_cs')))
 
 
 def _ensure_tmp():
@@ -25,10 +26,14 @@ def create_room(request):
         return JsonResponse({'error': 'POST required'}, status=405)
     cs_cleanup_old()
     peer_id = str(uuid.uuid4())[:8]
+    code = None
     for _ in range(30):
-        code = _gen_code()
-        if not cs_room_exists(code):
+        c = _gen_code()
+        if not cs_room_exists(c):
+            code = c
             break
+    if code is None:
+        return JsonResponse({'error': 'Could not create room. Please try again.'}, status=503)
     room = cs_create_room(code)
     cs_add_peer(room['_id'], peer_id)
     return JsonResponse({'code': code, 'peer_id': peer_id})
@@ -105,9 +110,7 @@ def download_file(request, file_id):
     if not os.path.exists(entry['file_path']):
         raise Http404
     ct, _ = mimetypes.guess_type(entry['name'])
-    with open(entry['file_path'], 'rb') as fh:
-        data = fh.read()
-    resp = HttpResponse(data, content_type=ct or 'application/octet-stream')
-    safe = entry['name'].replace('"', '')
+    safe = entry['name'].replace('"', '').replace('\n', '').replace('\r', '')
+    resp = FileResponse(open(entry['file_path'], 'rb'), content_type=ct or 'application/octet-stream')
     resp['Content-Disposition'] = f'attachment; filename="{safe}"'
     return resp

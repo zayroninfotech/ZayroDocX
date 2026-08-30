@@ -79,7 +79,7 @@ PLAN_TOOLS = {
 # Change here — propagates to every page via the auth_context processor.
 
 POPUP_CONFIG = {
-    'initial_delay_ms':       2_000,  # first show: 2 s after page load
-    'redisplay_delay_ms':   300_000,  # re-show: 5 min after each dismiss
-    'max_shows_per_session':      3,  # stop after 3 dismissals per browser tab
+    'initial_delay_ms':      10_000,  # first show: 10 s after page load
+    'redisplay_delay_ms':    10_000,  # re-show: 10 s after each dismiss
+    'max_shows_per_session':   9999,  # effectively unlimited until login
 }

@@ -170,6 +170,19 @@ import functools
 _rl_lock = _threading.Lock()
 _rl_store: dict = {}   # ip → [timestamps]
 _RL_WINDOW = 60        # seconds
+_rl_last_prune = 0.0
+_RL_PRUNE_EVERY = 300  # prune stale IPs every 5 minutes
+
+
+def _prune_rl_store(now):
+    global _rl_last_prune
+    if now - _rl_last_prune < _RL_PRUNE_EVERY:
+        return
+    cutoff = now - _RL_WINDOW
+    stale = [ip for ip, hits in _rl_store.items() if not any(t > cutoff for t in hits)]
+    for ip in stale:
+        del _rl_store[ip]
+    _rl_last_prune = now
 
 
 def ip_ratelimit(limit=20, window=_RL_WINDOW):
@@ -186,6 +199,7 @@ def ip_ratelimit(limit=20, window=_RL_WINDOW):
             now = _rl_time.monotonic()
             cutoff = now - window
             with _rl_lock:
+                _prune_rl_store(now)
                 hits = [t for t in _rl_store.get(ip, []) if t > cutoff]
                 if len(hits) >= limit:
                     return JsonResponse(

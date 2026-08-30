@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import warnings
 
 load_dotenv()
 
@@ -9,7 +10,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 _default_secret = 'ZayroDocX-secret-key-change-in-production-2024'
 SECRET_KEY = os.getenv('SECRET_KEY', _default_secret)
 if SECRET_KEY == _default_secret:
-    import warnings
     warnings.warn('SECRET_KEY is using the insecure default. Set SECRET_KEY in your .env file!', stacklevel=2)
 
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
@@ -48,7 +48,6 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'apps.dashboard.context_processors.auth_context',
             ],
@@ -123,8 +122,9 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600   # 100 MB
 FILE_UPLOAD_PERMISSIONS = 0o644
 
 # Upload/output directories
-UPLOAD_DIR = MEDIA_ROOT / 'uploads'
-OUTPUT_DIR = MEDIA_ROOT / 'outputs'
+UPLOAD_DIR  = MEDIA_ROOT / 'uploads'
+OUTPUT_DIR  = MEDIA_ROOT / 'outputs'
+TMP_CS_DIR  = BASE_DIR / 'tmp_cs'     # ConnectSpace live-share temp files
 
 # ── Django logging (Layer 7 — Audit trail) ──
 LOGGING = {

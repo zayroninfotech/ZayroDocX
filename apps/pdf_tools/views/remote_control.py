@@ -21,11 +21,15 @@ def rc_create(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
     rc_cleanup_old()
+    code = None
     for _ in range(30):
-        code = _gen_code()
-        if not rc_room_exists(code):
+        c = _gen_code()
+        if not rc_room_exists(c):
+            code = c
             break
-    room = rc_create_room(code)
+    if code is None:
+        return JsonResponse({'error': 'Could not create session. Please try again.'}, status=503)
+    rc_create_room(code)
     return JsonResponse({'code': code, 'display': _fmt(code)})
 
 
@@ -53,6 +57,8 @@ def rc_answer(request):
     data = json.loads(request.body)
     code = data.get('code', '').replace('-', '')
     sdp  = data.get('sdp')
+    if not sdp:
+        return JsonResponse({'error': 'SDP is required.'}, status=400)
     if not rc_set_answer(code, sdp):
         return JsonResponse({'error': 'Session not found.'}, status=404)
     return JsonResponse({'ok': True})

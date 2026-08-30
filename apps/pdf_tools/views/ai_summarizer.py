@@ -9,7 +9,6 @@ from PIL import Image, ImageEnhance
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 from apps.pdf_tools.utils import save_uploaded_file, cleanup_file, validate_pdf
 
 logger = logging.getLogger(__name__)
@@ -78,7 +77,6 @@ def _openai_summarize(text):
     return response.choices[0].message.content.strip()
 
 
-@csrf_exempt
 @require_POST
 def summarize_pdf(request):
     f = request.FILES.get('file')
@@ -104,12 +102,11 @@ def summarize_pdf(request):
         return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
         logger.error('summarize_pdf error: %s\n%s', e, traceback.format_exc())
-        return JsonResponse({'error': f'Summarization failed: {e}'}, status=500)
+        return JsonResponse({'error': 'Summarization failed. Ensure the file is a valid PDF with extractable text.'}, status=500)
     finally:
         cleanup_file(saved_path)
 
 
-@csrf_exempt
 @require_POST
 def render_pdf_pages(request):
     """Render PDF pages as base64 JPEG images for preview."""
@@ -135,6 +132,6 @@ def render_pdf_pages(request):
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({'error': 'Preview generation failed. Ensure the file is a valid PDF.'}, status=500)
     finally:
         cleanup_file(saved_path)

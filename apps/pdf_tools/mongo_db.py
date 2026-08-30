@@ -1,10 +1,12 @@
 import logging
+import threading
 import pymongo
 from django.conf import settings
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+_lock = threading.Lock()
 _client = None
 _db = None
 
@@ -12,8 +14,10 @@ _db = None
 def get_db():
     global _client, _db
     if _db is None:
-        _client = pymongo.MongoClient(settings.MONGO_URI, serverSelectionTimeoutMS=3000)
-        _db = _client[settings.MONGO_DB_NAME]
+        with _lock:
+            if _db is None:
+                _client = pymongo.MongoClient(settings.MONGO_URI, serverSelectionTimeoutMS=3000)
+                _db = _client[settings.MONGO_DB_NAME]
     return _db
 
 

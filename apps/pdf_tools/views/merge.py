@@ -1,12 +1,10 @@
 import fitz
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 from apps.pdf_tools.utils import save_uploaded_file, get_output_path, media_url, cleanup_file, validate_pdf
 from apps.pdf_tools.mongo_db import save_job
 
 
-@csrf_exempt
 @require_POST
 def merge_pdf(request):
     files = request.FILES.getlist('files')

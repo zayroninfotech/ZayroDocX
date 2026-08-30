@@ -8,6 +8,8 @@ import time
 import datetime
 from bson import ObjectId
 
+_indexed: set = set()
+
 
 def _get_db():
     from apps.pdf_tools.mongo_db import get_db
@@ -19,23 +21,29 @@ def _get_db():
 def _cs_rooms():
     db = _get_db()
     col = db.cs_rooms
-    col.create_index('code', unique=True, background=True)
-    col.create_index('created', background=True)
+    if 'cs_rooms' not in _indexed:
+        col.create_index('code', unique=True, background=True)
+        col.create_index('created', background=True)
+        _indexed.add('cs_rooms')
     return col
 
 
 def _cs_peers():
     db = _get_db()
     col = db.cs_peers
-    col.create_index('room_id', background=True)
+    if 'cs_peers' not in _indexed:
+        col.create_index('room_id', background=True)
+        _indexed.add('cs_peers')
     return col
 
 
 def _cs_files():
     db = _get_db()
     col = db.cs_files
-    col.create_index('room_id', background=True)
-    col.create_index('ts', background=True)
+    if 'cs_files' not in _indexed:
+        col.create_index('room_id', background=True)
+        col.create_index('ts', background=True)
+        _indexed.add('cs_files')
     return col
 
 
@@ -115,17 +123,21 @@ def cs_cleanup_old():
 def _rc_rooms():
     db = _get_db()
     col = db.rc_rooms
-    col.create_index('code', unique=True, background=True)
-    col.create_index('created', background=True)
+    if 'rc_rooms' not in _indexed:
+        col.create_index('code', unique=True, background=True)
+        col.create_index('created', background=True)
+        _indexed.add('rc_rooms')
     return col
 
 
 def _rc_commands():
     db = _get_db()
     col = db.rc_commands
-    col.create_index('room_id', background=True)
-    col.create_index('consumed', background=True)
-    col.create_index('ts', background=True)
+    if 'rc_commands' not in _indexed:
+        col.create_index('room_id', background=True)
+        col.create_index('consumed', background=True)
+        col.create_index('ts', background=True)
+        _indexed.add('rc_commands')
     return col
 
 
@@ -210,8 +222,10 @@ def rc_get_pending_commands(room_id):
 def _eye_rooms():
     db = _get_db()
     col = db.eye_rooms
-    col.create_index('code', unique=True, background=True)
-    col.create_index('created', background=True)
+    if 'eye_rooms' not in _indexed:
+        col.create_index('code', unique=True, background=True)
+        col.create_index('created', background=True)
+        _indexed.add('eye_rooms')
     return col
 
 
