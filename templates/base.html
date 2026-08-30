@@ -15,6 +15,9 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   {% block extra_head %}{% endblock %}
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script>/* Apply saved theme before first paint */
+  (function(){var t=localStorage.getItem('zdx-theme');if(t)document.documentElement.setAttribute('data-theme',t);})();
+  </script>
 </head>
 
 <body>
@@ -453,6 +456,11 @@
         <a href="#" class="mh-signup-btn" onclick="event.preventDefault();openZpPopup('signupPopup')">Get Started Free</a>
         {% endif %}
 
+        <!-- Dark/Light mode toggle -->
+        <button class="mh-theme-btn" id="mhThemeToggle" aria-label="Toggle dark/light mode" title="Toggle dark mode">
+          <i class="fa-solid fa-moon" id="mhThemeIcon"></i>
+        </button>
+
         <!-- Mobile hamburger -->
         <button class="mh-hamburger" id="mhHamburger" aria-label="Menu">
           <i class="fa-solid fa-bars"></i>
@@ -637,6 +645,26 @@
   })();
 </script>
   {% block extra_js %}{% endblock %}
+
+  <script>
+  (function(){
+    function zdxApplyTheme(theme){
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('zdx-theme', theme);
+      var icon = document.getElementById('mhThemeIcon');
+      if(icon) icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    }
+    var saved = localStorage.getItem('zdx-theme') || 'light';
+    zdxApplyTheme(saved);
+    var btn = document.getElementById('mhThemeToggle');
+    if(btn){
+      btn.addEventListener('click', function(){
+        var current = document.documentElement.getAttribute('data-theme') || 'light';
+        zdxApplyTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+  </script>
 
   {% include 'partials/_auth_popup.html' %}
 

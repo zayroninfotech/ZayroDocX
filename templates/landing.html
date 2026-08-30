@@ -53,6 +53,27 @@
   --max-w: 1200px;
 }
 
+/* ── Dark mode tokens ─────────────────────────────────── */
+[data-theme="dark"]{
+  --bg:#0F0F0F;
+  --surface:#141414;
+  --surface-raised:#1C1C1C;
+  --border:#2A2A2A;
+  --border-strong:#3E3E3E;
+  --text:#EDEDED;
+  --text-secondary:#A0A0A0;
+  --text-tertiary:#5A5A5A;
+  --accent:#E53935;
+  --accent-hover:#EF5350;
+  --accent-tint:#1E1110;
+  --accent-glow:rgba(229,57,53,0.2);
+  --hero-grad:#0F0F0F;
+  --shadow-xs:0 1px 2px rgba(0,0,0,0.5);
+  --shadow-sm:0 2px 6px rgba(0,0,0,0.55);
+  --shadow-md:0 8px 24px rgba(0,0,0,0.55);
+  --shadow-lg:0 20px 50px rgba(0,0,0,0.6);
+}
+
 @media (prefers-reduced-motion: reduce){
   *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
 }
@@ -152,9 +173,10 @@ h1{ letter-spacing:-0.04em; }
    ============================================================ */
 .ln-nav-wrap{
   position:fixed; top:0; left:0; right:0; z-index:200;
-  background:#ffffff;
+  background:var(--bg);
   border-bottom:1px solid var(--border);
   box-shadow:0 1px 4px rgba(0,0,0,0.05);
+  transition:background .25s, border-color .25s;
 }
 body{ padding-top:60px; }
 .ln-nav{
@@ -173,17 +195,27 @@ body{ padding-top:60px; }
 .ln-logo-3d .part-docx{ color:var(--accent); }
 .ln-nav-btns{ display:flex; gap:8px; align-items:center; }
 
+/* Theme toggle button */
+.theme-toggle-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:36px; height:36px; border-radius:8px; border:1.5px solid var(--border-strong);
+  background:var(--surface); color:var(--text-secondary);
+  cursor:pointer; transition:background .15s, color .15s, border-color .15s;
+  font-size:15px; padding:0;
+}
+.theme-toggle-btn:hover{ background:var(--surface-raised); color:var(--text); border-color:var(--text-secondary); }
+
 /* Nav buttons — rounded corners, matching reference style */
 .btn-login{
   display:inline-flex; align-items:center; justify-content:center;
   font-family:var(--font-body); font-weight:500; font-size:14px;
   padding:8px 20px; border-radius:8px;
-  background:#fff; color:var(--text); border:1.5px solid #D1D5DB;
-  transition:border-color .15s, background .15s;
+  background:var(--surface); color:var(--text); border:1.5px solid var(--border-strong);
+  transition:border-color .15s, background .15s, color .15s;
   white-space:nowrap;
   text-decoration:none; line-height:1.4;
 }
-.btn-login:hover{ border-color:#9CA3AF; background:#F9FAFB; }
+.btn-login:hover{ border-color:var(--text-secondary); background:var(--surface-raised); }
 .btn-register{
   display:inline-flex; align-items:center; justify-content:center;
   font-family:var(--font-body); font-weight:700; font-size:14px;
@@ -201,9 +233,10 @@ body{ padding-top:60px; }
    ============================================================ */
 .hero{
   padding:56px 0 64px; position:relative;
-  background:#FFFFFF;
+  background:var(--bg);
   border-bottom:1px solid var(--border);
   overflow:hidden;
+  transition:background .25s;
 }
 .hero::before{ display:none; }
 .hero::after{ display:none; }
@@ -212,7 +245,7 @@ body{ padding-top:60px; }
 .hero h1{
   font-family:'Poppins', 'Space Grotesk', sans-serif;
   font-size:64px; line-height:1.15; margin:14px 0 22px; max-width:620px;
-  font-weight:700; letter-spacing:-0.01em; color:#111111;
+  font-weight:700; letter-spacing:-0.01em; color:var(--text);
 }
 .hero h1 .accent-text{ color:#E53935; }
 .hero h1 .accent-text::after{ display:none; }
@@ -259,11 +292,12 @@ body{ padding-top:60px; }
 }
 
 .ln-float-badge{
-  position:absolute; background:#fff; border-radius:4px;
-  padding:.5rem 1rem; box-shadow:0 2px 12px rgba(0,0,0,.10);
+  position:absolute; background:var(--surface); border-radius:4px;
+  padding:.5rem 1rem; box-shadow:0 2px 12px rgba(0,0,0,.15);
   display:flex; align-items:center; gap:.5rem;
-  font-size:.75rem; font-weight:700; color:#111; z-index:2; white-space:nowrap;
+  font-size:.75rem; font-weight:700; color:var(--text); z-index:2; white-space:nowrap;
   border:1px solid var(--border);
+  transition:background .25s, color .25s, border-color .25s;
 }
 .ln-float-badge i{ font-size:.9rem; }
 .ln-float-badge.b1{ top:10%; left:-5%; }
@@ -492,6 +526,13 @@ section{ padding:64px 0; }
 <base target="_blank">
 </head>
 <body>
+<script>
+/* Apply saved theme before first paint — prevents flash */
+(function(){
+  var t = localStorage.getItem('zdx-theme');
+  if(t) document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
 
 <!-- ===================== HEADER ===================== -->
 <div class="ln-nav-wrap" id="mainNav">
@@ -500,6 +541,9 @@ section{ padding:64px 0; }
     <div class="ln-logo-3d"><span class="part-zayro">Zayro</span><span class="part-docx">DocX</span></div>
   </a>
   <div class="ln-nav-btns">
+    <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle dark/light mode" title="Toggle dark mode">
+      <i class="fa-solid fa-moon" id="themeIcon"></i>
+    </button>
     <a href="#" class="btn-login" onclick="event.preventDefault();openZpPopup('loginPopup')">Login</a>
     <a href="#" class="btn-register" onclick="event.preventDefault();openZpPopup('signupPopup')">Get Started Free</a>
   </div>
@@ -869,8 +913,30 @@ if (io) {
 
 {% include 'partials/_auth_popup.html' %}
 
+<!-- ── Theme Toggle ── -->
+<script>
+(function(){
+  function applyTheme(theme){
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('zdx-theme', theme);
+    var icon = document.getElementById('themeIcon');
+    if(icon) icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+  }
+  /* Set initial icon to match stored / default theme */
+  var saved = localStorage.getItem('zdx-theme') || 'light';
+  applyTheme(saved);
+  var btn = document.getElementById('themeToggle');
+  if(btn){
+    btn.addEventListener('click', function(){
+      var current = document.documentElement.getAttribute('data-theme') || 'light';
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+  }
+})();
+</script>
+
 <!-- ── Page Loader ── -->
-<div id="globalLoader" style="display:flex;position:fixed;inset:0;z-index:9999;background:#fff;align-items:center;justify-content:center;flex-direction:column;gap:22px;">
+<div id="globalLoader" style="display:flex;position:fixed;inset:0;z-index:9999;background:var(--bg);align-items:center;justify-content:center;flex-direction:column;gap:22px;">
   <div class="zl-if-wrap" id="zlIfWrap">
     <span class="zl-if-base">ZayroDocX</span>
     <span class="zl-if-fill"><span class="zl-zayro">Zayro</span><span class="zl-docx">DocX</span></span>
@@ -884,12 +950,12 @@ if (io) {
   font-size:clamp(28px,5vw,48px); font-weight:800; letter-spacing:-0.03em;
   white-space:nowrap;
 }
-.zl-if-base{ color:#D3D3CF; }
+.zl-if-base{ color:var(--border-strong); }
 .zl-if-fill{
   position:absolute; inset:0; overflow:hidden; width:0%;
   white-space:nowrap;
 }
-.zl-zayro{ color:#0A0A0A; }
+.zl-zayro{ color:var(--text); }
 .zl-docx{ color:#E53935; }
 .zl-if-wrap.run .zl-if-fill{ animation:zlIfWipe 1.4s cubic-bezier(.65,0,.35,1) forwards; }
 @keyframes zlIfWipe{ to{ width:100%; } }
