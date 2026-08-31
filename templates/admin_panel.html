@@ -146,6 +146,14 @@
       <div class="ap-stat-num">{{ new_suggestion_count }}</div>
       <div class="ap-stat-lbl"><i class="fa-solid fa-lightbulb"></i> New Suggestions</div>
     </div>
+    <div class="ap-stat">
+      <div class="ap-stat-num">{{ visitor_stats.active_now }}</div>
+      <div class="ap-stat-lbl"><i class="fa-solid fa-circle" style="color:#22c55e;font-size:.6rem"></i> Active Now</div>
+    </div>
+    <div class="ap-stat">
+      <div class="ap-stat-num">{{ visitor_stats.today }}</div>
+      <div class="ap-stat-lbl"><i class="fa-solid fa-eye"></i> Visitors Today</div>
+    </div>
   </div>
 
   <!-- Tabs -->
@@ -154,6 +162,7 @@
     <div class="ap-tab" onclick="showTab('users',this)"><i class="fa-solid fa-users"></i> Users ({{ total_users }})</div>
     <div class="ap-tab" onclick="showTab('tickets',this)"><i class="fa-solid fa-headset"></i> Support Tickets ({{ tickets|length }})</div>
     <div class="ap-tab" onclick="showTab('suggestions',this)"><i class="fa-solid fa-lightbulb"></i> Suggestions ({{ suggestions|length }})</div>
+    <div class="ap-tab" onclick="showTab('visitors',this)"><i class="fa-solid fa-eye"></i> Visitor Sessions ({{ visitor_stats.total }})</div>
   </div>
 
   <!-- Tool Privileges -->
@@ -299,6 +308,72 @@
         <button class="ap-modal-save" id="sgModalSaveBtn" onclick="saveSuggestion()">Save changes</button>
         <span class="ap-modal-saved" id="sgModalSaved"><i class="fa-solid fa-check"></i> Saved</span>
       </div>
+    </div>
+  </div>
+
+  <!-- Visitor Sessions -->
+  <div class="ap-section" id="tab-visitors">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1rem;">
+      <div class="ap-stat" style="flex:1;min-width:120px;">
+        <div class="ap-stat-num">{{ visitor_stats.total }}</div>
+        <div class="ap-stat-lbl"><i class="fa-solid fa-globe"></i> Total Sessions</div>
+      </div>
+      <div class="ap-stat" style="flex:1;min-width:120px;">
+        <div class="ap-stat-num">{{ visitor_stats.today }}</div>
+        <div class="ap-stat-lbl"><i class="fa-solid fa-calendar-day"></i> Today</div>
+      </div>
+      <div class="ap-stat" style="flex:1;min-width:120px;">
+        <div class="ap-stat-num" style="color:#22c55e;">{{ visitor_stats.active_now }}</div>
+        <div class="ap-stat-lbl"><i class="fa-solid fa-circle" style="color:#22c55e;font-size:.6rem"></i> Active (last 15 min)</div>
+      </div>
+      <div class="ap-stat" style="flex:1;min-width:120px;">
+        <div class="ap-stat-num">{{ visitor_stats.guests }}</div>
+        <div class="ap-stat-lbl"><i class="fa-solid fa-user-slash"></i> Guest Sessions</div>
+      </div>
+      <div class="ap-stat" style="flex:1;min-width:120px;">
+        <div class="ap-stat-num">{{ visitor_stats.logged_in }}</div>
+        <div class="ap-stat-lbl"><i class="fa-solid fa-user-check"></i> Logged-In Sessions</div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="ap-users-table">
+        <thead>
+          <tr>
+            <th>IP Address</th>
+            <th>User</th>
+            <th>Pages Viewed</th>
+            <th>Last Page</th>
+            <th>Started At</th>
+            <th>Last Seen</th>
+            <th>User Agent</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in recent_sessions %}
+          <tr>
+            <td><code style="font-size:.78rem;">{{ s.ip }}</code></td>
+            <td>
+              {% if s.username %}
+                <span style="color:#dc2626;font-weight:600;">{{ s.username }}</span>
+              {% else %}
+                <span style="color:#9ca3af;">Guest</span>
+              {% endif %}
+            </td>
+            <td style="text-align:center;font-weight:700;">{{ s.page_views }}</td>
+            <td>
+              {% if s.pages_visited %}
+                <code style="font-size:.75rem;color:#6b7280;">{{ s.pages_visited|last }}</code>
+              {% endif %}
+            </td>
+            <td style="font-size:.78rem;color:#6b7280;white-space:nowrap;">{{ s.started_at|date:"d M Y H:i" }}</td>
+            <td style="font-size:.78rem;color:#6b7280;white-space:nowrap;">{{ s.last_seen|date:"d M Y H:i" }}</td>
+            <td style="font-size:.72rem;color:#9ca3af;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ s.user_agent }}">{{ s.user_agent|truncatechars:60 }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:2rem;">No visitor sessions recorded yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
 

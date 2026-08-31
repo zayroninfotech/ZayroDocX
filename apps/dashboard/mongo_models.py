@@ -206,6 +206,100 @@ def get_all_suggestions():
     return list(_suggestions().find({}).sort('created_at', -1))
 
 
+# ═══════════════════════════════ VisitorSession ═══════════════════════════════
+
+def _visitor_sessions():
+    db = get_db()
+    col = db.visitor_sessions
+    if 'visitor_sessions' not in _indexed:
+        col.create_index('session_key', unique=True, background=True)
+        col.create_index('started_at', background=True)
+        col.create_index('last_seen', background=True)
+        col.create_index('ip', background=True)
+        _indexed.add('visitor_sessions')
+    return col
+
+
+def upsert_visitor_session(session_key, ip, user_agent, path, username=None):
+    """
+    Create a new visitor session record or update an existing one.
+    Called automatically on every page request via VisitorSessionMiddleware.
+    """
+    now = datetime.datetime.utcnow()
+    col = _visitor_sessions()
+
+    existing = col.find_one({'session_key': session_key})
+    if existing is None:
+        col.insert_one({
+            'session_key':   session_key,
+            'ip':            ip,
+            'user_agent':    user_agent,
+            'username':      username,
+            'is_guest':      username is None,
+            'started_at':    now,
+            'last_seen':     now,
+            'page_views':    1,
+            'pages_visited': [path],
+        })
+    else:
+        pages = existing.get('pages_visited', [])
+        if path not in pages:
+            pages.append(path)
+        col.update_one({'session_key': session_key}, {
+            '$set': {
+                'last_seen':     now,
+                'username':      username,
+                'is_guest':      username is None,
+                'pages_visited': pages,
+            },
+            '$inc': {'page_views': 1},
+        })
+
+
+def get_visitor_sessions(limit=200):
+    return list(_visitor_sessions().find({}).sort('last_seen', -1).limit(limit))
+
+
+def get_visitor_stats():
+    """Summary counts for the admin panel."""
+    col = _visitor_sessions()
+    now = datetime.datetime.utcnow()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    active_cutoff = now - datetime.timedelta(minutes=15)
+
+    total       = col.count_documents({})
+    today       = col.count_documents({'started_at': {'$gte': today_start}})
+    active_now  = col.count_documents({'last_seen':  {'$gte': active_cutoff}})
+    guests      = col.count_documents({'is_guest': True})
+    logged_in   = col.count_documents({'is_guest': False})
+
+    return {
+        'total':      total,
+        'today':      today,
+        'active_now': active_now,
+        'guests':     guests,
+        'logged_in':  logged_in,
+    }
+
+
+# ═══════════════════════════════ Startup Init ═════════════════════════════════
+
+def ensure_collections():
+    """
+    Eagerly create all MongoDB collections and their indexes at Django startup.
+    Called from DashboardConfig.ready() so collections exist immediately,
+    even before any user request triggers lazy creation.
+    """
+    try:
+        _tool_privs()          # tool_privileges + seed data
+        _tool_usages()         # tool_usages
+        _tickets()             # support_tickets
+        _suggestions()         # suggestions
+        _visitor_sessions()    # visitor_sessions  ← new collection
+    except Exception:
+        pass  # Never block server startup over DB init
+
+
 def update_suggestion_status(suggestion_id, status, admin_notes=''):
     from bson import ObjectId
     _suggestions().update_one(

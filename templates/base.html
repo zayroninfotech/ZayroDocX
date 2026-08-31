@@ -484,18 +484,14 @@
   </main>
 
   <footer class="footer-full">
-    <span class="footer-brand">Zayro<span>DocX</span></span>
-    <span class="footer-sep">·</span>
-    <span>© 2026 <strong>Zayron Infotech Pvt. Ltd.</strong></span>
-    <span class="footer-sep">·</span>
-    <span class="footer-privacy"><i class="fa-solid fa-shield-halved"></i> Your files stay private</span>
+    <span>© 2026 Zayron Infotech Pvt. Ltd.</span>
   </footer>
 
   <!-- Toast container -->
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Global Page Loader — ink-fill -->
-  <div id="globalLoader" style="display:none;position:fixed;inset:0;z-index:9999;background:#F7F7F5;align-items:center;justify-content:center;flex-direction:column;gap:22px;">
+  <div id="globalLoader" class="zl-loader-bg" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:22px;">
     <div class="zl-if-wrap" id="zlIfWrap">
       <span class="zl-if-base">ZayroDocX</span>
       <span class="zl-if-fill"><span class="zl-zayro">Zayro</span><span class="zl-docx">DocX</span></span>
@@ -503,17 +499,22 @@
     <div class="zl-if-label" id="globalLoaderMsg">Loading&hellip;</div>
   </div>
   <style>
+    .zl-loader-bg{ background:#F7F7F5; }
+    [data-theme="dark"] .zl-loader-bg{ background:#0F0F0F; }
+
     .zl-if-wrap{
       position:relative; font-family:'Space Grotesk','Inter',sans-serif;
       font-size:clamp(28px,5vw,48px); font-weight:700; letter-spacing:-0.02em;
       white-space:nowrap;
     }
     .zl-if-base{ color:#D3D3CF; }
+    [data-theme="dark"] .zl-if-base{ color:#2A2A2A; }
     .zl-if-fill{
       position:absolute; inset:0; overflow:hidden; width:0%;
       white-space:nowrap;
     }
     .zl-zayro{ color:#1A1A1A; }
+    [data-theme="dark"] .zl-zayro{ color:#EDEDED; }
     .zl-docx{ color:#E63946; }
     .zl-if-wrap.run .zl-if-fill{ animation:zlIfWipe 1.4s cubic-bezier(.65,0,.35,1) forwards; }
     @keyframes zlIfWipe{ to{ width:100%; } }
@@ -521,6 +522,7 @@
       font-family:'IBM Plex Mono','Courier New',monospace;
       font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#9B9B90;
     }
+    [data-theme="dark"] .zl-if-label{ color:#5A5A5A; }
 
     .btn-loading {
       position: relative;

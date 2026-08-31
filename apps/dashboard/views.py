@@ -10,6 +10,7 @@ from apps.dashboard.mongo_auth import (
 from apps.dashboard.mongo_models import (
     get_tool_privs_map, get_all_tool_privs, toggle_tool_priv,
     create_ticket, create_suggestion, get_all_suggestions, update_suggestion_status,
+    get_visitor_sessions, get_visitor_stats,
 )
 from apps.pdf_tools.mongo_db import get_recent_jobs, get_stats
 
@@ -113,6 +114,8 @@ def admin_panel(request):
         'tools_by_category': categories,
         'users': users,
         'total_users': len(users),
+        'visitor_stats': get_visitor_stats(),
+        'recent_sessions': get_visitor_sessions(limit=50),
     })
 
 

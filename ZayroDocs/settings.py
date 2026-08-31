@@ -35,6 +35,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'ZayroDocs.middleware.SecurityHeadersMiddleware',
     'ZayroDocs.middleware.AuditLogMiddleware',
+    'ZayroDocs.middleware.VisitorSessionMiddleware',
 ]
 
 ROOT_URLCONF = 'ZayroDocs.urls'

@@ -43,3 +43,7 @@ class DashboardConfig(AppConfig):
                 dirs.append(Path(tmp_cs))
             t = threading.Thread(target=_output_cleanup_loop, args=(dirs,), daemon=True)
             t.start()
+
+            # Eagerly create all MongoDB collections and indexes at startup
+            from apps.dashboard.mongo_models import ensure_collections
+            threading.Thread(target=ensure_collections, daemon=True).start()

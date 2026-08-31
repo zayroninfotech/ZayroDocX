@@ -4,157 +4,527 @@
 {% block title %}Free PDF Tools — ZayroDocX{% endblock %}
 
 {% block content %}
-<div style="max-width:900px;margin:40px auto;padding:0 20px;">
 
-  <!-- Banner -->
-  <div style="background:linear-gradient(135deg,#fff5f5,#ffe4e4);border:1px solid #fecaca;border-radius:16px;padding:20px 24px;margin-bottom:32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-    <div>
-      <div style="font-size:14px;font-weight:700;color:#dc2626;margin-bottom:4px;">⚡ Free Access — Limited Tools</div>
-      <div style="font-size:13px;color:#6b7280;">Create a free account to unlock all 50+ tools, AI features and more.</div>
+<style>
+/* ── Page wrapper ── */
+.gt-page { max-width:1200px; margin:0 auto; padding:0 20px 60px; }
+
+/* ── Hero ── */
+.gt-hero {
+  text-align:center;
+  padding:48px 20px 36px;
+}
+.gt-hero-heading {
+  font-size:clamp(1.8rem,4vw,2.6rem);
+  font-weight:800; color:#111827; line-height:1.2;
+  letter-spacing:-.03em; margin-bottom:10px;
+}
+.gt-hero-heading span { color:#dc2626; }
+.gt-hero-sub {
+  font-size:.95rem; color:#6b7280; max-width:520px;
+  margin:0 auto 22px;
+}
+/* search */
+.gt-search-wrap {
+  display:flex; align-items:center;
+  max-width:520px; margin:0 auto 18px;
+  background:#fff; border:1.5px solid #e5e7eb;
+  border-radius:14px; overflow:hidden;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
+  transition:border-color .15s, box-shadow .15s;
+}
+.gt-search-wrap:focus-within {
+  border-color:#dc2626;
+  box-shadow:0 0 0 3px rgba(220,38,38,.1);
+}
+.gt-search-input {
+  flex:1; border:none; outline:none; background:transparent;
+  padding:12px 16px; font-size:.9rem; color:#111827;
+}
+.gt-search-btn {
+  width:44px; height:44px; background:#dc2626; border:none;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; flex-shrink:0;
+}
+.gt-search-btn i { color:#fff; font-size:15px; }
+/* badges */
+.gt-badges {
+  display:flex; flex-wrap:wrap; justify-content:center;
+  gap:10px;
+}
+.gt-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:.75rem; font-weight:600; color:#6b7280;
+  background:#f9fafb; border:1px solid #e5e7eb;
+  border-radius:999px; padding:4px 12px;
+}
+.gt-badge i { color:#dc2626; font-size:.72rem; }
+
+/* ── Compact banner ── */
+.gt-banner {
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:10px;
+  background:linear-gradient(135deg,#fff5f5,#ffe8e8);
+  border:1px solid #fecaca; border-radius:12px;
+  padding:12px 18px; margin-bottom:36px;
+}
+.gt-banner-text { font-size:.82rem; color:#374151; }
+.gt-banner-text strong { color:#dc2626; }
+.gt-banner-btns { display:flex; gap:8px; }
+.gt-banner-btns button {
+  border-radius:8px; padding:7px 16px;
+  font-size:.8rem; font-weight:700; cursor:pointer;
+  transition:opacity .15s;
+}
+.gt-banner-btns button:hover { opacity:.88; }
+.gt-btn-primary { background:#dc2626; color:#fff; border:none; }
+.gt-btn-secondary {
+  background:#fff; color:#374151;
+  border:1px solid #e5e7eb;
+}
+
+/* ── Section header ── */
+.gt-section-title {
+  font-size:1rem; font-weight:800; color:#111827;
+  margin-bottom:4px;
+}
+.gt-section-sub {
+  font-size:.8rem; color:#6b7280; margin-bottom:14px;
+}
+
+/* ── Popular strip ── */
+.gt-popular-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:10px; margin-bottom:40px;
+}
+
+/* ── Category block ── */
+.gt-category {
+  background:#fff; border:1px solid #e5e7eb;
+  border-radius:16px; padding:22px 22px 18px;
+  margin-bottom:16px;
+  box-shadow:0 1px 6px rgba(0,0,0,.04);
+}
+.gt-cat-head {
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:16px;
+}
+.gt-cat-icon {
+  width:36px; height:36px; border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:15px; flex-shrink:0;
+}
+.gt-cat-name {
+  font-size:15px; font-weight:800; color:#111827;
+}
+.gt-cat-desc {
+  font-size:.75rem; color:#6b7280; margin-top:1px;
+}
+.gt-tools-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:10px;
+}
+
+/* ── Tool card ── */
+.gt-card {
+  display:flex; align-items:flex-start; gap:11px;
+  padding:12px 14px; background:#f9fafb;
+  border:1px solid #e5e7eb; border-radius:11px;
+  color:#374151; text-decoration:none;
+  transition:all .15s; cursor:pointer; position:relative;
+}
+.gt-card:hover {
+  background:#fff5f5; border-color:#fca5a5;
+  box-shadow:0 4px 14px rgba(220,38,38,.08);
+  transform:translateY(-1px);
+  color:#dc2626;
+}
+.gt-card-icon {
+  width:34px; height:34px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:15px; flex-shrink:0;
+}
+.gt-card-icon img { width:26px; height:26px; object-fit:contain; }
+.gt-card-body { flex:1; min-width:0; }
+.gt-card-name {
+  font-size:.82rem; font-weight:700; color:#111827;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.gt-card:hover .gt-card-name { color:#dc2626; }
+.gt-card-desc {
+  font-size:.73rem; color:#9ca3af; margin-top:2px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.gt-new-badge {
+  position:absolute; top:6px; right:6px;
+  background:#dc2626; color:#fff;
+  font-size:.6rem; font-weight:800; border-radius:4px;
+  padding:1px 5px; letter-spacing:.03em;
+}
+
+/* ── Popular card (smaller, icon-only row) ── */
+.gt-pop-card {
+  display:flex; align-items:center; gap:9px;
+  padding:10px 13px; background:#fff;
+  border:1px solid #e5e7eb; border-radius:10px;
+  color:#374151; text-decoration:none;
+  font-size:.82rem; font-weight:600;
+  transition:all .15s;
+}
+.gt-pop-card:hover {
+  background:#fff5f5; border-color:#fca5a5;
+  color:#dc2626; transform:translateY(-1px);
+}
+.gt-pop-icon {
+  width:30px; height:30px; border-radius:7px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; flex-shrink:0;
+}
+.gt-pop-icon img { width:24px; height:24px; object-fit:contain; }
+
+/* ── Why section ── */
+.gt-why-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:14px; margin-top:12px;
+}
+.gt-why-card {
+  background:#fff; border:1px solid #e5e7eb;
+  border-radius:12px; padding:18px 18px 14px;
+  box-shadow:0 1px 4px rgba(0,0,0,.03);
+}
+.gt-why-icon {
+  width:38px; height:38px; border-radius:10px;
+  background:#fff5f5;
+  display:flex; align-items:center; justify-content:center;
+  font-size:17px; color:#dc2626; margin-bottom:10px;
+}
+.gt-why-title { font-size:.87rem; font-weight:800; color:#111827; margin-bottom:4px; }
+.gt-why-desc  { font-size:.77rem; color:#6b7280; }
+
+/* ── Hidden by search ── */
+.gt-card.hidden, .gt-pop-card.hidden { display:none; }
+
+/* ── Dark mode ── */
+[data-theme="dark"] .gt-hero-heading { color:#EDEDED; }
+[data-theme="dark"] .gt-hero-heading span { color:#E53935; }
+[data-theme="dark"] .gt-hero-sub { color:#A0A0A0; }
+[data-theme="dark"] .gt-search-wrap { background:#1C1C1C; border-color:#2A2A2A; }
+[data-theme="dark"] .gt-search-input { color:#EDEDED; }
+[data-theme="dark"] .gt-search-input::placeholder { color:#4A4A4A; }
+[data-theme="dark"] .gt-badge { background:#1C1C1C; border-color:#2A2A2A; color:#A0A0A0; }
+[data-theme="dark"] .gt-banner { background:linear-gradient(135deg,#1a0d0d,#1e0e0e); border-color:#3a1212; }
+[data-theme="dark"] .gt-banner-text { color:#A0A0A0; }
+[data-theme="dark"] .gt-btn-secondary { background:#1C1C1C; color:#EDEDED; border-color:#2A2A2A; }
+[data-theme="dark"] .gt-section-title { color:#EDEDED; }
+[data-theme="dark"] .gt-section-sub { color:#888; }
+[data-theme="dark"] .gt-category { background:#141414; border-color:#2A2A2A; }
+[data-theme="dark"] .gt-cat-name { color:#EDEDED; }
+[data-theme="dark"] .gt-cat-desc { color:#888; }
+[data-theme="dark"] .gt-card { background:#1C1C1C; border-color:#2A2A2A; color:#A0A0A0; }
+[data-theme="dark"] .gt-card:hover { background:#1E0D0D; border-color:#E53935; }
+[data-theme="dark"] .gt-card-name { color:#EDEDED; }
+[data-theme="dark"] .gt-card:hover .gt-card-name { color:#E53935; }
+[data-theme="dark"] .gt-card-desc { color:#5A5A5A; }
+[data-theme="dark"] .gt-pop-card { background:#1C1C1C; border-color:#2A2A2A; color:#A0A0A0; }
+[data-theme="dark"] .gt-pop-card:hover { background:#1E0D0D; border-color:#E53935; color:#E53935; }
+[data-theme="dark"] .gt-why-card { background:#141414; border-color:#2A2A2A; }
+[data-theme="dark"] .gt-why-icon { background:#1E0D0D; }
+[data-theme="dark"] .gt-why-title { color:#EDEDED; }
+[data-theme="dark"] .gt-why-desc  { color:#888; }
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  .gt-tools-grid { grid-template-columns:1fr 1fr; }
+  .gt-popular-grid { grid-template-columns:1fr 1fr; }
+  .gt-why-grid { grid-template-columns:1fr 1fr; }
+}
+@media(max-width:400px){
+  .gt-tools-grid { grid-template-columns:1fr; }
+  .gt-popular-grid { grid-template-columns:1fr; }
+  .gt-why-grid { grid-template-columns:1fr; }
+}
+</style>
+
+<div class="gt-page">
+
+  <!-- ── HERO ── -->
+  <div class="gt-hero">
+    <h1 class="gt-hero-heading">Free <span>PDF Tools,</span> Made Simple</h1>
+    <p class="gt-hero-sub">All the tools you need to organize, convert and manage your PDFs in one place.</p>
+    <div class="gt-search-wrap">
+      <input class="gt-search-input" id="gtSearch" type="text"
+             placeholder="Search tools (e.g., merge pdf, convert to word...)"
+             oninput="gtFilterTools(this.value)">
+      <button class="gt-search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
     </div>
-    <div style="display:flex;gap:10px;">
-      <button onclick="document.getElementById('signupPopup').classList.add('zp-open')" style="background:#dc2626;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;">Create Free Account</button>
-      <button onclick="document.getElementById('loginPopup').classList.add('zp-open')" style="background:#fff;color:#374151;border:1px solid #e5e7eb;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;">Sign In</button>
+    <div class="gt-badges">
+      <span class="gt-badge"><i class="fa-solid fa-circle-check"></i> 100% Free</span>
+      <span class="gt-badge"><i class="fa-solid fa-circle-check"></i> No Sign Up Required</span>
+      <span class="gt-badge"><i class="fa-solid fa-shield-halved"></i> Secure &amp; Private</span>
+      <span class="gt-badge"><i class="fa-solid fa-globe"></i> Works in Your Browser</span>
     </div>
   </div>
 
-  <h2 style="font-size:22px;font-weight:800;color:#111827;margin-bottom:6px;">Free Tools</h2>
-  <p style="color:#6b7280;font-size:14px;margin-bottom:28px;">Use these tools without an account.</p>
-
-  <!-- Organize PDF -->
-  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-      <div style="width:38px;height:38px;background:#fff5f5;border-radius:10px;display:flex;align-items:center;justify-content:center;">
-        <i class="fa-solid fa-layer-group" style="color:#dc2626;font-size:16px;"></i>
-      </div>
-      <span style="font-size:16px;font-weight:800;color:#111827;">Organize PDF</span>
+  <!-- ── COMPACT BANNER ── -->
+  <div class="gt-banner">
+    <div class="gt-banner-text">
+      <strong>⚡ Free Access — Limited Tools</strong> &nbsp;
+      Create a free account to unlock all 50+ tools and AI features.
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">
+    <div class="gt-banner-btns">
+      <button class="gt-btn-primary" onclick="document.getElementById('signupPopup').classList.add('zp-open')">Create Free Account</button>
+      <button class="gt-btn-secondary" onclick="document.getElementById('loginPopup').classList.add('zp-open')">Sign In</button>
+    </div>
+  </div>
 
-      <a href="{% url 'merge_pdf_page' %}" class="guest-tool-btn">
-        <span class="gt-icon" style="background:#fee2e2;">
-          <img src="{% static 'img/merge-pdf-icon.png' %}" alt="Merge PDF">
+  <!-- ── POPULAR TOOLS ── -->
+  <div class="gt-section-title">Popular Tools</div>
+  <p class="gt-section-sub">Most frequently used tools — quick access</p>
+  <div class="gt-popular-grid" id="gtPopularGrid">
+
+    <a href="{% url 'merge_pdf_page' %}" class="gt-pop-card" data-tool="merge pdf">
+      <span class="gt-pop-icon" style="background:#fee2e2;">
+        <img src="{% static 'img/merge-pdf-icon.png' %}" alt="">
+      </span>Merge PDF
+    </a>
+
+    <a href="{% url 'pdf_to_word_page' %}" class="gt-pop-card" data-tool="pdf to word">
+      <span class="gt-pop-icon" style="background:transparent;">
+        <img src="{% static 'img/pdf-to-word-icon.png' %}" alt="">
+      </span>PDF to Word
+    </a>
+
+    <a href="{% url 'pdf_to_jpg_page' %}" class="gt-pop-card" data-tool="pdf to jpg">
+      <span class="gt-pop-icon" style="background:rgba(147,51,234,.1);">
+        <i class="fa-solid fa-file-image" style="color:#9333ea;"></i>
+      </span>PDF to JPG
+    </a>
+
+    <a href="{% url 'split_pdf_page' %}" class="gt-pop-card" data-tool="split pdf">
+      <span class="gt-pop-icon" style="background:transparent;">
+        <img src="{% static 'img/split-pdf-icon.png' %}" alt="">
+      </span>Split PDF
+    </a>
+
+    <a href="{% url 'word_to_pdf_page' %}" class="gt-pop-card" data-tool="word to pdf">
+      <span class="gt-pop-icon" style="background:transparent;">
+        <img src="{% static 'img/word-to-pdf-icon.png' %}" alt="">
+      </span>Word to PDF
+    </a>
+
+    <a href="{% url 'scan_pdf_page' %}" class="gt-pop-card" data-tool="image to pdf jpg to pdf">
+      <span class="gt-pop-icon" style="background:transparent;">
+        <img src="{% static 'img/image-to-pdf-icon.png' %}" alt="">
+      </span>Image to PDF
+    </a>
+
+  </div>
+
+  <!-- ── ORGANIZE PDF ── -->
+  <div class="gt-category">
+    <div class="gt-cat-head">
+      <div class="gt-cat-icon" style="background:#fff5f5;">
+        <i class="fa-solid fa-layer-group" style="color:#dc2626;"></i>
+      </div>
+      <div>
+        <div class="gt-cat-name">Organize PDF</div>
+        <div class="gt-cat-desc">Organize and modify PDF pages easily</div>
+      </div>
+    </div>
+    <div class="gt-tools-grid" id="gtCat1">
+
+      <a href="{% url 'merge_pdf_page' %}" class="gt-card" data-tool="merge pdf combine">
+        <span class="gt-card-icon" style="background:#fee2e2;">
+          <img src="{% static 'img/merge-pdf-icon.png' %}" alt="">
         </span>
-        Merge PDF
+        <div class="gt-card-body">
+          <div class="gt-card-name">Merge PDF</div>
+          <div class="gt-card-desc">Combine multiple PDFs into one</div>
+        </div>
       </a>
 
-      <a href="{% url 'split_pdf_page' %}" class="guest-tool-btn">
-        <span class="gt-icon" style="background:transparent;">
-          <img src="{% static 'img/split-pdf-icon.png' %}" alt="Split PDF">
+      <a href="{% url 'split_pdf_page' %}" class="gt-card" data-tool="split pdf">
+        <span class="gt-card-icon" style="background:transparent;">
+          <img src="{% static 'img/split-pdf-icon.png' %}" alt="">
         </span>
-        Split PDF
+        <div class="gt-card-body">
+          <div class="gt-card-name">Split PDF</div>
+          <div class="gt-card-desc">Split a PDF into multiple files</div>
+        </div>
       </a>
 
-      <a href="{% url 'remove_pages_page' %}" class="guest-tool-btn">
-        <span class="gt-icon" style="background:rgba(220,38,38,0.12);color:#dc2626;">
-          <i class="fa-solid fa-trash-can"></i>
+      <a href="{% url 'remove_pages_page' %}" class="gt-card" data-tool="remove pages delete">
+        <span class="gt-card-icon" style="background:rgba(220,38,38,.1);">
+          <i class="fa-solid fa-trash-can" style="color:#dc2626;"></i>
         </span>
-        Remove Pages
+        <div class="gt-card-body">
+          <div class="gt-card-name">Remove Pages</div>
+          <div class="gt-card-desc">Remove unwanted pages</div>
+        </div>
       </a>
 
-      <a href="{% url 'extract_pages_page' %}" class="guest-tool-btn">
-        <span class="gt-icon" style="background:transparent;">
-          <img src="{% static 'img/extract-pages-icon.png' %}" alt="Extract Pages">
+      <a href="{% url 'extract_pages_page' %}" class="gt-card" data-tool="extract pages">
+        <span class="gt-card-icon" style="background:transparent;">
+          <img src="{% static 'img/extract-pages-icon.png' %}" alt="">
         </span>
-        Extract Pages
+        <div class="gt-card-body">
+          <div class="gt-card-name">Extract Pages</div>
+          <div class="gt-card-desc">Extract pages from PDF</div>
+        </div>
       </a>
 
-      <a href="{% url 'scan_pdf_page' %}" class="guest-tool-btn">
-        <span class="gt-icon" style="background:transparent;">
-          <img src="{% static 'img/image-to-pdf-icon.png' %}" alt="Image to PDF">
+      <a href="{% url 'scan_pdf_page' %}" class="gt-card" data-tool="image to pdf scan jpg">
+        <span class="gt-card-icon" style="background:transparent;">
+          <img src="{% static 'img/image-to-pdf-icon.png' %}" alt="">
         </span>
-        Image to PDF
+        <div class="gt-card-body">
+          <div class="gt-card-name">Image to PDF</div>
+          <div class="gt-card-desc">Convert images to PDF</div>
+        </div>
       </a>
 
     </div>
   </div>
 
-  <!-- Convert PDF -->
-  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-      <div style="width:38px;height:38px;background:#eff6ff;border-radius:10px;display:flex;align-items:center;justify-content:center;">
-        <i class="fa-solid fa-right-left" style="color:#2563eb;font-size:16px;"></i>
+  <!-- ── CONVERT PDF ── -->
+  <div class="gt-category">
+    <div class="gt-cat-head">
+      <div class="gt-cat-icon" style="background:#eff6ff;">
+        <i class="fa-solid fa-right-left" style="color:#2563eb;"></i>
       </div>
-      <span style="font-size:16px;font-weight:800;color:#111827;">Convert PDF</span>
+      <div>
+        <div class="gt-cat-name">Convert PDF</div>
+        <div class="gt-cat-desc">Convert PDFs to and from popular formats</div>
+      </div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">
+    <div class="gt-tools-grid" id="gtCat2">
 
-      <a href="{% url 'word_to_pdf_page' %}" class="guest-tool-btn">
-        <span class="gt-icon" style="background:transparent;">
-          <img src="{% static 'img/word-to-pdf-icon.png' %}" alt="Word to PDF">
+      <a href="{% url 'word_to_pdf_page' %}" class="gt-card" data-tool="word to pdf docx">
+        <span class="gt-card-icon" style="background:transparent;">
+          <img src="{% static 'img/word-to-pdf-icon.png' %}" alt="">
         </span>
-        Word to PDF
+        <div class="gt-card-body">
+          <div class="gt-card-name">Word to PDF</div>
+          <div class="gt-card-desc">Convert Word documents to PDF</div>
+        </div>
       </a>
 
-      <a href="{% url 'pptx_to_pdf_page' %}" class="guest-tool-btn">
-        <span class="gt-icon" style="background:rgba(240,180,0,0.16);color:#d99e00;">
-          <i class="fa-solid fa-file-powerpoint"></i>
+      <a href="{% url 'pptx_to_pdf_page' %}" class="gt-card" data-tool="powerpoint to pdf pptx">
+        <span class="gt-card-icon" style="background:rgba(240,180,0,.14);">
+          <i class="fa-solid fa-file-powerpoint" style="color:#d99e00;"></i>
         </span>
-        PowerPoint to PDF
+        <div class="gt-card-body">
+          <div class="gt-card-name">PowerPoint to PDF</div>
+          <div class="gt-card-desc">Convert PowerPoint to PDF</div>
+        </div>
       </a>
 
-      <a href="{% url 'excel_to_pdf_page' %}" class="guest-tool-btn">
-        <span class="gt-icon" style="background:rgba(33,115,70,0.14);color:#217346;">
-          <i class="fa-solid fa-file-excel"></i>
+      <a href="{% url 'excel_to_pdf_page' %}" class="gt-card" data-tool="excel to pdf xlsx">
+        <span class="gt-card-icon" style="background:rgba(33,115,70,.12);">
+          <i class="fa-solid fa-file-excel" style="color:#217346;"></i>
         </span>
-        Excel to PDF
+        <div class="gt-card-body">
+          <div class="gt-card-name">Excel to PDF</div>
+          <div class="gt-card-desc">Convert Excel to PDF</div>
+        </div>
       </a>
 
-      <a href="{% url 'html_to_pdf_page' %}" class="guest-tool-btn">
-        <span class="gt-icon" style="background:rgba(227,76,38,0.14);color:#e34c26;">
-          <i class="fa-brands fa-html5"></i>
+      <a href="{% url 'html_to_pdf_page' %}" class="gt-card" data-tool="html to pdf web page">
+        <span class="gt-card-icon" style="background:rgba(227,76,38,.12);">
+          <i class="fa-brands fa-html5" style="color:#e34c26;"></i>
         </span>
-        HTML to PDF
+        <div class="gt-card-body">
+          <div class="gt-card-name">HTML to PDF</div>
+          <div class="gt-card-desc">Convert web pages to PDF</div>
+        </div>
+        <span class="gt-new-badge">New</span>
       </a>
 
-      <a href="{% url 'pdf_to_jpg_page' %}" class="guest-tool-btn">
-        <span class="gt-icon" style="background:rgba(147,51,234,0.14);color:#9333ea;">
-          <i class="fa-solid fa-file-image"></i>
+      <a href="{% url 'pdf_to_jpg_page' %}" class="gt-card" data-tool="pdf to jpg image">
+        <span class="gt-card-icon" style="background:rgba(147,51,234,.12);">
+          <i class="fa-solid fa-file-image" style="color:#9333ea;"></i>
         </span>
-        PDF to JPG
+        <div class="gt-card-body">
+          <div class="gt-card-name">PDF to JPG</div>
+          <div class="gt-card-desc">Convert PDF pages to images</div>
+        </div>
       </a>
 
-      <a href="{% url 'pdf_to_word_page' %}" class="guest-tool-btn">
-        <span class="gt-icon" style="background:transparent;">
-          <img src="{% static 'img/pdf-to-word-icon.png' %}" alt="PDF to Word">
+      <a href="{% url 'pdf_to_word_page' %}" class="gt-card" data-tool="pdf to word docx">
+        <span class="gt-card-icon" style="background:transparent;">
+          <img src="{% static 'img/pdf-to-word-icon.png' %}" alt="">
         </span>
-        PDF to Word
+        <div class="gt-card-body">
+          <div class="gt-card-name">PDF to Word</div>
+          <div class="gt-card-desc">Convert PDF to Word document</div>
+        </div>
       </a>
 
-      <a href="{% url 'pdf_to_pptx_page' %}" class="guest-tool-btn">
-        <span class="gt-icon" style="background:rgba(240,180,0,0.16);color:#d99e00;">
-          <i class="fa-solid fa-file-powerpoint"></i>
+      <a href="{% url 'pdf_to_pptx_page' %}" class="gt-card" data-tool="pdf to powerpoint pptx">
+        <span class="gt-card-icon" style="background:rgba(240,180,0,.14);">
+          <i class="fa-solid fa-file-powerpoint" style="color:#d99e00;"></i>
         </span>
-        PDF to PowerPoint
+        <div class="gt-card-body">
+          <div class="gt-card-name">PDF to PowerPoint</div>
+          <div class="gt-card-desc">Convert PDF to PowerPoint</div>
+        </div>
       </a>
 
-      <a href="{% url 'pdf_to_excel_page' %}" class="guest-tool-btn">
-        <span class="gt-icon" style="background:rgba(33,115,70,0.14);color:#217346;">
-          <i class="fa-solid fa-file-excel"></i>
+      <a href="{% url 'pdf_to_excel_page' %}" class="gt-card" data-tool="pdf to excel xlsx">
+        <span class="gt-card-icon" style="background:rgba(33,115,70,.12);">
+          <i class="fa-solid fa-file-excel" style="color:#217346;"></i>
         </span>
-        PDF to Excel
+        <div class="gt-card-body">
+          <div class="gt-card-name">PDF to Excel</div>
+          <div class="gt-card-desc">Convert PDF to Excel spreadsheet</div>
+        </div>
       </a>
 
+    </div>
+  </div>
+
+  <!-- ── WHY ZAYRODOCX ── -->
+  <div style="margin-top:40px;">
+    <div class="gt-section-title">Why ZayroDocX?</div>
+    <p class="gt-section-sub">Built for speed, privacy and simplicity</p>
+    <div class="gt-why-grid">
+      <div class="gt-why-card">
+        <div class="gt-why-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
+        <div class="gt-why-title">Easy to Use</div>
+        <div class="gt-why-desc">Upload, process, download. No learning curve required.</div>
+      </div>
+      <div class="gt-why-card">
+        <div class="gt-why-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="gt-why-title">Secure &amp; Private</div>
+        <div class="gt-why-desc">Files are processed securely and never stored permanently.</div>
+      </div>
+      <div class="gt-why-card">
+        <div class="gt-why-icon"><i class="fa-solid fa-globe"></i></div>
+        <div class="gt-why-title">No Installation</div>
+        <div class="gt-why-desc">Works directly in your browser — nothing to install.</div>
+      </div>
+      <div class="gt-why-card">
+        <div class="gt-why-icon"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="gt-why-title">Always Free</div>
+        <div class="gt-why-desc">Core tools are 100% free. No credit card required.</div>
+      </div>
     </div>
   </div>
 
 </div>
 
-<style>
-.guest-tool-btn {
-  display:flex; align-items:center; gap:10px;
-  padding:10px 14px; background:#f9fafb;
-  border:1px solid #e5e7eb; border-radius:10px;
-  color:#374151; font-size:13.5px; font-weight:600;
-  text-decoration:none; transition:all .15s;
+<script>
+function gtFilterTools(q){
+  q = q.trim().toLowerCase();
+  var all = document.querySelectorAll('.gt-card, .gt-pop-card');
+  all.forEach(function(el){
+    var kw = (el.dataset.tool || '') + ' ' + (el.textContent || '');
+    el.classList.toggle('hidden', q !== '' && kw.toLowerCase().indexOf(q) === -1);
+  });
 }
-.guest-tool-btn:hover { background:#fff5f5; border-color:#fca5a5; color:#dc2626; }
-.gt-icon {
-  flex-shrink:0;
-  width:32px; height:32px; border-radius:7px;
-  display:flex; align-items:center; justify-content:center;
-  font-size:15px;
-}
-.gt-icon img { width:28px; height:28px; object-fit:contain; }
-</style>
+</script>
+
 {% endblock %}
