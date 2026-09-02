@@ -109,7 +109,7 @@ CSRF_COOKIE_HTTPONLY = False          # Must be False — JS needs to read CSRF 
 
 # ── Layer 4 — Transport / TLS (production only) ──
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True') == 'True'
     SESSION_COOKIE_SECURE = True      # Cookie only over HTTPS
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000    # 1 year HSTS
