@@ -596,7 +596,7 @@
       });
       window.addEventListener('beforeunload', function(){ ZLoader.show('Loading…'); });
       window.addEventListener('load', function(){ ZLoader.hide(); });
-      window.addEventListener('pageshow', function(e){ ZLoader.show('Loading…'); setTimeout(function(){ ZLoader.hide(); }, 4000); });
+      window.addEventListener('pageshow', function(e){ if(e.persisted){ ZLoader.show('Loading…'); setTimeout(function(){ ZLoader.hide(); }, 500); } });
     })();
   </script>
 
