@@ -370,6 +370,7 @@
       sessionStorage.setItem(SK_DISMISSED, '1');
       closePopup('signupPopup');
       if(window.location.pathname === '/'){
+        if(typeof ZLoader !== 'undefined') ZLoader.show('Loading…');
         window.location.href = '/tools/guest/';
       }
     });
