@@ -590,6 +590,11 @@
           else { btn.disabled = false; }
         }
       };
+      /* Show immediately on new page if navigated via Skip button */
+      if(sessionStorage.getItem('zayrox_skip_nav')){
+        ZLoader.show('Loading…');
+      }
+
       document.addEventListener('click', function(e){
         var btn = e.target.closest('button[data-loader],a[data-loader]');
         if(btn) ZLoader.show(btn.dataset.loaderMsg || 'Processing…');
