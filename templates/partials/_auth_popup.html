@@ -368,12 +368,13 @@
   var popupId = (path === '/') ? 'signupPopup' : 'loginPopup';
   var SK_DISMISSED = 'zayrox_popup_dismissed';
 
-  /* Skip for now — signup popup */
+  /* Skip for now — signup popup (homepage only → go to guest tools) */
   var skipSignup = document.getElementById('zpSignupSkip');
   if(skipSignup){
     skipSignup.addEventListener('click', function(){
       sessionStorage.setItem(SK_DISMISSED, '1');
       closePopup('signupPopup');
+      window.location.href = '/tools/guest/';
     });
   }
 
