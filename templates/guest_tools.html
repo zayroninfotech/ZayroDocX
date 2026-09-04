@@ -297,14 +297,6 @@
 
   </div>
 
-  <!-- ── SUGGESTED TOOLS (5 random per page load) ── -->
-  <div style="margin-bottom:36px;">
-    <div class="gt-section-title">Suggested for You</div>
-    <p class="gt-section-sub">5 tools picked randomly — different each visit</p>
-    <div class="gt-popular-grid" id="gtSuggestedGrid"></div>
-  </div>
-
-  <!-- Hidden pool: all tools for random selection -->
   <div id="gtSuggestedPool" hidden>
     <a href="{% url 'merge_pdf_page' %}" class="gt-pop-card" data-tool="merge pdf combine">
       <span class="gt-pop-icon" style="background:#fee2e2;"><img src="{% static 'img/merge-pdf-icon.png' %}" alt=""></span>Merge PDF
@@ -561,14 +553,6 @@ function gtFilterTools(q){
   });
 }
 
-(function(){
-  var pool = Array.from(document.querySelectorAll('#gtSuggestedPool .gt-pop-card'));
-  var shuffled = pool.slice().sort(function(){ return Math.random() - 0.5; });
-  var grid = document.getElementById('gtSuggestedGrid');
-  shuffled.slice(0, 5).forEach(function(el){
-    grid.appendChild(el.cloneNode(true));
-  });
-})();
 </script>
 
 {% endblock %}
