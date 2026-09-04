@@ -14,9 +14,7 @@
 .w2p-drop:hover, .w2p-drop.drag-over {
   border-color: #9ca3af; background: #f9fafb;
 }
-.w2p-drop-icon {
-  font-size: 3rem; color: #2563eb; margin-bottom: .8rem;
-}
+.w2p-drop-icon { font-size: 3rem; color: #2563eb; margin-bottom: .8rem; }
 .w2p-drop h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
 .w2p-drop p  { color: #64748b; margin: 0 0 1.2rem; }
 .w2p-drop-btn {
@@ -27,39 +25,17 @@
 .w2p-drop-btn:hover { background: #b91c1c; }
 
 /* ── Side-by-side split ── */
-.w2p-split {
-  display: none;
-  grid-template-columns: 1fr 420px;
-  gap: 20px;
-  align-items: start;
-}
+.w2p-split { display: none; grid-template-columns: 1fr 420px; gap: 20px; align-items: start; }
 .w2p-split.show { display: grid; }
 
 /* ── Left: viewer ── */
 .w2p-viewer {
-  background: #0f172a;
-  border-radius: 16px;
-  padding: 16px;
-  min-height: 400px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  overflow: auto;
-  scroll-behavior: smooth;
+  background: #0f172a; border-radius: 16px; padding: 16px;
+  min-height: 400px; display: flex; align-items: flex-start;
+  justify-content: center; overflow: auto; scroll-behavior: smooth;
 }
-.w2p-viewer-pages {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
-  width: 100%;
-}
-.w2p-viewer-pages img {
-  width: 100%; max-width: 680px;
-  border-radius: 6px;
-  box-shadow: 0 2px 12px rgba(0,0,0,.5);
-  display: block;
-}
+.w2p-viewer-pages { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
+.w2p-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; }
 .w2p-viewer-loading {
   color: #94a3b8; font-size: .9rem; padding: 2rem;
   display: flex; flex-direction: column; align-items: center; gap: .8rem;
@@ -67,40 +43,15 @@
 .w2p-viewer-loading i { font-size: 2rem; }
 
 /* ── Right panel ── */
-.w2p-right {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  position: sticky;
-  top: 16px;
-  max-height: calc(100vh - 100px);
-  overflow-y: auto;
-  padding-right: 4px;
-  scrollbar-width: thin;
-}
+.w2p-right { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
 
 /* cards */
-.w2p-card {
-  background: #fff;
-  border: 1.5px solid #e8e8e8;
-  border-radius: 14px;
-  padding: 1.1rem 1.3rem;
-}
-.w2p-file-row {
-  display: flex; align-items: center; gap: .9rem;
-}
-.w2p-file-icon {
-  width: 48px; height: 48px; border-radius: 12px;
-  background: #eff6ff; display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem; color: #2563eb; flex-shrink: 0;
-}
+.w2p-card { background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 1.1rem 1.3rem; }
+.w2p-file-row { display: flex; align-items: center; gap: .9rem; }
+.w2p-file-icon { width: 48px; height: 48px; border-radius: 12px; background: #eff6ff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #2563eb; flex-shrink: 0; }
 .w2p-file-name { font-size: .9rem; font-weight: 700; color: #111; word-break: break-all; }
 .w2p-file-size { font-size: .78rem; color: #aaa; margin-top: .15rem; }
-.w2p-change-btn {
-  margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8;
-  border-radius: 8px; padding: .4rem .85rem; font-size: .78rem; font-weight: 600;
-  color: #666; cursor: pointer; transition: all .15s; white-space: nowrap; flex-shrink: 0;
-}
+.w2p-change-btn { margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 8px; padding: .4rem .85rem; font-size: .78rem; font-weight: 600; color: #666; cursor: pointer; transition: all .15s; white-space: nowrap; flex-shrink: 0; }
 .w2p-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
 
 .w2p-convert-btn {
@@ -113,43 +64,42 @@
 }
 .w2p-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
 
-.w2p-loading-card {
-  display: none;
-  background: #eff6ff; border: 1.5px solid #bfdbfe;
-  border-radius: 14px; padding: 1.2rem 1.3rem;
-  align-items: center; gap: 1rem;
-}
-.w2p-loading-card.show { display: flex; }
-.w2p-spin { animation: spin 1s linear infinite; font-size: 1.4rem; color: #2563eb; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.w2p-loading-text { font-size: .9rem; font-weight: 600; color: #1e40af; }
-
-.w2p-result-card {
-  display: none;
-  background: #f0fdf4; border: 1.5px solid #86efac;
-  border-radius: 14px; padding: 1.2rem 1.3rem;
-}
-.w2p-result-card.show { display: block; }
-.w2p-result-title {
-  font-size: .85rem; font-weight: 700; color: #166534;
-  display: flex; align-items: center; gap: .4rem; margin-bottom: .8rem;
-}
-.w2p-dl-btn {
-  display: flex; align-items: center; justify-content: center; gap: .5rem;
-  width: 100%; padding: .7rem;
-  background: #16a34a; color: #fff; border: none; border-radius: 10px;
-  font-size: .9rem; font-weight: 700; cursor: pointer; text-decoration: none;
-  transition: background .15s;
-}
-.w2p-dl-btn:hover { background: #15803d; }
-
-.w2p-error-card {
-  display: none;
-  background: #fff1f2; border: 1.5px solid #fca5a5;
-  border-radius: 14px; padding: 1.1rem 1.3rem;
-}
+.w2p-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.1rem 1.3rem; }
 .w2p-error-card.show { display: block; }
 .w2p-error-msg { font-size: .85rem; color: #dc2626; }
+
+/* ── Full-page success screen ── */
+.w2p-result-full { display: none; }
+.w2p-result-full.show { display: block; }
+.result-success-wrap { text-align: center; padding: 3rem 1rem 2rem; }
+.result-success-title { font-size: 2rem; font-weight: 900; color: #111; margin: 0 0 2rem; letter-spacing: -.03em; }
+.result-download-row { display: flex; align-items: center; justify-content: center; gap: .75rem; margin-bottom: 2.5rem; flex-wrap: wrap; }
+.btn-download-big {
+  display: inline-flex; align-items: center; gap: .75rem;
+  background: #dc2626; color: #fff; border: none; border-radius: 14px;
+  padding: 1.1rem 2.8rem; font-size: 1.2rem; font-weight: 800; text-decoration: none;
+  transition: background .15s, transform .1s; box-shadow: 0 6px 24px rgba(220,38,38,.4);
+  min-width: 300px; justify-content: center;
+}
+.btn-download-big:hover { background: #b91c1c; transform: translateY(-2px); color: #fff; text-decoration: none; }
+.btn-again {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 12px;
+  padding: .85rem 1.4rem; font-size: .95rem; font-weight: 600; cursor: pointer; color: #555; transition: all .15s;
+}
+.btn-again:hover { border-color: #fca5a5; color: #dc2626; }
+
+/* Continue to section */
+.continue-section { background:#fff; border:1px solid #e8e8e8; border-radius:16px; padding:1.5rem 2rem; text-align:left; max-width:900px; margin:0 auto; }
+.continue-title { font-size:1rem; font-weight:700; color:#111; margin-bottom:1.2rem; }
+.continue-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+.continue-item { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:1rem .5rem; border:1px solid #e8e8e8; border-radius:12px; text-decoration:none; color:#333; font-size:.82rem; font-weight:600; transition:all .15s; text-align:center; }
+.continue-item:hover { background:#fff5f5; border-color:#fca5a5; color:#dc2626; text-decoration:none; transform:translateY(-2px); box-shadow:0 4px 14px rgba(220,38,38,.08); }
+.continue-icon { width:48px; height:48px; border-radius:12px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.continue-icon img { width:32px; height:32px; object-fit:contain; }
+.continue-icon i { font-size:1rem; }
+@media(max-width:900px){ .continue-grid{ grid-template-columns:repeat(3,1fr); } }
+@media(max-width:500px){ .continue-grid{ grid-template-columns:1fr 1fr; } }
 
 @media (max-width: 1000px) {
   .w2p-split { grid-template-columns: 1fr; }
@@ -170,7 +120,7 @@
   </button>
 </div>
 
-<!-- Step 2: Split view -->
+<!-- Step 2: Split view (preview + convert) -->
 <div class="w2p-split" id="w2pSplit">
   <!-- Left: page viewer -->
   <div class="w2p-viewer" id="w2pViewer">
@@ -183,7 +133,6 @@
 
   <!-- Right: controls -->
   <div class="w2p-right">
-    <!-- File info card -->
     <div class="w2p-card">
       <div class="w2p-file-row">
         <div class="w2p-file-icon"><i class="fa-solid fa-file-word"></i></div>
@@ -197,51 +146,62 @@
       </div>
     </div>
 
-    <!-- Convert button -->
     <button type="button" class="w2p-convert-btn" id="w2pConvertBtn" onclick="doConvert()">
       <i class="fa-solid fa-file-pdf"></i> Convert Word to PDF
     </button>
 
-    <!-- Result card -->
-    <div class="w2p-result-card" id="w2pResultCard">
-      <div class="w2p-result-title"><i class="fa-solid fa-circle-check"></i> PDF ready!</div>
-      <a class="w2p-dl-btn" id="w2pDlBtn" href="#" download>
-        <i class="fa-solid fa-download"></i> Download PDF
-      </a>
-    </div>
-
-    <!-- Error card -->
     <div class="w2p-error-card" id="w2pErrorCard">
       <div class="w2p-error-msg" id="w2pErrorMsg"></div>
     </div>
   </div>
 </div>
+
+<!-- Step 3: Full-page success -->
+<div class="w2p-result-full" id="w2pResultFull"></div>
 {% endblock %}
 
 {% block extra_js %}<script>
-const fileInput      = document.getElementById('fileInput');
-const w2pDrop        = document.getElementById('w2pDrop');
-const w2pSplit       = document.getElementById('w2pSplit');
-const w2pPages       = document.getElementById('w2pPages');
-const w2pViewerLoad  = document.getElementById('w2pViewerLoading');
-const w2pConvertBtn  = document.getElementById('w2pConvertBtn');
-const w2pResultCard  = document.getElementById('w2pResultCard');
-const w2pErrorCard   = document.getElementById('w2pErrorCard');
+const fileInput     = document.getElementById('fileInput');
+const w2pDrop       = document.getElementById('w2pDrop');
+const w2pSplit      = document.getElementById('w2pSplit');
+const w2pPages      = document.getElementById('w2pPages');
+const w2pViewerLoad = document.getElementById('w2pViewerLoading');
+const w2pConvertBtn = document.getElementById('w2pConvertBtn');
+const w2pErrorCard  = document.getElementById('w2pErrorCard');
+const w2pResultFull = document.getElementById('w2pResultFull');
 
 let currentFile = null;
 let previewController = null;
+
+const CONTINUE_TOOLS = [
+  {url:'/tools/protect-pdf/',  name:'Protect PDF',   bg:'rgba(220,38,38,.1)',   icon:'<i class="fa-solid fa-lock" style="font-size:1rem;color:#dc2626;"></i>'},
+  {url:'/tools/rotate-pdf/',   name:'Rotate PDF',    bg:'rgba(251,146,60,.15)', icon:'<i class="fa-solid fa-rotate-right" style="font-size:1rem;color:#f97316;"></i>'},
+  {url:'/tools/pdf-to-jpg/',   name:'PDF to JPG',    bg:'rgba(147,51,234,.12)', icon:'<i class="fa-solid fa-file-image" style="font-size:1rem;color:#9333ea;"></i>'},
+  {url:'/tools/translate-pdf/',name:'Translate PDF',  bg:'rgba(16,185,129,.12)', icon:'<i class="fa-solid fa-language" style="font-size:1rem;color:#059669;"></i>'},
+  {url:'/tools/html-to-pdf/',  name:'HTML to PDF',   bg:'rgba(227,76,38,.12)',  icon:'<i class="fa-brands fa-html5" style="font-size:1rem;color:#e34c26;"></i>'},
+];
+
+function buildContinueGrid() {
+  return CONTINUE_TOOLS.map(t => `
+    <a href="${t.url}" class="continue-item">
+      <div class="continue-icon" style="background:${t.bg};">${t.icon}</div>
+      ${t.name}
+    </a>`).join('');
+}
 
 function resetTool() {
   fileInput.value = '';
   currentFile = null;
   w2pDrop.style.display = '';
   w2pSplit.classList.remove('show');
+  w2pResultFull.className = 'w2p-result-full';
+  w2pResultFull.innerHTML = '';
   w2pPages.innerHTML = '';
   w2pPages.style.display = 'none';
   w2pViewerLoad.style.display = 'flex';
   w2pConvertBtn.disabled = false;
-  w2pResultCard.classList.remove('show');
   w2pErrorCard.classList.remove('show');
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 
 async function loadPreview(file) {
@@ -282,7 +242,7 @@ function setFile(f) {
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
 
   w2pDrop.style.display = 'none';
-  w2pResultCard.classList.remove('show');
+  w2pResultFull.className = 'w2p-result-full';
   w2pErrorCard.classList.remove('show');
   w2pSplit.classList.add('show');
 
@@ -292,7 +252,6 @@ function setFile(f) {
 async function doConvert() {
   if (!currentFile) return;
   w2pConvertBtn.disabled = true;
-  w2pResultCard.classList.remove('show');
   w2pErrorCard.classList.remove('show');
   if (typeof ZLoader !== 'undefined') ZLoader.show('Converting Word to PDF…');
 
@@ -306,9 +265,26 @@ async function doConvert() {
     if (typeof ZLoader !== 'undefined') ZLoader.hide();
     if (data.error) throw new Error(data.error);
 
-    document.getElementById('w2pDlBtn').href = data.download_url;
-    document.getElementById('w2pDlBtn').download = data.filename || 'converted.pdf';
-    w2pResultCard.classList.add('show');
+    w2pDrop.style.display = 'none';
+    w2pSplit.classList.remove('show');
+    w2pResultFull.className = 'w2p-result-full show';
+    w2pResultFull.innerHTML = `
+      <div class="result-success-wrap">
+        <h2 class="result-success-title">Word converted to PDF!</h2>
+        <div class="result-download-row">
+          <a href="${data.download_url}" class="btn-download-big" download="${data.filename || 'converted.pdf'}">
+            <i class="fa-solid fa-download"></i> Download PDF
+          </a>
+          <button class="btn-again" onclick="resetTool()">
+            <i class="fa-solid fa-rotate-left"></i> Convert Again
+          </button>
+        </div>
+        <div class="continue-section">
+          <div class="continue-title">Continue to…</div>
+          <div class="continue-grid">${buildContinueGrid()}</div>
+        </div>
+      </div>`;
+    window.scrollTo({top:0, behavior:'smooth'});
   } catch (e) {
     if (typeof ZLoader !== 'undefined') ZLoader.hide();
     document.getElementById('w2pErrorMsg').textContent = e.message || 'Conversion failed.';
@@ -326,4 +302,9 @@ w2pDrop.addEventListener('drop', e => {
   e.preventDefault(); w2pDrop.classList.remove('drag-over');
   setFile(e.dataTransfer.files[0]);
 });
+
+/* spin animation for preview loader */
+const styleEl = document.createElement('style');
+styleEl.textContent = '.w2p-spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(styleEl);
 </script>{% endblock %}
