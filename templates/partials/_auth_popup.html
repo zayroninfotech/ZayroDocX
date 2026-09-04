@@ -83,6 +83,10 @@
     </button>
 
     <p class="zp-switch">Don't have an account? <button type="button" class="zp-switch-btn" data-open="signupPopup" data-close="loginPopup">Create one</button></p>
+
+    <div style="text-align:center;margin-top:8px;">
+      <button type="button" id="zpLoginSkip" style="background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;text-decoration:underline;">Skip for now</button>
+    </div>
   </div>
 </div>
 
@@ -356,49 +360,47 @@
     if(e.key === 'Enter') loginBtn && loginBtn.click();
   });
 
-  /* ── Auto-show logic — repeats every REDISPLAY_DELAY until logged in ── */
-  var REDISPLAY_DELAY = {{ popup_config.redisplay_delay_ms }};
+  /* ── Auto-show logic — shows once per session, never re-shows after dismiss ── */
   var path = window.location.pathname;
   var skipAll = ['/login/', '/register/', '/about/', '/tools/guest/'];
   if(skipAll.indexOf(path) !== -1) return;
 
   var popupId = (path === '/') ? 'signupPopup' : 'loginPopup';
-  var autoTimer = null;
+  var SK_DISMISSED = 'zayrox_popup_dismissed';
 
-  function scheduleShow(delay){
-    clearTimeout(autoTimer);
-    autoTimer = setTimeout(function(){
-      /* Only show if no popup is already open */
-      if(!document.querySelector('.zp-overlay.zp-open')){
-        openPopup(popupId);
-      }
-      /* Schedule next re-show after dismiss — handled by close hooks below */
-    }, delay);
+  /* Skip for now — login popup */
+  var skipBtn = document.getElementById('zpLoginSkip');
+  if(skipBtn){
+    skipBtn.addEventListener('click', function(){
+      sessionStorage.setItem(SK_DISMISSED, '1');
+      closePopup('loginPopup');
+    });
   }
 
-  /* Hook into every close action to reschedule */
-  function onDismiss(id){
-    if(id !== popupId) return;
-    scheduleShow(REDISPLAY_DELAY);
-  }
+  /* Don't show if already dismissed this session */
+  if(sessionStorage.getItem(SK_DISMISSED)) return;
 
-  /* Override close buttons to also reschedule */
+  /* Show once after INITIAL_DELAY; never again after dismiss */
+  setTimeout(function(){
+    if(!document.querySelector('.zp-overlay.zp-open')){
+      openPopup(popupId);
+    }
+  }, INITIAL_DELAY);
+
+  /* Mark dismissed when closed by any method */
   document.querySelectorAll('[data-close]').forEach(function(btn){
-    btn.addEventListener('click', function(){ onDismiss(btn.dataset.close); });
+    btn.addEventListener('click', function(){
+      sessionStorage.setItem(SK_DISMISSED, '1');
+    });
   });
   document.querySelectorAll('.zp-overlay').forEach(function(overlay){
     overlay.addEventListener('click', function(e){
-      if(e.target === overlay) onDismiss(overlay.id);
+      if(e.target === overlay) sessionStorage.setItem(SK_DISMISSED, '1');
     });
   });
   document.addEventListener('keydown', function(e){
-    if(e.key !== 'Escape') return;
-    var open = document.querySelector('.zp-overlay.zp-open');
-    if(open) onDismiss(open.id);
+    if(e.key !== 'Escape') sessionStorage.setItem(SK_DISMISSED, '1');
   });
-
-  /* First show after INITIAL_DELAY */
-  scheduleShow(INITIAL_DELAY);
 
 })();
 </script>
