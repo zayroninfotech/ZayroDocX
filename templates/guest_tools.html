@@ -367,7 +367,12 @@
       <span class="gt-pop-icon" style="background:transparent;"><img src="{% static 'img/ocr-pdf-icon.png' %}" alt=""></span>OCR PDF
     </a>
     <a href="{% url 'remove_pages_page' %}" class="gt-pop-card" data-tool="remove pages delete">
-      <span class="gt-pop-icon" style="background:rgba(220,38,38,.1);"><i class="fa-solid fa-trash-can" style="color:#dc2626;font-size:14px;"></i></span>Remove Pages
+      <span class="gt-pop-icon" style="background:#fff0f0;position:relative;overflow:visible;">
+        <i class="fa-solid fa-file-pdf" style="color:#dc2626;font-size:14px;"></i>
+        <span style="position:absolute;bottom:-2px;right:-2px;width:12px;height:12px;background:#dc2626;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <i class="fa-solid fa-trash-can" style="color:#fff;font-size:6px;"></i>
+        </span>
+      </span>Remove Pages
     </a>
     <a href="{% url 'extract_pages_page' %}" class="gt-pop-card" data-tool="extract pages">
       <span class="gt-pop-icon" style="background:transparent;"><img src="{% static 'img/extract-pages-icon.png' %}" alt=""></span>Extract Pages
@@ -444,8 +449,11 @@
       </a>
 
       <a href="{% url 'remove_pages_page' %}" class="gt-card" data-tool="remove pages delete">
-        <span class="gt-card-icon" style="background:rgba(220,38,38,.1);">
-          <i class="fa-solid fa-trash-can" style="color:#dc2626;"></i>
+        <span class="gt-card-icon" style="background:#fff0f0;position:relative;overflow:visible;">
+          <i class="fa-solid fa-file-pdf" style="color:#dc2626;font-size:16px;"></i>
+          <span style="position:absolute;bottom:-3px;right:-3px;width:14px;height:14px;background:#dc2626;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+            <i class="fa-solid fa-trash-can" style="color:#fff;font-size:7px;"></i>
+          </span>
         </span>
         <div class="gt-card-body">
           <div class="gt-card-name">Remove Pages</div>

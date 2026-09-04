@@ -217,6 +217,16 @@
 <!-- Upload zone -->
 <div class="drop-zone" id="uploadZone">
   <input type="file" id="fileInput" name="file" accept=".pdf">
+  <div style="margin-bottom:1.4rem;">
+    <div style="display:inline-flex;align-items:center;justify-content:center;background:#fff0f0;border-radius:20px;padding:18px;position:relative;">
+      <span style="display:inline-flex;align-items:center;justify-content:center;width:90px;height:90px;position:relative;">
+        <i class="fa-solid fa-file-pdf" style="font-size:52px;color:#dc2626;position:absolute;left:0;top:4px;"></i>
+        <span style="position:absolute;right:0;bottom:4px;width:36px;height:36px;background:#dc2626;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(220,38,38,.4);">
+          <i class="fa-solid fa-trash-can" style="font-size:16px;color:#fff;"></i>
+        </span>
+      </span>
+    </div>
+  </div>
   <h2 class="drop-zone-title">Remove PDF Pages</h2>
   <p class="drop-zone-sub">Delete specific pages or ranges from your PDF.</p>
   <button type="button" class="drop-zone-btn" onclick="document.getElementById('fileInput').click()">
