@@ -41,6 +41,8 @@
   flex:1; border:none; outline:none; background:transparent;
   padding:12px 16px; font-size:.9rem; color:#111827;
 }
+.gt-search-input::-webkit-search-cancel-button,
+.gt-search-input::-webkit-search-decoration { display:none; }
 .gt-search-btn {
   width:44px; height:44px; background:#dc2626; border:none;
   display:flex; align-items:center; justify-content:center;
@@ -256,7 +258,7 @@
     <h1 class="gt-hero-heading">Free <span>PDF Tools,</span> Made Simple</h1>
     <p class="gt-hero-sub">All the tools you need to organize, convert and manage your PDFs in one place.</p>
     <div class="gt-search-wrap">
-      <input class="gt-search-input" id="gtSearch" type="text"
+      <input class="gt-search-input" id="gtSearch" type="search"
              placeholder="Search tools (e.g., merge pdf, convert to word...)"
              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
              oninput="gtFilterTools(this.value)">
