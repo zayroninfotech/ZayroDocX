@@ -381,27 +381,16 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
   }
 });
 
-const CONTINUE_POOL = [
-  {url:'/tools/compress-pdf/',      name:'Compress PDF',       bg:'#fff3e0',              icon:'<img src="{% static "img/compress-pdf-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
-  {url:'/tools/split-pdf/',         name:'Split PDF',           bg:'#e8f5e9',              icon:'<img src="{% static "img/split-pdf-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
-  {url:'/tools/pdf-to-word/',       name:'PDF to Word',         bg:'#e3f2fd',              icon:'<img src="{% static "img/pdf-to-word-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
-  {url:'/tools/merge-pdf/',         name:'Merge PDF',           bg:'rgba(220,38,38,.1)',   icon:'<img src="{% static "img/merge-pdf-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
-  {url:'/tools/sign-pdf/',          name:'Sign PDF',            bg:'rgba(245,158,11,.1)',  icon:'<img src="{% static "img/sign-pdf-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
-  {url:'/tools/ocr-pdf/',           name:'OCR PDF',             bg:'rgba(99,102,241,.1)',  icon:'<img src="{% static "img/ocr-pdf-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
-  {url:'/tools/extract-pages/',     name:'Extract Pages',       bg:'rgba(20,184,166,.1)',  icon:'<img src="{% static "img/extract-pages-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
-  {url:'/tools/rotate-pdf/',        name:'Rotate PDF',          bg:'rgba(251,146,60,.15)', icon:'<i class="fa-solid fa-rotate-right" style="font-size:1rem;color:#f97316;"></i>'},
-  {url:'/tools/add-page-numbers/',  name:'Add Page Numbers',    bg:'rgba(59,130,246,.12)', icon:'<i class="fa-solid fa-list-ol" style="font-size:1rem;color:#3b82f6;"></i>'},
-  {url:'/tools/watermark-pdf/',     name:'Watermark PDF',       bg:'rgba(99,102,241,.12)', icon:'<i class="fa-solid fa-stamp" style="font-size:1rem;color:#6366f1;"></i>'},
-  {url:'/tools/protect-pdf/',       name:'Protect PDF',         bg:'rgba(220,38,38,.1)',   icon:'<i class="fa-solid fa-lock" style="font-size:1rem;color:#dc2626;"></i>'},
-  {url:'/tools/pdf-to-jpg/',        name:'PDF to JPG',          bg:'rgba(147,51,234,.12)', icon:'<i class="fa-solid fa-file-image" style="font-size:1rem;color:#9333ea;"></i>'},
-  {url:'/tools/translate-pdf/',     name:'Translate PDF',       bg:'rgba(16,185,129,.12)', icon:'<i class="fa-solid fa-language" style="font-size:1rem;color:#059669;"></i>'},
-  {url:'/tools/ai-summarizer/',     name:'AI Summarizer',       bg:'rgba(139,92,246,.12)', icon:'<i class="fa-solid fa-brain" style="font-size:1rem;color:#7c3aed;"></i>'},
-  {url:'/tools/html-to-pdf/',       name:'HTML to PDF',         bg:'rgba(227,76,38,.12)',  icon:'<i class="fa-brands fa-html5" style="font-size:1rem;color:#e34c26;"></i>'},
+const CONTINUE_TOOLS = [
+  {url:'/tools/protect-pdf/',  name:'Protect PDF',   bg:'rgba(220,38,38,.1)',   icon:'<i class="fa-solid fa-lock" style="font-size:1rem;color:#dc2626;"></i>'},
+  {url:'/tools/rotate-pdf/',   name:'Rotate PDF',    bg:'rgba(251,146,60,.15)', icon:'<i class="fa-solid fa-rotate-right" style="font-size:1rem;color:#f97316;"></i>'},
+  {url:'/tools/pdf-to-jpg/',   name:'PDF to JPG',    bg:'rgba(147,51,234,.12)', icon:'<i class="fa-solid fa-file-image" style="font-size:1rem;color:#9333ea;"></i>'},
+  {url:'/tools/translate-pdf/',name:'Translate PDF',  bg:'rgba(16,185,129,.12)', icon:'<i class="fa-solid fa-language" style="font-size:1rem;color:#059669;"></i>'},
+  {url:'/tools/html-to-pdf/',  name:'HTML to PDF',   bg:'rgba(227,76,38,.12)',  icon:'<i class="fa-brands fa-html5" style="font-size:1rem;color:#e34c26;"></i>'},
 ];
 
 function buildContinueGrid() {
-  const picks = CONTINUE_POOL.slice().sort(() => Math.random() - 0.5).slice(0, 5);
-  return picks.map(t => `
+  return CONTINUE_TOOLS.map(t => `
     <a href="${t.url}" class="continue-item">
       <div class="continue-icon" style="background:${t.bg};">${t.icon}</div>
       ${t.name}
