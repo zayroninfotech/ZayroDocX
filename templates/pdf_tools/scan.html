@@ -136,14 +136,7 @@
 }
 .btn-clear-all:hover { background: #fee2e2; color: #dc2626; }
 
-/* ── Progress & Result ── */
-.progress-wrap { display: none; margin-top: 1rem; background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 1.2rem; }
-.progress-wrap.show { display: block; }
-.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
-.progress-label { font-weight: 700; font-size: .9rem; color: #111; }
-.progress-pct   { font-size: .82rem; color: #dc2626; font-weight: 700; }
-.progress-track { height: 10px; background: #f0f0f0; border-radius: 5px; overflow: hidden; }
-.progress-fill  { height: 100%; background: linear-gradient(90deg,#991b1b,#dc2626,#f87171); border-radius: 5px; transition: width .3s; }
+/* ── Result ── */
 
 .result-card { display: none !important; }
 .result-card.show { display: block !important; }
@@ -230,15 +223,6 @@
   </div>
 </div>
 
-<!-- Progress -->
-<div class="progress-wrap" id="progressWrap">
-  <div class="progress-header">
-    <span class="progress-label">Converting to PDF…</span>
-    <span class="progress-pct" id="progressPct">0%</span>
-  </div>
-  <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-</div>
-
 <!-- Result -->
 <div class="result-card" id="resultCard"></div>
 
@@ -247,9 +231,6 @@
 const fileInput    = document.getElementById('fileInput');
 const uploadZone   = document.getElementById('uploadZone');
 const filePanel    = document.getElementById('filePanel');
-const progressWrap = document.getElementById('progressWrap');
-const progressFill = document.getElementById('progressFill');
-const progressPct  = document.getElementById('progressPct');
 const resultCard   = document.getElementById('resultCard');
 const imgGrid      = document.getElementById('imgGrid');
 
@@ -259,7 +240,7 @@ let dragSrcIdx = null;
 
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function getCsrf() { return (document.cookie.match(/csrftoken=([^;]+)/)||[])[1]||''; }
-function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+
 
 /* Page size toggle */
 document.querySelectorAll('.sidebar-toggle-btn[data-size]').forEach(btn => {
@@ -356,14 +337,7 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
   if (!files.length) return;
 
   resultCard.className='result-card';
-  progressWrap.classList.add('show');
-  progressFill.style.width='0%'; progressPct.textContent='0%';
-
-  async function animateTo(target,ms) {
-    const cur=parseFloat(progressFill.style.width)||0,steps=20,delay=ms/steps,inc=(target-cur)/steps;let v=cur;
-    for(let i=0;i<steps;i++){v+=inc;progressFill.style.width=Math.min(v,target)+'%';progressPct.textContent=Math.round(v)+'%';await sleep(delay);}
-  }
-  animateTo(60,800);
+  if (typeof ZLoader !== 'undefined') ZLoader.show('Converting to PDF…');
 
   const fd = new FormData();
   fd.append('csrfmiddlewaretoken', getCsrf());
@@ -374,12 +348,11 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
   try {
     const resp = await fetch('{% url "api_scan_pdf" %}', {method:'POST',body:fd});
     const data = await resp.json();
-    progressFill.style.width='100%'; progressPct.textContent='100%';
-    await sleep(300);
-    progressWrap.classList.remove('show');
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
     if (data.error) { showError(data.error); } else { showSuccess(data); }
   } catch(err) {
-    progressWrap.classList.remove('show'); showError(err.message);
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
+    showError(err.message);
   }
 });
 
