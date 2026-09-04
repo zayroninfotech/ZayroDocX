@@ -1738,7 +1738,7 @@ def scan_to_pdf(request):
     """Convert uploaded images to a single PDF with optional page size."""
     files = request.FILES.getlist('files')
     lang = request.POST.get('lang', 'eng')
-    do_ocr = request.POST.get('ocr', 'true') == 'true'
+    do_ocr = request.POST.get('ocr', 'false') == 'true'
     page_size = request.POST.get('page_size', 'fit')  # fit | a4 | letter | a3
 
     # Page size dimensions in points (72 pts = 1 inch)
@@ -1807,7 +1807,9 @@ def scan_to_pdf(request):
 
         save_job('scan_to_pdf', [f.name for f in files], [out_name], meta={'ocr': do_ocr, 'page_size': page_size})
         return JsonResponse({'download_url': media_url(out_name), 'filename': out_name})
-    except Exception:
+    except Exception as e:
+        import logging, traceback
+        logging.getLogger(__name__).error('scan_to_pdf error: %s\n%s', e, traceback.format_exc())
         return JsonResponse({'error': 'Scan to PDF failed. Ensure all images are valid.'}, status=500)
     finally:
         for sp in saved_paths:

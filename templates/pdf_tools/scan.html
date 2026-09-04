@@ -13,11 +13,11 @@
 /* Drop zone */
 .drop-zone {
   text-align: center; padding: 4rem 2rem 3.5rem;
-  border: 2.5px dashed #f0a0a0; border-radius: 20px;
-  background: #fff9f9; transition: background .2s, border-color .2s;
+  border: 2.5px dashed #e5e7eb; border-radius: 20px;
+  background: #fff; transition: background .2s, border-color .2s;
   cursor: pointer;
 }
-.drop-zone.dragging { background: #fff1f1; border-color: #dc2626; }
+.drop-zone.dragging { background: #f9fafb; border-color: #9ca3af; }
 .drop-zone input[type=file] { display: none; }
 .drop-zone-icon-wrap {
   width: 80px; height: 80px; border-radius: 20px;
@@ -174,7 +174,7 @@
 <div class="drop-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
   <input type="file" id="fileInput" name="files" accept="image/*" multiple>
   <div style="margin-bottom:1.4rem;">
-    <div style="display:inline-flex;align-items:center;justify-content:center;background:#fff0f0;border-radius:20px;padding:16px;">
+    <div style="display:inline-flex;align-items:center;justify-content:center;background:#f3f4f6;border-radius:20px;padding:16px;">
       <img src="{% static 'img/image-to-pdf-icon.png' %}" alt="Image to PDF" style="width:90px;height:90px;object-fit:contain;">
     </div>
   </div>
@@ -369,6 +369,7 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
   fd.append('csrfmiddlewaretoken', getCsrf());
   files.forEach(f => fd.append('files', f));
   fd.append('page_size', pageSize);
+  fd.append('ocr', 'false');
 
   try {
     const resp = await fetch('{% url "api_scan_pdf" %}', {method:'POST',body:fd});
