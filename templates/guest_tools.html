@@ -429,7 +429,7 @@
         </span>
         <div class="gt-card-body">
           <div class="gt-card-name">Merge PDF</div>
-          <div class="gt-card-desc">Combine multiple PDFs into one</div>
+          <div class="gt-card-desc">Combine multiple PDFs</div>
         </div>
       </a>
 
@@ -439,7 +439,7 @@
         </span>
         <div class="gt-card-body">
           <div class="gt-card-name">Split PDF</div>
-          <div class="gt-card-desc">Split a PDF into multiple files</div>
+          <div class="gt-card-desc">Separate pages into files</div>
         </div>
       </a>
 
@@ -449,7 +449,7 @@
         </span>
         <div class="gt-card-body">
           <div class="gt-card-name">Remove Pages</div>
-          <div class="gt-card-desc">Remove unwanted pages</div>
+          <div class="gt-card-desc">Delete specific pages</div>
         </div>
       </a>
 
@@ -459,107 +459,17 @@
         </span>
         <div class="gt-card-body">
           <div class="gt-card-name">Extract Pages</div>
-          <div class="gt-card-desc">Extract pages from PDF</div>
+          <div class="gt-card-desc">Pull pages into new PDF</div>
         </div>
       </a>
 
-      <a href="{% url 'scan_pdf_page' %}" class="gt-card" data-tool="image to pdf scan jpg">
+      <a href="{% url 'scan_pdf_page' %}" class="gt-card" data-tool="image to pdf scan jpg png bmp tiff webp gif">
         <span class="gt-card-icon" style="background:transparent;">
           <img src="{% static 'img/image-to-pdf-icon.png' %}" alt="">
         </span>
         <div class="gt-card-body">
           <div class="gt-card-name">Image to PDF</div>
-          <div class="gt-card-desc">Convert images to PDF</div>
-        </div>
-      </a>
-
-      <a href="{% url 'compress_pdf_page' %}" class="gt-card" data-tool="compress pdf reduce size">
-        <span class="gt-card-icon" style="background:transparent;">
-          <img src="{% static 'img/compress-pdf-icon.png' %}" alt="">
-        </span>
-        <div class="gt-card-body">
-          <div class="gt-card-name">Compress PDF</div>
-          <div class="gt-card-desc">Reduce PDF file size</div>
-        </div>
-      </a>
-
-      <a href="{% url 'rotate_pdf_page' %}" class="gt-card" data-tool="rotate pdf turn pages">
-        <span class="gt-card-icon" style="background:rgba(251,146,60,.15);">
-          <i class="fa-solid fa-rotate-right" style="color:#f97316;"></i>
-        </span>
-        <div class="gt-card-body">
-          <div class="gt-card-name">Rotate PDF</div>
-          <div class="gt-card-desc">Rotate PDF pages</div>
-        </div>
-      </a>
-
-      <a href="{% url 'page_numbers_page' %}" class="gt-card" data-tool="add page numbers pdf">
-        <span class="gt-card-icon" style="background:rgba(59,130,246,.12);">
-          <i class="fa-solid fa-list-ol" style="color:#3b82f6;"></i>
-        </span>
-        <div class="gt-card-body">
-          <div class="gt-card-name">Add Page Numbers</div>
-          <div class="gt-card-desc">Number PDF pages</div>
-        </div>
-      </a>
-
-      <a href="{% url 'watermark_pdf_page' %}" class="gt-card" data-tool="watermark pdf stamp">
-        <span class="gt-card-icon" style="background:rgba(99,102,241,.12);">
-          <i class="fa-solid fa-stamp" style="color:#6366f1;"></i>
-        </span>
-        <div class="gt-card-body">
-          <div class="gt-card-name">Watermark PDF</div>
-          <div class="gt-card-desc">Add watermark to PDF</div>
-        </div>
-      </a>
-
-      <a href="{% url 'sign_pdf_page' %}" class="gt-card" data-tool="sign pdf signature">
-        <span class="gt-card-icon" style="background:transparent;">
-          <img src="{% static 'img/sign-pdf-icon.png' %}" alt="">
-        </span>
-        <div class="gt-card-body">
-          <div class="gt-card-name">Sign PDF</div>
-          <div class="gt-card-desc">Add signature to PDF</div>
-        </div>
-      </a>
-
-      <a href="{% url 'protect_pdf_page' %}" class="gt-card" data-tool="protect pdf password lock">
-        <span class="gt-card-icon" style="background:rgba(220,38,38,.1);">
-          <i class="fa-solid fa-lock" style="color:#dc2626;"></i>
-        </span>
-        <div class="gt-card-body">
-          <div class="gt-card-name">Protect PDF</div>
-          <div class="gt-card-desc">Password protect PDF</div>
-        </div>
-      </a>
-
-      <a href="{% url 'unlock_pdf_page' %}" class="gt-card" data-tool="unlock pdf remove password">
-        <span class="gt-card-icon" style="background:rgba(34,197,94,.12);">
-          <i class="fa-solid fa-lock-open" style="color:#16a34a;"></i>
-        </span>
-        <div class="gt-card-body">
-          <div class="gt-card-name">Unlock PDF</div>
-          <div class="gt-card-desc">Remove PDF password</div>
-        </div>
-      </a>
-
-      <a href="{% url 'ocr_pdf_page' %}" class="gt-card" data-tool="ocr pdf text recognition scan">
-        <span class="gt-card-icon" style="background:transparent;">
-          <img src="{% static 'img/ocr-pdf-icon.png' %}" alt="">
-        </span>
-        <div class="gt-card-body">
-          <div class="gt-card-name">OCR PDF</div>
-          <div class="gt-card-desc">Extract text from scanned PDF</div>
-        </div>
-      </a>
-
-      <a href="{% url 'crop_pdf_page' %}" class="gt-card" data-tool="crop pdf trim margins">
-        <span class="gt-card-icon" style="background:rgba(20,184,166,.12);">
-          <i class="fa-solid fa-crop" style="color:#0d9488;"></i>
-        </span>
-        <div class="gt-card-body">
-          <div class="gt-card-name">Crop PDF</div>
-          <div class="gt-card-desc">Crop PDF margins</div>
+          <div class="gt-card-desc">JPG, PNG, BMP, TIFF, WEBP, GIF → PDF</div>
         </div>
       </a>
 
