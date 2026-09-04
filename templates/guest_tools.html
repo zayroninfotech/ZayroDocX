@@ -327,6 +327,92 @@
 
   </div>
 
+  <!-- ── SUGGESTED TOOLS (5 random per page load) ── -->
+  <div style="margin-bottom:36px;">
+    <div class="gt-section-title">Suggested for You</div>
+    <p class="gt-section-sub">5 tools picked randomly — different each visit</p>
+    <div class="gt-popular-grid" id="gtSuggestedGrid"></div>
+  </div>
+
+  <!-- Hidden pool: all tools for random selection -->
+  <div id="gtSuggestedPool" hidden>
+    <a href="{% url 'merge_pdf_page' %}" class="gt-pop-card" data-tool="merge pdf combine">
+      <span class="gt-pop-icon" style="background:#fee2e2;"><img src="{% static 'img/merge-pdf-icon.png' %}" alt=""></span>Merge PDF
+    </a>
+    <a href="{% url 'split_pdf_page' %}" class="gt-pop-card" data-tool="split pdf">
+      <span class="gt-pop-icon" style="background:transparent;"><img src="{% static 'img/split-pdf-icon.png' %}" alt=""></span>Split PDF
+    </a>
+    <a href="{% url 'compress_pdf_page' %}" class="gt-pop-card" data-tool="compress pdf reduce size">
+      <span class="gt-pop-icon" style="background:transparent;"><img src="{% static 'img/compress-pdf-icon.png' %}" alt=""></span>Compress PDF
+    </a>
+    <a href="{% url 'rotate_pdf_page' %}" class="gt-pop-card" data-tool="rotate pdf turn">
+      <span class="gt-pop-icon" style="background:rgba(251,146,60,.15);"><i class="fa-solid fa-rotate-right" style="color:#f97316;font-size:14px;"></i></span>Rotate PDF
+    </a>
+    <a href="{% url 'page_numbers_page' %}" class="gt-pop-card" data-tool="add page numbers">
+      <span class="gt-pop-icon" style="background:rgba(59,130,246,.12);"><i class="fa-solid fa-list-ol" style="color:#3b82f6;font-size:14px;"></i></span>Add Page Numbers
+    </a>
+    <a href="{% url 'watermark_pdf_page' %}" class="gt-pop-card" data-tool="watermark pdf stamp">
+      <span class="gt-pop-icon" style="background:rgba(99,102,241,.12);"><i class="fa-solid fa-stamp" style="color:#6366f1;font-size:14px;"></i></span>Watermark PDF
+    </a>
+    <a href="{% url 'sign_pdf_page' %}" class="gt-pop-card" data-tool="sign pdf signature">
+      <span class="gt-pop-icon" style="background:transparent;"><img src="{% static 'img/sign-pdf-icon.png' %}" alt=""></span>Sign PDF
+    </a>
+    <a href="{% url 'protect_pdf_page' %}" class="gt-pop-card" data-tool="protect pdf password lock">
+      <span class="gt-pop-icon" style="background:rgba(220,38,38,.1);"><i class="fa-solid fa-lock" style="color:#dc2626;font-size:14px;"></i></span>Protect PDF
+    </a>
+    <a href="{% url 'unlock_pdf_page' %}" class="gt-pop-card" data-tool="unlock pdf remove password">
+      <span class="gt-pop-icon" style="background:rgba(34,197,94,.12);"><i class="fa-solid fa-lock-open" style="color:#16a34a;font-size:14px;"></i></span>Unlock PDF
+    </a>
+    <a href="{% url 'ocr_pdf_page' %}" class="gt-pop-card" data-tool="ocr pdf text recognition scan">
+      <span class="gt-pop-icon" style="background:transparent;"><img src="{% static 'img/ocr-pdf-icon.png' %}" alt=""></span>OCR PDF
+    </a>
+    <a href="{% url 'remove_pages_page' %}" class="gt-pop-card" data-tool="remove pages delete">
+      <span class="gt-pop-icon" style="background:rgba(220,38,38,.1);"><i class="fa-solid fa-trash-can" style="color:#dc2626;font-size:14px;"></i></span>Remove Pages
+    </a>
+    <a href="{% url 'extract_pages_page' %}" class="gt-pop-card" data-tool="extract pages">
+      <span class="gt-pop-icon" style="background:transparent;"><img src="{% static 'img/extract-pages-icon.png' %}" alt=""></span>Extract Pages
+    </a>
+    <a href="{% url 'scan_pdf_page' %}" class="gt-pop-card" data-tool="image to pdf scan jpg">
+      <span class="gt-pop-icon" style="background:transparent;"><img src="{% static 'img/image-to-pdf-icon.png' %}" alt=""></span>Image to PDF
+    </a>
+    <a href="{% url 'crop_pdf_page' %}" class="gt-pop-card" data-tool="crop pdf trim">
+      <span class="gt-pop-icon" style="background:rgba(20,184,166,.12);"><i class="fa-solid fa-crop" style="color:#0d9488;font-size:14px;"></i></span>Crop PDF
+    </a>
+    <a href="{% url 'word_to_pdf_page' %}" class="gt-pop-card" data-tool="word to pdf docx">
+      <span class="gt-pop-icon" style="background:transparent;"><img src="{% static 'img/word-to-pdf-icon.png' %}" alt=""></span>Word to PDF
+    </a>
+    <a href="{% url 'pptx_to_pdf_page' %}" class="gt-pop-card" data-tool="powerpoint to pdf pptx">
+      <span class="gt-pop-icon" style="background:rgba(240,180,0,.14);"><i class="fa-solid fa-file-powerpoint" style="color:#d99e00;font-size:14px;"></i></span>PowerPoint to PDF
+    </a>
+    <a href="{% url 'excel_to_pdf_page' %}" class="gt-pop-card" data-tool="excel to pdf xlsx">
+      <span class="gt-pop-icon" style="background:rgba(33,115,70,.12);"><i class="fa-solid fa-file-excel" style="color:#217346;font-size:14px;"></i></span>Excel to PDF
+    </a>
+    <a href="{% url 'html_to_pdf_page' %}" class="gt-pop-card" data-tool="html to pdf web page">
+      <span class="gt-pop-icon" style="background:rgba(227,76,38,.12);"><i class="fa-brands fa-html5" style="color:#e34c26;font-size:14px;"></i></span>HTML to PDF
+    </a>
+    <a href="{% url 'pdf_to_jpg_page' %}" class="gt-pop-card" data-tool="pdf to jpg image">
+      <span class="gt-pop-icon" style="background:rgba(147,51,234,.12);"><i class="fa-solid fa-file-image" style="color:#9333ea;font-size:14px;"></i></span>PDF to JPG
+    </a>
+    <a href="{% url 'pdf_to_word_page' %}" class="gt-pop-card" data-tool="pdf to word docx">
+      <span class="gt-pop-icon" style="background:transparent;"><img src="{% static 'img/pdf-to-word-icon.png' %}" alt=""></span>PDF to Word
+    </a>
+    <a href="{% url 'pdf_to_pptx_page' %}" class="gt-pop-card" data-tool="pdf to powerpoint pptx">
+      <span class="gt-pop-icon" style="background:rgba(240,180,0,.14);"><i class="fa-solid fa-file-powerpoint" style="color:#d99e00;font-size:14px;"></i></span>PDF to PowerPoint
+    </a>
+    <a href="{% url 'pdf_to_excel_page' %}" class="gt-pop-card" data-tool="pdf to excel xlsx">
+      <span class="gt-pop-icon" style="background:rgba(33,115,70,.12);"><i class="fa-solid fa-file-excel" style="color:#217346;font-size:14px;"></i></span>PDF to Excel
+    </a>
+    <a href="{% url 'translate_pdf_page' %}" class="gt-pop-card" data-tool="translate pdf language">
+      <span class="gt-pop-icon" style="background:rgba(16,185,129,.12);"><i class="fa-solid fa-language" style="color:#059669;font-size:14px;"></i></span>Translate PDF
+    </a>
+    <a href="{% url 'ai_summarizer_page' %}" class="gt-pop-card" data-tool="ai summarizer pdf summary">
+      <span class="gt-pop-icon" style="background:rgba(139,92,246,.12);"><i class="fa-solid fa-brain" style="color:#7c3aed;font-size:14px;"></i></span>AI Summarizer
+    </a>
+    <a href="{% url 'redact_pdf_page' %}" class="gt-pop-card" data-tool="redact pdf hide text">
+      <span class="gt-pop-icon" style="background:rgba(17,24,39,.1);"><i class="fa-solid fa-eraser" style="color:#374151;font-size:14px;"></i></span>Redact PDF
+    </a>
+  </div>
+
   <!-- ── ORGANIZE PDF ── -->
   <div class="gt-category">
     <div class="gt-cat-head">
@@ -384,6 +470,96 @@
         <div class="gt-card-body">
           <div class="gt-card-name">Image to PDF</div>
           <div class="gt-card-desc">Convert images to PDF</div>
+        </div>
+      </a>
+
+      <a href="{% url 'compress_pdf_page' %}" class="gt-card" data-tool="compress pdf reduce size">
+        <span class="gt-card-icon" style="background:transparent;">
+          <img src="{% static 'img/compress-pdf-icon.png' %}" alt="">
+        </span>
+        <div class="gt-card-body">
+          <div class="gt-card-name">Compress PDF</div>
+          <div class="gt-card-desc">Reduce PDF file size</div>
+        </div>
+      </a>
+
+      <a href="{% url 'rotate_pdf_page' %}" class="gt-card" data-tool="rotate pdf turn pages">
+        <span class="gt-card-icon" style="background:rgba(251,146,60,.15);">
+          <i class="fa-solid fa-rotate-right" style="color:#f97316;"></i>
+        </span>
+        <div class="gt-card-body">
+          <div class="gt-card-name">Rotate PDF</div>
+          <div class="gt-card-desc">Rotate PDF pages</div>
+        </div>
+      </a>
+
+      <a href="{% url 'page_numbers_page' %}" class="gt-card" data-tool="add page numbers pdf">
+        <span class="gt-card-icon" style="background:rgba(59,130,246,.12);">
+          <i class="fa-solid fa-list-ol" style="color:#3b82f6;"></i>
+        </span>
+        <div class="gt-card-body">
+          <div class="gt-card-name">Add Page Numbers</div>
+          <div class="gt-card-desc">Number PDF pages</div>
+        </div>
+      </a>
+
+      <a href="{% url 'watermark_pdf_page' %}" class="gt-card" data-tool="watermark pdf stamp">
+        <span class="gt-card-icon" style="background:rgba(99,102,241,.12);">
+          <i class="fa-solid fa-stamp" style="color:#6366f1;"></i>
+        </span>
+        <div class="gt-card-body">
+          <div class="gt-card-name">Watermark PDF</div>
+          <div class="gt-card-desc">Add watermark to PDF</div>
+        </div>
+      </a>
+
+      <a href="{% url 'sign_pdf_page' %}" class="gt-card" data-tool="sign pdf signature">
+        <span class="gt-card-icon" style="background:transparent;">
+          <img src="{% static 'img/sign-pdf-icon.png' %}" alt="">
+        </span>
+        <div class="gt-card-body">
+          <div class="gt-card-name">Sign PDF</div>
+          <div class="gt-card-desc">Add signature to PDF</div>
+        </div>
+      </a>
+
+      <a href="{% url 'protect_pdf_page' %}" class="gt-card" data-tool="protect pdf password lock">
+        <span class="gt-card-icon" style="background:rgba(220,38,38,.1);">
+          <i class="fa-solid fa-lock" style="color:#dc2626;"></i>
+        </span>
+        <div class="gt-card-body">
+          <div class="gt-card-name">Protect PDF</div>
+          <div class="gt-card-desc">Password protect PDF</div>
+        </div>
+      </a>
+
+      <a href="{% url 'unlock_pdf_page' %}" class="gt-card" data-tool="unlock pdf remove password">
+        <span class="gt-card-icon" style="background:rgba(34,197,94,.12);">
+          <i class="fa-solid fa-lock-open" style="color:#16a34a;"></i>
+        </span>
+        <div class="gt-card-body">
+          <div class="gt-card-name">Unlock PDF</div>
+          <div class="gt-card-desc">Remove PDF password</div>
+        </div>
+      </a>
+
+      <a href="{% url 'ocr_pdf_page' %}" class="gt-card" data-tool="ocr pdf text recognition scan">
+        <span class="gt-card-icon" style="background:transparent;">
+          <img src="{% static 'img/ocr-pdf-icon.png' %}" alt="">
+        </span>
+        <div class="gt-card-body">
+          <div class="gt-card-name">OCR PDF</div>
+          <div class="gt-card-desc">Extract text from scanned PDF</div>
+        </div>
+      </a>
+
+      <a href="{% url 'crop_pdf_page' %}" class="gt-card" data-tool="crop pdf trim margins">
+        <span class="gt-card-icon" style="background:rgba(20,184,166,.12);">
+          <i class="fa-solid fa-crop" style="color:#0d9488;"></i>
+        </span>
+        <div class="gt-card-body">
+          <div class="gt-card-name">Crop PDF</div>
+          <div class="gt-card-desc">Crop PDF margins</div>
         </div>
       </a>
 
@@ -523,6 +699,15 @@ function gtFilterTools(q){
     el.classList.toggle('hidden', q !== '' && kw.toLowerCase().indexOf(q) === -1);
   });
 }
+
+(function(){
+  var pool = Array.from(document.querySelectorAll('#gtSuggestedPool .gt-pop-card'));
+  var shuffled = pool.slice().sort(function(){ return Math.random() - 0.5; });
+  var grid = document.getElementById('gtSuggestedGrid');
+  shuffled.slice(0, 5).forEach(function(el){
+    grid.appendChild(el.cloneNode(true));
+  });
+})();
 </script>
 
 {% endblock %}
