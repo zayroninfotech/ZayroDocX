@@ -595,7 +595,14 @@
         if(btn) ZLoader.show(btn.dataset.loaderMsg || 'Processing…');
       });
       window.addEventListener('beforeunload', function(){ ZLoader.show('Loading…'); });
-      window.addEventListener('load', function(){ ZLoader.hide(); });
+      window.addEventListener('load', function(){
+        if(sessionStorage.getItem('zayrox_skip_nav')){
+          sessionStorage.removeItem('zayrox_skip_nav');
+          setTimeout(function(){ ZLoader.hide(); }, 5000);
+        } else {
+          ZLoader.hide();
+        }
+      });
       window.addEventListener('pageshow', function(e){ if(e.persisted){ ZLoader.show('Loading…'); setTimeout(function(){ ZLoader.hide(); }, 500); } });
     })();
   </script>
