@@ -143,6 +143,31 @@
 .result-success-wrap { text-align: center; padding: 3rem 1rem 2rem; }
 .result-success-title { font-size: 2rem; font-weight: 900; color: #111; margin: 0 0 2rem; letter-spacing: -.03em; }
 .result-download-row { display: flex; align-items: center; justify-content: center; gap: .75rem; margin-bottom: 2.5rem; flex-wrap: wrap; }
+
+/* Continue to section */
+.continue-section {
+  background:#fff; border:1px solid #e8e8e8; border-radius:16px;
+  padding:1.5rem 2rem; text-align:left; max-width:900px; margin:0 auto;
+}
+.continue-title { font-size:1rem; font-weight:700; color:#111; margin-bottom:1.2rem; }
+.continue-grid {
+  display:grid; grid-template-columns:repeat(5,1fr); gap:10px;
+}
+.continue-item {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:8px; padding:1rem .5rem; border:1px solid #e8e8e8; border-radius:12px;
+  text-decoration:none; color:#333; font-size:.82rem; font-weight:600;
+  transition:all .15s; text-align:center;
+}
+.continue-item:hover { background:#fff5f5; border-color:#fca5a5; color:#dc2626; text-decoration:none; transform:translateY(-2px); box-shadow:0 4px 14px rgba(220,38,38,.08); }
+.continue-icon {
+  width:48px; height:48px; border-radius:12px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+}
+.continue-icon img { width:32px; height:32px; object-fit:contain; }
+.continue-icon i { font-size:1rem; }
+@media(max-width:900px){ .continue-grid{ grid-template-columns:repeat(3,1fr); } }
+@media(max-width:500px){ .continue-grid{ grid-template-columns:1fr 1fr; } }
 .btn-download-big {
   display: inline-flex; align-items: center; gap: .75rem;
   background: #dc2626; color: #fff; border: none; border-radius: 14px;
@@ -356,6 +381,33 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
   }
 });
 
+const CONTINUE_POOL = [
+  {url:'/tools/compress-pdf/',      name:'Compress PDF',       bg:'#fff3e0',              icon:'<img src="{% static "img/compress-pdf-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
+  {url:'/tools/split-pdf/',         name:'Split PDF',           bg:'#e8f5e9',              icon:'<img src="{% static "img/split-pdf-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
+  {url:'/tools/pdf-to-word/',       name:'PDF to Word',         bg:'#e3f2fd',              icon:'<img src="{% static "img/pdf-to-word-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
+  {url:'/tools/merge-pdf/',         name:'Merge PDF',           bg:'rgba(220,38,38,.1)',   icon:'<img src="{% static "img/merge-pdf-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
+  {url:'/tools/sign-pdf/',          name:'Sign PDF',            bg:'rgba(245,158,11,.1)',  icon:'<img src="{% static "img/sign-pdf-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
+  {url:'/tools/ocr-pdf/',           name:'OCR PDF',             bg:'rgba(99,102,241,.1)',  icon:'<img src="{% static "img/ocr-pdf-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
+  {url:'/tools/extract-pages/',     name:'Extract Pages',       bg:'rgba(20,184,166,.1)',  icon:'<img src="{% static "img/extract-pages-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
+  {url:'/tools/rotate-pdf/',        name:'Rotate PDF',          bg:'rgba(251,146,60,.15)', icon:'<i class="fa-solid fa-rotate-right" style="font-size:1rem;color:#f97316;"></i>'},
+  {url:'/tools/add-page-numbers/',  name:'Add Page Numbers',    bg:'rgba(59,130,246,.12)', icon:'<i class="fa-solid fa-list-ol" style="font-size:1rem;color:#3b82f6;"></i>'},
+  {url:'/tools/watermark-pdf/',     name:'Watermark PDF',       bg:'rgba(99,102,241,.12)', icon:'<i class="fa-solid fa-stamp" style="font-size:1rem;color:#6366f1;"></i>'},
+  {url:'/tools/protect-pdf/',       name:'Protect PDF',         bg:'rgba(220,38,38,.1)',   icon:'<i class="fa-solid fa-lock" style="font-size:1rem;color:#dc2626;"></i>'},
+  {url:'/tools/pdf-to-jpg/',        name:'PDF to JPG',          bg:'rgba(147,51,234,.12)', icon:'<i class="fa-solid fa-file-image" style="font-size:1rem;color:#9333ea;"></i>'},
+  {url:'/tools/translate-pdf/',     name:'Translate PDF',       bg:'rgba(16,185,129,.12)', icon:'<i class="fa-solid fa-language" style="font-size:1rem;color:#059669;"></i>'},
+  {url:'/tools/ai-summarizer/',     name:'AI Summarizer',       bg:'rgba(139,92,246,.12)', icon:'<i class="fa-solid fa-brain" style="font-size:1rem;color:#7c3aed;"></i>'},
+  {url:'/tools/html-to-pdf/',       name:'HTML to PDF',         bg:'rgba(227,76,38,.12)',  icon:'<i class="fa-brands fa-html5" style="font-size:1rem;color:#e34c26;"></i>'},
+];
+
+function buildContinueGrid() {
+  const picks = CONTINUE_POOL.slice().sort(() => Math.random() - 0.5).slice(0, 5);
+  return picks.map(t => `
+    <a href="${t.url}" class="continue-item">
+      <div class="continue-icon" style="background:${t.bg};">${t.icon}</div>
+      ${t.name}
+    </a>`).join('');
+}
+
 function showSuccess(data) {
   uploadZone.style.display='none'; filePanel.style.display='none';
   resultCard.className='result-card show';
@@ -369,6 +421,10 @@ function showSuccess(data) {
         <button class="btn-again" onclick="resetTool()">
           <i class="fa-solid fa-rotate-left"></i> Convert Again
         </button>
+      </div>
+      <div class="continue-section">
+        <div class="continue-title">Continue to…</div>
+        <div class="continue-grid">${buildContinueGrid()}</div>
       </div>
     </div>`;
   window.scrollTo({top:0,behavior:'smooth'});
