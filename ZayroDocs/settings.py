@@ -178,7 +178,12 @@ MISTRAL_API_KEY   = os.getenv('MISTRAL_API_KEY', '')
 GROQ_API_KEY      = os.getenv('GROQ_API_KEY', '')
 ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY', '')
 
-# wkhtmltopdf path (Windows) for pdfkit
-WKHTMLTOPDF_CMD = os.getenv('WKHTMLTOPDF_CMD', r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
+# wkhtmltopdf — env var wins; fall back to PATH detection, then Windows default
+import shutil as _shutil
+WKHTMLTOPDF_CMD = (
+    os.getenv('WKHTMLTOPDF_CMD')
+    or _shutil.which('wkhtmltopdf')
+    or r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+)
 
 # Auth is handled by MongoDB (apps.dashboard.mongo_auth) — no Django auth redirects needed
