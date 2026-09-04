@@ -44,7 +44,7 @@
     <p class="zp-switch">Already have an account? <button type="button" class="zp-switch-btn" data-open="loginPopup" data-close="signupPopup">Sign in</button></p>
 
     <div style="text-align:center;margin-top:8px;">
-      <button type="button" onclick="document.getElementById('signupPopup').classList.remove('zp-open'); document.body.style.overflow='';" style="background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;text-decoration:underline;">Skip for now</button>
+      <button type="button" id="zpSignupSkip" style="background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;text-decoration:underline;">Skip for now</button>
     </div>
   </div>
 </div>
@@ -368,6 +368,15 @@
   var popupId = (path === '/') ? 'signupPopup' : 'loginPopup';
   var SK_DISMISSED = 'zayrox_popup_dismissed';
 
+  /* Skip for now — signup popup */
+  var skipSignup = document.getElementById('zpSignupSkip');
+  if(skipSignup){
+    skipSignup.addEventListener('click', function(){
+      sessionStorage.setItem(SK_DISMISSED, '1');
+      closePopup('signupPopup');
+    });
+  }
+
   /* Skip for now — login popup */
   var skipBtn = document.getElementById('zpLoginSkip');
   if(skipBtn){
@@ -399,7 +408,7 @@
     });
   });
   document.addEventListener('keydown', function(e){
-    if(e.key !== 'Escape') sessionStorage.setItem(SK_DISMISSED, '1');
+    if(e.key === 'Escape') sessionStorage.setItem(SK_DISMISSED, '1');
   });
 
 })();
