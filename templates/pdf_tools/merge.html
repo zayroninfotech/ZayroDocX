@@ -196,22 +196,23 @@
 }
 .continue-title { font-size:1rem; font-weight:700; color:#111; margin-bottom:1.2rem; }
 .continue-grid {
-  display:grid; grid-template-columns:repeat(3,1fr); gap:.1rem;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
 }
 .continue-item {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:.75rem .5rem; border-bottom:1px solid #f0f0f0;
-  text-decoration:none; color:#333; font-size:.88rem; font-weight:500;
-  transition:background .15s, color .15s; border-radius:8px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:10px; padding:1.2rem .75rem; border:1px solid #e8e8e8; border-radius:12px;
+  text-decoration:none; color:#333; font-size:.88rem; font-weight:600;
+  transition:all .15s; text-align:center;
 }
-.continue-item:hover { background:#fff5f5; color:#dc2626; text-decoration:none; }
-.continue-item-left { display:flex; align-items:center; gap:.7rem; }
+.continue-item:hover { background:#fff5f5; border-color:#fca5a5; color:#dc2626; text-decoration:none; transform:translateY(-2px); box-shadow:0 4px 14px rgba(220,38,38,.08); }
 .continue-icon {
-  width:32px; height:32px; border-radius:8px; flex-shrink:0;
-  display:flex; align-items:center; justify-content:center; font-size:.8rem;
-  background:#fee2e2; color:#dc2626;
+  width:52px; height:52px; border-radius:12px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  background:#fee2e2;
 }
-.continue-item i.arrow { color:#bbb; font-size:.75rem; }
+.continue-icon img { width:36px; height:36px; object-fit:contain; }
+.continue-icon i { font-size:1.1rem; color:#dc2626; }
+@media(max-width:600px){ .continue-grid{ grid-template-columns:1fr; } }
 
 /* Error card */
 .result-error-wrap {
@@ -536,28 +537,22 @@ function showMergeSuccess(data) {
         <div class="continue-title">Continue to…</div>
         <div class="continue-grid">
           <a href="/tools/compress-pdf/" class="continue-item">
-            <div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-compress"></i></div> Compress PDF</div>
-            <i class="fa-solid fa-chevron-right arrow"></i>
+            <div class="continue-icon" style="background:#fff3e0;">
+              <img src="{% static 'img/compress-pdf-icon.png' %}" alt="Compress PDF">
+            </div>
+            Compress PDF
           </a>
           <a href="/tools/split-pdf/" class="continue-item">
-            <div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-scissors"></i></div> Split PDF</div>
-            <i class="fa-solid fa-chevron-right arrow"></i>
+            <div class="continue-icon" style="background:#e8f5e9;">
+              <img src="{% static 'img/split-pdf-icon.png' %}" alt="Split PDF">
+            </div>
+            Split PDF
           </a>
-          <a href="/tools/page-numbers/" class="continue-item">
-            <div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-list-ol"></i></div> Add Page Numbers</div>
-            <i class="fa-solid fa-chevron-right arrow"></i>
-          </a>
-          <a href="/tools/watermark-pdf/" class="continue-item">
-            <div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-droplet"></i></div> Add Watermark</div>
-            <i class="fa-solid fa-chevron-right arrow"></i>
-          </a>
-          <a href="/tools/rotate-pdf/" class="continue-item">
-            <div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-rotate-right"></i></div> Rotate PDF</div>
-            <i class="fa-solid fa-chevron-right arrow"></i>
-          </a>
-          <a href="/tools/protect-pdf/" class="continue-item">
-            <div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-lock"></i></div> Protect PDF</div>
-            <i class="fa-solid fa-chevron-right arrow"></i>
+          <a href="/tools/pdf-to-word/" class="continue-item">
+            <div class="continue-icon" style="background:#e3f2fd;">
+              <img src="{% static 'img/pdf-to-word-icon.png' %}" alt="PDF to Word">
+            </div>
+            PDF to Word
           </a>
         </div>
       </div>
