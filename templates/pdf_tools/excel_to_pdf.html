@@ -6,31 +6,23 @@
 {% block extra_head %}<style>
 /* ── Drop zone ── */
 .x2p-drop {
-  border: 2.5px dashed #cbd5e1; border-radius: 20px;
+  border: 2.5px dashed #e5e7eb; border-radius: 20px;
   padding: 3rem 2rem; text-align: center; cursor: pointer;
-  transition: border-color .2s, background .2s;
-  background: #f8fafc;
+  transition: border-color .2s, background .2s; background: #fff;
 }
-.x2p-drop:hover, .x2p-drop.drag-over {
-  border-color: #1d6f42; background: #f0fdf4;
-}
+.x2p-drop:hover, .x2p-drop.drag-over { border-color: #9ca3af; background: #f9fafb; }
 .x2p-drop-icon { font-size: 3rem; color: #1d6f42; margin-bottom: .8rem; }
 .x2p-drop h3   { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
 .x2p-drop p    { color: #64748b; margin: 0 0 1.2rem; }
 .x2p-drop-btn {
-  background: #1d6f42; color: #fff; border: none; border-radius: 10px;
+  background: #dc2626; color: #fff; border: none; border-radius: 10px;
   padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer;
-  transition: background .15s;
+  transition: background .15s; box-shadow: 0 4px 14px rgba(220,38,38,.3);
 }
-.x2p-drop-btn:hover { background: #155634; }
+.x2p-drop-btn:hover { background: #b91c1c; }
 
 /* ── Split ── */
-.x2p-split {
-  display: none;
-  grid-template-columns: 1fr 420px;
-  gap: 20px;
-  align-items: start;
-}
+.x2p-split { display: none; grid-template-columns: 1fr 420px; gap: 20px; align-items: start; }
 .x2p-split.show { display: grid; }
 
 /* ── Viewer ── */
@@ -39,93 +31,67 @@
   min-height: 400px; display: flex; align-items: flex-start;
   justify-content: center; overflow: auto; scroll-behavior: smooth;
 }
-.x2p-viewer-pages {
-  display: flex; flex-direction: column; gap: 12px;
-  align-items: center; width: 100%;
-}
-.x2p-viewer-pages img {
-  width: 100%; max-width: 680px; border-radius: 6px;
-  box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block;
-}
-.x2p-viewer-loading {
-  color: #94a3b8; font-size: .9rem; padding: 2rem;
-  display: flex; flex-direction: column; align-items: center; gap: .8rem;
-}
+.x2p-viewer-pages { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
+.x2p-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; }
+.x2p-viewer-loading { color: #94a3b8; font-size: .9rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
 .x2p-viewer-loading i { font-size: 2rem; }
 
 /* ── Right panel ── */
-.x2p-right {
-  display: flex; flex-direction: column; gap: 16px;
-  position: sticky; top: 16px;
-  max-height: calc(100vh - 100px);
-  overflow-y: auto; padding-right: 4px; scrollbar-width: thin;
-}
-.x2p-card {
-  background: #fff; border: 1.5px solid #e8e8e8;
-  border-radius: 14px; padding: 1.1rem 1.3rem;
-}
+.x2p-right { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
+.x2p-card { background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 1.1rem 1.3rem; }
 .x2p-file-row { display: flex; align-items: center; gap: .9rem; }
-.x2p-file-icon {
-  width: 48px; height: 48px; border-radius: 12px;
-  background: #f0fdf4; display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem; color: #1d6f42; flex-shrink: 0;
-}
+.x2p-file-icon { width: 48px; height: 48px; border-radius: 12px; background: #f0fdf4; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #1d6f42; flex-shrink: 0; }
 .x2p-file-name { font-size: .9rem; font-weight: 700; color: #111; word-break: break-all; }
 .x2p-file-size { font-size: .78rem; color: #aaa; margin-top: .15rem; }
-.x2p-change-btn {
-  margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8;
-  border-radius: 8px; padding: .4rem .85rem; font-size: .78rem; font-weight: 600;
-  color: #666; cursor: pointer; transition: all .15s; white-space: nowrap; flex-shrink: 0;
-}
+.x2p-change-btn { margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 8px; padding: .4rem .85rem; font-size: .78rem; font-weight: 600; color: #666; cursor: pointer; transition: all .15s; white-space: nowrap; flex-shrink: 0; }
 .x2p-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
 
 .x2p-convert-btn {
   width: 100%; padding: .85rem;
-  background: linear-gradient(135deg, #1d6f42, #155634);
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
   color: #fff; border: none; border-radius: 12px;
   font-size: 1rem; font-weight: 700; cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: .5rem;
-  transition: opacity .15s;
+  transition: opacity .15s; box-shadow: 0 4px 18px rgba(220,38,38,.3);
 }
 .x2p-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
 
-.x2p-loading-card {
-  display: none;
-  background: #f0fdf4; border: 1.5px solid #86efac;
-  border-radius: 14px; padding: 1.2rem 1.3rem;
-  align-items: center; gap: 1rem;
-}
-.x2p-loading-card.show { display: flex; }
-.x2p-spin { animation: spin 1s linear infinite; font-size: 1.4rem; color: #1d6f42; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.x2p-loading-text { font-size: .9rem; font-weight: 600; color: #166534; }
-
-.x2p-result-card {
-  display: none;
-  background: #f0fdf4; border: 1.5px solid #86efac;
-  border-radius: 14px; padding: 1.2rem 1.3rem;
-}
-.x2p-result-card.show { display: block; }
-.x2p-result-title {
-  font-size: .85rem; font-weight: 700; color: #166534;
-  display: flex; align-items: center; gap: .4rem; margin-bottom: .8rem;
-}
-.x2p-dl-btn {
-  display: flex; align-items: center; justify-content: center; gap: .5rem;
-  width: 100%; padding: .7rem;
-  background: #16a34a; color: #fff; border: none; border-radius: 10px;
-  font-size: .9rem; font-weight: 700; cursor: pointer; text-decoration: none;
-  transition: background .15s;
-}
-.x2p-dl-btn:hover { background: #15803d; }
-
-.x2p-error-card {
-  display: none;
-  background: #fff1f2; border: 1.5px solid #fca5a5;
-  border-radius: 14px; padding: 1.1rem 1.3rem;
-}
+.x2p-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.1rem 1.3rem; }
 .x2p-error-card.show { display: block; }
 .x2p-error-msg { font-size: .85rem; color: #dc2626; }
+
+/* ── Full-page success ── */
+.x2p-result-full { display: none; }
+.x2p-result-full.show { display: block; }
+.result-success-wrap { text-align: center; padding: 3rem 1rem 2rem; }
+.result-success-title { font-size: 2rem; font-weight: 900; color: #111; margin: 0 0 2rem; letter-spacing: -.03em; }
+.result-download-row { display: flex; align-items: center; justify-content: center; gap: .75rem; margin-bottom: 2.5rem; flex-wrap: wrap; }
+.btn-download-big {
+  display: inline-flex; align-items: center; gap: .75rem;
+  background: #dc2626; color: #fff; border: none; border-radius: 14px;
+  padding: 1.1rem 2.8rem; font-size: 1.2rem; font-weight: 800; text-decoration: none;
+  transition: background .15s, transform .1s; box-shadow: 0 6px 24px rgba(220,38,38,.4);
+  min-width: 300px; justify-content: center;
+}
+.btn-download-big:hover { background: #b91c1c; transform: translateY(-2px); color: #fff; text-decoration: none; }
+.btn-again {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: #fff; border: 1.5px solid #e8e8e8; border-radius: 12px;
+  padding: .85rem 1.4rem; font-size: .95rem; font-weight: 600; cursor: pointer; color: #555; transition: all .15s;
+}
+.btn-again:hover { border-color: #fca5a5; color: #dc2626; }
+
+/* Continue to section */
+.continue-section { background:#fff; border:1px solid #e8e8e8; border-radius:16px; padding:1.5rem 2rem; text-align:left; max-width:900px; margin:0 auto; }
+.continue-title { font-size:1rem; font-weight:700; color:#111; margin-bottom:1.2rem; }
+.continue-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+.continue-item { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:1rem .5rem; border:1px solid #e8e8e8; border-radius:12px; text-decoration:none; color:#333; font-size:.82rem; font-weight:600; transition:all .15s; text-align:center; }
+.continue-item:hover { background:#fff5f5; border-color:#fca5a5; color:#dc2626; text-decoration:none; transform:translateY(-2px); box-shadow:0 4px 14px rgba(220,38,38,.08); }
+.continue-icon { width:48px; height:48px; border-radius:12px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.continue-icon img { width:32px; height:32px; object-fit:contain; }
+.continue-icon i { font-size:1rem; }
+@media(max-width:900px){ .continue-grid{ grid-template-columns:repeat(3,1fr); } }
+@media(max-width:500px){ .continue-grid{ grid-template-columns:1fr 1fr; } }
 
 @media (max-width: 1000px) {
   .x2p-split { grid-template-columns: 1fr; }
@@ -148,7 +114,6 @@
 
 <!-- Step 2: Split view -->
 <div class="x2p-split" id="x2pSplit">
-  <!-- Left: page viewer -->
   <div class="x2p-viewer" id="x2pViewer">
     <div class="x2p-viewer-loading" id="x2pViewerLoading">
       <i class="fa-solid fa-spinner x2p-spin"></i>
@@ -157,9 +122,7 @@
     <div class="x2p-viewer-pages" id="x2pPages" style="display:none"></div>
   </div>
 
-  <!-- Right: controls -->
   <div class="x2p-right">
-    <!-- File info card -->
     <div class="x2p-card">
       <div class="x2p-file-row">
         <div class="x2p-file-icon"><i class="fa-solid fa-file-excel"></i></div>
@@ -173,67 +136,76 @@
       </div>
     </div>
 
-    <!-- Convert button -->
     <button type="button" class="x2p-convert-btn" id="x2pConvertBtn" onclick="doConvert()">
       <i class="fa-solid fa-file-pdf"></i> Convert Excel to PDF
     </button>
 
-    <!-- Loading card -->
-    <div class="x2p-loading-card" id="x2pLoadingCard">
-      <i class="fa-solid fa-spinner x2p-spin"></i>
-      <span class="x2p-loading-text">Converting, please wait…</span>
-    </div>
-
-    <!-- Result card -->
-    <div class="x2p-result-card" id="x2pResultCard">
-      <div class="x2p-result-title"><i class="fa-solid fa-circle-check"></i> PDF ready!</div>
-      <a class="x2p-dl-btn" id="x2pDlBtn" href="#" download>
-        <i class="fa-solid fa-download"></i> Download PDF
-      </a>
-    </div>
-
-    <!-- Error card -->
     <div class="x2p-error-card" id="x2pErrorCard">
       <div class="x2p-error-msg" id="x2pErrorMsg"></div>
     </div>
   </div>
 </div>
+
+<!-- Step 3: Full-page success -->
+<div class="x2p-result-full" id="x2pResultFull"></div>
 {% endblock %}
 
 {% block extra_js %}<script>
-const fileInput      = document.getElementById('fileInput');
-const x2pDrop        = document.getElementById('x2pDrop');
-const x2pSplit       = document.getElementById('x2pSplit');
-const x2pPages       = document.getElementById('x2pPages');
-const x2pViewerLoad  = document.getElementById('x2pViewerLoading');
-const x2pConvertBtn  = document.getElementById('x2pConvertBtn');
-const x2pLoadingCard = document.getElementById('x2pLoadingCard');
-const x2pResultCard  = document.getElementById('x2pResultCard');
-const x2pErrorCard   = document.getElementById('x2pErrorCard');
+const fileInput     = document.getElementById('fileInput');
+const x2pDrop       = document.getElementById('x2pDrop');
+const x2pSplit      = document.getElementById('x2pSplit');
+const x2pPages      = document.getElementById('x2pPages');
+const x2pViewerLoad = document.getElementById('x2pViewerLoading');
+const x2pConvertBtn = document.getElementById('x2pConvertBtn');
+const x2pErrorCard  = document.getElementById('x2pErrorCard');
+const x2pResultFull = document.getElementById('x2pResultFull');
 
 let currentFile = null;
+let previewController = null;
+
+const CONTINUE_TOOLS = [
+  {url:'/tools/protect-pdf/',  name:'Protect PDF',   bg:'rgba(220,38,38,.1)',   icon:'<i class="fa-solid fa-lock" style="font-size:1rem;color:#dc2626;"></i>'},
+  {url:'/tools/rotate-pdf/',   name:'Rotate PDF',    bg:'rgba(251,146,60,.15)', icon:'<i class="fa-solid fa-rotate-right" style="font-size:1rem;color:#f97316;"></i>'},
+  {url:'/tools/pdf-to-jpg/',   name:'PDF to JPG',    bg:'rgba(147,51,234,.12)', icon:'<i class="fa-solid fa-file-image" style="font-size:1rem;color:#9333ea;"></i>'},
+  {url:'/tools/translate-pdf/',name:'Translate PDF',  bg:'rgba(16,185,129,.12)', icon:'<i class="fa-solid fa-language" style="font-size:1rem;color:#059669;"></i>'},
+  {url:'/tools/html-to-pdf/',  name:'HTML to PDF',   bg:'rgba(227,76,38,.12)',  icon:'<i class="fa-brands fa-html5" style="font-size:1rem;color:#e34c26;"></i>'},
+];
+
+function buildContinueGrid() {
+  return CONTINUE_TOOLS.map(t => `
+    <a href="${t.url}" class="continue-item">
+      <div class="continue-icon" style="background:${t.bg};">${t.icon}</div>
+      ${t.name}
+    </a>`).join('');
+}
 
 function resetTool() {
   fileInput.value = '';
   currentFile = null;
   x2pDrop.style.display = '';
   x2pSplit.classList.remove('show');
+  x2pResultFull.className = 'x2p-result-full';
+  x2pResultFull.innerHTML = '';
   x2pPages.innerHTML = '';
   x2pPages.style.display = 'none';
   x2pViewerLoad.style.display = 'flex';
   x2pConvertBtn.disabled = false;
-  x2pLoadingCard.classList.remove('show');
-  x2pResultCard.classList.remove('show');
   x2pErrorCard.classList.remove('show');
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 
 async function loadPreview(file) {
+  if (previewController) previewController.abort();
+  previewController = new AbortController();
+
   const fd = new FormData();
   fd.append('file', file);
   fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
   try {
-    const res = await fetch('{% url "api_render_excel_pages" %}', { method: 'POST', body: fd });
+    const res = await fetch('{% url "api_render_excel_pages" %}', {
+      method: 'POST', body: fd, signal: previewController.signal
+    });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
@@ -247,6 +219,7 @@ async function loadPreview(file) {
     x2pViewerLoad.style.display = 'none';
     x2pPages.style.display = 'flex';
   } catch (e) {
+    if (e.name === 'AbortError') return;
     x2pViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>';
   }
 }
@@ -259,7 +232,7 @@ function setFile(f) {
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
 
   x2pDrop.style.display = 'none';
-  x2pResultCard.classList.remove('show');
+  x2pResultFull.className = 'x2p-result-full';
   x2pErrorCard.classList.remove('show');
   x2pSplit.classList.add('show');
 
@@ -269,9 +242,8 @@ function setFile(f) {
 async function doConvert() {
   if (!currentFile) return;
   x2pConvertBtn.disabled = true;
-  x2pLoadingCard.classList.add('show');
-  x2pResultCard.classList.remove('show');
   x2pErrorCard.classList.remove('show');
+  if (typeof ZLoader !== 'undefined') ZLoader.show('Converting Excel to PDF…');
 
   const fd = new FormData();
   fd.append('file', currentFile);
@@ -280,16 +252,34 @@ async function doConvert() {
   try {
     const res = await fetch('{% url "api_excel_to_pdf" %}', { method: 'POST', body: fd });
     const data = await res.json();
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
     if (data.error) throw new Error(data.error);
 
-    document.getElementById('x2pDlBtn').href = data.download_url;
-    document.getElementById('x2pDlBtn').download = data.filename || 'converted.pdf';
-    x2pResultCard.classList.add('show');
+    x2pDrop.style.display = 'none';
+    x2pSplit.classList.remove('show');
+    x2pResultFull.className = 'x2p-result-full show';
+    x2pResultFull.innerHTML = `
+      <div class="result-success-wrap">
+        <h2 class="result-success-title">Excel converted to PDF!</h2>
+        <div class="result-download-row">
+          <a href="${data.download_url}" class="btn-download-big" download="${data.filename || 'converted.pdf'}">
+            <i class="fa-solid fa-download"></i> Download PDF
+          </a>
+          <button class="btn-again" onclick="resetTool()">
+            <i class="fa-solid fa-rotate-left"></i> Convert Again
+          </button>
+        </div>
+        <div class="continue-section">
+          <div class="continue-title">Continue to…</div>
+          <div class="continue-grid">${buildContinueGrid()}</div>
+        </div>
+      </div>`;
+    window.scrollTo({top:0, behavior:'smooth'});
   } catch (e) {
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
     document.getElementById('x2pErrorMsg').textContent = e.message || 'Conversion failed.';
     x2pErrorCard.classList.add('show');
   } finally {
-    x2pLoadingCard.classList.remove('show');
     x2pConvertBtn.disabled = false;
   }
 }
@@ -302,4 +292,8 @@ x2pDrop.addEventListener('drop', e => {
   e.preventDefault(); x2pDrop.classList.remove('drag-over');
   setFile(e.dataTransfer.files[0]);
 });
+
+const styleEl = document.createElement('style');
+styleEl.textContent = '.x2p-spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(styleEl);
 </script>{% endblock %}
