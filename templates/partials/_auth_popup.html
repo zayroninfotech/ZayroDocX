@@ -360,25 +360,22 @@
     if(e.key === 'Enter') loginBtn && loginBtn.click();
   });
 
-  /* ── Auto-show logic — shows once per session, never re-shows after dismiss ── */
-  var path = window.location.pathname;
-  var skipAll = ['/login/', '/register/', '/about/', '/tools/guest/'];
-  if(skipAll.indexOf(path) !== -1) return;
-
-  var popupId = (path === '/') ? 'signupPopup' : 'loginPopup';
+  /* ── Skip for now buttons — attach ALWAYS (before any early return) ── */
   var SK_DISMISSED = 'zayrox_popup_dismissed';
 
-  /* Skip for now — signup popup (homepage only → go to guest tools) */
+  /* Signup popup skip: redirect to guest page only if coming from homepage */
   var skipSignup = document.getElementById('zpSignupSkip');
   if(skipSignup){
     skipSignup.addEventListener('click', function(){
       sessionStorage.setItem(SK_DISMISSED, '1');
       closePopup('signupPopup');
-      window.location.href = '/tools/guest/';
+      if(window.location.pathname === '/'){
+        window.location.href = '/tools/guest/';
+      }
     });
   }
 
-  /* Skip for now — login popup */
+  /* Login popup skip: always just close */
   var skipBtn = document.getElementById('zpLoginSkip');
   if(skipBtn){
     skipBtn.addEventListener('click', function(){
@@ -386,6 +383,13 @@
       closePopup('loginPopup');
     });
   }
+
+  /* ── Auto-show logic — shows once per session, never re-shows after dismiss ── */
+  var path = window.location.pathname;
+  var skipAll = ['/login/', '/register/', '/about/', '/tools/guest/'];
+  if(skipAll.indexOf(path) !== -1) return;
+
+  var popupId = (path === '/') ? 'signupPopup' : 'loginPopup';
 
   /* Don't show if already dismissed this session */
   if(sessionStorage.getItem(SK_DISMISSED)) return;
