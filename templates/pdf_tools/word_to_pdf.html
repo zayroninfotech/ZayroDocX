@@ -6,13 +6,13 @@
 {% block extra_head %}<style>
 /* ── Drop zone ── */
 .w2p-drop {
-  border: 2.5px dashed #cbd5e1; border-radius: 20px;
+  border: 2.5px dashed #e5e7eb; border-radius: 20px;
   padding: 3rem 2rem; text-align: center; cursor: pointer;
   transition: border-color .2s, background .2s;
-  background: #f8fafc;
+  background: #fff;
 }
 .w2p-drop:hover, .w2p-drop.drag-over {
-  border-color: #2563eb; background: #eff6ff;
+  border-color: #9ca3af; background: #f9fafb;
 }
 .w2p-drop-icon {
   font-size: 3rem; color: #2563eb; margin-bottom: .8rem;
@@ -20,11 +20,11 @@
 .w2p-drop h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
 .w2p-drop p  { color: #64748b; margin: 0 0 1.2rem; }
 .w2p-drop-btn {
-  background: #2563eb; color: #fff; border: none; border-radius: 10px;
+  background: #dc2626; color: #fff; border: none; border-radius: 10px;
   padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer;
-  transition: background .15s;
+  transition: background .15s; box-shadow: 0 4px 14px rgba(220,38,38,.3);
 }
-.w2p-drop-btn:hover { background: #1d4ed8; }
+.w2p-drop-btn:hover { background: #b91c1c; }
 
 /* ── Side-by-side split ── */
 .w2p-split {
@@ -202,12 +202,6 @@
       <i class="fa-solid fa-file-pdf"></i> Convert Word to PDF
     </button>
 
-    <!-- Loading card -->
-    <div class="w2p-loading-card" id="w2pLoadingCard">
-      <i class="fa-solid fa-spinner w2p-spin"></i>
-      <span class="w2p-loading-text">Converting, please wait…</span>
-    </div>
-
     <!-- Result card -->
     <div class="w2p-result-card" id="w2pResultCard">
       <div class="w2p-result-title"><i class="fa-solid fa-circle-check"></i> PDF ready!</div>
@@ -231,11 +225,11 @@ const w2pSplit       = document.getElementById('w2pSplit');
 const w2pPages       = document.getElementById('w2pPages');
 const w2pViewerLoad  = document.getElementById('w2pViewerLoading');
 const w2pConvertBtn  = document.getElementById('w2pConvertBtn');
-const w2pLoadingCard = document.getElementById('w2pLoadingCard');
 const w2pResultCard  = document.getElementById('w2pResultCard');
 const w2pErrorCard   = document.getElementById('w2pErrorCard');
 
 let currentFile = null;
+let previewController = null;
 
 function resetTool() {
   fileInput.value = '';
@@ -246,18 +240,22 @@ function resetTool() {
   w2pPages.style.display = 'none';
   w2pViewerLoad.style.display = 'flex';
   w2pConvertBtn.disabled = false;
-  w2pLoadingCard.classList.remove('show');
   w2pResultCard.classList.remove('show');
   w2pErrorCard.classList.remove('show');
 }
 
 async function loadPreview(file) {
+  if (previewController) previewController.abort();
+  previewController = new AbortController();
+
   const fd = new FormData();
   fd.append('file', file);
   fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
   try {
-    const res = await fetch('{% url "api_render_word_pages" %}', { method: 'POST', body: fd });
+    const res = await fetch('{% url "api_render_word_pages" %}', {
+      method: 'POST', body: fd, signal: previewController.signal
+    });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
@@ -271,6 +269,7 @@ async function loadPreview(file) {
     w2pViewerLoad.style.display = 'none';
     w2pPages.style.display = 'flex';
   } catch (e) {
+    if (e.name === 'AbortError') return;
     w2pViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>';
   }
 }
@@ -293,9 +292,9 @@ function setFile(f) {
 async function doConvert() {
   if (!currentFile) return;
   w2pConvertBtn.disabled = true;
-  w2pLoadingCard.classList.add('show');
   w2pResultCard.classList.remove('show');
   w2pErrorCard.classList.remove('show');
+  if (typeof ZLoader !== 'undefined') ZLoader.show('Converting Word to PDF…');
 
   const fd = new FormData();
   fd.append('file', currentFile);
@@ -304,16 +303,17 @@ async function doConvert() {
   try {
     const res = await fetch('{% url "api_word_to_pdf" %}', { method: 'POST', body: fd });
     const data = await res.json();
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
     if (data.error) throw new Error(data.error);
 
     document.getElementById('w2pDlBtn').href = data.download_url;
     document.getElementById('w2pDlBtn').download = data.filename || 'converted.pdf';
     w2pResultCard.classList.add('show');
   } catch (e) {
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
     document.getElementById('w2pErrorMsg').textContent = e.message || 'Conversion failed.';
     w2pErrorCard.classList.add('show');
   } finally {
-    w2pLoadingCard.classList.remove('show');
     w2pConvertBtn.disabled = false;
   }
 }

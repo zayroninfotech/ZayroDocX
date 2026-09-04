@@ -385,8 +385,8 @@ def _libreoffice_convert(input_path, output_path):
         return False
 
     out_dir = os.path.dirname(output_path)
-    # Temp user profile prevents permission errors when running as www-data/nobody
-    user_profile = os.path.join(tempfile.gettempdir(), 'lo_userprofile')
+    import uuid, shutil as _shutil
+    user_profile = os.path.join(tempfile.gettempdir(), f'lo_profile_{uuid.uuid4().hex}')
     os.makedirs(user_profile, exist_ok=True)
 
     cmd = [
@@ -413,5 +413,10 @@ def _libreoffice_convert(input_path, output_path):
     lo_out = os.path.join(out_dir, stem + '.pdf')
     if os.path.exists(lo_out) and lo_out != output_path:
         os.rename(lo_out, output_path)
+
+    try:
+        _shutil.rmtree(user_profile, ignore_errors=True)
+    except Exception:
+        pass
 
     return os.path.exists(output_path)
