@@ -4,13 +4,13 @@
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">PDF to Excel</span>{% endblock %}
 
 {% block extra_head %}<style>
-.p2e-drop { border: 2.5px dashed #cbd5e1; border-radius: 20px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: #f8fafc; }
-.p2e-drop:hover, .p2e-drop.drag-over { border-color: #1d6f42; background: #f0fdf4; }
+.p2e-drop { border: 2.5px dashed #e5e7eb; border-radius: 20px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: #fff; }
+.p2e-drop:hover, .p2e-drop.drag-over { border-color: #dc2626; background: #fff8f8; }
 .p2e-drop-icon { font-size: 3rem; color: #1d6f42; margin-bottom: .8rem; }
 .p2e-drop h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
 .p2e-drop p  { color: #64748b; margin: 0 0 1.2rem; }
-.p2e-drop-btn { background: #1d6f42; color: #fff; border: none; border-radius: 10px; padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer; }
-.p2e-drop-btn:hover { background: #155634; }
+.p2e-drop-btn { background: #dc2626; color: #fff; border: none; border-radius: 10px; padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer; }
+.p2e-drop-btn:hover { background: #b91c1c; }
 
 .p2e-split { display: none; grid-template-columns: 1fr 420px; gap: 20px; align-items: start; }
 .p2e-split.show { display: grid; }
@@ -20,6 +20,8 @@
 .p2e-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; }
 .p2e-viewer-loading { color: #94a3b8; font-size: .9rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
 .p2e-viewer-loading i { font-size: 2rem; }
+.p2e-spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .p2e-right { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
 .p2e-card { background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 1.1rem 1.3rem; }
@@ -30,31 +32,86 @@
 .p2e-change-btn { margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 8px; padding: .4rem .85rem; font-size: .78rem; font-weight: 600; color: #666; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 .p2e-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
 
-.p2e-convert-btn { width: 100%; padding: .85rem; background: linear-gradient(135deg, #1d6f42, #155634); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: opacity .15s; }
+.p2e-convert-btn { width: 100%; padding: .85rem; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: opacity .15s; }
 .p2e-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
-
-.p2e-loading-card { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 1.2rem 1.3rem; align-items: center; gap: 1rem; }
-.p2e-loading-card.show { display: flex; }
-.p2e-spin { animation: spin 1s linear infinite; font-size: 1.4rem; color: #1d6f42; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.p2e-loading-text { font-size: .9rem; font-weight: 600; color: #166534; }
-
-.p2e-result-card { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 1.2rem 1.3rem; }
-.p2e-result-card.show { display: block; }
-.p2e-result-title { font-size: .85rem; font-weight: 700; color: #166534; display: flex; align-items: center; gap: .4rem; margin-bottom: .8rem; }
-.p2e-dl-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .7rem; background: #16a34a; color: #fff; border: none; border-radius: 10px; font-size: .9rem; font-weight: 700; cursor: pointer; text-decoration: none; }
-.p2e-dl-btn:hover { background: #15803d; }
 
 .p2e-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.1rem 1.3rem; }
 .p2e-error-card.show { display: block; }
 .p2e-error-msg { font-size: .85rem; color: #dc2626; }
 
-@media (max-width: 1000px) { .p2e-split { grid-template-columns: 1fr; } .p2e-right { position: static; max-height: none; } }
+/* ── Full-page success screen ── */
+.p2e-result-full {
+  display: none; background: #fff; border: 1.5px solid #e8e8e8;
+  border-radius: 20px; padding: 2.5rem 2rem 2rem;
+  text-align: center; margin-bottom: 1.5rem;
+}
+.p2e-result-full.show { display: block; }
+.p2e-result-full-icon {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: rgba(22,163,74,.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; color: #16a34a; margin: 0 auto 1rem;
+}
+.p2e-result-full h2 { font-size: 1.5rem; font-weight: 800; color: #111; margin: 0 0 .4rem; }
+.p2e-result-full p  { color: #64748b; font-size: .9rem; margin: 0 0 1.5rem; }
+.p2e-result-dl-btn {
+  display: inline-flex; align-items: center; gap: .6rem;
+  padding: .85rem 2.2rem;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #fff; border: none; border-radius: 12px;
+  font-size: 1rem; font-weight: 700; text-decoration: none;
+  transition: opacity .15s; margin-bottom: .75rem;
+}
+.p2e-result-dl-btn:hover { opacity: .9; }
+.p2e-result-again-btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .75rem 1.8rem; border: 1.5px solid #e5e7eb;
+  background: #fff; color: #555; border-radius: 12px;
+  font-size: .92rem; font-weight: 600; cursor: pointer;
+  transition: all .15s; margin-left: .75rem;
+}
+.p2e-result-again-btn:hover { border-color: #dc2626; color: #dc2626; }
+
+/* ── Continue to section ── */
+.continue-section { margin-top: 2rem; text-align: left; }
+.continue-section h4 { font-size: .75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: .07em; margin: 0 0 1rem; }
+.continue-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: .75rem; }
+.continue-item {
+  display: flex; flex-direction: column; align-items: center; gap: .55rem;
+  padding: .9rem .5rem; background: #f8fafc; border: 1.5px solid #e8e8e8;
+  border-radius: 12px; text-decoration: none; color: #374151;
+  font-size: .78rem; font-weight: 600; text-align: center; transition: all .15s;
+}
+.continue-item:hover { border-color: #dc2626; background: #fff8f8; color: #dc2626; transform: translateY(-2px); }
+.continue-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+
+@media (max-width: 1000px) { .p2e-split { grid-template-columns: 1fr; } .p2e-right { position: static; max-height: none; } .continue-grid { grid-template-columns: repeat(3,1fr); } }
+@media (max-width: 600px) { .continue-grid { grid-template-columns: repeat(2,1fr); } }
 </style>{% endblock %}
 
 {% block content %}
 <input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
 
+<!-- Full-page success screen -->
+<div class="p2e-result-full" id="p2eResultFull">
+  <div class="p2e-result-full-icon"><i class="fa-solid fa-circle-check"></i></div>
+  <h2>PDF converted to Excel!</h2>
+  <p>Your editable XLSX file is ready to download.</p>
+  <div>
+    <a class="p2e-result-dl-btn" id="p2eDlBtn" href="#" download>
+      <i class="fa-solid fa-download"></i> Download XLSX
+    </a>
+    <button type="button" class="p2e-result-again-btn" onclick="resetTool()">
+      <i class="fa-solid fa-rotate-left"></i> Convert Again
+    </button>
+  </div>
+  <div class="continue-section">
+    <h4>Continue to…</h4>
+    <div class="continue-grid" id="p2eContinueGrid"></div>
+  </div>
+</div>
+
+<!-- Drop zone -->
 <div class="p2e-drop" id="p2eDrop" onclick="document.getElementById('fileInput').click()">
   <div class="p2e-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
   <h3>Drop your PDF here</h3>
@@ -64,6 +121,7 @@
   </button>
 </div>
 
+<!-- Split view -->
 <div class="p2e-split" id="p2eSplit">
   <div class="p2e-viewer">
     <div class="p2e-viewer-loading" id="p2eViewerLoading">
@@ -91,53 +149,49 @@
       <i class="fa-solid fa-file-excel"></i> Convert PDF to Excel
     </button>
 
-    <div class="p2e-loading-card" id="p2eLoadingCard">
-      <i class="fa-solid fa-spinner p2e-spin"></i>
-      <span class="p2e-loading-text">Extracting data, please wait…</span>
-    </div>
-
-    <div class="p2e-result-card" id="p2eResultCard">
-      <div class="p2e-result-title"><i class="fa-solid fa-circle-check"></i> Excel file ready!</div>
-      <a class="p2e-dl-btn" id="p2eDlBtn" href="#" download>
-        <i class="fa-solid fa-download"></i> Download XLSX
-      </a>
-    </div>
-
     <div class="p2e-error-card" id="p2eErrorCard">
       <div class="p2e-error-msg" id="p2eErrorMsg"></div>
     </div>
   </div>
 </div>
-
-<div class="cv-info-strip" id="p2eInfoStrip">
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-file-excel"></i></div><div><div class="cv-info-title">XLSX Output</div><div class="cv-info-desc">Editable spreadsheet</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-table"></i></div><div><div class="cv-info-title">Tables</div><div class="cv-info-desc">Data extracted</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast extraction</div></div></div>
-</div>
 {% endblock %}
 
 {% block extra_js %}<script>
-const fileInput      = document.getElementById('fileInput');
-const p2eDrop        = document.getElementById('p2eDrop');
-const p2eSplit       = document.getElementById('p2eSplit');
-const p2ePages       = document.getElementById('p2ePages');
-const p2eViewerLoad  = document.getElementById('p2eViewerLoading');
-const p2eConvertBtn  = document.getElementById('p2eConvertBtn');
-const p2eLoadingCard = document.getElementById('p2eLoadingCard');
-const p2eResultCard  = document.getElementById('p2eResultCard');
-const p2eErrorCard   = document.getElementById('p2eErrorCard');
-const p2eInfoStrip   = document.getElementById('p2eInfoStrip');
+const fileInput     = document.getElementById('fileInput');
+const p2eDrop       = document.getElementById('p2eDrop');
+const p2eSplit      = document.getElementById('p2eSplit');
+const p2ePages      = document.getElementById('p2ePages');
+const p2eViewerLoad = document.getElementById('p2eViewerLoading');
+const p2eConvertBtn = document.getElementById('p2eConvertBtn');
+const p2eErrorCard  = document.getElementById('p2eErrorCard');
+const p2eResultFull = document.getElementById('p2eResultFull');
 
 let currentFile = null;
+
+const CONTINUE_TOOLS = [
+  {url:'/tools/protect-pdf/',   name:'Protect PDF',   bg:'rgba(220,38,38,.1)',   icon:'<i class="fa-solid fa-lock" style="font-size:1rem;color:#dc2626;"></i>'},
+  {url:'/tools/rotate-pdf/',    name:'Rotate PDF',    bg:'rgba(251,146,60,.15)', icon:'<i class="fa-solid fa-rotate-right" style="font-size:1rem;color:#f97316;"></i>'},
+  {url:'/tools/pdf-to-jpg/',    name:'PDF to JPG',    bg:'rgba(147,51,234,.12)', icon:'<i class="fa-solid fa-file-image" style="font-size:1rem;color:#9333ea;"></i>'},
+  {url:'/tools/translate-pdf/', name:'Translate PDF', bg:'rgba(16,185,129,.12)', icon:'<i class="fa-solid fa-language" style="font-size:1rem;color:#059669;"></i>'},
+  {url:'/tools/html-to-pdf/',   name:'HTML to PDF',   bg:'rgba(227,76,38,.12)',  icon:'<i class="fa-brands fa-html5" style="font-size:1rem;color:#e34c26;"></i>'},
+];
+
+function buildContinueGrid() {
+  document.getElementById('p2eContinueGrid').innerHTML = CONTINUE_TOOLS.map(t => `
+    <a href="${t.url}" class="continue-item">
+      <div class="continue-icon" style="background:${t.bg};">${t.icon}</div>
+      ${t.name}
+    </a>`).join('');
+}
 
 function resetTool() {
   fileInput.value = ''; currentFile = null;
   p2eDrop.style.display = ''; p2eSplit.classList.remove('show');
+  p2eResultFull.classList.remove('show');
   p2ePages.innerHTML = ''; p2ePages.style.display = 'none';
   p2eViewerLoad.style.display = 'flex'; p2eConvertBtn.disabled = false;
-  p2eLoadingCard.classList.remove('show'); p2eResultCard.classList.remove('show');
-  p2eErrorCard.classList.remove('show'); p2eInfoStrip.style.display = '';
+  p2eErrorCard.classList.remove('show');
+  if (typeof ZLoader !== 'undefined') ZLoader.hide();
 }
 
 async function loadPreview(file) {
@@ -168,8 +222,8 @@ function setFile(f) {
   document.getElementById('p2eFileName').textContent = f.name;
   document.getElementById('p2eFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
-  p2eDrop.style.display = 'none'; p2eInfoStrip.style.display = 'none';
-  p2eResultCard.classList.remove('show'); p2eErrorCard.classList.remove('show');
+  p2eDrop.style.display = 'none';
+  p2eErrorCard.classList.remove('show');
   p2eSplit.classList.add('show');
   loadPreview(f);
 }
@@ -177,9 +231,8 @@ function setFile(f) {
 async function doConvert() {
   if (!currentFile) return;
   p2eConvertBtn.disabled = true;
-  p2eLoadingCard.classList.add('show');
-  p2eResultCard.classList.remove('show');
   p2eErrorCard.classList.remove('show');
+  if (typeof ZLoader !== 'undefined') ZLoader.show('Extracting data to Excel…');
 
   const fd = new FormData();
   fd.append('file', currentFile);
@@ -189,14 +242,16 @@ async function doConvert() {
     const res = await fetch('{% url "api_pdf_to_excel" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
     document.getElementById('p2eDlBtn').href = data.download_url;
     document.getElementById('p2eDlBtn').download = data.filename || 'converted.xlsx';
-    p2eResultCard.classList.add('show');
+    buildContinueGrid();
+    p2eSplit.classList.remove('show');
+    p2eResultFull.classList.add('show');
   } catch (e) {
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
     document.getElementById('p2eErrorMsg').textContent = e.message || 'Conversion failed.';
     p2eErrorCard.classList.add('show');
-  } finally {
-    p2eLoadingCard.classList.remove('show');
     p2eConvertBtn.disabled = false;
   }
 }
