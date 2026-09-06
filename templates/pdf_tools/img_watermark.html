@@ -34,12 +34,6 @@
     <div class="it-error-card" id="itErrorCard"><div class="it-error-msg" id="itErrorMsg"></div></div>
   </div>
 </div>
-<div class="cv-info-strip" id="itInfoStrip">
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-font"></i></div><div><div class="cv-info-title">Custom Text</div><div class="cv-info-desc">Any watermark label</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-crosshairs"></i></div><div><div class="cv-info-title">3 Positions</div><div class="cv-info-desc">Center, corner, top</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
-</div>
 {% endblock %}
 {% block extra_js %}<script>
 let currentFile=null;
@@ -82,7 +76,6 @@ function resetTool(){
   fileInput.value='';currentFile=null;
   document.getElementById('itDrop').style.display='';
   document.getElementById('itSplit').classList.remove('show');
-  document.getElementById('itInfoStrip').style.display='';
   document.getElementById('itPreviewWrap').style.display='none';
   document.getElementById('itViewerLoad').style.display='flex';
   ['itLoadingCard','itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
@@ -94,7 +87,6 @@ function setFile(f){
   document.getElementById('itFileName').textContent=f.name;
   document.getElementById('itFileSize').textContent=(f.size/1024).toFixed(1)+' KB';
   document.getElementById('itDrop').style.display='none';
-  document.getElementById('itInfoStrip').style.display='none';
   ['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
   document.getElementById('itSplit').classList.add('show');
   const img=document.getElementById('itPreviewImg');
