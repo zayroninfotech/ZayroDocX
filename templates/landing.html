@@ -1047,8 +1047,14 @@ if (io) {
     repeatTimer = setTimeout(showPopup, REPEAT_DELAY);
   }
 
-  // First show after 3 s
-  setTimeout(showPopup, FIRST_DELAY);
+  // Start the 3 s timer only after the page is fully loaded (ZLoader hidden)
+  if (document.readyState === 'complete') {
+    setTimeout(showPopup, FIRST_DELAY);
+  } else {
+    window.addEventListener('load', function() {
+      setTimeout(showPopup, FIRST_DELAY);
+    });
+  }
 })();
 </script>
 {% endif %}
