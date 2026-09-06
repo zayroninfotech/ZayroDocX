@@ -490,8 +490,8 @@ mergeBtn.addEventListener('click', async () => {
     if (i > 0) document.getElementById(steps[i-1]).className = 'progress-step-item done';
     document.getElementById(steps[i]).className = 'progress-step-item active';
     progressLabel.textContent = labels[i];
-    animateTo(targets[i], i === 1 ? 800 : 400);
-    if (i < 2) await sleep(i === 1 ? 300 : 150);
+    animateTo(targets[i], i === 1 ? 400 : 200);
+    if (i < 2) await sleep(i === 1 ? 100 : 60);
   }
 
   const fd = new FormData();
@@ -550,7 +550,11 @@ function buildContinueGrid() {
 }
 
 function showMergeSuccess(data) {
-  /* hide upload zone and file panel, show full success screen */
+  /* Generate user-friendly filename: ZayroDocX_merged_HH-MM-SS.pdf */
+  const now = new Date();
+  const ts = now.toTimeString().slice(0, 8).replace(/:/g, '-');
+  const displayName = 'ZayroDocX_merged_' + ts + '.pdf';
+
   uploadZone.style.display = 'none';
   filePanel.style.display  = 'none';
   progressWrap.classList.remove('show');
@@ -559,16 +563,12 @@ function showMergeSuccess(data) {
     <div class="result-success-wrap">
       <h2 class="result-success-title">PDFs have been merged!</h2>
       <div class="result-download-row">
-        <a href="${data.download_url}" class="btn-download-big" download="${data.filename}">
+        <a href="${data.download_url}" class="btn-download-big" download="${displayName}">
           <i class="fa-solid fa-download"></i> Download merged PDF
         </a>
         <button class="btn-merge-again" onclick="resetMerge()">
           <i class="fa-solid fa-rotate-left"></i> Merge Again
         </button>
-      </div>
-      <div class="continue-section">
-        <div class="continue-title">Continue to…</div>
-        <div class="continue-grid">${buildContinueGrid()}</div>
       </div>
     </div>`;
   window.scrollTo({ top: 0, behavior: 'smooth' });
