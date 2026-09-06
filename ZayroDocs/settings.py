@@ -170,8 +170,12 @@ LOGGING = {
     },
 }
 
-# Tesseract OCR path (Windows)
-TESSERACT_CMD  = os.getenv('TESSERACT_CMD', r'C:\Program Files\Tesseract-OCR\tesseract.exe')
+# Tesseract OCR path — env var overrides; falls back to Linux default, then Windows
+import sys as _sys
+TESSERACT_CMD = os.getenv(
+    'TESSERACT_CMD',
+    '/usr/bin/tesseract' if _sys.platform != 'win32' else r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+)
 OPENAI_API_KEY    = os.getenv('OPENAI_API_KEY', '')
 GEMINI_API_KEY    = os.getenv('GEMINI_API_KEY', '')
 MISTRAL_API_KEY   = os.getenv('MISTRAL_API_KEY', '')

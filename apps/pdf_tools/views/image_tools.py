@@ -565,8 +565,9 @@ def img_ocr(request):
             pass
 
         lang = request.POST.get('lang', 'eng')
-        if lang == 'auto':
-            lang = 'eng'
+        # Map frontend lang values to Tesseract lang codes
+        _lang_map = {'auto': 'eng', 'zho': 'chi_sim'}
+        lang = _lang_map.get(lang, lang)
 
         gray = img.convert('L')
         gray = ImageEnhance.Contrast(gray).enhance(1.5)
