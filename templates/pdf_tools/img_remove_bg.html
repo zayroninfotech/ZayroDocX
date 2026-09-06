@@ -130,22 +130,7 @@
 
     <div class="rb-card">
       <div class="rb-opts-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Background Removal</div>
-      <p style="font-size:.78rem;color:#64748b;margin:0 0 .7rem">AI detects edges and removes the background. Pick a colour to preview it.</p>
-      <div class="rb-field-label">Preview Background</div>
-      <div class="rb-bg-row" id="rbSwatches">
-        <div class="rb-swatch transparent active" title="Transparent" data-color="transparent" onclick="setBg(this)"></div>
-        <div class="rb-swatch" style="background:#000000" title="Black"  data-color="#000000" onclick="setBg(this)"></div>
-        <div class="rb-swatch" style="background:#ffffff" title="White"  data-color="#ffffff" onclick="setBg(this)"></div>
-        <div class="rb-swatch" style="background:#1e40af" title="Blue"   data-color="#1e40af" onclick="setBg(this)"></div>
-        <div class="rb-swatch" style="background:#15803d" title="Green"  data-color="#15803d" onclick="setBg(this)"></div>
-        <div class="rb-swatch" style="background:#dc2626" title="Red"    data-color="#dc2626" onclick="setBg(this)"></div>
-        <div class="rb-swatch" style="background:#f59e0b" title="Yellow" data-color="#f59e0b" onclick="setBg(this)"></div>
-        <div class="rb-swatch" style="background:#e2e8f0" title="Grey"   data-color="#e2e8f0" onclick="setBg(this)"></div>
-        <div style="position:relative">
-          <div class="rb-swatch" style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)" title="Custom" onclick="document.getElementById('rbColorPicker').click()"></div>
-          <input type="color" id="rbColorPicker" style="position:absolute;opacity:0;width:0;height:0" onchange="setBgColor(this.value)">
-        </div>
-      </div>
+      <p style="font-size:.78rem;color:#64748b;margin:0">AI automatically detects edges and removes the background. Output is a transparent PNG.</p>
     </div>
 
     <button type="button" class="rb-convert-btn" id="rbConvertBtn" onclick="doRemove()">
