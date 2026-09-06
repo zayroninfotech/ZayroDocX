@@ -500,6 +500,8 @@ def img_ocr(request):
 
     mode = request.POST.get('mode', 'tesseract')
     use_mistral = mode in ('mistral', 'ai', 'pro')
+    preserve_layout = request.POST.get('preserve_layout', '1') == '1'
+    fmt = request.POST.get('format', 'plain')
 
     saved_path, _ = save_uploaded_file(f)
     try:
@@ -516,12 +518,24 @@ def img_ocr(request):
             img.save(buf, 'JPEG', quality=90)
             img_b64 = base64.b64encode(buf.getvalue()).decode()
 
-            prompt = (
-                "Extract ALL text visible in this image exactly as it appears. "
-                "Preserve line breaks, spacing, and formatting as closely as possible. "
-                "If the image contains a table, preserve its structure using spacing or pipes. "
-                "Output only the extracted text — no explanations, no labels."
-            )
+            if fmt == 'markdown':
+                prompt = (
+                    "Extract ALL text visible in this image and format it as Markdown. "
+                    "Use # headings, **bold**, tables with | pipes, and bullet lists where appropriate. "
+                    "Output only the Markdown — no explanations."
+                )
+            elif preserve_layout:
+                prompt = (
+                    "Extract ALL text visible in this image exactly as it appears. "
+                    "Preserve line breaks, spacing, and formatting as closely as possible. "
+                    "If the image contains a table, preserve its structure using spacing or pipes. "
+                    "Output only the extracted text — no explanations, no labels."
+                )
+            else:
+                prompt = (
+                    "Extract all text from this image. "
+                    "Output only the extracted text, nothing else."
+                )
 
             payload = json.dumps({
                 'model': 'mistral-small-latest',

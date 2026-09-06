@@ -5,76 +5,469 @@
 {% block active_img_ocr_opt %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Image to Text</span>{% endblock %}
 {% block extra_head %}
-<style>{% include "pdf_tools/_img_split_css.html" %}
-.ocr-mode-tabs{display:flex;gap:.5rem;margin-bottom:1rem}
-.ocr-mode-tab{flex:1;padding:.55rem;border:1.5px solid #e8e8e8;border-radius:10px;background:#fff;font-size:.8rem;font-weight:700;color:#666;cursor:pointer;text-align:center;transition:all .15s}
-.ocr-mode-tab.active{border-color:#dc2626;background:#fff0f0;color:#dc2626}
-.ocr-result-box{width:100%;box-sizing:border-box;border:1.5px solid #e8e8e8;border-radius:10px;padding:.7rem .9rem;font-size:.82rem;color:#111;min-height:140px;resize:vertical;outline:none;font-family:inherit;line-height:1.5}
-.ocr-result-box:focus{border-color:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.1)}
-.ocr-action-row{display:flex;gap:.5rem;margin-top:.6rem}
-.ocr-copy-btn,.ocr-dl-btn-sm{flex:1;padding:.55rem;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;border:1.5px solid #e8e8e8;background:#fff;color:#444;transition:all .15s;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:.35rem}
-.ocr-copy-btn:hover{border-color:#dc2626;color:#dc2626}
-.ocr-dl-btn-sm{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border-color:transparent}
-.ocr-dl-btn-sm:hover{opacity:.88}
-.ocr-char-count{font-size:.7rem;color:#aaa;text-align:right;margin-top:.3rem}
+<style>
+/* ── Drop Zone ───────────────────────────────────────────────────────── */
+.ito-drop{border:2.5px dashed #cbd5e1;border-radius:20px;padding:3.5rem 2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:#fff}
+.ito-drop:hover,.ito-drop.drag-over{border-color:#dc2626;background:#fff8f8}
+.ito-drop h3{font-size:1.1rem;font-weight:700;color:#1e293b;margin:.5rem 0 .3rem}
+.ito-drop p{font-size:.85rem;color:#64748b;margin:0 0 1.3rem}
+.ito-drop-icon{font-size:3rem;color:#dc2626;margin-bottom:.8rem}
+.ito-drop-btn{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:10px;padding:.65rem 1.4rem;font-size:.85rem;font-weight:700;cursor:pointer;transition:opacity .15s}
+.ito-drop-btn:hover{opacity:.88}
+/* ── Split Layout ────────────────────────────────────────────────────── */
+.ito-split{display:none;grid-template-columns:1fr 400px;gap:18px;align-items:start}
+.ito-split.show{display:grid}
+/* ── Left Viewer ─────────────────────────────────────────────────────── */
+.ito-viewer-wrap{background:#0f172a;border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.ito-toolbar{display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;background:#1e293b;border-bottom:1px solid #334155;flex-wrap:wrap}
+.ito-tb-file{flex:1;min-width:0}
+.ito-tb-fname{font-size:.74rem;font-weight:700;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ito-tb-fmeta{font-size:.67rem;color:#64748b;margin-top:.05rem;white-space:nowrap}
+.ito-tb-center{display:flex;align-items:center;gap:.3rem}
+.ito-zoom-btn{background:none;border:1px solid #475569;border-radius:6px;color:#94a3b8;width:27px;height:27px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.73rem;transition:all .15s}
+.ito-zoom-btn:hover{border-color:#94a3b8;color:#e2e8f0}
+.ito-zoom-sel{background:#334155;border:1px solid #475569;border-radius:6px;color:#94a3b8;font-size:.72rem;padding:.2rem .35rem;cursor:pointer;height:27px}
+.ito-tb-right{display:flex;align-items:center;gap:.3rem}
+.ito-img-stage{padding:1.2rem;min-height:400px;display:flex;align-items:flex-start;justify-content:center;overflow:auto;background:#0f172a}
+.ito-viewer-loading{color:#94a3b8;font-size:.9rem;display:flex;flex-direction:column;align-items:center;gap:.8rem;margin:auto}
+#itoPreviewImg{border-radius:8px;display:none;transform-origin:top center;transition:transform .2s}
+/* ── Right Panel ─────────────────────────────────────────────────────── */
+.ito-right{display:flex;flex-direction:column;gap:11px;position:sticky;top:16px;max-height:calc(100vh - 100px);overflow-y:auto}
+.ito-card{background:#fff;border:1.5px solid #e8e8e8;border-radius:14px;padding:.95rem 1.1rem}
+/* File card */
+.ito-fcard-top{display:flex;align-items:flex-start;gap:.75rem;margin-bottom:.6rem}
+.ito-fcard-icon{width:40px;height:40px;border-radius:10px;background:#fff0f0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#dc2626;flex-shrink:0}
+.ito-fcard-info{flex:1;min-width:0}
+.ito-fcard-name{font-size:.82rem;font-weight:700;color:#111;word-break:break-all;line-height:1.3}
+.ito-fcard-size{font-size:.7rem;color:#aaa;margin-top:.1rem}
+.ito-uploaded-badge{background:#dcfce7;color:#16a34a;font-size:.65rem;font-weight:700;padding:.18rem .5rem;border-radius:6px;white-space:nowrap;flex-shrink:0;margin-top:.1rem}
+.ito-fcard-meta{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;font-size:.68rem;color:#64748b;margin-bottom:.7rem}
+.ito-meta-badge{background:#f1f5f9;color:#475569;font-weight:700;font-size:.65rem;padding:.12rem .42rem;border-radius:5px}
+.ito-change-btn{width:100%;background:#fff;border:1.5px solid #e8e8e8;border-radius:9px;padding:.4rem;font-size:.76rem;font-weight:600;color:#555;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:.4rem}
+.ito-change-btn:hover{border-color:#fca5a5;color:#dc2626}
+/* OCR Engine */
+.ito-sec-title{font-size:.78rem;font-weight:800;color:#1e293b;margin-bottom:.12rem}
+.ito-sec-sub{font-size:.7rem;color:#94a3b8;margin-bottom:.7rem}
+.ito-engine-row{display:flex;gap:.6rem}
+.ito-engine-btn{flex:1;border:1.5px solid #e8e8e8;border-radius:12px;background:#fff;padding:.65rem .7rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.55rem;text-align:left;position:relative}
+.ito-engine-btn:hover{border-color:#fca5a5}
+.ito-engine-btn.active{border-color:#dc2626;background:#fff8f8}
+.ito-eng-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.88rem;flex-shrink:0}
+.ito-eng-icon-red{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff}
+.ito-eng-icon-gray{background:#f1f5f9;color:#64748b}
+.ito-eng-text{flex:1;min-width:0}
+.ito-eng-name{font-size:.76rem;font-weight:700;color:#1e293b}
+.ito-eng-desc{font-size:.64rem;color:#94a3b8;white-space:nowrap}
+.ito-eng-check{font-size:.72rem;color:#e8e8e8;transition:color .15s;flex-shrink:0}
+.ito-engine-btn.active .ito-eng-check{color:#dc2626}
+/* Options */
+.ito-opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-bottom:.7rem}
+.ito-field-label{font-size:.68rem;font-weight:700;color:#555;margin-bottom:.28rem}
+.ito-input{width:100%;box-sizing:border-box;border:1.5px solid #e8e8e8;border-radius:8px;padding:.4rem .65rem;font-size:.76rem;color:#111;outline:none;transition:border-color .15s;background:#fff}
+.ito-input:focus{border-color:#dc2626}
+.ito-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:.45rem 0 0;border-top:1px solid #f1f5f9}
+.ito-toggle-label{font-size:.76rem;font-weight:700;color:#1e293b}
+.ito-toggle-sub{font-size:.66rem;color:#94a3b8;margin-top:.05rem}
+.ito-toggle{position:relative;display:inline-block;width:38px;height:21px;flex-shrink:0}
+.ito-toggle input{display:none}
+.ito-toggle-slider{position:absolute;inset:0;background:#e2e8f0;border-radius:21px;transition:.2s;cursor:pointer}
+.ito-toggle-slider:before{content:'';position:absolute;width:15px;height:15px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.ito-toggle input:checked+.ito-toggle-slider{background:#dc2626}
+.ito-toggle input:checked+.ito-toggle-slider:before{transform:translateX(17px)}
+/* Extract button */
+.ito-extract-btn{width:100%;padding:.82rem;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:12px;font-size:.88rem;font-weight:700;cursor:pointer;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.ito-extract-btn:hover:not(:disabled){opacity:.88}
+.ito-extract-btn:disabled{opacity:.55;cursor:not-allowed}
+/* Loading */
+.ito-loading-card{display:none;background:#fff;border:1.5px solid #fecaca;border-radius:13px;padding:.9rem 1.1rem;align-items:center;gap:.75rem;color:#b91c1c;font-size:.84rem;font-weight:600}
+.ito-loading-card.show{display:flex}
+/* Action buttons */
+.ito-act-row{display:none;grid-template-columns:repeat(4,1fr);gap:.5rem}
+.ito-act-row.show{display:grid}
+.ito-act-btn{border:none;border-radius:12px;padding:.65rem .35rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.28rem;transition:opacity .15s;text-decoration:none}
+.ito-act-btn:hover{opacity:.82}
+.ito-act-btn i{font-size:.95rem}
+.ito-act-btn span{font-size:.68rem;font-weight:700;color:inherit}
+.ito-act-btn small{font-size:.58rem;opacity:.6;text-align:center;line-height:1.2}
+.ito-act-copy{background:#eff6ff;color:#2563eb}
+.ito-act-download{background:#f0fdf4;color:#16a34a}
+.ito-act-preview{background:#f0f9ff;color:#0284c7}
+.ito-act-clear{background:#fff5f5;color:#dc2626}
+/* Result */
+.ito-result-card{display:none;background:#fff;border:1.5px solid #bbf7d0;border-radius:13px;padding:.9rem 1.1rem}
+.ito-result-card.show{display:block}
+.ito-result-title{font-size:.83rem;font-weight:700;color:#15803d;margin-bottom:.65rem;display:flex;align-items:center;gap:.4rem}
+.ito-result-box{width:100%;box-sizing:border-box;border:1.5px solid #e8e8e8;border-radius:9px;padding:.6rem .8rem;font-size:.78rem;color:#111;min-height:120px;resize:vertical;outline:none;font-family:inherit;line-height:1.5}
+.ito-result-box:focus{border-color:#dc2626}
+.ito-char-count{font-size:.65rem;color:#aaa;text-align:right;margin-top:.3rem}
+/* Error */
+.ito-error-card{display:none;background:#fff;border:1.5px solid #fecaca;border-radius:13px;padding:.9rem 1.1rem}
+.ito-error-card.show{display:block}
+.ito-error-msg{font-size:.78rem;color:#dc2626;font-weight:600}
+/* Tip */
+.ito-tip{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:.6rem .85rem;font-size:.73rem;color:#1d4ed8;display:flex;align-items:flex-start;gap:.5rem;position:relative}
+.ito-tip i{flex-shrink:0;margin-top:.06rem}
+.ito-tip-close{position:absolute;right:.55rem;top:.45rem;background:none;border:none;color:#93c5fd;font-size:.9rem;cursor:pointer;line-height:1;padding:0}
+/* Spin */
+.ito-spin{animation:itoSpin 1s linear infinite}
+@keyframes itoSpin{to{transform:rotate(360deg)}}
+/* Responsive */
+@media(max-width:1050px){
+  .ito-split{grid-template-columns:1fr}
+  .ito-right{position:static;max-height:none}
+  .ito-opts-grid{grid-template-columns:1fr 1fr}
+  .ito-act-row{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:600px){
+  .ito-opts-grid{grid-template-columns:1fr}
+  .ito-act-row{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 {% endblock %}
 {% block content %}
 <input type="file" id="fileInput" accept="image/*" style="display:none">
-<div class="it-drop" id="itDrop" onclick="document.getElementById('fileInput').click()">
-  <div class="it-drop-icon"><i class="fa-solid fa-file-lines"></i></div>
-  <h3>Drop your image here</h3><p>Extract text from screenshots, scanned docs, photos</p>
-  <button type="button" class="it-drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()"><i class="fa-solid fa-folder-open"></i> Select Image</button>
+
+<!-- Drop Zone -->
+<div class="ito-drop" id="itoDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="ito-drop-icon"><i class="fa-solid fa-file-lines"></i></div>
+  <h3>Drop your image here</h3>
+  <p>Extract text from screenshots, scanned docs, photos</p>
+  <button type="button" class="ito-drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-folder-open"></i> Select Image
+  </button>
 </div>
-<div class="it-split" id="itSplit">
-  <div class="it-viewer"><div class="it-viewer-loading" id="itViewerLoad"><i class="fa-solid fa-spinner it-spin"></i><span>Loading…</span></div><img id="itPreviewImg" style="display:none;max-width:100%;max-height:100%;border-radius:8px;object-fit:contain;" alt="preview"></div>
-  <div class="it-right">
-    <div class="it-card"><div class="it-file-row"><div class="it-file-icon"><i class="fa-solid fa-image"></i></div><div><div class="it-file-name" id="itFileName">—</div><div class="it-file-size" id="itFileSize">—</div></div><button type="button" class="it-change-btn" onclick="resetTool()"><i class="fa-solid fa-rotate-left"></i> Change</button></div></div>
-    <div class="it-card">
-      <div class="it-opts-title"><i class="fa-solid fa-wand-magic-sparkles"></i> OCR Engine</div>
-      <div class="ocr-mode-tabs">
-        <button class="ocr-mode-tab active" id="tabStd" onclick="setMode('tesseract')"><i class="fa-solid fa-bolt"></i> Tesseract</button>
-        <button class="ocr-mode-tab" id="tabPro" onclick="setMode('mistral')"><i class="fa-solid fa-star"></i> Mistral</button>
+
+<!-- Split View -->
+<div class="ito-split" id="itoSplit">
+
+  <!-- Left: Image Viewer -->
+  <div class="ito-viewer-wrap">
+    <div class="ito-toolbar">
+      <div class="ito-tb-file">
+        <div class="ito-tb-fname" id="itoTbFname">—</div>
+        <div class="ito-tb-fmeta" id="itoTbFmeta">—</div>
       </div>
-      <div id="stdInfo" style="font-size:.75rem;color:#64748b;line-height:1.5">Offline OCR engine. Fast for printed text, screenshots, and scanned documents.</div>
-      <div id="proInfo" style="display:none;font-size:.75rem;color:#64748b;line-height:1.5">AI-powered extraction. Better for handwriting, complex layouts, and multilingual content.</div>
-    </div>
-    <div class="it-card">
-      <div class="it-opts-title"><i class="fa-solid fa-language"></i> Options</div>
-      <div class="it-field-label" style="margin-top:0">Language</div>
-      <select id="langSelect" class="it-input">
-        <option value="auto">Auto Detect</option>
-        <option value="eng">English</option>
-        <option value="ara">Arabic</option>
-        <option value="fra">French</option>
-        <option value="deu">German</option>
-        <option value="spa">Spanish</option>
-        <option value="hin">Hindi</option>
-        <option value="zho">Chinese</option>
-        <option value="jpn">Japanese</option>
-      </select>
-    </div>
-    <button type="button" class="it-convert-btn" id="itConvertBtn" onclick="doConvert()"><i class="fa-solid fa-file-lines"></i> Extract Text</button>
-    <div class="it-loading-card" id="itLoadingCard"><i class="fa-solid fa-spinner it-spin"></i><span style="font-size:.88rem;font-weight:600;color:#b91c1c" id="loadingMsg">Extracting text…</span></div>
-    <div class="it-result-card" id="itResultCard">
-      <div class="it-result-title"><i class="fa-solid fa-circle-check"></i> Text extracted!</div>
-      <textarea class="ocr-result-box" id="ocrText" readonly></textarea>
-      <div class="ocr-char-count" id="ocrCharCount"></div>
-      <div class="ocr-action-row">
-        <button class="ocr-copy-btn" onclick="copyText()"><i class="fa-solid fa-copy"></i> Copy</button>
-        <a class="ocr-dl-btn-sm" id="itDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download .txt</a>
+      <div class="ito-tb-center">
+        <button class="ito-zoom-btn" onclick="changeZoom(-1)" title="Zoom out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+        <select class="ito-zoom-sel" id="itoZoomSel" onchange="applyZoom(parseInt(this.value))">
+          <option value="50">50%</option>
+          <option value="75" selected>75%</option>
+          <option value="100">100%</option>
+          <option value="125">125%</option>
+          <option value="150">150%</option>
+          <option value="200">200%</option>
+        </select>
+        <button class="ito-zoom-btn" onclick="changeZoom(1)" title="Zoom in"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+      </div>
+      <div class="ito-tb-right">
+        <button class="ito-zoom-btn" onclick="rotateImg()" title="Rotate"><i class="fa-solid fa-rotate-right"></i></button>
       </div>
     </div>
-    <div class="it-error-card" id="itErrorCard"><div class="it-error-msg" id="itErrorMsg"></div></div>
+    <div class="ito-img-stage" id="itoImgStage">
+      <div class="ito-viewer-loading" id="itoViewerLoad">
+        <i class="fa-solid fa-spinner ito-spin"></i><span>Loading…</span>
+      </div>
+      <img id="itoPreviewImg" alt="preview">
+    </div>
   </div>
-</div>
+
+  <!-- Right: Controls -->
+  <div class="ito-right">
+
+    <!-- File info card -->
+    <div class="ito-card">
+      <div class="ito-fcard-top">
+        <div class="ito-fcard-icon"><i class="fa-solid fa-image"></i></div>
+        <div class="ito-fcard-info">
+          <div class="ito-fcard-name" id="itoFileName">—</div>
+          <div class="ito-fcard-size" id="itoFileSize">—</div>
+        </div>
+        <span class="ito-uploaded-badge">Uploaded</span>
+      </div>
+      <div class="ito-fcard-meta">
+        <span class="ito-meta-badge" id="itoFext">—</span>
+        <span><i class="fa-solid fa-expand" style="font-size:.6rem;opacity:.6"></i>&nbsp;<span id="itoFdims">—</span></span>
+        <span><i class="fa-regular fa-calendar" style="font-size:.6rem;opacity:.6"></i>&nbsp;<span id="itoFdate">—</span></span>
+      </div>
+      <button class="ito-change-btn" onclick="resetTool()">
+        <i class="fa-solid fa-rotate-left"></i> Change Image
+      </button>
+    </div>
+
+    <!-- OCR Engine card -->
+    <div class="ito-card">
+      <div class="ito-sec-title">OCR Engine</div>
+      <div class="ito-sec-sub">Choose the engine for best accuracy</div>
+      <div class="ito-engine-row">
+        <button class="ito-engine-btn active" id="engTesseract" onclick="setMode('tesseract')">
+          <div class="ito-eng-icon ito-eng-icon-red"><i class="fa-solid fa-bolt"></i></div>
+          <div class="ito-eng-text">
+            <div class="ito-eng-name">Tesseract</div>
+            <div class="ito-eng-desc">Fast &amp; reliable</div>
+          </div>
+          <i class="fa-solid fa-circle-check ito-eng-check"></i>
+        </button>
+        <button class="ito-engine-btn" id="engMistral" onclick="setMode('mistral')">
+          <div class="ito-eng-icon ito-eng-icon-gray"><i class="fa-solid fa-star"></i></div>
+          <div class="ito-eng-text">
+            <div class="ito-eng-name">Mistral</div>
+            <div class="ito-eng-desc">High accuracy (AI)</div>
+          </div>
+          <i class="fa-solid fa-circle-check ito-eng-check"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Options card -->
+    <div class="ito-card">
+      <div class="ito-sec-title">Options</div>
+      <div class="ito-opts-grid">
+        <div>
+          <div class="ito-field-label">Language</div>
+          <select id="langSelect" class="ito-input">
+            <option value="auto">Auto Detect</option>
+            <option value="eng">English</option>
+            <option value="ara">Arabic</option>
+            <option value="fra">French</option>
+            <option value="deu">German</option>
+            <option value="spa">Spanish</option>
+            <option value="hin">Hindi</option>
+            <option value="zho">Chinese</option>
+            <option value="jpn">Japanese</option>
+          </select>
+        </div>
+        <div>
+          <div class="ito-field-label">Output Format</div>
+          <select id="fmtSelect" class="ito-input">
+            <option value="plain">Plain Text</option>
+            <option value="markdown">Markdown</option>
+          </select>
+        </div>
+      </div>
+      <div class="ito-toggle-row">
+        <div>
+          <div class="ito-toggle-label">Preserve Layout</div>
+          <div class="ito-toggle-sub">Maintain structure</div>
+        </div>
+        <label class="ito-toggle">
+          <input type="checkbox" id="preserveLayout" checked>
+          <span class="ito-toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Extract button -->
+    <button type="button" class="ito-extract-btn" id="itoExtractBtn" onclick="doConvert()">
+      <i class="fa-solid fa-file-lines"></i> Extract Text
+    </button>
+
+    <!-- Loading -->
+    <div class="ito-loading-card" id="itoLoadingCard">
+      <i class="fa-solid fa-spinner ito-spin"></i>
+      <span id="itoLoadingMsg">Extracting text…</span>
+    </div>
+
+    <!-- 4 Action buttons (shown after extraction) -->
+    <div class="ito-act-row" id="itoActRow">
+      <button class="ito-act-btn ito-act-copy" onclick="copyText()">
+        <i class="fa-solid fa-copy"></i>
+        <span>Copy Text</span>
+        <small>Copy to clipboard</small>
+      </button>
+      <a class="ito-act-btn ito-act-download" id="itoDownloadBtn" href="#" download>
+        <i class="fa-solid fa-download"></i>
+        <span>Download</span>
+        <small>Save as .txt</small>
+      </a>
+      <button class="ito-act-btn ito-act-preview" onclick="togglePreview()">
+        <i class="fa-solid fa-eye"></i>
+        <span>Preview</span>
+        <small>View extracted text</small>
+      </button>
+      <button class="ito-act-btn ito-act-clear" onclick="resetTool()">
+        <i class="fa-solid fa-xmark"></i>
+        <span>Clear</span>
+        <small>Reset everything</small>
+      </button>
+    </div>
+
+    <!-- Result preview (toggled by Preview button) -->
+    <div class="ito-result-card" id="itoResultCard">
+      <div class="ito-result-title"><i class="fa-solid fa-circle-check"></i> Text extracted!</div>
+      <textarea class="ito-result-box" id="ocrText" readonly></textarea>
+      <div class="ito-char-count" id="itoCharCount"></div>
+    </div>
+
+    <!-- Error -->
+    <div class="ito-error-card" id="itoErrorCard">
+      <div class="ito-error-msg" id="itoErrorMsg"></div>
+    </div>
+
+    <!-- Tip -->
+    <div class="ito-tip" id="itoTip">
+      <i class="fa-solid fa-circle-info"></i>
+      <span>For best results, use a clear and high-resolution image.</span>
+      <button class="ito-tip-close" onclick="this.parentElement.style.display='none'">×</button>
+    </div>
+
+  </div><!-- .ito-right -->
+</div><!-- .ito-split -->
 {% endblock %}
+
 {% block extra_js %}<script>
-let currentFile=null,currentMode='tesseract';const fileInput=document.getElementById('fileInput');
-function setMode(m){currentMode=m;document.getElementById('tabStd').classList.toggle('active',m==='tesseract');document.getElementById('tabPro').classList.toggle('active',m==='mistral');document.getElementById('stdInfo').style.display=m==='tesseract'?'':'none';document.getElementById('proInfo').style.display=m==='mistral'?'':'none';}
-function resetTool(){fileInput.value='';currentFile=null;document.getElementById('itDrop').style.display='';document.getElementById('itSplit').classList.remove('show');['itLoadingCard','itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itConvertBtn').disabled=false;}
-function setFile(f){if(!f)return;currentFile=f;document.getElementById('itFileName').textContent=f.name;document.getElementById('itFileSize').textContent=(f.size/1024).toFixed(1)+' KB';document.getElementById('itDrop').style.display='none';['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itSplit').classList.add('show');const img=document.getElementById('itPreviewImg');img.src=URL.createObjectURL(f);img.style.display='block';document.getElementById('itViewerLoad').style.display='none';}
-async function doConvert(){if(!currentFile)return;document.getElementById('itConvertBtn').disabled=true;document.getElementById('loadingMsg').textContent=currentMode==='mistral'?'Running Mistral AI…':'Extracting text…';document.getElementById('itLoadingCard').classList.add('show');['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));const fd=new FormData();fd.append('file',currentFile);fd.append('csrfmiddlewaretoken','{{ csrf_token }}');fd.append('mode',currentMode);fd.append('language',document.getElementById('langSelect').value);try{const res=await fetch('/tools/api/img/ocr/',{method:'POST',body:fd});const d=await res.json();if(d.error)throw new Error(d.error);const txt=d.text||'';document.getElementById('ocrText').value=txt;document.getElementById('ocrCharCount').textContent=txt.length.toLocaleString()+' characters';if(d.download_url){document.getElementById('itDlBtn').href=d.download_url;document.getElementById('itDlBtn').download=d.filename||'extracted.txt';}document.getElementById('itResultCard').classList.add('show');}catch(e){document.getElementById('itErrorMsg').textContent=e.message||'Failed.';document.getElementById('itErrorCard').classList.add('show');}finally{document.getElementById('itLoadingCard').classList.remove('show');document.getElementById('itConvertBtn').disabled=false;}}
-function copyText(){const t=document.getElementById('ocrText');t.select();document.execCommand('copy');const btn=document.querySelector('.ocr-copy-btn');btn.innerHTML='<i class="fa-solid fa-check"></i> Copied!';setTimeout(()=>btn.innerHTML='<i class="fa-solid fa-copy"></i> Copy',2000);}
-fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));const drop=document.getElementById('itDrop');drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+const ZOOM_STEPS = [50,75,100,125,150,200];
+let currentFile = null, currentMode = 'tesseract', currentZoom = 75, currentRotation = 0;
+const fileInput = document.getElementById('fileInput');
+
+function setMode(m) {
+  currentMode = m;
+  document.getElementById('engTesseract').classList.toggle('active', m === 'tesseract');
+  document.getElementById('engMistral').classList.toggle('active', m === 'mistral');
+}
+
+function applyZoom(z) {
+  currentZoom = z;
+  const img = document.getElementById('itoPreviewImg');
+  img.style.width = z + '%';
+  img.style.maxWidth = 'none';
+  const sel = document.getElementById('itoZoomSel');
+  if (sel) sel.value = z;
+}
+
+function changeZoom(dir) {
+  let idx = ZOOM_STEPS.indexOf(currentZoom);
+  if (idx === -1) idx = 1;
+  idx = Math.max(0, Math.min(ZOOM_STEPS.length - 1, idx + dir));
+  applyZoom(ZOOM_STEPS[idx]);
+}
+
+function rotateImg() {
+  currentRotation = (currentRotation + 90) % 360;
+  document.getElementById('itoPreviewImg').style.transform = 'rotate(' + currentRotation + 'deg)';
+}
+
+function resetTool() {
+  fileInput.value = '';
+  currentFile = null;
+  currentRotation = 0;
+  currentZoom = 75;
+  document.getElementById('itoDrop').style.display = '';
+  document.getElementById('itoSplit').classList.remove('show');
+  ['itoLoadingCard','itoResultCard','itoErrorCard','itoActRow'].forEach(id => {
+    document.getElementById(id).classList.remove('show');
+  });
+  document.getElementById('itoExtractBtn').disabled = false;
+  const img = document.getElementById('itoPreviewImg');
+  img.style.display = 'none';
+  img.style.transform = '';
+  document.getElementById('itoViewerLoad').style.display = '';
+}
+
+function setFile(f) {
+  if (!f) return;
+  currentFile = f;
+  currentRotation = 0;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
+  const ext = (f.name.split('.').pop() || 'IMG').toUpperCase();
+  const sizeKB = (f.size / 1024).toFixed(1) + ' KB';
+
+  document.getElementById('itoFileName').textContent = f.name;
+  document.getElementById('itoFileSize').textContent = sizeKB;
+  document.getElementById('itoTbFname').textContent = f.name;
+  document.getElementById('itoFext').textContent = ext;
+  document.getElementById('itoFdate').textContent = dateStr;
+
+  document.getElementById('itoDrop').style.display = 'none';
+  ['itoResultCard','itoErrorCard','itoActRow'].forEach(id => {
+    document.getElementById(id).classList.remove('show');
+  });
+  document.getElementById('itoSplit').classList.add('show');
+
+  const img = document.getElementById('itoPreviewImg');
+  img.onload = function () {
+    const dims = img.naturalWidth + ' × ' + img.naturalHeight + ' px';
+    document.getElementById('itoFdims').textContent = dims;
+    document.getElementById('itoTbFmeta').textContent = sizeKB + ' | ' + dims;
+    img.style.width = currentZoom + '%';
+    img.style.maxWidth = 'none';
+    img.style.display = 'block';
+    document.getElementById('itoViewerLoad').style.display = 'none';
+  };
+  img.src = URL.createObjectURL(f);
+}
+
+async function doConvert() {
+  if (!currentFile) return;
+  document.getElementById('itoExtractBtn').disabled = true;
+  document.getElementById('itoLoadingMsg').textContent =
+    currentMode === 'mistral' ? 'Running Mistral AI…' : 'Extracting text…';
+  document.getElementById('itoLoadingCard').classList.add('show');
+  ['itoResultCard','itoErrorCard','itoActRow'].forEach(id => {
+    document.getElementById(id).classList.remove('show');
+  });
+
+  const fd = new FormData();
+  fd.append('file', currentFile);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fd.append('mode', currentMode);
+  fd.append('lang', document.getElementById('langSelect').value);
+  fd.append('format', document.getElementById('fmtSelect').value);
+  fd.append('preserve_layout', document.getElementById('preserveLayout').checked ? '1' : '0');
+
+  try {
+    const res = await fetch('/tools/api/img/ocr/', {method:'POST', body:fd});
+    const d = await res.json();
+    if (d.error) throw new Error(d.error);
+    const txt = d.text || '';
+    document.getElementById('ocrText').value = txt;
+    document.getElementById('itoCharCount').textContent =
+      txt.length.toLocaleString() + ' characters · ' + (d.word_count || 0) + ' words';
+    if (d.download_url) {
+      document.getElementById('itoDownloadBtn').href = d.download_url;
+      document.getElementById('itoDownloadBtn').setAttribute('download', d.filename || 'extracted.txt');
+    }
+    document.getElementById('itoActRow').classList.add('show');
+  } catch (e) {
+    document.getElementById('itoErrorMsg').textContent = e.message || 'Extraction failed.';
+    document.getElementById('itoErrorCard').classList.add('show');
+  } finally {
+    document.getElementById('itoLoadingCard').classList.remove('show');
+    document.getElementById('itoExtractBtn').disabled = false;
+  }
+}
+
+function togglePreview() {
+  const card = document.getElementById('itoResultCard');
+  const showing = card.classList.contains('show');
+  card.classList.toggle('show', !showing);
+  if (!showing) card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function copyText() {
+  const val = document.getElementById('ocrText').value;
+  const btn = document.querySelector('.ito-act-copy');
+  const orig = btn.innerHTML;
+  const done = () => {
+    btn.innerHTML = '<i class="fa-solid fa-check"></i><span>Copied!</span><small>Done</small>';
+    setTimeout(() => { btn.innerHTML = orig; }, 2000);
+  };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(val).then(done).catch(() => {
+      document.getElementById('ocrText').select();
+      document.execCommand('copy');
+      done();
+    });
+  } else {
+    document.getElementById('ocrText').select();
+    document.execCommand('copy');
+    done();
+  }
+}
+
+fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+const drop = document.getElementById('itoDrop');
+drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
+drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
 </script>{% endblock %}
