@@ -359,7 +359,7 @@
                     </a>
                   </div>
 
-                  <!-- Col 3: Remove BG · Meme Generator · Watermark -->
+                  <!-- Col 3: Remove BG · Meme Generator · Watermark · Image to Text -->
                   <div class="mhd-img-col">
                     <a href="{% url 'img_remove_bg_page' %}" class="mh-drop-item {% block active_img_remove_bg %}{% endblock %}">
                       <span class="mhd-icon" style="background:rgba(147,51,234,0.14);color:#9333ea;"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
@@ -372,6 +372,10 @@
                     <a href="{% url 'img_watermark_page' %}" class="mh-drop-item {% block active_img_watermark %}{% endblock %}">
                       <span class="mhd-icon" style="background:rgba(146,64,14,0.14);color:#92400e;"><i class="fa-solid fa-stamp"></i></span>
                       <span class="mhd-text"><strong>Watermark</strong></span>
+                    </a>
+                    <a href="{% url 'img_ocr_page' %}" class="mh-drop-item {% block active_img_ocr %}{% endblock %}">
+                      <span class="mhd-icon" style="background:rgba(202,138,4,0.14);color:#ca8a04;"><i class="fa-solid fa-font"></i></span>
+                      <span class="mhd-text"><strong>Image to Text</strong><span class="mhd-ai">AI✧</span></span>
                     </a>
                   </div>
 
