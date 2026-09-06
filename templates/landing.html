@@ -997,5 +997,18 @@ if (io) {
   }
 })();
 </script>
+{% if not request.user.is_authenticated %}
+<script>
+(function() {
+  if (sessionStorage.getItem('zp_popup_shown')) return;
+  setTimeout(function() {
+    if (typeof openZpPopup === 'function') {
+      openZpPopup('signupPopup');
+      sessionStorage.setItem('zp_popup_shown', '1');
+    }
+  }, 3000);
+})();
+</script>
+{% endif %}
 </body>
 </html>
