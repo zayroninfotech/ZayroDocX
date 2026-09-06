@@ -32,7 +32,7 @@
 .ito-viewer-loading{color:#94a3b8;font-size:.9rem;display:flex;flex-direction:column;align-items:center;gap:.8rem;margin:auto}
 #itoPreviewImg{border-radius:8px;display:none;transform-origin:top center;transition:transform .2s}
 /* ── Right Panel ─────────────────────────────────────────────────────── */
-.ito-right{display:flex;flex-direction:column;gap:11px;position:sticky;top:16px;max-height:calc(100vh - 100px);overflow-y:auto}
+.ito-right{display:flex;flex-direction:column;gap:11px;position:sticky;top:16px}
 .ito-card{background:#fff;border:1.5px solid #e8e8e8;border-radius:14px;padding:.95rem 1.1rem}
 /* File card */
 .ito-fcard-top{display:flex;align-items:flex-start;gap:.75rem;margin-bottom:.6rem}
@@ -235,29 +235,15 @@
     <!-- Options card -->
     <div class="ito-card">
       <div class="ito-sec-title">Options</div>
-      <div class="ito-opts-grid">
-        <div>
-          <div class="ito-field-label">Language</div>
-          <select id="langSelect" class="ito-input">
-            <option value="auto">Auto Detect</option>
-            <option value="eng">English</option>
-            <option value="ara">Arabic</option>
-            <option value="fra">French</option>
-            <option value="deu">German</option>
-            <option value="spa">Spanish</option>
-            <option value="hin">Hindi</option>
-            <option value="zho">Chinese</option>
-            <option value="jpn">Japanese</option>
-          </select>
-        </div>
-        <div>
-          <div class="ito-field-label">Output Format</div>
-          <select id="fmtSelect" class="ito-input" onchange="onFmtChange(this.value)">
-            <option value="plain">Plain Text</option>
-            <option value="markdown">Markdown</option>
-          </select>
-        </div>
+      <div>
+        <div class="ito-field-label">Output Format</div>
+        <select id="fmtSelect" class="ito-input" onchange="onFmtChange(this.value)">
+          <option value="plain">Plain Text</option>
+          <option value="markdown">Markdown</option>
+        </select>
       </div>
+      <!-- hidden lang fixed to auto for backend compatibility -->
+      <input type="hidden" id="langSelect" value="auto">
       <div class="ito-toggle-row">
         <div>
           <div class="ito-toggle-label">Preserve Layout</div>
