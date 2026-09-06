@@ -73,7 +73,7 @@ from apps.pdf_tools.views.crop_pdf import crop_pdf
 from apps.pdf_tools.views.thumbnail import pdf_thumbnails
 from apps.pdf_tools.views.image_tools import (
     compress_image, resize_image, crop_image, rotate_image,
-    convert_to_jpg, convert_from_jpg, watermark_image, meme_generator,
+    convert_to_jpg, convert_from_jpg, watermark_image,
     upscale_image, remove_background, blur_face, img_ocr,
 )
 from apps.pdf_tools.views.live_share import (
@@ -130,7 +130,6 @@ urlpatterns = [
     path('convert-to-jpg/',     tool_page('img_to_jpg.html',    'convert-to-jpg'),  name='img_to_jpg_page'),
     path('convert-from-jpg/',   tool_page('img_from_jpg.html',  'convert-from-jpg'),name='img_from_jpg_page'),
     path('watermark-image/',    tool_page('img_watermark.html', 'watermark-image'), name='img_watermark_page'),
-    path('meme-generator/',     tool_page('img_meme.html',      'meme-generator'),  name='img_meme_page'),
     path('upscale-image/',      tool_page('img_upscale.html',   'upscale-image'),   name='img_upscale_page'),
     path('remove-background/',  tool_page('img_remove_bg.html', 'remove-background'),name='img_remove_bg_page'),
     path('blur-face/',          tool_page('img_blur_face.html', 'blur-face'),       name='img_blur_face_page'),
@@ -198,7 +197,6 @@ urlpatterns = [
     path('api/img/to-jpg/',     protected_api(_tag(convert_to_jpg,'convert-to-jpg')), name='api_img_to_jpg'),
     path('api/img/from-jpg/',   protected_api(_tag(convert_from_jpg,'convert-from-jpg')), name='api_img_from_jpg'),
     path('api/img/watermark/',  protected_api(_tag(watermark_image,'watermark-image')),name='api_img_watermark'),
-    path('api/img/meme/',       protected_api(_tag(meme_generator,'meme-generator')), name='api_img_meme'),
     path('api/img/upscale/',    protected_api(_tag(upscale_image, 'upscale-image')),  name='api_img_upscale'),
     path('api/img/remove-bg/',  protected_api(_tag(remove_background,'remove-background')), name='api_img_remove_bg'),
     path('api/img/blur-face/',  protected_api(_tag(blur_face,    'blur-face')),       name='api_img_blur_face'),

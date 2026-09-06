@@ -16,7 +16,7 @@ GUEST_TOOLS = {
     'jpg-to-pdf', 'scan-to-pdf', 'pdf-to-jpg', 'pdf-to-word',
     'pdf-to-pptx', 'pdf-to-excel',
     'compress-image', 'resize-image', 'crop-image', 'rotate-image',
-    'convert-to-jpg', 'convert-from-jpg', 'watermark-image', 'meme-generator',
+    'convert-to-jpg', 'convert-from-jpg', 'watermark-image',
 }
 
 # Free account: OCR + AI tools + everything guests get

@@ -302,59 +302,6 @@ def watermark_image(request):
         cleanup_file(saved_path)
 
 
-# ── Meme Generator ────────────────────────────────────────────────────────────
-
-@require_POST
-def meme_generator(request):
-    f = request.FILES.get('file')
-    top_text    = request.POST.get('top_text', '').strip().upper()
-    bottom_text = request.POST.get('bottom_text', '').strip().upper()
-    if not f:
-        return JsonResponse({'error': 'No file uploaded.'}, status=400)
-    if not top_text and not bottom_text:
-        return JsonResponse({'error': 'Enter top or bottom text.'}, status=400)
-
-    saved_path, _ = save_uploaded_file(f)
-    out_path, out_name = get_output_path('.jpg', 'meme')
-    try:
-        validate_image(saved_path, f.name)
-        img = _open_image(saved_path).convert('RGB')
-        w, h = img.size
-        font_size = max(24, int(h * _FONT_SIZE_RATIO))
-        try:
-            font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', font_size)
-        except Exception:
-            font = ImageFont.load_default()
-
-        draw = ImageDraw.Draw(img)
-
-        def draw_text_outlined(draw, text, x, y, font):
-            for dx, dy in [(-2,-2),(2,-2),(-2,2),(2,2),(0,-2),(0,2),(-2,0),(2,0)]:
-                draw.text((x+dx, y+dy), text, font=font, fill=(0,0,0))
-            draw.text((x, y), text, font=font, fill=(255,255,255))
-
-        pad = int(h * 0.02)
-        if top_text:
-            bb = draw.textbbox((0,0), top_text, font=font)
-            tw = bb[2] - bb[0]
-            draw_text_outlined(draw, top_text, (w-tw)//2, pad, font)
-        if bottom_text:
-            bb = draw.textbbox((0,0), bottom_text, font=font)
-            tw, th = bb[2]-bb[0], bb[3]-bb[1]
-            draw_text_outlined(draw, bottom_text, (w-tw)//2, h-th-pad, font)
-
-        img.save(out_path, 'JPEG', quality=92)
-        save_job('meme_generator', [f.name], [out_name])
-        return JsonResponse({'download_url': media_url(out_name), 'filename': out_name})
-    except ValueError as e:
-        return JsonResponse({'error': str(e)}, status=400)
-    except Exception as e:
-        logger.error('meme_generator: %s\n%s', e, traceback.format_exc())
-        return JsonResponse({'error': f'Meme generation failed: {e}'}, status=500)
-    finally:
-        cleanup_file(saved_path)
-
-
 # ── Upscale IMAGE ─────────────────────────────────────────────────────────────
 
 @require_POST

@@ -48,7 +48,6 @@ _TOOLS_SEED = [
     ('convert-to-jpg',   'Convert to JPG',     'Image Tools',   False, 'fa-file-image'),
     ('convert-from-jpg', 'Convert from JPG',   'Image Tools',   False, 'fa-images'),
     ('watermark-image',  'Watermark Image',    'Image Tools',   True,  'fa-stamp'),
-    ('meme-generator',   'Meme Generator',     'Image Tools',   True,  'fa-face-laugh-squint'),
     ('upscale-image',    'Upscale Image',      'Image Tools',   True,  'fa-magnifying-glass-plus'),
     ('remove-background','Remove Background',  'Image Tools',   True,  'fa-wand-magic-sparkles'),
     ('blur-face',        'Blur Face',          'Image Tools',   True,  'fa-user-secret'),
