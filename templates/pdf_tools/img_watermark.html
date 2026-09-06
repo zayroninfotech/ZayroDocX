@@ -187,7 +187,13 @@ function resetTool(){
 }
 
 function setFile(f){
-  if(!f)return;currentFile=f;
+  if(!f)return;
+  if(!f.type.startsWith('image/')){
+    alert('This tool is for images only (JPG, PNG, WEBP, etc.).\nTo watermark a PDF, use the PDF Watermark tool.');
+    fileInput.value='';
+    return;
+  }
+  currentFile=f;
   document.getElementById('itFileName').textContent=f.name;
   document.getElementById('itFileSize').textContent=(f.size/1024).toFixed(1)+' KB';
   document.getElementById('itDrop').style.display='none';
