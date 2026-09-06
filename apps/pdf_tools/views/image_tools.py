@@ -349,11 +349,25 @@ def remove_background(request):
     try:
         validate_image(saved_path, f.name)
         try:
-            from rembg import remove as rembg_remove
-            with open(saved_path, 'rb') as fh:
-                result = rembg_remove(fh.read())
+            from rembg import remove as rembg_remove, new_session
+            # Resize large images for speed (rembg is slow on big images)
+            img_in = _open_image(saved_path)
+            orig_size = img_in.size
+            if max(orig_size) > 1024:
+                img_in.thumbnail((1024, 1024), Image.LANCZOS)
+            buf_in = io.BytesIO()
+            img_in.save(buf_in, 'PNG')
+            session = new_session('u2netp')
+            result_bytes = rembg_remove(buf_in.getvalue(), session=session)
+            # Restore original size if resized
+            if max(orig_size) > 1024:
+                result_img = Image.open(io.BytesIO(result_bytes)).convert('RGBA')
+                result_img = result_img.resize(orig_size, Image.LANCZOS)
+                buf_out = io.BytesIO()
+                result_img.save(buf_out, 'PNG')
+                result_bytes = buf_out.getvalue()
             with open(out_path, 'wb') as fh:
-                fh.write(result)
+                fh.write(result_bytes)
         except (ImportError, SystemExit, BaseException) as e:
             logger.error('rembg error: %s', e)
             return JsonResponse({'error': 'Background removal unavailable. Please try again later.'}, status=500)
