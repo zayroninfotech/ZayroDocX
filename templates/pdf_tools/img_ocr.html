@@ -224,8 +224,8 @@
         <button class="ito-engine-btn" id="engMistral" onclick="setMode('mistral')">
           <div class="ito-eng-icon ito-eng-icon-gray"><i class="fa-solid fa-star"></i></div>
           <div class="ito-eng-text">
-            <div class="ito-eng-name">Mistral</div>
-            <div class="ito-eng-desc">High accuracy (AI)</div>
+            <div class="ito-eng-name">Gemini AI</div>
+            <div class="ito-eng-desc">Free &amp; high accuracy</div>
           </div>
           <i class="fa-solid fa-circle-check ito-eng-check"></i>
         </button>
@@ -574,7 +574,7 @@ async function doConvert() {
   if (!currentFile) return;
   document.getElementById('itoExtractBtn').disabled = true;
   document.getElementById('itoLoadingMsg').textContent =
-    currentMode === 'mistral' ? 'Running Mistral AI…' : 'Extracting text…';
+    currentMode === 'mistral' ? 'Running Gemini AI…' : 'Extracting text…';
   document.getElementById('itoLoadingCard').classList.add('show');
   ['itoResultCard','itoErrorCard','itoActRow'].forEach(id =>
     document.getElementById(id).classList.remove('show'));

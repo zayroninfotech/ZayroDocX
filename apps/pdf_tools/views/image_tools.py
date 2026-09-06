@@ -508,11 +508,11 @@ def img_ocr(request):
         validate_image(saved_path, f.name)
         img = Image.open(saved_path).convert('RGB')
 
-        # ── Mistral Vision ─────────────────────────────────────────────────
+        # ── Gemini Vision ──────────────────────────────────────────────────
         if use_mistral:
-            api_key = getattr(settings, 'MISTRAL_API_KEY', '')
+            api_key = getattr(settings, 'GEMINI_API_KEY', '')
             if not api_key:
-                return JsonResponse({'error': 'Mistral API key is not configured.'}, status=500)
+                return JsonResponse({'error': 'Gemini API key is not configured.'}, status=500)
 
             buf = BytesIO()
             img.save(buf, 'JPEG', quality=90)
@@ -538,35 +538,34 @@ def img_ocr(request):
                 )
 
             payload = json.dumps({
-                'model': 'mistral-small-latest',
-                'messages': [{'role': 'user', 'content': [
-                    {'type': 'text', 'text': prompt},
-                    {'type': 'image_url', 'image_url': f'data:image/jpeg;base64,{img_b64}'},
+                'contents': [{'parts': [
+                    {'text': prompt},
+                    {'inline_data': {'mime_type': 'image/jpeg', 'data': img_b64}},
                 ]}]
             }).encode()
 
             req = urllib.request.Request(
-                'https://api.mistral.ai/v1/chat/completions',
+                f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}',
                 data=payload,
-                headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'},
+                headers={'Content-Type': 'application/json'},
                 method='POST',
             )
             with urllib.request.urlopen(req, timeout=60) as resp:
                 data = json.loads(resp.read().decode())
-            text = data['choices'][0]['message']['content'].strip()
+            text = data['candidates'][0]['content']['parts'][0]['text'].strip()
 
-            out_path, out_name = get_output_path('.txt', 'img_mistral_ocr')
+            out_path, out_name = get_output_path('.txt', 'img_gemini_ocr')
             with open(out_path, 'w', encoding='utf-8') as fp:
                 fp.write(text)
 
-            save_job('img_ocr_mistral', [f.name], [out_name])
+            save_job('img_ocr_gemini', [f.name], [out_name])
             return JsonResponse({
                 'text': text,
                 'download_url': media_url(out_name),
                 'filename': out_name,
                 'word_count': len(text.split()) if text else 0,
                 'char_count': len(text),
-                'mode': 'mistral',
+                'mode': 'gemini',
             })
 
         # ── Tesseract OCR ──────────────────────────────────────────────────
