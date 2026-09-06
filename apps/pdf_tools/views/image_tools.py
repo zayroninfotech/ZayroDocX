@@ -238,6 +238,7 @@ def watermark_image(request):
     text = request.POST.get('text', '').strip()
     opacity = int(request.POST.get('opacity', 50))
     position = request.POST.get('position', 'center')
+    angle = int(request.POST.get('angle', 0))
     if not f:
         return JsonResponse({'error': 'No file uploaded.'}, status=400)
     if not text:
@@ -255,21 +256,39 @@ def watermark_image(request):
         except Exception:
             font = ImageFont.load_default()
 
-        overlay = Image.new('RGBA', img.size, (255,255,255,0))
-        draw = ImageDraw.Draw(overlay)
-        bbox = draw.textbbox((0,0), text, font=font)
-        tw, th = bbox[2]-bbox[0], bbox[3]-bbox[1]
-        pos_map = {
-            'center':       ((w-tw)//2, (h-th)//2),
-            'top-left':     (20, 20),
-            'top-right':    (w-tw-20, 20),
-            'bottom-left':  (20, h-th-20),
-            'bottom-right': (w-tw-20, h-th-20),
-        }
-        x, y = pos_map.get(position, pos_map['center'])
         alpha = int(255 * opacity / 100)
-        draw.text((x+2, y+2), text, font=font, fill=(0,0,0,alpha//2))
-        draw.text((x, y), text, font=font, fill=(255,255,255,alpha))
+
+        if angle != 0:
+            # Draw on large canvas then rotate so text doesn't get clipped
+            pad = max(w, h)
+            big = Image.new('RGBA', (w + pad * 2, h + pad * 2), (0, 0, 0, 0))
+            draw = ImageDraw.Draw(big)
+            bbox = draw.textbbox((0, 0), text, font=font)
+            tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+            cx = (big.width - tw) // 2
+            cy = (big.height - th) // 2
+            draw.text((cx + 2, cy + 2), text, font=font, fill=(0, 0, 0, alpha // 2))
+            draw.text((cx, cy), text, font=font, fill=(255, 255, 255, alpha))
+            big = big.rotate(angle, resample=Image.BICUBIC, expand=False)
+            left = (big.width - w) // 2
+            top = (big.height - h) // 2
+            overlay = big.crop((left, top, left + w, top + h))
+        else:
+            overlay = Image.new('RGBA', img.size, (255, 255, 255, 0))
+            draw = ImageDraw.Draw(overlay)
+            bbox = draw.textbbox((0, 0), text, font=font)
+            tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+            pos_map = {
+                'center':       ((w - tw) // 2, (h - th) // 2),
+                'top-left':     (20, 20),
+                'top-right':    (w - tw - 20, 20),
+                'bottom-left':  (20, h - th - 20),
+                'bottom-right': (w - tw - 20, h - th - 20),
+            }
+            x, y = pos_map.get(position, pos_map['center'])
+            draw.text((x + 2, y + 2), text, font=font, fill=(0, 0, 0, alpha // 2))
+            draw.text((x, y), text, font=font, fill=(255, 255, 255, alpha))
+
         img = Image.alpha_composite(img, overlay).convert('RGB')
         img.save(out_path, 'PNG')
         save_job('watermark_image', [f.name], [out_name])

@@ -3,7 +3,18 @@
 {% block title %}Watermark Image — ZayroDocX{% endblock %}
 {% block active_img_watermark %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Watermark Image</span>{% endblock %}
-{% block extra_head %}<style>{% include "pdf_tools/_img_split_css.html" %}</style>{% endblock %}
+{% block extra_head %}<style>
+{% include "pdf_tools/_img_split_css.html" %}
+.wm-preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.8rem;}
+.wm-preset-card{border:2px solid #e8e8e8;border-radius:10px;cursor:pointer;overflow:hidden;transition:border-color .15s,box-shadow .15s;background:#f8fafc;}
+.wm-preset-card:hover{border-color:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.1);}
+.wm-preset-card.active{border-color:#dc2626;background:#fff8f8;}
+.wm-preset-card canvas{display:block;width:100%;height:70px;}
+.wm-preset-label{font-size:.65rem;font-weight:700;color:#555;text-align:center;padding:.25rem .4rem .35rem;text-transform:uppercase;letter-spacing:.03em;}
+.wm-style-tabs{display:flex;gap:.4rem;margin-bottom:.6rem;}
+.wm-style-tab{flex:1;padding:.4rem;border:1.5px solid #e8e8e8;border-radius:8px;font-size:.75rem;font-weight:600;cursor:pointer;text-align:center;color:#555;background:#fff;transition:all .15s;}
+.wm-style-tab.active{border-color:#dc2626;background:#fff8f8;color:#dc2626;}
+</style>{% endblock %}
 {% block content %}
 <input type="file" id="fileInput" accept="image/*" style="display:none">
 <div class="it-drop" id="itDrop" onclick="document.getElementById('fileInput').click()">
@@ -15,19 +26,32 @@
   <div class="it-viewer"><div class="it-viewer-loading" id="itViewerLoad"><i class="fa-solid fa-spinner it-spin"></i><span>Loading…</span></div><div id="itPreviewWrap" style="display:none;position:relative;max-width:100%;max-height:100%;"><img id="itPreviewImg" style="max-width:100%;max-height:100%;border-radius:8px;object-fit:contain;display:block;" alt="preview"><canvas id="itWmCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;border-radius:8px;"></canvas></div></div>
   <div class="it-right">
     <div class="it-card"><div class="it-file-row"><div class="it-file-icon"><i class="fa-solid fa-image"></i></div><div><div class="it-file-name" id="itFileName">—</div><div class="it-file-size" id="itFileSize">—</div></div><button type="button" class="it-change-btn" onclick="resetTool()"><i class="fa-solid fa-rotate-left"></i> Change</button></div></div>
+
+    <div class="it-card">
+      <div class="it-opts-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Quick Presets</div>
+      <div class="wm-preset-grid" id="wmPresetGrid"></div>
+    </div>
+
     <div class="it-card">
       <div class="it-opts-title"><i class="fa-solid fa-stamp"></i> Watermark Settings</div>
       <div class="it-field-label" style="margin-top:0">Watermark Text</div>
       <input type="text" id="wmText" class="it-input" value="CONFIDENTIAL" placeholder="e.g. © ZayroDocX 2024">
+      <div class="it-field-label">Style</div>
+      <div class="wm-style-tabs">
+        <div class="wm-style-tab active" id="styleDiag" onclick="setStyle('diagonal')"><i class="fa-solid fa-rotate" style="transform:rotate(-45deg);display:inline-block;"></i> Diagonal</div>
+        <div class="wm-style-tab" id="styleHoriz" onclick="setStyle('horizontal')"><i class="fa-solid fa-minus"></i> Horizontal</div>
+      </div>
+      <input type="hidden" id="wmAngle" value="45">
       <div class="it-field-label">Position</div>
       <div class="it-fmt-grid">
         <label class="it-fmt-opt"><input type="radio" name="position" value="center" checked><span>Center</span></label>
         <label class="it-fmt-opt"><input type="radio" name="position" value="bottom-right"><span>Bot Right</span></label>
         <label class="it-fmt-opt"><input type="radio" name="position" value="top-left"><span>Top Left</span></label>
       </div>
-      <div class="it-field-label">Opacity: <span id="opVal">40</span>%</div>
-      <input type="range" id="opacityRange" class="it-range" min="10" max="100" value="40" oninput="document.getElementById('opVal').textContent=this.value">
+      <div class="it-field-label">Opacity: <span id="opVal">30</span>%</div>
+      <input type="range" id="opacityRange" class="it-range" min="10" max="100" value="30" oninput="document.getElementById('opVal').textContent=this.value;drawWmPreview();">
     </div>
+
     <button type="button" class="it-convert-btn" id="itConvertBtn" onclick="doConvert()"><i class="fa-solid fa-stamp"></i> Add Watermark</button>
     <div class="it-loading-card" id="itLoadingCard"><i class="fa-solid fa-spinner it-spin"></i><span style="font-size:.88rem;font-weight:600;color:#b91c1c">Adding watermark…</span></div>
     <div class="it-result-card" id="itResultCard"><div class="it-result-title"><i class="fa-solid fa-circle-check"></i> Watermark added!</div><a class="it-dl-btn" id="itDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a></div>
@@ -38,6 +62,81 @@
 {% block extra_js %}<script>
 let currentFile=null;
 const fileInput=document.getElementById('fileInput');
+
+const PRESETS=[
+  {label:'CONFIDENTIAL 1',text:'CONFIDENTIAL',angle:45,opacity:30,position:'center'},
+  {label:'CONFIDENTIAL 2',text:'CONFIDENTIAL',angle:0, opacity:30,position:'center'},
+  {label:'DO NOT COPY 1', text:'DO NOT COPY', angle:45,opacity:30,position:'center'},
+  {label:'DO NOT COPY 2', text:'DO NOT COPY', angle:0, opacity:30,position:'center'},
+];
+
+function drawPresetThumb(canvas,preset){
+  const W=canvas.offsetWidth||canvas.width;
+  const H=70;
+  canvas.width=W*window.devicePixelRatio||W;
+  canvas.height=H*window.devicePixelRatio||H;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio||1,window.devicePixelRatio||1);
+  ctx.fillStyle='#ffffff';
+  ctx.fillRect(0,0,W,H);
+  const fontSize=Math.max(10,Math.round(W*0.13));
+  ctx.font=`bold ${fontSize}px Arial,sans-serif`;
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.globalAlpha=0.35;
+  ctx.fillStyle='#374151';
+  ctx.save();
+  ctx.translate(W/2,H/2);
+  if(preset.angle)ctx.rotate(-preset.angle*Math.PI/180);
+  ctx.fillText(preset.text,0,0);
+  ctx.restore();
+  ctx.globalAlpha=1;
+}
+
+function buildPresetGrid(){
+  const grid=document.getElementById('wmPresetGrid');
+  PRESETS.forEach((p,i)=>{
+    const card=document.createElement('div');
+    card.className='wm-preset-card'+(i===0?' active':'');
+    card.dataset.idx=i;
+    const cv=document.createElement('canvas');
+    card.appendChild(cv);
+    const lbl=document.createElement('div');
+    lbl.className='wm-preset-label';
+    lbl.textContent=p.label;
+    card.appendChild(lbl);
+    card.addEventListener('click',()=>applyPreset(i));
+    grid.appendChild(card);
+    setTimeout(()=>drawPresetThumb(cv,p),0);
+  });
+}
+
+function applyPreset(idx){
+  const p=PRESETS[idx];
+  document.getElementById('wmText').value=p.text;
+  document.getElementById('wmAngle').value=p.angle;
+  document.getElementById('opacityRange').value=p.opacity;
+  document.getElementById('opVal').textContent=p.opacity;
+  const pos=document.querySelector(`[name=position][value="${p.position}"]`);
+  if(pos)pos.checked=true;
+  if(p.angle>0){
+    document.getElementById('styleDiag').classList.add('active');
+    document.getElementById('styleHoriz').classList.remove('active');
+  }else{
+    document.getElementById('styleHoriz').classList.add('active');
+    document.getElementById('styleDiag').classList.remove('active');
+  }
+  document.querySelectorAll('.wm-preset-card').forEach((c,i)=>c.classList.toggle('active',i===idx));
+  drawWmPreview();
+}
+
+function setStyle(s){
+  const angle=s==='diagonal'?45:0;
+  document.getElementById('wmAngle').value=angle;
+  document.getElementById('styleDiag').classList.toggle('active',s==='diagonal');
+  document.getElementById('styleHoriz').classList.toggle('active',s==='horizontal');
+  drawWmPreview();
+}
 
 function drawWmPreview(){
   const canvas=document.getElementById('itWmCanvas');
@@ -50,12 +149,13 @@ function drawWmPreview(){
   const text=document.getElementById('wmText').value||'';
   if(!text)return;
   const opacity=parseInt(document.getElementById('opacityRange').value,10)/100;
+  const angle=parseInt(document.getElementById('wmAngle').value,10)||0;
   const position=document.querySelector('[name=position]:checked')?.value||'center';
   const fontSize=Math.max(14,Math.round(W*0.07));
   ctx.font=`bold ${fontSize}px Arial,sans-serif`;
   ctx.globalAlpha=opacity;
   ctx.fillStyle='#ffffff';
-  ctx.strokeStyle='rgba(0,0,0,0.6)';
+  ctx.strokeStyle='rgba(0,0,0,0.5)';
   ctx.lineWidth=3;
   ctx.textAlign='center';
   ctx.textBaseline='middle';
@@ -63,12 +163,16 @@ function drawWmPreview(){
   const tw=ctx.measureText(text).width;
   const th=fontSize;
   let x,y;
-  if(position==='center'){x=W/2;y=H/2;}
+  if(position==='center'||angle!==0){x=W/2;y=H/2;}
   else if(position==='bottom-right'){x=W-tw/2-pad;y=H-th/2-pad;}
   else if(position==='top-left'){x=tw/2+pad;y=th/2+pad;}
   else{x=W/2;y=H/2;}
-  ctx.strokeText(text,x,y);
-  ctx.fillText(text,x,y);
+  ctx.save();
+  ctx.translate(x,y);
+  if(angle)ctx.rotate(-angle*Math.PI/180);
+  ctx.strokeText(text,0,0);
+  ctx.fillText(text,0,0);
+  ctx.restore();
   ctx.globalAlpha=1;
 }
 
@@ -109,6 +213,7 @@ async function doConvert(){
   fd.append('text',document.getElementById('wmText').value);
   fd.append('position',document.querySelector('[name=position]:checked').value);
   fd.append('opacity',document.getElementById('opacityRange').value);
+  fd.append('angle',document.getElementById('wmAngle').value);
   try{
     const res=await fetch('/tools/api/img/watermark/',{method:'POST',body:fd});
     const d=await res.json();
@@ -125,14 +230,13 @@ async function doConvert(){
   }
 }
 
-// live preview on option changes
-document.getElementById('wmText').addEventListener('input',drawWmPreview);
-document.getElementById('opacityRange').addEventListener('input',drawWmPreview);
+document.getElementById('wmText').addEventListener('input',()=>{drawWmPreview();});
 document.querySelectorAll('[name=position]').forEach(r=>r.addEventListener('change',drawWmPreview));
-
 fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));
 const drop=document.getElementById('itDrop');
 drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
 drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
 drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+
+buildPresetGrid();
 </script>{% endblock %}
