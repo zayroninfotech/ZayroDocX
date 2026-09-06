@@ -169,8 +169,9 @@
         <button class="ito-zoom-btn" onclick="rotateImg()" title="Rotate"><i class="fa-solid fa-rotate-right"></i></button>
       </div>
       <div class="ito-sel-hint" id="itoSelHint">
-        <i class="fa-solid fa-crop-simple"></i> Drag to select region
-        <button class="ito-sel-clear" onclick="clearSelection()">Clear</button>
+        <i class="fa-solid fa-crop-simple"></i>
+        <span id="itoSelCount">Drag to select regions</span>
+        <button class="ito-sel-clear" onclick="clearSelection()">Clear all</button>
       </div>
     </div>
     <div class="ito-img-stage" id="itoImgStage">
@@ -330,8 +331,8 @@
 {% block extra_js %}<script>
 const ZOOM_STEPS = [50,75,100,125,150,200];
 let currentFile = null, currentMode = 'tesseract', currentZoom = 75, currentRotation = 0;
-let selMode = false, selActive = false, selDrawing = false;
-let selStart = null, selRect = null; // selRect: {x,y,w,h} in image natural pixels
+let selMode = false, selDrawing = false;
+let selStart = null, selRects = []; // array of {x,y,w,h} in image natural pixels
 const fileInput = document.getElementById('fileInput');
 const selCanvas = document.getElementById('itoSelCanvas');
 const selCtx = selCanvas.getContext('2d');
@@ -352,7 +353,7 @@ function applyZoom(z) {
   const sel = document.getElementById('itoZoomSel');
   if (sel) sel.value = z;
   syncCanvas();
-  if (selRect) redrawSelection();
+  if (selRects.length) redrawAllSelections();
 }
 function changeZoom(dir) {
   let idx = ZOOM_STEPS.indexOf(currentZoom);
@@ -399,8 +400,16 @@ function syncCanvas() {
   selCanvas.style.height = img.offsetHeight + 'px';
 }
 function clearSelection() {
-  selRect = null; selActive = false;
+  selRects = [];
   selCtx.clearRect(0, 0, selCanvas.width, selCanvas.height);
+  updateSelHint();
+}
+function updateSelHint() {
+  const el = document.getElementById('itoSelCount');
+  if (!el) return;
+  el.textContent = selRects.length > 0
+    ? selRects.length + ' region' + (selRects.length > 1 ? 's' : '') + ' selected'
+    : 'Drag to select regions';
 }
 
 /* canvas pixel → image natural pixel */
@@ -412,26 +421,47 @@ function toImgCoords(cx, cy) {
   };
 }
 
-function drawRect(x1, y1, x2, y2) {
-  selCtx.clearRect(0, 0, selCanvas.width, selCanvas.height);
+/* Draw one rect (preview while dragging — keeps existing rects painted under) */
+function drawDragRect(x1, y1, x2, y2) {
+  redrawAllSelections();  // repaint committed rects first
   const rx = Math.min(x1,x2), ry = Math.min(y1,y2);
   const rw = Math.abs(x2-x1), rh = Math.abs(y2-y1);
-  selCtx.fillStyle   = 'rgba(220,38,38,0.10)';
+  selCtx.fillStyle = 'rgba(220,38,38,0.08)';
   selCtx.fillRect(rx, ry, rw, rh);
   selCtx.strokeStyle = '#dc2626';
-  selCtx.lineWidth   = 2;
+  selCtx.lineWidth = 2;
   selCtx.setLineDash([6,3]);
   selCtx.strokeRect(rx+1, ry+1, rw-2, rh-2);
   selCtx.setLineDash([]);
 }
-function redrawSelection() {
-  if (!selRect) return;
+
+/* Repaint all committed selections */
+function redrawAllSelections() {
+  selCtx.clearRect(0, 0, selCanvas.width, selCanvas.height);
   const img = document.getElementById('itoPreviewImg');
-  const sx = selRect.x * img.offsetWidth  / img.naturalWidth;
-  const sy = selRect.y * img.offsetHeight / img.naturalHeight;
-  const sw = selRect.w * img.offsetWidth  / img.naturalWidth;
-  const sh = selRect.h * img.offsetHeight / img.naturalHeight;
-  drawRect(sx, sy, sx+sw, sy+sh);
+  selRects.forEach((r, i) => {
+    const sx = r.x * img.offsetWidth  / img.naturalWidth;
+    const sy = r.y * img.offsetHeight / img.naturalHeight;
+    const sw = r.w * img.offsetWidth  / img.naturalWidth;
+    const sh = r.h * img.offsetHeight / img.naturalHeight;
+    selCtx.fillStyle = 'rgba(220,38,38,0.10)';
+    selCtx.fillRect(sx, sy, sw, sh);
+    selCtx.strokeStyle = '#dc2626';
+    selCtx.lineWidth = 2;
+    selCtx.setLineDash([6,3]);
+    selCtx.strokeRect(sx+1, sy+1, sw-2, sh-2);
+    selCtx.setLineDash([]);
+    // Number badge
+    selCtx.fillStyle = '#dc2626';
+    selCtx.font = 'bold 11px sans-serif';
+    selCtx.fillRect(sx+2, sy+2, 18, 18);
+    selCtx.fillStyle = '#fff';
+    selCtx.textAlign = 'center';
+    selCtx.textBaseline = 'middle';
+    selCtx.fillText(i+1, sx+11, sy+11);
+    selCtx.textAlign = 'left';
+    selCtx.textBaseline = 'alphabetic';
+  });
 }
 
 /* Canvas mouse events */
@@ -444,7 +474,7 @@ selCanvas.addEventListener('mousedown', e => {
 selCanvas.addEventListener('mousemove', e => {
   if (!selMode || !selDrawing) return;
   const r = selCanvas.getBoundingClientRect();
-  drawRect(selStart.x, selStart.y, e.clientX - r.left, e.clientY - r.top);
+  drawDragRect(selStart.x, selStart.y, e.clientX - r.left, e.clientY - r.top);
 });
 selCanvas.addEventListener('mouseup', e => {
   if (!selMode || !selDrawing) return;
@@ -454,11 +484,10 @@ selCanvas.addEventListener('mouseup', e => {
   const p1 = toImgCoords(Math.min(selStart.x,ex), Math.min(selStart.y,ey));
   const p2 = toImgCoords(Math.max(selStart.x,ex), Math.max(selStart.y,ey));
   if (p2.x - p1.x > 5 && p2.y - p1.y > 5) {
-    selRect = {x:p1.x, y:p1.y, w:p2.x-p1.x, h:p2.y-p1.y};
-    selActive = true;
-  } else {
-    clearSelection();
+    selRects.push({x:p1.x, y:p1.y, w:p2.x-p1.x, h:p2.y-p1.y});
+    updateSelHint();
   }
+  redrawAllSelections();
 });
 /* Touch support */
 function touchPos(e) {
@@ -466,14 +495,15 @@ function touchPos(e) {
   return {x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top};
 }
 selCanvas.addEventListener('touchstart', e => { if (!selMode) return; e.preventDefault(); selDrawing=true; selStart=touchPos(e); });
-selCanvas.addEventListener('touchmove',  e => { if (!selMode||!selDrawing) return; e.preventDefault(); const p=touchPos(e); drawRect(selStart.x,selStart.y,p.x,p.y); });
-selCanvas.addEventListener('touchend',   e => {
+selCanvas.addEventListener('touchmove',  e => { if (!selMode||!selDrawing) return; e.preventDefault(); const p=touchPos(e); drawDragRect(selStart.x,selStart.y,p.x,p.y); });
+selCanvas.addEventListener('touchend', e => {
   if (!selMode||!selDrawing) return; e.preventDefault(); selDrawing=false;
   const last=e.changedTouches[0]; const r=selCanvas.getBoundingClientRect();
   const ex=last.clientX-r.left, ey=last.clientY-r.top;
   const p1=toImgCoords(Math.min(selStart.x,ex),Math.min(selStart.y,ey));
   const p2=toImgCoords(Math.max(selStart.x,ex),Math.max(selStart.y,ey));
-  if(p2.x-p1.x>5&&p2.y-p1.y>5){selRect={x:p1.x,y:p1.y,w:p2.x-p1.x,h:p2.y-p1.y};selActive=true;}else{clearSelection();}
+  if(p2.x-p1.x>5&&p2.y-p1.y>5){selRects.push({x:p1.x,y:p1.y,w:p2.x-p1.x,h:p2.y-p1.y});updateSelHint();}
+  redrawAllSelections();
 });
 
 /* ── Reset / Set file ── */
@@ -522,15 +552,35 @@ function setFile(f) {
   img.src = URL.createObjectURL(f);
 }
 
-/* ── Crop helper ── */
+/* ── Crop helper — stitch multiple regions vertically ── */
 async function getCroppedFile() {
-  if (!selActive || !selRect || selRect.w < 5 || selRect.h < 5) return currentFile;
+  if (selRects.length === 0) return currentFile;
   const img = document.getElementById('itoPreviewImg');
-  const crop = document.createElement('canvas');
-  crop.width = selRect.w; crop.height = selRect.h;
-  crop.getContext('2d').drawImage(img, selRect.x, selRect.y, selRect.w, selRect.h, 0, 0, selRect.w, selRect.h);
-  return new Promise(resolve => crop.toBlob(b =>
-    resolve(new File([b], 'region.jpg', {type:'image/jpeg'})), 'image/jpeg', 0.92));
+  const valid = selRects.filter(r => r.w >= 5 && r.h >= 5);
+  if (valid.length === 0) return currentFile;
+  if (valid.length === 1) {
+    const r = valid[0];
+    const c = document.createElement('canvas');
+    c.width = r.w; c.height = r.h;
+    c.getContext('2d').drawImage(img, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
+    return new Promise(resolve => c.toBlob(b =>
+      resolve(new File([b], 'region.jpg', {type:'image/jpeg'})), 'image/jpeg', 0.92));
+  }
+  const gap = 10;
+  const totalH = valid.reduce((s, r) => s + r.h, 0) + gap * (valid.length - 1);
+  const maxW = Math.max(...valid.map(r => r.w));
+  const combined = document.createElement('canvas');
+  combined.width = maxW; combined.height = totalH;
+  const ctx = combined.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, maxW, totalH);
+  let y = 0;
+  for (const r of valid) {
+    ctx.drawImage(img, r.x, r.y, r.w, r.h, 0, y, r.w, r.h);
+    y += r.h + gap;
+  }
+  return new Promise(resolve => combined.toBlob(b =>
+    resolve(new File([b], 'regions.jpg', {type:'image/jpeg'})), 'image/jpeg', 0.92));
 }
 
 /* ── Extract ── */
