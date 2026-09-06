@@ -370,8 +370,8 @@
       sessionStorage.setItem(SK_DISMISSED, '1');
       closePopup('signupPopup');
       if(window.location.pathname === '/'){
-        sessionStorage.setItem('zayrox_skip_nav', '1');
-        window.location.href = '/tools/guest/';
+        if(typeof ZLoader !== 'undefined') ZLoader.show('Loading…');
+        setTimeout(function(){ window.location.href = '/tools/guest/'; }, 2000);
       }
     });
   }
