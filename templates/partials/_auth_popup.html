@@ -372,7 +372,7 @@
       if(window.location.pathname === '/'){
         sessionStorage.setItem('zayrox_skip_nav', '1');
         if(typeof ZLoader !== 'undefined') ZLoader.show('Loading…');
-        window.location.href = '/tools/guest/';
+        setTimeout(function(){ window.location.href = '/tools/guest/'; }, 2000);
       }
     });
   }
