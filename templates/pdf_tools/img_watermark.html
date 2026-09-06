@@ -12,7 +12,7 @@
   <button type="button" class="it-drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()"><i class="fa-solid fa-folder-open"></i> Select Image</button>
 </div>
 <div class="it-split" id="itSplit">
-  <div class="it-viewer"><div class="it-viewer-loading" id="itViewerLoad"><i class="fa-solid fa-spinner it-spin"></i><span>Loading…</span></div><img id="itPreviewImg" style="display:none;max-width:100%;max-height:100%;border-radius:8px;object-fit:contain;" alt="preview"></div>
+  <div class="it-viewer"><div class="it-viewer-loading" id="itViewerLoad"><i class="fa-solid fa-spinner it-spin"></i><span>Loading…</span></div><div id="itPreviewWrap" style="display:none;position:relative;max-width:100%;max-height:100%;"><img id="itPreviewImg" style="max-width:100%;max-height:100%;border-radius:8px;object-fit:contain;display:block;" alt="preview"><canvas id="itWmCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;border-radius:8px;"></canvas></div></div>
   <div class="it-right">
     <div class="it-card"><div class="it-file-row"><div class="it-file-icon"><i class="fa-solid fa-image"></i></div><div><div class="it-file-name" id="itFileName">—</div><div class="it-file-size" id="itFileSize">—</div></div><button type="button" class="it-change-btn" onclick="resetTool()"><i class="fa-solid fa-rotate-left"></i> Change</button></div></div>
     <div class="it-card">
@@ -42,9 +42,105 @@
 </div>
 {% endblock %}
 {% block extra_js %}<script>
-let currentFile=null;const fileInput=document.getElementById('fileInput');
-function resetTool(){fileInput.value='';currentFile=null;document.getElementById('itDrop').style.display='';document.getElementById('itSplit').classList.remove('show');document.getElementById('itInfoStrip').style.display='';['itLoadingCard','itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itConvertBtn').disabled=false;}
-function setFile(f){if(!f)return;currentFile=f;document.getElementById('itFileName').textContent=f.name;document.getElementById('itFileSize').textContent=(f.size/1024).toFixed(1)+' KB';document.getElementById('itDrop').style.display='none';document.getElementById('itInfoStrip').style.display='none';['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itSplit').classList.add('show');const img=document.getElementById('itPreviewImg');img.src=URL.createObjectURL(f);img.style.display='block';document.getElementById('itViewerLoad').style.display='none';}
-async function doConvert(){if(!currentFile)return;document.getElementById('itConvertBtn').disabled=true;document.getElementById('itLoadingCard').classList.add('show');['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));const fd=new FormData();fd.append('file',currentFile);fd.append('csrfmiddlewaretoken','{{ csrf_token }}');fd.append('text',document.getElementById('wmText').value);fd.append('position',document.querySelector('[name=position]:checked').value);fd.append('opacity',document.getElementById('opacityRange').value);try{const res=await fetch('/tools/api/img/watermark/',{method:'POST',body:fd});const d=await res.json();if(d.error)throw new Error(d.error);document.getElementById('itDlBtn').href=d.download_url;document.getElementById('itDlBtn').download=d.filename||'watermarked';document.getElementById('itResultCard').classList.add('show');}catch(e){document.getElementById('itErrorMsg').textContent=e.message||'Failed.';document.getElementById('itErrorCard').classList.add('show');}finally{document.getElementById('itLoadingCard').classList.remove('show');document.getElementById('itConvertBtn').disabled=false;}}
-fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));const drop=document.getElementById('itDrop');drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+let currentFile=null;
+const fileInput=document.getElementById('fileInput');
+
+function drawWmPreview(){
+  const canvas=document.getElementById('itWmCanvas');
+  const img=document.getElementById('itPreviewImg');
+  if(!canvas||!img||!img.naturalWidth)return;
+  const W=img.offsetWidth, H=img.offsetHeight;
+  canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  const text=document.getElementById('wmText').value||'';
+  if(!text)return;
+  const opacity=parseInt(document.getElementById('opacityRange').value,10)/100;
+  const position=document.querySelector('[name=position]:checked')?.value||'center';
+  const fontSize=Math.max(14,Math.round(W*0.07));
+  ctx.font=`bold ${fontSize}px Arial,sans-serif`;
+  ctx.globalAlpha=opacity;
+  ctx.fillStyle='#ffffff';
+  ctx.strokeStyle='rgba(0,0,0,0.6)';
+  ctx.lineWidth=3;
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  const pad=20;
+  const tw=ctx.measureText(text).width;
+  const th=fontSize;
+  let x,y;
+  if(position==='center'){x=W/2;y=H/2;}
+  else if(position==='bottom-right'){x=W-tw/2-pad;y=H-th/2-pad;}
+  else if(position==='top-left'){x=tw/2+pad;y=th/2+pad;}
+  else{x=W/2;y=H/2;}
+  ctx.strokeText(text,x,y);
+  ctx.fillText(text,x,y);
+  ctx.globalAlpha=1;
+}
+
+function resetTool(){
+  fileInput.value='';currentFile=null;
+  document.getElementById('itDrop').style.display='';
+  document.getElementById('itSplit').classList.remove('show');
+  document.getElementById('itInfoStrip').style.display='';
+  document.getElementById('itPreviewWrap').style.display='none';
+  document.getElementById('itViewerLoad').style.display='flex';
+  ['itLoadingCard','itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  document.getElementById('itConvertBtn').disabled=false;
+}
+
+function setFile(f){
+  if(!f)return;currentFile=f;
+  document.getElementById('itFileName').textContent=f.name;
+  document.getElementById('itFileSize').textContent=(f.size/1024).toFixed(1)+' KB';
+  document.getElementById('itDrop').style.display='none';
+  document.getElementById('itInfoStrip').style.display='none';
+  ['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  document.getElementById('itSplit').classList.add('show');
+  const img=document.getElementById('itPreviewImg');
+  img.onload=()=>{
+    document.getElementById('itViewerLoad').style.display='none';
+    document.getElementById('itPreviewWrap').style.display='block';
+    drawWmPreview();
+  };
+  img.src=URL.createObjectURL(f);
+}
+
+async function doConvert(){
+  if(!currentFile)return;
+  document.getElementById('itConvertBtn').disabled=true;
+  document.getElementById('itLoadingCard').classList.add('show');
+  ['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  const fd=new FormData();
+  fd.append('file',currentFile);
+  fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
+  fd.append('text',document.getElementById('wmText').value);
+  fd.append('position',document.querySelector('[name=position]:checked').value);
+  fd.append('opacity',document.getElementById('opacityRange').value);
+  try{
+    const res=await fetch('/tools/api/img/watermark/',{method:'POST',body:fd});
+    const d=await res.json();
+    if(d.error)throw new Error(d.error);
+    document.getElementById('itDlBtn').href=d.download_url;
+    document.getElementById('itDlBtn').download=d.filename||'watermarked';
+    document.getElementById('itResultCard').classList.add('show');
+  }catch(e){
+    document.getElementById('itErrorMsg').textContent=e.message||'Failed.';
+    document.getElementById('itErrorCard').classList.add('show');
+  }finally{
+    document.getElementById('itLoadingCard').classList.remove('show');
+    document.getElementById('itConvertBtn').disabled=false;
+  }
+}
+
+// live preview on option changes
+document.getElementById('wmText').addEventListener('input',drawWmPreview);
+document.getElementById('opacityRange').addEventListener('input',drawWmPreview);
+document.querySelectorAll('[name=position]').forEach(r=>r.addEventListener('change',drawWmPreview));
+
+fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));
+const drop=document.getElementById('itDrop');
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
 </script>{% endblock %}
