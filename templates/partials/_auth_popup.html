@@ -368,10 +368,12 @@
   if(skipSignup){
     skipSignup.addEventListener('click', function(){
       sessionStorage.setItem(SK_DISMISSED, '1');
-      closePopup('signupPopup');
       if(window.location.pathname === '/'){
+        // Show loader immediately (covers popup), then navigate after 2 s
         if(typeof ZLoader !== 'undefined') ZLoader.show('Loading…');
         setTimeout(function(){ window.location.href = '/tools/guest/'; }, 2000);
+      } else {
+        closePopup('signupPopup');
       }
     });
   }
