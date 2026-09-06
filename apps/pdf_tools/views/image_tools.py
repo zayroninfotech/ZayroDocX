@@ -486,13 +486,11 @@ def blur_face(request):
 @require_POST
 def img_ocr(request):
     """
-    Extract text from an image.
-    mode: 'ocr' = Tesseract (offline, fast)
-          'ai'  = Mistral Vision (online, smarter for handwriting/complex layouts)
+    Extract text from an image using Mistral Vision.
+    mode: 'standard'/'ocr' = fast extraction prompt
+          'pro'/'ai'        = detailed extraction with structure preservation
     """
     import base64, json, urllib.request
-    import pytesseract
-    from PIL import ImageEnhance
     from django.conf import settings
     from io import BytesIO
 
@@ -500,100 +498,66 @@ def img_ocr(request):
     if not f:
         return JsonResponse({'error': 'No file uploaded.'}, status=400)
 
-    mode    = request.POST.get('mode', 'ocr')       # 'ocr' | 'ai'
-    lang    = request.POST.get('lang', 'eng')
-    preproc = request.POST.get('preprocess', 'auto')
+    mode = request.POST.get('mode', 'standard')
+    is_pro = mode in ('pro', 'ai')
 
     saved_path, _ = save_uploaded_file(f)
     try:
         validate_image(saved_path, f.name)
         img = Image.open(saved_path).convert('RGB')
 
-        # ── AI mode (Mistral Vision) ───────────────────────────────────────
-        if mode == 'ai':
-            api_key = getattr(settings, 'MISTRAL_API_KEY', '')
-            if not api_key:
-                return JsonResponse({'error': 'Mistral API key not configured in .env'}, status=500)
+        api_key = getattr(settings, 'MISTRAL_API_KEY', '')
+        if not api_key:
+            return JsonResponse({'error': 'OCR service is not configured. Please contact support.'}, status=500)
 
-            # Encode image as JPEG base64
-            buf = BytesIO()
-            img.save(buf, 'JPEG', quality=90)
-            img_b64 = base64.b64encode(buf.getvalue()).decode()
+        buf = BytesIO()
+        img.save(buf, 'JPEG', quality=90)
+        img_b64 = base64.b64encode(buf.getvalue()).decode()
 
+        if is_pro:
             prompt = (
                 "Extract ALL text visible in this image exactly as it appears. "
                 "Preserve line breaks, spacing, and formatting as closely as possible. "
                 "If the image contains a table, preserve its structure using spacing or pipes. "
                 "Output only the extracted text — no explanations, no labels."
             )
-
-            payload = json.dumps({
-                'model': 'mistral-small-latest',
-                'messages': [{'role': 'user', 'content': [
-                    {'type': 'text', 'text': prompt},
-                    {'type': 'image_url', 'image_url': f'data:image/jpeg;base64,{img_b64}'},
-                ]}]
-            }).encode()
-
-            req = urllib.request.Request(
-                'https://api.mistral.ai/v1/chat/completions',
-                data=payload,
-                headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'},
-                method='POST',
-            )
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                data = json.loads(resp.read().decode())
-            text = data['choices'][0]['message']['content'].strip()
-
-            out_path, out_name = get_output_path('.txt', 'img_ai_ocr')
-            with open(out_path, 'w', encoding='utf-8') as fp:
-                fp.write(text)
-
-            save_job('img_ocr_ai', [f.name], [out_name])
-            return JsonResponse({
-                'text': text,
-                'download_url': media_url(out_name),
-                'filename': out_name,
-                'word_count': len(text.split()) if text else 0,
-                'char_count': len(text),
-                'mode': 'ai',
-            })
-
-        # ── OCR mode (Tesseract) ───────────────────────────────────────────
-        pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
-
-        if preproc != 'none':
-            gray = img.convert('L')
-            if preproc == 'aggressive':
-                gray = ImageEnhance.Contrast(gray).enhance(2.0)
-                gray = ImageEnhance.Sharpness(gray).enhance(3.0)
-                gray = gray.filter(ImageFilter.SHARPEN)
-            else:
-                gray = ImageEnhance.Contrast(gray).enhance(1.5)
-                gray = ImageEnhance.Sharpness(gray).enhance(2.0)
-            ocr_img = gray
         else:
-            ocr_img = img
+            prompt = (
+                "Extract all text from this image. "
+                "Output only the extracted text, nothing else."
+            )
 
-        w, h = ocr_img.size
-        if w < 1000:
-            scale = max(2, 1000 // w)
-            ocr_img = ocr_img.resize((w * scale, h * scale), Image.LANCZOS)
+        payload = json.dumps({
+            'model': 'mistral-small-latest',
+            'messages': [{'role': 'user', 'content': [
+                {'type': 'text', 'text': prompt},
+                {'type': 'image_url', 'image_url': f'data:image/jpeg;base64,{img_b64}'},
+            ]}]
+        }).encode()
 
-        text = pytesseract.image_to_string(ocr_img, lang=lang).strip()
+        req = urllib.request.Request(
+            'https://api.mistral.ai/v1/chat/completions',
+            data=payload,
+            headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'},
+            method='POST',
+        )
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = json.loads(resp.read().decode())
+        text = data['choices'][0]['message']['content'].strip()
 
-        out_path, out_name = get_output_path('.txt', 'img_ocr')
+        prefix = 'img_ai_ocr' if is_pro else 'img_ocr'
+        out_path, out_name = get_output_path('.txt', prefix)
         with open(out_path, 'w', encoding='utf-8') as fp:
             fp.write(text)
 
-        save_job('img_ocr', [f.name], [out_name], meta={'lang': lang})
+        save_job('img_ocr_ai' if is_pro else 'img_ocr', [f.name], [out_name])
         return JsonResponse({
             'text': text,
             'download_url': media_url(out_name),
             'filename': out_name,
             'word_count': len(text.split()) if text else 0,
             'char_count': len(text),
-            'mode': 'ocr',
+            'mode': 'pro' if is_pro else 'standard',
         })
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
