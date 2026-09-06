@@ -56,8 +56,7 @@ def split_pdf(request):
         doc.close()
 
         # Zip all parts
-        zip_name = 'ZayroDocX_split_pages.zip'
-        zip_path = str(settings.OUTPUT_DIR / zip_name)
+        zip_path, zip_name = get_output_path('.zip', 'split_pages')
         with zipfile.ZipFile(zip_path, 'w') as zf:
             for pp, pn in part_paths:
                 zf.write(pp, pn)

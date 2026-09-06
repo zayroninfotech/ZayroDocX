@@ -24,10 +24,7 @@ def merge_pdf(request):
             merged.insert_pdf(doc)
             doc.close()
 
-        out_name = 'ZayroDocX_merged.pdf'
-        import os
-        from django.conf import settings
-        out_path = str(settings.OUTPUT_DIR / out_name)
+        out_path, out_name = get_output_path('.pdf', 'merged')
         merged.save(out_path)
         merged.close()
 

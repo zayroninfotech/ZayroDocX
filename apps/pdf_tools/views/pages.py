@@ -21,9 +21,7 @@ def remove_pages(request):
         for p in pages_to_remove:
             if 0 <= p < total:
                 doc.delete_page(p)
-        from django.conf import settings
-        out_name = 'ZayroDocX_removed_pages.pdf'
-        out_path = str(settings.OUTPUT_DIR / out_name)
+        out_path, out_name = get_output_path('.pdf', 'removed_pages')
         doc.save(out_path)
         doc.close()
         save_job('remove_pages', [f.name], [out_name])
@@ -54,9 +52,7 @@ def extract_pages(request):
             if 0 <= p < total:
                 new_doc.insert_pdf(doc, from_page=p, to_page=p)
 
-        from django.conf import settings
-        out_name = 'ZayroDocX_extracted_pages.pdf'
-        out_path = str(settings.OUTPUT_DIR / out_name)
+        out_path, out_name = get_output_path('.pdf', 'extracted_pages')
         new_doc.save(out_path)
         new_doc.close()
         doc.close()
