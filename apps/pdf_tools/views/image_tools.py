@@ -340,7 +340,6 @@ def upscale_image(request):
 
 @require_POST
 def remove_background(request):
-    import json, base64, urllib.request, urllib.error
     f = request.FILES.get('file')
     if not f:
         return JsonResponse({'error': 'No file uploaded.'}, status=400)
@@ -349,61 +348,17 @@ def remove_background(request):
     out_path, out_name = get_output_path('.png', 'nobg_img')
     try:
         validate_image(saved_path, f.name)
-        api_key = getattr(settings, 'OPENAI_API_KEY', '')
-        if not api_key:
-            return JsonResponse({'error': 'OpenAI API key not configured.'}, status=500)
-
-        img = _open_image(saved_path).convert('RGBA')
-        if img.width > 1024 or img.height > 1024:
-            img.thumbnail((1024, 1024), Image.LANCZOS)
-        buf = io.BytesIO()
-        img.save(buf, 'PNG')
-        png_bytes = buf.getvalue()
-
-        boundary = b'ZDocXBound'
-        def field(name, value):
-            return (b'--' + boundary + b'\r\nContent-Disposition: form-data; name="' +
-                    name.encode() + b'"\r\n\r\n' + value.encode() + b'\r\n')
-        def filefield(name, fname, data, ct):
-            return (b'--' + boundary + b'\r\nContent-Disposition: form-data; name="' +
-                    name.encode() + b'"; filename="' + fname.encode() + b'"\r\nContent-Type: ' +
-                    ct.encode() + b'\r\n\r\n' + data + b'\r\n')
-
-        body = (field('model', 'gpt-image-1') +
-                field('prompt', 'Remove the background completely and make it fully transparent.') +
-                field('background', 'transparent') +
-                field('output_format', 'png') +
-                filefield('image', 'image.png', png_bytes, 'image/png') +
-                b'--' + boundary + b'--\r\n')
-
-        req = urllib.request.Request(
-            'https://api.openai.com/v1/images/edits',
-            data=body,
-            headers={
-                'Authorization': f'Bearer {api_key}',
-                'Content-Type': f'multipart/form-data; boundary={boundary.decode()}',
-            },
-            method='POST',
-        )
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            result = json.loads(resp.read())
-
-        entry = result['data'][0]
-        if 'b64_json' in entry:
-            img_data = base64.b64decode(entry['b64_json'])
-        else:
-            with urllib.request.urlopen(entry['url'], timeout=60) as r:
-                img_data = r.read()
-        with open(out_path, 'wb') as fh:
-            fh.write(img_data)
-
+        try:
+            from rembg import remove as rembg_remove
+            with open(saved_path, 'rb') as fh:
+                result = rembg_remove(fh.read())
+            with open(out_path, 'wb') as fh:
+                fh.write(result)
+        except (ImportError, SystemExit, BaseException) as e:
+            logger.error('rembg error: %s', e)
+            return JsonResponse({'error': 'Background removal unavailable. Please try again later.'}, status=500)
         save_job('remove_background', [f.name], [out_name])
         return JsonResponse({'download_url': media_url(out_name), 'filename': out_name})
-
-    except urllib.error.HTTPError as e:
-        err = e.read().decode('utf-8', errors='replace')
-        logger.error('remove_background OpenAI: %s %s', e.code, err)
-        return JsonResponse({'error': f'AI API error ({e.code}). Check OpenAI key and quota.'}, status=500)
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
