@@ -234,14 +234,15 @@ async function doConvert(){
   fd.append('file',currentFile);
   fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
   fd.append('text',document.getElementById('wmText').value);
-  fd.append('opacity',document.getElementById('opacityRange').value);
   fd.append('angle',document.getElementById('wmAngle').value);
+  const opacityVal=parseInt(document.getElementById('opacityRange').value,10);
+  fd.append('opacity',opacityVal);
   let apiUrl='/tools/api/img/watermark/';
   if(isPDF){
-    // PDF watermark API expects these fields
+    fd.set('opacity',(opacityVal/100).toFixed(2));  // PDF API expects 0.0–1.0
     fd.append('type','text');
     fd.append('font_size','60');
-    fd.append('color','FFFFFF');
+    fd.append('color','C8C8C8');  // light gray for PDF
     apiUrl='{% url "api_watermark" %}';
   }else{
     fd.append('position',document.querySelector('[name=position]:checked').value);
