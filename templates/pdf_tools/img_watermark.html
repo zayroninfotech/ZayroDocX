@@ -5,6 +5,8 @@
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Watermark Image</span>{% endblock %}
 {% block extra_head %}<style>
 {% include "pdf_tools/_img_split_css.html" %}
+/* no scrollbar on right panel for this tool */
+.it-right{max-height:none;overflow-y:visible;}
 .wm-preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.8rem;}
 .wm-preset-card{border:2px solid #e8e8e8;border-radius:10px;cursor:pointer;overflow:hidden;transition:border-color .15s,box-shadow .15s;background:#f8fafc;}
 .wm-preset-card:hover{border-color:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.1);}
@@ -54,7 +56,13 @@
 
     <button type="button" class="it-convert-btn" id="itConvertBtn" onclick="doConvert()"><i class="fa-solid fa-stamp"></i> Add Watermark</button>
     <div class="it-loading-card" id="itLoadingCard"><i class="fa-solid fa-spinner it-spin"></i><span style="font-size:.88rem;font-weight:600;color:#b91c1c">Adding watermark…</span></div>
-    <div class="it-result-card" id="itResultCard"><div class="it-result-title"><i class="fa-solid fa-circle-check"></i> Watermark added!</div><a class="it-dl-btn" id="itDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a></div>
+    <div class="it-result-card" id="itResultCard">
+      <div class="it-result-title"><i class="fa-solid fa-circle-check"></i> Watermark added!</div>
+      <a class="it-dl-btn" id="itDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a>
+      <button type="button" onclick="resetTool()" style="width:100%;margin-top:.6rem;padding:.65rem;background:#fff;border:1.5px solid #e8e8e8;border-radius:10px;font-size:.82rem;font-weight:700;color:#555;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.4rem;">
+        <i class="fa-solid fa-plus"></i> Watermark Another File
+      </button>
+    </div>
     <div class="it-error-card" id="itErrorCard"><div class="it-error-msg" id="itErrorMsg"></div></div>
   </div>
 </div>
@@ -251,9 +259,11 @@ async function doConvert(){
     const res=await fetch(apiUrl,{method:'POST',body:fd});
     const d=await res.json();
     if(d.error)throw new Error(d.error);
-    document.getElementById('itDlBtn').href=d.download_url;
-    document.getElementById('itDlBtn').download=d.filename||(isPDF?'watermarked.pdf':'watermarked');
+    const dlBtn=document.getElementById('itDlBtn');
+    dlBtn.href=d.download_url;
+    dlBtn.download=d.filename||(isPDF?'watermarked.pdf':'watermarked');
     document.getElementById('itResultCard').classList.add('show');
+    dlBtn.click(); // auto-download
   }catch(e){
     document.getElementById('itErrorMsg').textContent=e.message||'Failed.';
     document.getElementById('itErrorCard').classList.add('show');
