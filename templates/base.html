@@ -590,23 +590,14 @@
           else { btn.disabled = false; }
         }
       };
-      /* Show immediately on new page if navigated via Skip button */
-      if(sessionStorage.getItem('zayrox_skip_nav')){
-        ZLoader.show('Loading…');
-      }
-
       document.addEventListener('click', function(e){
         var btn = e.target.closest('button[data-loader],a[data-loader]');
         if(btn) ZLoader.show(btn.dataset.loaderMsg || 'Processing…');
       });
       window.addEventListener('beforeunload', function(){ ZLoader.show('Loading…'); });
       window.addEventListener('load', function(){
-        if(sessionStorage.getItem('zayrox_skip_nav')){
-          sessionStorage.removeItem('zayrox_skip_nav');
-          setTimeout(function(){ ZLoader.hide(); }, 5000);
-        } else {
-          ZLoader.hide();
-        }
+        sessionStorage.removeItem('zayrox_skip_nav');
+        ZLoader.hide();
       });
       window.addEventListener('pageshow', function(e){ if(e.persisted){ ZLoader.show('Loading…'); setTimeout(function(){ ZLoader.hide(); }, 500); } });
     })();
