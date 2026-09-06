@@ -373,7 +373,6 @@ def remove_background(request):
                 field('prompt', 'Remove the background completely and make it fully transparent.') +
                 field('background', 'transparent') +
                 field('output_format', 'png') +
-                field('response_format', 'b64_json') +
                 filefield('image', 'image.png', png_bytes, 'image/png') +
                 b'--' + boundary + b'--\r\n')
 
@@ -389,7 +388,12 @@ def remove_background(request):
         with urllib.request.urlopen(req, timeout=120) as resp:
             result = json.loads(resp.read())
 
-        img_data = base64.b64decode(result['data'][0]['b64_json'])
+        entry = result['data'][0]
+        if 'b64_json' in entry:
+            img_data = base64.b64decode(entry['b64_json'])
+        else:
+            with urllib.request.urlopen(entry['url'], timeout=60) as r:
+                img_data = r.read()
         with open(out_path, 'wb') as fh:
             fh.write(img_data)
 
