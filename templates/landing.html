@@ -1023,37 +1023,5 @@ if (io) {
   }
 })();
 </script>
-{% if not request.user.is_authenticated %}
-<script>
-(function() {
-  var DELAY = 10000;    // 10 s between each show
-  var MAX_SHOWS = 3;    // show at most 3 times total
-  var showCount = 0;
-
-  function anyPopupOpen() {
-    return !!document.querySelector('.zp-overlay.zp-open');
-  }
-
-  function tryShow() {
-    if (showCount >= MAX_SHOWS) return;
-    if (!anyPopupOpen() && typeof openZpPopup === 'function') {
-      openZpPopup('signupPopup');
-      showCount++;
-    }
-    if (showCount < MAX_SHOWS) {
-      setTimeout(tryShow, DELAY);
-    }
-  }
-
-  if (document.readyState === 'complete') {
-    setTimeout(tryShow, DELAY);
-  } else {
-    window.addEventListener('load', function() {
-      setTimeout(tryShow, DELAY);
-    });
-  }
-})();
-</script>
-{% endif %}
 </body>
 </html>
