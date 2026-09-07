@@ -39,6 +39,10 @@
 .ci-error-card.show{display:block;}
 .ci-error-msg{font-size:.82rem;color:#dc2626;}
 .ci-hint{font-size:.75rem;color:#94a3b8;text-align:center;margin-top:.3rem;}
+@keyframes bffill{0%{width:5%}60%{width:85%}100%{width:95%}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ci-recrop-btn{width:100%;padding:.65rem;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;font-size:.85rem;font-weight:700;color:#475569;cursor:pointer;margin-top:-4px;}
+.ci-recrop-btn:hover{border-color:#fca5a5;color:#dc2626;}
 @media(max-width:1050px){.ci-split{grid-template-columns:1fr;}.ci-right{position:static;}}
 </style>{% endblock %}
 {% block content %}
@@ -54,8 +58,16 @@
 </div>
 
 <div class="ci-split" id="ciSplit">
-  <div class="ci-viewer" id="ciViewer">
+  <div class="ci-viewer" id="ciViewer" style="position:relative;">
     <canvas id="ciCanvas"></canvas>
+    <div id="ciProcessing" style="display:none;position:absolute;inset:0;background:rgba(15,23,42,.75);border-radius:16px;flex-direction:column;align-items:center;justify-content:center;gap:1rem;z-index:20;">
+      <i class="fa-solid fa-crop-simple" style="font-size:2rem;color:#dc2626;animation:spin 1s linear infinite;"></i>
+      <div style="color:#fff;font-size:.95rem;font-weight:600;">Cropping image…</div>
+      <div style="width:180px;height:6px;background:#334155;border-radius:3px;overflow:hidden;"><div style="height:100%;background:#dc2626;border-radius:3px;animation:bffill 2s ease-in-out infinite;"></div></div>
+    </div>
+    <div id="ciResultCanvas" style="display:none;position:absolute;inset:0;border-radius:16px;background:#1e293b;align-items:center;justify-content:center;">
+      <img id="ciResultImg" style="max-width:100%;max-height:100%;border-radius:12px;object-fit:contain;" alt="cropped">
+    </div>
   </div>
 
   <div class="ci-right">
@@ -90,9 +102,12 @@
     </button>
 
     <div class="ci-result-card" id="ciResultCard">
-      <div class="ci-result-title"><i class="fa-solid fa-circle-check"></i> Image cropped!</div>
+      <div class="ci-result-title"><i class="fa-solid fa-circle-check"></i> <span id="ciResultInfo">Image cropped!</span></div>
       <a class="ci-dl-btn" id="ciDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a>
     </div>
+    <button type="button" class="ci-recrop-btn" id="ciRecropBtn" style="display:none;" onclick="recrop()">
+      <i class="fa-solid fa-rotate-left"></i> Crop Again
+    </button>
 
     <div class="ci-error-card" id="ciErrorCard">
       <div class="ci-error-msg" id="ciErrorMsg"></div>
@@ -321,14 +336,27 @@ function resetTool(){
   document.getElementById('ciDrop').style.display='';
   document.getElementById('ciSplit').classList.remove('show');
   ['ciResultCard','ciErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  document.getElementById('ciResultCanvas').style.display='none';
+  document.getElementById('ciRecropBtn').style.display='none';
+  document.getElementById('ciConvertBtn').style.display='';
   document.getElementById('ciConvertBtn').disabled=true;
   document.getElementById('ciSelInfo').textContent='Drag on the image to select a region';
+}
+
+function recrop(){
+  document.getElementById('ciResultCanvas').style.display='none';
+  document.getElementById('ciResultCard').classList.remove('show');
+  document.getElementById('ciRecropBtn').style.display='none';
+  document.getElementById('ciConvertBtn').style.display='';
+  drawFrame();
 }
 
 async function doConvert(){
   if(!currentFile||!hasCrop)return;
   document.getElementById('ciConvertBtn').disabled=true;
   ['ciResultCard','ciErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  document.getElementById('ciRecropBtn').style.display='none';
+  document.getElementById('ciProcessing').style.display='flex';
   const {x,y,w,h}=toImg();
   const fd=new FormData();
   fd.append('file',currentFile);fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
@@ -337,13 +365,23 @@ async function doConvert(){
     const res=await fetch('/tools/api/img/crop/',{method:'POST',body:fd});
     const d=await res.json();
     if(d.error)throw new Error(d.error);
+    // show result on canvas area
+    const resultImg=document.getElementById('ciResultImg');
+    resultImg.src=d.download_url+'?t='+Date.now();
+    document.getElementById('ciResultCanvas').style.display='flex';
     document.getElementById('ciDlBtn').href=d.download_url;
     document.getElementById('ciDlBtn').download=d.filename||'cropped';
+    document.getElementById('ciResultInfo').textContent=`${w} × ${h} px cropped!`;
     document.getElementById('ciResultCard').classList.add('show');
+    document.getElementById('ciRecropBtn').style.display='block';
+    document.getElementById('ciConvertBtn').style.display='none';
   }catch(e){
     document.getElementById('ciErrorMsg').textContent=e.message||'Failed.';
     document.getElementById('ciErrorCard').classList.add('show');
-  }finally{document.getElementById('ciConvertBtn').disabled=false;}
+    document.getElementById('ciConvertBtn').disabled=false;
+  }finally{
+    document.getElementById('ciProcessing').style.display='none';
+  }
 }
 
 fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));
