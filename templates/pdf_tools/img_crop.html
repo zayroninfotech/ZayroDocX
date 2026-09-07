@@ -3,44 +3,353 @@
 {% block title %}Crop Image — ZayroDocX{% endblock %}
 {% block active_img_crop %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Crop Image</span>{% endblock %}
-{% block extra_head %}<style>{% include "pdf_tools/_img_split_css.html" %}</style>{% endblock %}
+{% block extra_head %}<style>
+.ci-drop{border:2.5px dashed #cbd5e1;border-radius:20px;padding:3rem 2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:#f8fafc;}
+.ci-drop:hover,.ci-drop.drag-over{border-color:#dc2626;background:#fff8f8;}
+.ci-drop-icon{font-size:3rem;color:#dc2626;margin-bottom:.8rem;}
+.ci-drop h3{font-size:1.3rem;font-weight:700;color:#1e293b;margin:0 0 .4rem;}
+.ci-drop p{color:#64748b;margin:0 0 1.2rem;}
+.ci-drop-btn{background:#dc2626;color:#fff;border:none;border-radius:10px;padding:.6rem 1.4rem;font-size:.9rem;font-weight:600;cursor:pointer;}
+.ci-split{display:none;grid-template-columns:1fr 300px;gap:20px;align-items:start;}
+.ci-split.show{display:grid;}
+.ci-viewer{border-radius:16px;overflow:hidden;background:#1e293b;position:relative;}
+#ciCanvas{display:block;cursor:crosshair;touch-action:none;}
+.ci-right{display:flex;flex-direction:column;gap:14px;position:sticky;top:16px;}
+.ci-card{background:#fff;border:1.5px solid #e8e8e8;border-radius:14px;padding:1.1rem 1.3rem;}
+.ci-file-row{display:flex;align-items:center;gap:.9rem;}
+.ci-file-icon{width:44px;height:44px;border-radius:11px;background:#fff8f8;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#dc2626;flex-shrink:0;}
+.ci-file-name{font-size:.85rem;font-weight:700;color:#111;word-break:break-all;}
+.ci-file-size{font-size:.75rem;color:#aaa;margin-top:.1rem;}
+.ci-change-btn{margin-left:auto;background:#fff;border:1.5px solid #e8e8e8;border-radius:8px;padding:.35rem .75rem;font-size:.75rem;font-weight:600;color:#666;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.ci-change-btn:hover{border-color:#fca5a5;color:#dc2626;}
+.ci-opts-title{font-size:.72rem;font-weight:800;color:#b91c1c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;}
+.ci-ar-grid{display:flex;flex-wrap:wrap;gap:.4rem;}
+.ci-ar-btn{border:1.5px solid #e2e8f0;background:#f8fafc;border-radius:8px;padding:.3rem .7rem;font-size:.75rem;font-weight:700;color:#555;cursor:pointer;transition:all .15s;}
+.ci-ar-btn:hover,.ci-ar-btn.active{border-color:#dc2626;color:#dc2626;background:#fff8f8;}
+.ci-sel-info{font-size:.78rem;color:#64748b;margin-top:.7rem;line-height:1.4;}
+.ci-sel-info b{color:#1e293b;}
+.ci-convert-btn{width:100%;padding:.85rem;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:opacity .15s;}
+.ci-convert-btn:disabled{opacity:.5;cursor:not-allowed;}
+.ci-result-card{display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:1.1rem 1.2rem;}
+.ci-result-card.show{display:block;}
+.ci-result-title{font-size:.82rem;font-weight:700;color:#166534;display:flex;align-items:center;gap:.4rem;margin-bottom:.7rem;}
+.ci-dl-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.62rem;background:#16a34a;color:#fff;border:none;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;text-decoration:none;}
+.ci-dl-btn:hover{background:#15803d;}
+.ci-error-card{display:none;background:#fff1f2;border:1.5px solid #fca5a5;border-radius:14px;padding:1rem 1.2rem;}
+.ci-error-card.show{display:block;}
+.ci-error-msg{font-size:.82rem;color:#dc2626;}
+.ci-hint{font-size:.75rem;color:#94a3b8;text-align:center;margin-top:.3rem;}
+@media(max-width:1050px){.ci-split{grid-template-columns:1fr;}.ci-right{position:static;}}
+</style>{% endblock %}
 {% block content %}
 <input type="file" id="fileInput" accept="image/*" style="display:none">
-<div class="it-drop" id="itDrop" onclick="document.getElementById('fileInput').click()">
-  <div class="it-drop-icon"><i class="fa-solid fa-crop-simple"></i></div>
-  <h3>Drop your image here</h3><p>Set crop region coordinates in the panel</p>
-  <button type="button" class="it-drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()"><i class="fa-solid fa-folder-open"></i> Select Image</button>
+
+<div class="ci-drop" id="ciDrop" onclick="document.getElementById('fileInput').click()">
+  <div class="ci-drop-icon"><i class="fa-solid fa-crop-simple"></i></div>
+  <h3>Drop your image here</h3>
+  <p>Drag directly on the image to select your crop area</p>
+  <button type="button" class="ci-drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">
+    <i class="fa-solid fa-folder-open"></i> Select Image
+  </button>
 </div>
-<div class="it-split" id="itSplit">
-  <div class="it-viewer"><div class="it-viewer-loading" id="itViewerLoad"><i class="fa-solid fa-spinner it-spin"></i><span>Loading…</span></div><img id="itPreviewImg" style="display:none;max-width:100%;max-height:100%;border-radius:8px;object-fit:contain;" alt="preview"></div>
-  <div class="it-right">
-    <div class="it-card"><div class="it-file-row"><div class="it-file-icon"><i class="fa-solid fa-image"></i></div><div><div class="it-file-name" id="itFileName">—</div><div class="it-file-size" id="itFileSize">—</div></div><button type="button" class="it-change-btn" onclick="resetTool()"><i class="fa-solid fa-rotate-left"></i> Change</button></div></div>
-    <div class="it-card">
-      <div class="it-opts-title"><i class="fa-solid fa-crop-simple"></i> Crop Region (px)</div>
-      <div class="it-grid2" style="margin-top:.6rem">
-        <div><div class="it-field-label">X (left offset)</div><input type="number" id="cropX" class="it-input" value="0" min="0"></div>
-        <div><div class="it-field-label">Y (top offset)</div><input type="number" id="cropY" class="it-input" value="0" min="0"></div>
-        <div><div class="it-field-label">Width <span style="font-size:.67rem;color:#aaa">(0=to edge)</span></div><input type="number" id="cropW" class="it-input" value="0" min="0"></div>
-        <div><div class="it-field-label">Height <span style="font-size:.67rem;color:#aaa">(0=to edge)</span></div><input type="number" id="cropH" class="it-input" value="0" min="0"></div>
+
+<div class="ci-split" id="ciSplit">
+  <div class="ci-viewer" id="ciViewer">
+    <canvas id="ciCanvas"></canvas>
+  </div>
+
+  <div class="ci-right">
+    <div class="ci-card">
+      <div class="ci-file-row">
+        <div class="ci-file-icon"><i class="fa-solid fa-image"></i></div>
+        <div>
+          <div class="ci-file-name" id="ciFileName">—</div>
+          <div class="ci-file-size" id="ciFileSize">—</div>
+        </div>
+        <button type="button" class="ci-change-btn" onclick="resetTool()">
+          <i class="fa-solid fa-rotate-left"></i> Change
+        </button>
       </div>
     </div>
-    <button type="button" class="it-convert-btn" id="itConvertBtn" onclick="doConvert()"><i class="fa-solid fa-crop-simple"></i> Crop Image</button>
-    <div class="it-loading-card" id="itLoadingCard"><i class="fa-solid fa-spinner it-spin"></i><span style="font-size:.88rem;font-weight:600;color:#b91c1c">Cropping…</span></div>
-    <div class="it-result-card" id="itResultCard"><div class="it-result-title"><i class="fa-solid fa-circle-check"></i> Image cropped!</div><a class="it-dl-btn" id="itDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a></div>
-    <div class="it-error-card" id="itErrorCard"><div class="it-error-msg" id="itErrorMsg"></div></div>
+
+    <div class="ci-card">
+      <div class="ci-opts-title"><i class="fa-solid fa-crop-simple"></i> Aspect Ratio</div>
+      <div class="ci-ar-grid">
+        <button type="button" class="ci-ar-btn active" onclick="setAspect(null,this)">Free</button>
+        <button type="button" class="ci-ar-btn" onclick="setAspect(1,this)">1:1</button>
+        <button type="button" class="ci-ar-btn" onclick="setAspect(16/9,this)">16:9</button>
+        <button type="button" class="ci-ar-btn" onclick="setAspect(4/3,this)">4:3</button>
+        <button type="button" class="ci-ar-btn" onclick="setAspect(9/16,this)">9:16</button>
+        <button type="button" class="ci-ar-btn" onclick="selectAll()">Select All</button>
+      </div>
+      <div class="ci-sel-info" id="ciSelInfo">Drag on the image to select a region</div>
+    </div>
+
+    <button type="button" class="ci-convert-btn" id="ciConvertBtn" onclick="doConvert()" disabled>
+      <i class="fa-solid fa-crop-simple"></i> Crop Image
+    </button>
+
+    <div class="ci-result-card" id="ciResultCard">
+      <div class="ci-result-title"><i class="fa-solid fa-circle-check"></i> Image cropped!</div>
+      <a class="ci-dl-btn" id="ciDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a>
+    </div>
+
+    <div class="ci-error-card" id="ciErrorCard">
+      <div class="ci-error-msg" id="ciErrorMsg"></div>
+    </div>
   </div>
 </div>
-<div class="cv-info-strip" id="itInfoStrip">
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-crop-simple"></i></div><div><div class="cv-info-title">Pixel Precise</div><div class="cv-info-desc">Exact region crop</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-image"></i></div><div><div class="cv-info-title">All Formats</div><div class="cv-info-desc">JPG, PNG, WebP</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
-</div>
 {% endblock %}
+
 {% block extra_js %}<script>
-let currentFile=null;const fileInput=document.getElementById('fileInput');
-function resetTool(){fileInput.value='';currentFile=null;document.getElementById('itDrop').style.display='';document.getElementById('itSplit').classList.remove('show');document.getElementById('itInfoStrip').style.display='';['itLoadingCard','itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itConvertBtn').disabled=false;}
-function setFile(f){if(!f)return;currentFile=f;document.getElementById('itFileName').textContent=f.name;document.getElementById('itFileSize').textContent=(f.size/1024).toFixed(1)+' KB';document.getElementById('itDrop').style.display='none';document.getElementById('itInfoStrip').style.display='none';['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itSplit').classList.add('show');const img=document.getElementById('itPreviewImg');img.src=URL.createObjectURL(f);img.style.display='block';document.getElementById('itViewerLoad').style.display='none';}
-async function doConvert(){if(!currentFile)return;document.getElementById('itConvertBtn').disabled=true;document.getElementById('itLoadingCard').classList.add('show');['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));const fd=new FormData();fd.append('file',currentFile);fd.append('csrfmiddlewaretoken','{{ csrf_token }}');fd.append('x',document.getElementById('cropX').value);fd.append('y',document.getElementById('cropY').value);fd.append('width',document.getElementById('cropW').value);fd.append('height',document.getElementById('cropH').value);try{const res=await fetch('/tools/api/img/crop/',{method:'POST',body:fd});const d=await res.json();if(d.error)throw new Error(d.error);document.getElementById('itDlBtn').href=d.download_url;document.getElementById('itDlBtn').download=d.filename||'cropped';document.getElementById('itResultCard').classList.add('show');}catch(e){document.getElementById('itErrorMsg').textContent=e.message||'Failed.';document.getElementById('itErrorCard').classList.add('show');}finally{document.getElementById('itLoadingCard').classList.remove('show');document.getElementById('itConvertBtn').disabled=false;}}
-fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));const drop=document.getElementById('itDrop');drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+let currentFile=null, imgEl=null, imgNW=0, imgNH=0;
+let cW=0, cH=0, iScale=1, iOX=0, iOY=0;
+let box={x:0,y:0,w:0,h:0}, hasCrop=false, ar=null, drag=null;
+const HS=9;
+const canvas=document.getElementById('ciCanvas'), ctx=canvas.getContext('2d');
+const fileInput=document.getElementById('fileInput');
+
+function setAspect(ratio, btn){
+  ar=ratio;
+  document.querySelectorAll('.ci-ar-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  if(ar&&hasCrop){box.h=box.w/ar;clamp();drawFrame();}
+}
+
+function selectAll(){
+  box={x:iOX,y:iOY,w:Math.round(imgNW*iScale),h:Math.round(imgNH*iScale)};
+  hasCrop=true;ar=null;
+  document.querySelectorAll('.ci-ar-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.ci-ar-btn')[0].classList.add('active');
+  document.getElementById('ciConvertBtn').disabled=false;
+  updateInfo();drawFrame();
+}
+
+function clamp(){
+  const mX=iOX,mY=iOY,xX=iOX+imgNW*iScale,xY=iOY+imgNH*iScale;
+  if(box.x<mX){box.w-=(mX-box.x);box.x=mX;}
+  if(box.y<mY){box.h-=(mY-box.y);box.y=mY;}
+  if(box.x+box.w>xX)box.w=xX-box.x;
+  if(box.y+box.h>xY)box.h=xY-box.y;
+  box.w=Math.max(4,box.w);box.h=Math.max(4,box.h);
+}
+
+function toImg(){
+  return {
+    x:Math.max(0,Math.round((box.x-iOX)/iScale)),
+    y:Math.max(0,Math.round((box.y-iOY)/iScale)),
+    w:Math.min(imgNW,Math.round(box.w/iScale)),
+    h:Math.min(imgNH,Math.round(box.h/iScale))
+  };
+}
+
+function updateInfo(){
+  if(!hasCrop){document.getElementById('ciSelInfo').textContent='Drag on the image to select a region';return;}
+  const {x,y,w,h}=toImg();
+  document.getElementById('ciSelInfo').innerHTML=`<b>${w} × ${h} px</b> &nbsp;at (${x}, ${y})`;
+}
+
+function handles(){
+  const {x,y,w,h}=box;
+  return [
+    {id:'tl',px:x,     py:y,     cur:'nw-resize'},
+    {id:'tr',px:x+w,   py:y,     cur:'ne-resize'},
+    {id:'bl',px:x,     py:y+h,   cur:'sw-resize'},
+    {id:'br',px:x+w,   py:y+h,   cur:'se-resize'},
+    {id:'t', px:x+w/2, py:y,     cur:'n-resize'},
+    {id:'r', px:x+w,   py:y+h/2, cur:'e-resize'},
+    {id:'b', px:x+w/2, py:y+h,   cur:'s-resize'},
+    {id:'l', px:x,     py:y+h/2, cur:'w-resize'},
+  ];
+}
+
+function hitH(mx,my){
+  if(!hasCrop)return null;
+  for(const h of handles()) if(Math.abs(mx-h.px)<=HS+3&&Math.abs(my-h.py)<=HS+3)return h;
+  return null;
+}
+
+function inBox(mx,my){return hasCrop&&mx>=box.x&&mx<=box.x+box.w&&my>=box.y&&my<=box.y+box.h;}
+function inImg(mx,my){return mx>=iOX&&mx<=iOX+imgNW*iScale&&my>=iOY&&my<=iOY+imgNH*iScale;}
+
+function drawFrame(){
+  ctx.clearRect(0,0,cW,cH);
+  ctx.fillStyle='#1e293b';ctx.fillRect(0,0,cW,cH);
+  if(!imgEl)return;
+  ctx.drawImage(imgEl,iOX,iOY,imgNW*iScale,imgNH*iScale);
+  if(!hasCrop||box.w<4||box.h<4)return;
+  // dim outside
+  ctx.fillStyle='rgba(0,0,0,0.55)';
+  ctx.fillRect(iOX,iOY,imgNW*iScale,imgNH*iScale);
+  // reveal crop
+  const sx=(box.x-iOX)/iScale,sy=(box.y-iOY)/iScale,sw=box.w/iScale,sh=box.h/iScale;
+  ctx.drawImage(imgEl,sx,sy,sw,sh,box.x,box.y,box.w,box.h);
+  // border
+  ctx.strokeStyle='#fff';ctx.lineWidth=1.5;
+  ctx.strokeRect(box.x+.5,box.y+.5,box.w-1,box.h-1);
+  // rule of thirds
+  ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=.7;
+  for(let i=1;i<3;i++){
+    ctx.beginPath();ctx.moveTo(box.x+box.w*i/3,box.y);ctx.lineTo(box.x+box.w*i/3,box.y+box.h);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(box.x,box.y+box.h*i/3);ctx.lineTo(box.x+box.w,box.y+box.h*i/3);ctx.stroke();
+  }
+  // corner brackets
+  const blen=Math.min(18,box.w/4,box.h/4);
+  ctx.strokeStyle='#fff';ctx.lineWidth=2.5;
+  const corners=[[box.x,box.y,1,1],[box.x+box.w,box.y,-1,1],[box.x,box.y+box.h,1,-1],[box.x+box.w,box.y+box.h,-1,-1]];
+  for(const [cx,cy,sx2,sy2] of corners){
+    ctx.beginPath();ctx.moveTo(cx+sx2*blen,cy);ctx.lineTo(cx,cy);ctx.lineTo(cx,cy+sy2*blen);ctx.stroke();
+  }
+  // handles
+  for(const h of handles()){
+    ctx.fillStyle='#fff';ctx.strokeStyle='#dc2626';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(h.px,h.py,HS,0,Math.PI*2);ctx.fill();ctx.stroke();
+  }
+  // size badge
+  const {w,h}=toImg();
+  const label=`${w} × ${h}`;
+  ctx.font='bold 11px system-ui,sans-serif';
+  const lw=ctx.measureText(label).width;
+  const lx=box.x+box.w/2-lw/2;
+  const ly=box.y>iOY+24?box.y-10:box.y+box.h+20;
+  ctx.fillStyle='rgba(0,0,0,.65)';
+  ctx.beginPath();if(ctx.roundRect)ctx.roundRect(lx-6,ly-13,lw+12,18,4);else ctx.rect(lx-6,ly-13,lw+12,18);ctx.fill();
+  ctx.fillStyle='#fff';ctx.fillText(label,lx,ly);
+}
+
+function sizeCanvas(){
+  if(!imgEl)return;
+  const vw=document.getElementById('ciViewer').offsetWidth;
+  const ratio=imgNH/imgNW;
+  const vh=Math.min(Math.round(vw*ratio),580);
+  canvas.width=cW=vw;canvas.height=cH=vh;
+  document.getElementById('ciViewer').style.height=vh+'px';
+  iScale=Math.min(vw/imgNW,vh/imgNH);
+  iOX=(vw-imgNW*iScale)/2;iOY=(vh-imgNH*iScale)/2;
+}
+
+function getXY(e){
+  const r=canvas.getBoundingClientRect();
+  const t=e.touches?e.touches[0]:e;
+  return {x:(t.clientX-r.left)*(canvas.width/r.width),y:(t.clientY-r.top)*(canvas.height/r.height)};
+}
+
+function applyResize(mx,my){
+  if(!drag||drag.type!=='handle')return;
+  const {startMX:sx,startMY:sy,startBox:sb,handle:h}=drag;
+  const dx=mx-sx,dy=my-sy;
+  let {x,y,w,h:bh}=sb;
+  if(h.id==='tl'||h.id==='l'||h.id==='bl'){x+=dx;w-=dx;}
+  if(h.id==='tr'||h.id==='r'||h.id==='br'){w+=dx;}
+  if(h.id==='tl'||h.id==='t'||h.id==='tr'){y+=dy;bh-=dy;}
+  if(h.id==='bl'||h.id==='b'||h.id==='br'){bh+=dy;}
+  if(w<4){if(h.id.includes('l')){x+=w-4;}w=4;}
+  if(bh<4){if(h.id.includes('t')){y+=bh-4;}bh=4;}
+  box={x,y,w,h:bh};
+  if(ar){
+    if(['t','b'].includes(h.id))box.w=box.h*ar;
+    else box.h=box.w/ar;
+  }
+  clamp();
+}
+
+canvas.addEventListener('mousedown',e=>{
+  const {x,y}=getXY(e);
+  const h=hitH(x,y);
+  if(h){drag={type:'handle',handle:h,startMX:x,startMY:y,startBox:{...box}};}
+  else if(inBox(x,y)){drag={type:'move',startMX:x,startMY:y,startBox:{...box}};}
+  else if(inImg(x,y)){hasCrop=false;box={x,y,w:0,h:0};drag={type:'new',startMX:x,startMY:y};document.getElementById('ciConvertBtn').disabled=true;}
+});
+
+document.addEventListener('mousemove',e=>{
+  if(!drag)return;
+  const {x,y}=getXY(e);
+  if(drag.type==='new'){
+    const nx=Math.min(x,drag.startMX),ny=Math.min(y,drag.startMY);
+    let nw=Math.abs(x-drag.startMX),nh=Math.abs(y-drag.startMY);
+    if(ar)nh=nw/ar;
+    box={x:nx,y:ny,w:nw,h:nh};hasCrop=nw>4&&nh>4;if(hasCrop)clamp();
+  }else if(drag.type==='move'){
+    box.x=drag.startBox.x+(x-drag.startMX);box.y=drag.startBox.y+(y-drag.startMY);clamp();
+  }else{applyResize(x,y);}
+  updateInfo();drawFrame();
+  const h=hitH(x,y);
+  canvas.style.cursor=h?h.cur:inBox(x,y)?'move':inImg(x,y)?'crosshair':'default';
+});
+
+document.addEventListener('mouseup',()=>{
+  if(drag&&hasCrop&&box.w>4&&box.h>4)document.getElementById('ciConvertBtn').disabled=false;
+  drag=null;
+});
+
+canvas.addEventListener('touchstart',e=>{
+  e.preventDefault();const {x,y}=getXY(e);
+  const h=hitH(x,y);
+  if(h){drag={type:'handle',handle:h,startMX:x,startMY:y,startBox:{...box}};}
+  else if(inBox(x,y)){drag={type:'move',startMX:x,startMY:y,startBox:{...box}};}
+  else if(inImg(x,y)){hasCrop=false;box={x,y,w:0,h:0};drag={type:'new',startMX:x,startMY:y};document.getElementById('ciConvertBtn').disabled=true;}
+},{passive:false});
+
+canvas.addEventListener('touchmove',e=>{
+  e.preventDefault();if(!drag)return;const {x,y}=getXY(e);
+  if(drag.type==='new'){const nx=Math.min(x,drag.startMX),ny=Math.min(y,drag.startMY);let nw=Math.abs(x-drag.startMX),nh=Math.abs(y-drag.startMY);if(ar)nh=nw/ar;box={x:nx,y:ny,w:nw,h:nh};hasCrop=nw>4&&nh>4;if(hasCrop)clamp();}
+  else if(drag.type==='move'){box.x=drag.startBox.x+(x-drag.startMX);box.y=drag.startBox.y+(y-drag.startMY);clamp();}
+  else{applyResize(x,y);}
+  updateInfo();drawFrame();
+},{passive:false});
+
+canvas.addEventListener('touchend',()=>{
+  if(drag&&hasCrop&&box.w>4&&box.h>4)document.getElementById('ciConvertBtn').disabled=false;
+  drag=null;
+});
+
+function setFile(f){
+  if(!f)return;currentFile=f;hasCrop=false;drag=null;
+  document.getElementById('ciFileName').textContent=f.name;
+  document.getElementById('ciFileSize').textContent=(f.size/1024).toFixed(1)+' KB';
+  document.getElementById('ciDrop').style.display='none';
+  ['ciResultCard','ciErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  document.getElementById('ciSplit').classList.add('show');
+  document.getElementById('ciConvertBtn').disabled=true;
+  const img=new Image();
+  img.onload=()=>{imgEl=img;imgNW=img.naturalWidth;imgNH=img.naturalHeight;sizeCanvas();drawFrame();};
+  img.src=URL.createObjectURL(f);
+}
+
+function resetTool(){
+  currentFile=null;imgEl=null;hasCrop=false;drag=null;fileInput.value='';
+  document.getElementById('ciDrop').style.display='';
+  document.getElementById('ciSplit').classList.remove('show');
+  ['ciResultCard','ciErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  document.getElementById('ciConvertBtn').disabled=true;
+  document.getElementById('ciSelInfo').textContent='Drag on the image to select a region';
+}
+
+async function doConvert(){
+  if(!currentFile||!hasCrop)return;
+  document.getElementById('ciConvertBtn').disabled=true;
+  ['ciResultCard','ciErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  const {x,y,w,h}=toImg();
+  const fd=new FormData();
+  fd.append('file',currentFile);fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
+  fd.append('x',x);fd.append('y',y);fd.append('width',w);fd.append('height',h);
+  try{
+    const res=await fetch('/tools/api/img/crop/',{method:'POST',body:fd});
+    const d=await res.json();
+    if(d.error)throw new Error(d.error);
+    document.getElementById('ciDlBtn').href=d.download_url;
+    document.getElementById('ciDlBtn').download=d.filename||'cropped';
+    document.getElementById('ciResultCard').classList.add('show');
+  }catch(e){
+    document.getElementById('ciErrorMsg').textContent=e.message||'Failed.';
+    document.getElementById('ciErrorCard').classList.add('show');
+  }finally{document.getElementById('ciConvertBtn').disabled=false;}
+}
+
+fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));
+const ciDrop=document.getElementById('ciDrop');
+ciDrop.addEventListener('dragover',e=>{e.preventDefault();ciDrop.classList.add('drag-over');});
+ciDrop.addEventListener('dragleave',()=>ciDrop.classList.remove('drag-over'));
+ciDrop.addEventListener('drop',e=>{e.preventDefault();ciDrop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+window.addEventListener('resize',()=>{if(imgEl){sizeCanvas();drawFrame();}});
 </script>{% endblock %}
