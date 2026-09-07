@@ -1026,33 +1026,30 @@ if (io) {
 {% if not request.user.is_authenticated %}
 <script>
 (function() {
-  var FIRST_DELAY = 3000;   // 3 s on first load
-  var REPEAT_DELAY = 5000;  // 5 s after each close
-  var repeatTimer = null;
+  var DELAY = 10000;    // 10 s between each show
+  var MAX_SHOWS = 3;    // show at most 3 times total
+  var showCount = 0;
 
-  function isPopupOpen() {
-    var el = document.getElementById('signupPopup');
-    return el && (el.style.display === 'flex' || el.classList.contains('open') || el.classList.contains('active'));
+  function anyPopupOpen() {
+    return !!document.querySelector('.zp-overlay.zp-open');
   }
 
-  function showPopup() {
-    if (typeof openZpPopup === 'function' && !isPopupOpen()) {
+  function tryShow() {
+    if (showCount >= MAX_SHOWS) return;
+    if (!anyPopupOpen() && typeof openZpPopup === 'function') {
       openZpPopup('signupPopup');
+      showCount++;
     }
-    scheduleNext();
+    if (showCount < MAX_SHOWS) {
+      setTimeout(tryShow, DELAY);
+    }
   }
 
-  function scheduleNext() {
-    clearTimeout(repeatTimer);
-    repeatTimer = setTimeout(showPopup, REPEAT_DELAY);
-  }
-
-  // Start the 3 s timer only after the page is fully loaded (ZLoader hidden)
   if (document.readyState === 'complete') {
-    setTimeout(showPopup, FIRST_DELAY);
+    setTimeout(tryShow, DELAY);
   } else {
     window.addEventListener('load', function() {
-      setTimeout(showPopup, FIRST_DELAY);
+      setTimeout(tryShow, DELAY);
     });
   }
 })();

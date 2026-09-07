@@ -389,10 +389,11 @@
 
   /* ── Auto-show logic — shows once per session, never re-shows after dismiss ── */
   var path = window.location.pathname;
-  var skipAll = ['/login/', '/register/', '/about/', '/tools/guest/'];
+  // '/' is excluded here — landing.html manages its own 3×10s auto-show
+  var skipAll = ['/', '/login/', '/register/', '/about/', '/tools/guest/'];
   if(skipAll.indexOf(path) !== -1) return;
 
-  var popupId = (path === '/') ? 'signupPopup' : 'loginPopup';
+  var popupId = 'loginPopup';
 
   /* Don't show if already dismissed this session */
   if(sessionStorage.getItem(SK_DISMISSED)) return;
