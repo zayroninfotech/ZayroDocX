@@ -22,7 +22,7 @@ GUEST_TOOLS = {
 # Free account: OCR + AI tools + everything guests get
 FREE_TOOLS = GUEST_TOOLS | {
     'ocr-pdf', 'invoice-extractor', 'ai-summarizer', 'translate-pdf', 'redact-pdf',
-    'image-to-text', 'upscale-image', 'remove-background', 'blur-face', 'photo-blue',
+    'image-to-text', 'remove-background', 'blur-face', 'photo-blue',
     'connectspace', 'ai-resume-analyzer', 'product-recommender', 'pdf-chat',
 }
 
@@ -43,7 +43,6 @@ PLAN_LIMITS = {
         'ai-summarizer':       {'daily': 5},
         'translate-pdf':       {'daily': 5},
         'invoice-extractor':   {'daily': 10},
-        'upscale-image':       {'daily': 10},
         'pdf-chat':            {'daily': 5},
         'ai-resume-analyzer':  {'daily': 5},
         'product-recommender': {'daily': 10},
@@ -55,7 +54,6 @@ PLAN_LIMITS = {
         'ai-summarizer':       {'daily': 50},
         'translate-pdf':       {'daily': 50},
         'invoice-extractor':   {'daily': 100},
-        'upscale-image':       {'daily': 100},
         'pdf-chat':            {'daily': 50},
         'ai-resume-analyzer':  {'daily': 50},
         'product-recommender': {'daily': 100},

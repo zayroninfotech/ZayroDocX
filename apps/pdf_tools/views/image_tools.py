@@ -302,39 +302,6 @@ def watermark_image(request):
         cleanup_file(saved_path)
 
 
-# ── Upscale IMAGE ─────────────────────────────────────────────────────────────
-
-@require_POST
-def upscale_image(request):
-    f = request.FILES.get('file')
-    if not f:
-        return JsonResponse({'error': 'No file uploaded.'}, status=400)
-    try:
-        scale = float(request.POST.get('scale', 2))
-        scale = max(1.5, min(4.0, scale))
-    except ValueError:
-        scale = 2.0
-
-    saved_path, _ = save_uploaded_file(f)
-    out_path, out_name = get_output_path('.png', 'upscaled_img')
-    try:
-        validate_image(saved_path, f.name)
-        img = _open_image(saved_path)
-        w, h = img.size
-        new_size = (int(w * scale), int(h * scale))
-        img = img.resize(new_size, Image.LANCZOS)
-        img.save(out_path, 'PNG')
-        save_job('upscale_image', [f.name], [out_name])
-        return JsonResponse({'download_url': media_url(out_name), 'filename': out_name,
-                             'width': new_size[0], 'height': new_size[1]})
-    except ValueError as e:
-        return JsonResponse({'error': str(e)}, status=400)
-    except Exception as e:
-        logger.error('upscale_image: %s\n%s', e, traceback.format_exc())
-        return JsonResponse({'error': f'Upscale failed: {e}'}, status=500)
-    finally:
-        cleanup_file(saved_path)
-
 
 # ── Remove Background ─────────────────────────────────────────────────────────
 
