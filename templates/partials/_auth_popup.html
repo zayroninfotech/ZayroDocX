@@ -17,7 +17,7 @@
     <div class="zp-fields">
       <div class="zp-field">
         <span class="zp-field-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-        <input class="zp-input" type="text" id="zpSuUsername" name="username" placeholder="Username" autocomplete="username" required>
+        <input class="zp-input" type="text" id="zpSuUsername" name="username" placeholder="Username" autocomplete="off" required>
       </div>
       <div class="zp-field">
         <span class="zp-field-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
@@ -66,11 +66,11 @@
     <div class="zp-fields">
       <div class="zp-field">
         <span class="zp-field-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-        <input class="zp-input" type="text" id="zpLiUsername" name="username" placeholder="Username" autocomplete="username" required>
+        <input class="zp-input" type="text" id="zpLiUsername" name="username" placeholder="Username" autocomplete="off" readonly required>
       </div>
       <div class="zp-field">
         <span class="zp-field-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-        <input class="zp-input" type="password" id="zpLiPassword" name="password" placeholder="Password" autocomplete="current-password" required>
+        <input class="zp-input" type="password" id="zpLiPassword" name="password" placeholder="Password" autocomplete="off" readonly required>
         <button type="button" class="zp-eye" data-target="zpLiPassword" tabindex="-1" aria-label="Show password">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
@@ -232,8 +232,21 @@
     el.classList.add('zp-open');
     el.setAttribute('aria-hidden','false');
     document.body.style.overflow = 'hidden';
-    var first = el.querySelector('input');
-    if(first) setTimeout(function(){ first.focus(); }, 80);
+
+    /* Anti-autofill: clear values, keep readonly briefly, then unlock for typing.
+       Chrome autofills readonly fields only after they become editable — the
+       100 ms window is too short for Chrome to inject saved credentials but
+       plenty long for the DOM to settle before the user starts typing. */
+    var guards = el.querySelectorAll('input[autocomplete="off"]');
+    guards.forEach(function(inp){
+      inp.value = '';
+      inp.setAttribute('readonly', '');
+    });
+    setTimeout(function(){
+      guards.forEach(function(inp){ inp.removeAttribute('readonly'); });
+      var first = el.querySelector('input');
+      if(first) first.focus();
+    }, 100);
   }
   function closePopup(id){
     var el = document.getElementById(id);
