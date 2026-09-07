@@ -376,28 +376,36 @@
   /* ── Skip for now buttons — attach ALWAYS (before any early return) ── */
   var SK_DISMISSED = 'zayrox_popup_dismissed';
 
-  /* Signup popup skip: redirect to guest page only if coming from homepage */
-  var skipSignup = document.getElementById('zpSignupSkip');
-  if(skipSignup){
-    skipSignup.addEventListener('click', function(){
-      sessionStorage.setItem(SK_DISMISSED, '1');
-      if(window.location.pathname === '/'){
-        // Show loader immediately (covers popup), then navigate after 2 s
-        if(typeof ZLoader !== 'undefined') ZLoader.show('Loading…');
-        setTimeout(function(){ window.location.href = '/tools/guest/'; }, 2000);
-      } else {
-        closePopup('signupPopup');
+  /* Shared helper: show loader then go to guest page (landing page) or just close (other pages) */
+  function skipAndNavigate(popupId) {
+    sessionStorage.setItem(SK_DISMISSED, '1');
+    if(window.location.pathname === '/'){
+      closePopup(popupId);
+      /* Show landing page ink-fill loader immediately, navigate after 500ms */
+      var gl = document.getElementById('globalLoader');
+      if(gl){
+        gl.style.transition = 'none';
+        gl.style.opacity = '1';
+        gl.style.display = 'flex';
+        var wrap = document.getElementById('zlIfWrap');
+        if(wrap){ wrap.classList.remove('run'); void wrap.offsetWidth; wrap.classList.add('run'); }
+      } else if(typeof ZLoader !== 'undefined'){
+        ZLoader.show('Loading…');
       }
-    });
+      setTimeout(function(){ window.location.href = '/tools/guest/'; }, 500);
+    } else {
+      closePopup(popupId);
+    }
   }
 
-  /* Login popup skip: always just close */
+  var skipSignup = document.getElementById('zpSignupSkip');
+  if(skipSignup){
+    skipSignup.addEventListener('click', function(){ skipAndNavigate('signupPopup'); });
+  }
+
   var skipBtn = document.getElementById('zpLoginSkip');
   if(skipBtn){
-    skipBtn.addEventListener('click', function(){
-      sessionStorage.setItem(SK_DISMISSED, '1');
-      closePopup('loginPopup');
-    });
+    skipBtn.addEventListener('click', function(){ skipAndNavigate('loginPopup'); });
   }
 
   /* ── Auto-show logic — shows once per session, never re-shows after dismiss ── */
