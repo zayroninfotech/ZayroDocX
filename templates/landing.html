@@ -598,6 +598,41 @@ section{ padding:64px 0; }
 </div>
 
 <!-- ===================== TOOLS ===================== -->
+<style>
+.tools-cats{ display:flex; flex-direction:column; gap:20px; }
+.tools-cat{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:16px; padding:28px 28px 24px;
+}
+.tools-cat-head{ margin-bottom:20px; }
+.tools-cat-head h2{ font-size:18px; font-weight:700; color:var(--text); margin:0 0 4px; letter-spacing:-.02em; }
+.tools-cat-head p{ font-size:13px; color:var(--text-secondary); margin:0; }
+.tools-cat-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
+}
+.tc{
+  display:flex; align-items:center; gap:12px;
+  border:1px solid var(--border); border-radius:12px;
+  padding:12px 14px; text-decoration:none; color:var(--text);
+  background:var(--surface); transition:border-color .15s, box-shadow .15s, background .15s;
+  min-width:0;
+}
+.tc:hover{ border-color:var(--border-strong); box-shadow:0 2px 10px rgba(0,0,0,.06); background:var(--surface-raised); }
+.tc-icon{
+  width:36px; height:36px; border-radius:9px; flex:none;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px;
+}
+.tc-text{ min-width:0; }
+.tc-text strong{ display:block; font-size:13px; font-weight:600; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tc-text span{ font-size:11.5px; color:var(--text-secondary); line-height:1.4; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+@media(max-width:1024px){ .tools-cat-grid{ grid-template-columns:repeat(3,1fr); } }
+@media(max-width:640px){ .tools-cat-grid{ grid-template-columns:repeat(2,1fr); } .tools-cat{ padding:20px 16px 18px; } }
+@media(max-width:400px){ .tools-cat-grid{ grid-template-columns:1fr; } }
+</style>
+
 <section id="tools">
   <div class="wrap">
     <div class="section-head reveal">
@@ -606,90 +641,80 @@ section{ padding:64px 0; }
       <p>Everything you need to work with PDFs and images — with basic tools available without an account.</p>
     </div>
 
-    <div class="eco-grid">
-      <a href="/tools/merge-pdf/" class="eco-card reveal" style="--card-glow:rgba(220,38,38,0.22);--card-border:#fecaca;">
-        <div class="eco-icon" style="background:#fee2e2;color:#dc2626;"><i class="fa-solid fa-object-group"></i></div>
-        <h3>Merge PDF</h3>
-        <p>Combine multiple PDFs into one document quickly and easily.</p>
-        <div class="eco-tools"><span>PDF</span><span>Combine</span></div>
-      </a>
+    <div class="tools-cats">
 
-      <a href="/tools/split-pdf/" class="eco-card reveal reveal-d2" style="--card-glow:rgba(124,58,237,0.22);--card-border:#c4b5fd;">
-        <div class="eco-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa-solid fa-scissors"></i></div>
-        <h3>Split PDF</h3>
-        <p>Split into multiple files by page ranges or extract specific pages.</p>
-        <div class="eco-tools"><span>PDF</span><span>Split</span></div>
-      </a>
+      <!-- Organize PDF -->
+      <div class="tools-cat reveal">
+        <div class="tools-cat-head">
+          <h2>Organize PDF</h2>
+          <p>Organize and modify PDF pages easily</p>
+        </div>
+        <div class="tools-cat-grid">
+          <a href="/tools/merge-pdf/" class="tc">
+            <div class="tc-icon" style="background:#fee2e2;color:#dc2626;"><i class="fa-solid fa-object-group"></i></div>
+            <div class="tc-text"><strong>Merge PDF</strong><span>Combine multiple PDFs</span></div>
+          </a>
+          <a href="/tools/split-pdf/" class="tc">
+            <div class="tc-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa-solid fa-scissors"></i></div>
+            <div class="tc-text"><strong>Split PDF</strong><span>Separate pages into files</span></div>
+          </a>
+          <a href="/tools/remove-pages/" class="tc">
+            <div class="tc-icon" style="background:#fee2e2;color:#dc2626;"><i class="fa-solid fa-file-circle-minus"></i></div>
+            <div class="tc-text"><strong>Remove Pages</strong><span>Delete specific pages</span></div>
+          </a>
+          <a href="/tools/extract-pages/" class="tc">
+            <div class="tc-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-file-export"></i></div>
+            <div class="tc-text"><strong>Extract Pages</strong><span>Pull pages into new PDF</span></div>
+          </a>
+          <a href="/tools/jpg-to-pdf/" class="tc">
+            <div class="tc-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-image"></i></div>
+            <div class="tc-text"><strong>Image to PDF</strong><span>JPG, PNG, BMP, TIFF, W...</span></div>
+          </a>
+        </div>
+      </div>
 
-      <a href="/tools/compress-pdf/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(217,119,6,0.22);--card-border:#fde68a;">
-        <div class="eco-icon" style="background:#fef3c7;color:#d97706;"><i class="fa-solid fa-compress"></i></div>
-        <h3>Compress PDF</h3>
-        <p>Reduce file size for email or storage while keeping quality intact.</p>
-        <div class="eco-tools"><span>PDF</span><span>Compress</span></div>
-      </a>
+      <!-- Convert PDF -->
+      <div class="tools-cat reveal">
+        <div class="tools-cat-head">
+          <h2>Convert PDF</h2>
+          <p>Convert PDFs to and from popular formats</p>
+        </div>
+        <div class="tools-cat-grid">
+          <a href="/tools/word-to-pdf/" class="tc">
+            <div class="tc-icon" style="background:#e8edf7;color:#2b579a;"><i class="fa-solid fa-file-word"></i></div>
+            <div class="tc-text"><strong>Word to PDF</strong><span>Convert Word document...</span></div>
+          </a>
+          <a href="/tools/pptx-to-pdf/" class="tc">
+            <div class="tc-icon" style="background:#fff0e6;color:#d04a00;"><i class="fa-solid fa-file-powerpoint"></i></div>
+            <div class="tc-text"><strong>PowerPoint to PDF</strong><span>Convert PowerPoint to P...</span></div>
+          </a>
+          <a href="/tools/excel-to-pdf/" class="tc">
+            <div class="tc-icon" style="background:#e8f5e9;color:#1b7340;"><i class="fa-solid fa-file-excel"></i></div>
+            <div class="tc-text"><strong>Excel to PDF</strong><span>Convert Excel to PDF</span></div>
+          </a>
+          <a href="/tools/html-to-pdf/" class="tc">
+            <div class="tc-icon" style="background:#fff3e0;color:#e65100;"><i class="fa-brands fa-html5"></i></div>
+            <div class="tc-text"><strong>HTML to PDF</strong><span>Convert web pages to PDF</span></div>
+          </a>
+          <a href="/tools/pdf-to-jpg/" class="tc">
+            <div class="tc-icon" style="background:#fce4ec;color:#c2185b;"><i class="fa-solid fa-file-image"></i></div>
+            <div class="tc-text"><strong>PDF to JPG</strong><span>Convert PDF pages to im...</span></div>
+          </a>
+          <a href="/tools/pdf-to-word/" class="tc">
+            <div class="tc-icon" style="background:#e8edf7;color:#2b579a;"><i class="fa-solid fa-file-word"></i></div>
+            <div class="tc-text"><strong>PDF to Word</strong><span>Convert PDF to Word do...</span></div>
+          </a>
+          <a href="/tools/pdf-to-pptx/" class="tc">
+            <div class="tc-icon" style="background:#fff0e6;color:#d04a00;"><i class="fa-solid fa-file-powerpoint"></i></div>
+            <div class="tc-text"><strong>PDF to PowerPoint</strong><span>Convert PDF to PowerPoi...</span></div>
+          </a>
+          <a href="/tools/pdf-to-excel/" class="tc">
+            <div class="tc-icon" style="background:#e8f5e9;color:#1b7340;"><i class="fa-solid fa-file-excel"></i></div>
+            <div class="tc-text"><strong>PDF to Excel</strong><span>Convert PDF to Excel spr...</span></div>
+          </a>
+        </div>
+      </div>
 
-      <a href="/tools/ocr-pdf/" class="eco-card reveal reveal-d2" style="--card-glow:rgba(37,99,235,0.22);--card-border:#93c5fd;">
-        <div class="eco-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-eye"></i></div>
-        <h3>OCR PDF</h3>
-        <p>Turn scanned pages and photographed documents into searchable text.</p>
-        <div class="eco-tools"><span>Scan</span><span>Searchable</span></div>
-      </a>
-
-      <a href="/tools/pdf-to-word/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(43,87,154,0.22);--card-border:#c7d3ee;">
-        <div class="eco-icon" style="background:#e8edf7;color:#2b579a;"><i class="fa-solid fa-file-word"></i></div>
-        <h3>PDF to Word</h3>
-        <p>Convert PDFs to editable Word documents while preserving formatting.</p>
-        <div class="eco-tools"><span>Convert</span><span>Word</span></div>
-      </a>
-
-      <a href="/tools/word-to-pdf/" class="eco-card reveal reveal-d4" style="--card-glow:rgba(43,87,154,0.22);--card-border:#c7d3ee;">
-        <div class="eco-icon" style="background:#e8edf7;color:#2b579a;"><i class="fa-solid fa-file-word"></i></div>
-        <h3>Word to PDF</h3>
-        <p>Convert Word documents to PDF format with layout preserved.</p>
-        <div class="eco-tools"><span>Convert</span><span>PDF</span></div>
-      </a>
-
-      <a href="/tools/sign-pdf/" class="eco-card reveal reveal-d2" style="--card-glow:rgba(217,119,6,0.22);--card-border:#fde68a;">
-        <div class="eco-icon" style="background:#fef3c7;color:#d97706;"><i class="fa-solid fa-signature"></i></div>
-        <h3>Sign PDF</h3>
-        <p>Add your signature, initials, or stamps to any PDF document.</p>
-        <div class="eco-tools"><span>Sign</span><span>Annotate</span></div>
-      </a>
-
-      <a href="/tools/ai-summarizer/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(147,51,234,0.22);--card-border:#d8b4fe;">
-        <div class="eco-icon" style="background:#f3e8ff;color:#9333ea;"><i class="fa-solid fa-file-lines"></i></div>
-        <h3>AI Summarizer</h3>
-        <p>Get the key points from long reports and contracts in seconds.</p>
-        <div class="eco-tools"><span>AI</span><span>Summarize</span></div>
-      </a>
-
-      <a href="/tools/remove-background/" class="eco-card reveal reveal-d4" style="--card-glow:rgba(147,51,234,0.22);--card-border:#d8b4fe;">
-        <div class="eco-icon" style="background:#f3e8ff;color:#9333ea;"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-        <h3>Remove Background</h3>
-        <p>Automatically remove backgrounds from images with AI precision.</p>
-        <div class="eco-tools"><span>Image</span><span>AI</span></div>
-      </a>
-
-      <a href="/tools/photo-blue/" class="eco-card reveal reveal-d3" style="--card-glow:rgba(8,145,178,0.22);--card-border:#7dd3fc;">
-        <div class="eco-icon" style="background:#e0f7fa;color:#0891b2;"><i class="fa-solid fa-droplet"></i></div>
-        <h3>Photo Blue</h3>
-        <p>Apply a professional blue filter to images in one click.</p>
-        <div class="eco-tools"><span>Image</span><span>Filter</span></div>
-      </a>
-
-      <a href="/tools/compress-image/" class="eco-card reveal reveal-d4" style="--card-glow:rgba(217,119,6,0.22);--card-border:#fde68a;">
-        <div class="eco-icon" style="background:#fef3c7;color:#d97706;"><i class="fa-solid fa-compress-arrows-alt"></i></div>
-        <h3>Compress Image</h3>
-        <p>Reduce image file size without losing visible quality.</p>
-        <div class="eco-tools"><span>Image</span><span>Compress</span></div>
-      </a>
-
-      <a href="/tools/invoice-extractor/" class="eco-card reveal reveal-d5" style="--card-glow:rgba(22,163,74,0.22);--card-border:#86efac;">
-        <div class="eco-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-        <h3>Invoice Extractor</h3>
-        <p>Pull structured data like totals and dates from invoices with AI.</p>
-        <div class="eco-tools"><span>AI</span><span>Extract</span></div>
-      </a>
     </div>
   </div>
 </section>
