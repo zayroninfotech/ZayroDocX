@@ -127,6 +127,7 @@ function updateSlider(el){
   el.style.setProperty('--v',v+'%');
 }
 updateSlider(document.getElementById('bfSlider'));
+document.getElementById('bfSlider').addEventListener('change',()=>{if(hasResult)doBlur();});
 
 function drawFrame(){
   if(!beforeImg)return;
@@ -224,23 +225,24 @@ async function doBlur(){
   document.getElementById('bfProcessing').style.display='flex';
   ['bfResultCard','bfErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
   const sliderVal=parseInt(document.getElementById('bfSlider').value);
-  const intensity=sliderVal<=33?'light':sliderVal<=66?'medium':'heavy';
   const fd=new FormData();
   fd.append('file',currentFile);
   fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
-  fd.append('intensity',intensity);
+  fd.append('blur_strength',sliderVal);
   try{
     const res=await fetch('/tools/api/img/blur-face/',{method:'POST',body:fd});
     const d=await res.json();
     if(d.error)throw new Error(d.error);
     if(d.faces_found===0)throw new Error('No faces detected in this image.');
-    const img=new Image();img.crossOrigin='anonymous';
-    img.onload=()=>{afterImg=img;hasResult=true;handle.style.display='flex';dividerPct=50;drawFrame();};
+    const img=new Image();
+    img.onload=()=>{
+      afterImg=img;hasResult=true;handle.style.display='flex';dividerPct=50;drawFrame();
+      document.getElementById('bfDlBtn').href=d.download_url;
+      document.getElementById('bfDlBtn').download=d.filename||'blurred.jpg';
+      document.getElementById('bfResultInfo').textContent=`${d.faces_found} face(s) blurred!`;
+      document.getElementById('bfResultCard').classList.add('show');
+    };
     img.src=d.download_url+'?t='+Date.now();
-    document.getElementById('bfDlBtn').href=d.download_url;
-    document.getElementById('bfDlBtn').download=d.filename||'blurred.jpg';
-    document.getElementById('bfResultInfo').textContent=`${d.faces_found} face(s) blurred!`;
-    document.getElementById('bfResultCard').classList.add('show');
   }catch(e){
     document.getElementById('bfErrorMsg').textContent=e.message||'Failed.';
     document.getElementById('bfErrorCard').classList.add('show');

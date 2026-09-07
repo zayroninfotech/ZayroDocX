@@ -439,8 +439,9 @@ def blur_face(request):
         if len(faces) == 0:
             return JsonResponse({'error': 'No faces detected in the image.'}, status=400)
 
-        intensity = request.POST.get('intensity', 'medium')
-        intensity_mul = {'light': 0.08, 'medium': 0.15, 'heavy': 0.25}.get(intensity, 0.15)
+        blur_strength = int(request.POST.get('blur_strength', 50))
+        blur_strength = max(1, min(100, blur_strength))
+        intensity_mul = 0.05 + (blur_strength / 100) * 0.30
 
         for (x, y, w, h) in faces:
             roi = img_cv[y:y+h, x:x+w]
