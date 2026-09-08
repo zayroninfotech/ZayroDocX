@@ -408,24 +408,6 @@
     skipBtn.addEventListener('click', function(){ skipAndNavigate('loginPopup'); });
   }
 
-  /* ── Auto-show logic — shows once per session, never re-shows after dismiss ── */
-  var path = window.location.pathname;
-  // '/' is excluded here — landing.html manages its own 3×10s auto-show
-  var skipAll = ['/', '/login/', '/register/', '/about/', '/tools/guest/'];
-  if(skipAll.indexOf(path) !== -1) return;
-
-  var popupId = 'loginPopup';
-
-  /* Don't show if already dismissed this session */
-  if(sessionStorage.getItem(SK_DISMISSED)) return;
-
-  /* Show once after INITIAL_DELAY; never again after dismiss */
-  setTimeout(function(){
-    if(!document.querySelector('.zp-overlay.zp-open')){
-      openPopup(popupId);
-    }
-  }, INITIAL_DELAY);
-
   /* Mark dismissed when closed by any method */
   document.querySelectorAll('[data-close]').forEach(function(btn){
     btn.addEventListener('click', function(){
