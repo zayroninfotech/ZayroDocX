@@ -316,17 +316,19 @@ body { padding-top: var(--mh-h); }
   white-space: nowrap;
 }
 .mh-login-btn {
-  display: inline-flex; align-items: center; gap: .35rem;
-  padding: .35rem .9rem; border-radius: 20px; font-size: .78rem; font-weight: 600;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 8px 20px; border-radius: 8px; font-size: 14px; font-weight: 500;
   background: transparent; color: var(--text); border: 1.5px solid var(--border); cursor: pointer;
-  text-decoration: none; white-space: nowrap; transition: border-color .15s, color .15s;
+  text-decoration: none; white-space: nowrap; line-height: 1.4;
+  transition: border-color .15s, background .15s, color .15s;
 }
-.mh-login-btn:hover { border-color: var(--brand); color: var(--brand); }
+.mh-login-btn:hover { border-color: var(--text-secondary); background: var(--surface-alt); }
 .mh-signup-btn {
-  display: inline-flex; align-items: center;
-  padding: .35rem .9rem; border-radius: 20px; font-size: .78rem; font-weight: 600;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 8px 20px; border-radius: 8px; font-size: 14px; font-weight: 700;
   background: var(--brand); color: #fff; border: none; cursor: pointer;
-  white-space: nowrap; transition: opacity .15s; font-family: inherit; text-decoration: none;
+  white-space: nowrap; line-height: 1.4; font-family: inherit; text-decoration: none;
+  transition: opacity .15s;
 }
 .mh-signup-btn:hover { opacity: .88; color: #fff; }
 .mh-logout-btn { background: #6b7280; }
