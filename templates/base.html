@@ -444,14 +444,20 @@
           </div>
         </div>
         {% else %}
-        <a href="#" class="mh-login-btn" onclick="event.preventDefault();openZpPopup('loginPopup')">Login</a>
-        <a href="#" class="mh-signup-btn" onclick="event.preventDefault();openZpPopup('signupPopup')">Get Started Free</a>
-        {% endif %}
-
         <!-- Dark/Light mode toggle -->
         <button class="mh-theme-btn" id="mhThemeToggle" aria-label="Toggle dark/light mode" title="Toggle dark mode">
           <i class="fa-solid fa-moon" id="mhThemeIcon"></i>
         </button>
+        <a href="#" class="mh-login-btn" onclick="event.preventDefault();openZpPopup('loginPopup')">Login</a>
+        <a href="#" class="mh-signup-btn" onclick="event.preventDefault();openZpPopup('signupPopup')">Get Started Free</a>
+        {% endif %}
+
+        {% if request.user.is_authenticated %}
+        <!-- Dark/Light mode toggle (authenticated) -->
+        <button class="mh-theme-btn" id="mhThemeToggle" aria-label="Toggle dark/light mode" title="Toggle dark mode">
+          <i class="fa-solid fa-moon" id="mhThemeIcon"></i>
+        </button>
+        {% endif %}
 
         <!-- Mobile hamburger -->
         <button class="mh-hamburger" id="mhHamburger" aria-label="Menu">
