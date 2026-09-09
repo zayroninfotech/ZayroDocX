@@ -11,285 +11,462 @@
 
 {% block extra_head %}
 <style>
-.tr-hero {
-  background: linear-gradient(135deg,#7f1d1d 0%,#b91c1c 45%,#dc2626 80%,#ef4444 100%);
-  border-radius: 18px; padding: 2rem 2.2rem; margin-bottom: 1.6rem;
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.2rem;
-  box-shadow: 0 6px 28px rgba(220,38,38,.28); position: relative; overflow: hidden;
-}
-.tr-hero::before { content:''; position:absolute; top:-60px; right:-40px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,.07); pointer-events:none; }
-.tr-hero-left { position:relative; z-index:1; }
-.tr-eyebrow { display:inline-flex; align-items:center; gap:.4rem; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); border-radius:999px; padding:.22rem .75rem; font-size:.68rem; font-weight:700; color:#fff; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.55rem; }
-.tr-hero-left h2 { font-size:1.65rem; font-weight:900; color:#fff; margin:0 0 .3rem; letter-spacing:-.03em; }
-.tr-hero-left p  { font-size:.82rem; color:rgba(255,255,255,.75); margin:0; }
-.tr-hero-langs { display:flex; gap:.5rem; flex-wrap:wrap; position:relative; z-index:1; }
-.tr-lang-badge { background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.18); border-radius:8px; padding:.3rem .65rem; font-size:.65rem; font-weight:700; color:#fff; }
+/* ── accent colour ─────────────────────────────────── */
+:root { --tr: #0d9488; --tr-dark: #0f766e; --tr-xdark: #115e59;
+        --tr-light: rgba(13,148,136,.08); --tr-ring: rgba(13,148,136,.18); }
 
+/* ── Upload zone ───────────────────────────────────── */
 .tr-drop {
-  border: 2px dashed #e0e0e0; border-radius: 18px;
-  padding: 3rem 2rem; text-align: center; cursor: pointer; position: relative;
-  transition: border-color .2s; background: #fafafa; margin-bottom: 1rem;
+  border: 2px dashed #d1d5db; border-radius: 20px;
+  padding: 64px 32px 56px; text-align: center;
+  cursor: pointer; position: relative;
+  background: var(--surface,#fff);
+  transition: border-color .2s, background .2s;
 }
-.tr-drop.drag-over { border-color: #2563eb; background: #f0f6ff; }
-.tr-drop input[type=file] { position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer; }
-.tr-drop-icon {
-  width: 56px; height: 56px;
-  margin: 0 auto 1.1rem;
-  background: #0d9488;
-  border-radius: 14px;
+.tr-drop:hover, .tr-drop.drag-over {
+  border-color: var(--tr); background: var(--tr-light);
+}
+.tr-drop input[type=file] {
+  position: absolute; inset: 0; opacity: 0;
+  width: 100%; height: 100%; cursor: pointer;
+}
+.tr-drop-icon-wrap {
+  width: 96px; height: 96px; margin: 0 auto 20px;
+  background: var(--tr-light); border-radius: 24px;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 14px rgba(13,148,136,.35);
+  position: relative;
 }
-.tr-drop-icon i {
-  color: #fff;
-  font-size: 1.4rem;
+.tr-drop-icon-wrap i { font-size: 2.4rem; color: var(--tr); }
+.tr-drop-icon-wrap .tr-badge {
+  position: absolute; bottom: -8px; right: -8px;
+  width: 32px; height: 32px; background: var(--tr);
+  border-radius: 10px; display: flex; align-items: center;
+  justify-content: center; border: 3px solid var(--surface,#fff);
+  box-shadow: 0 3px 10px var(--tr-ring);
 }
-.tr-drop h3 { font-size:1.15rem; font-weight:800; margin:0 0 .3rem; color:#111; }
-.tr-drop p  { font-size:.85rem; color:#888; margin:0 0 1.2rem; }
+.tr-badge i { font-size: .72rem; color: #fff; }
+.tr-drop h2 {
+  font-size: 1.9rem; font-weight: 900; color: var(--text-primary,#111);
+  margin: 0 0 6px; letter-spacing: -.03em;
+}
+.tr-drop p {
+  font-size: .88rem; color: var(--text-muted,#888);
+  margin: 0 0 28px; max-width: 380px; margin-left: auto; margin-right: auto;
+}
 .tr-drop-btn {
-  display:inline-flex; align-items:center; gap:.48rem;
-  background:#0d9488;
-  color:#fff; border:none; border-radius:10px;
-  padding:.9rem 2.5rem; font-size:1.1rem; font-weight:700;
-  cursor:pointer; position:relative; z-index:1;
-  box-shadow:0 3px 12px rgba(13,148,136,.3);
-  transition: background .18s ease, box-shadow .18s ease, transform .15s ease;
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: var(--tr); color: #fff; border: none; border-radius: 12px;
+  padding: .85rem 2.2rem; font-size: 1rem; font-weight: 700;
+  cursor: pointer; position: relative; z-index: 1;
+  box-shadow: 0 4px 16px var(--tr-ring);
+  transition: background .15s, transform .12s, box-shadow .15s;
 }
-.tr-drop-btn:hover {
-  background:#0f766e;
-  transform:translateY(-1px);
-  box-shadow:0 5px 18px rgba(13,148,136,.4);
+.tr-drop-btn:hover { background: var(--tr-dark); transform: translateY(-2px); box-shadow: 0 6px 22px var(--tr-ring); }
+.tr-drop-btn:active { transform: translateY(0); }
+.tr-drop-meta {
+  display: flex; align-items: center; justify-content: center;
+  gap: 20px; margin-top: 24px; flex-wrap: wrap;
 }
-.tr-drop-btn:active {
-  transform:translateY(0);
-  background:#115e59;
+.tr-drop-meta span {
+  display: flex; align-items: center; gap: 5px;
+  font-size: .75rem; color: var(--text-muted,#999); font-weight: 500;
 }
-.tr-drop-hint { display:none; }
+.tr-drop-meta i { font-size: .7rem; color: var(--tr); }
 
-.tr-file-bar { display:none; align-items:center; gap:.85rem; background:#fff; border:1.5px solid #fca5a5; border-radius:14px; padding:.85rem 1.1rem; margin-bottom:1rem; box-shadow:0 2px 10px rgba(220,38,38,.08); }
-.tr-file-bar.show { display:flex; }
-.tr-file-bar-icon { color:#dc2626; font-size:1.4rem; flex-shrink:0; }
-.tr-file-bar-name { font-size:.88rem; font-weight:700; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#111; }
-.tr-file-bar-size { font-size:.72rem; color:#dc2626; font-weight:600; background:#fee2e2; padding:.18rem .55rem; border-radius:6px; flex-shrink:0; }
+/* ── Split layout ──────────────────────────────────── */
+.tr-split { display: grid; grid-template-columns: 1fr 440px; gap: 20px; align-items: start; }
+.tr-right  { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; }
+@media(max-width:1080px){
+  .tr-split { grid-template-columns: 1fr; }
+  .tr-right  { position: static; }
+}
 
-.tr-lang-panel { background:#fff; border:1.5px solid #fca5a5; border-radius:16px; padding:1.2rem 1.4rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(220,38,38,.06); }
-.tr-lang-title { font-size:.75rem; font-weight:800; color:#b91c1c; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.85rem; display:flex; align-items:center; gap:.45rem; }
-.tr-lang-grid { display:flex; flex-wrap:wrap; gap:.45rem; }
-.tr-lang-opt { position:relative; }
-.tr-lang-opt input[type=radio] { position:absolute;opacity:0;width:0;height:0; }
-.tr-lang-opt label { display:inline-flex; align-items:center; gap:.35rem; padding:.42rem .85rem; border:1.5px solid #e8e8e8; border-radius:8px; font-size:.8rem; font-weight:600; cursor:pointer; color:#555; background:#fff; transition:all .15s; }
-.tr-lang-opt input:checked + label { border-color:#dc2626; background:#fff8f8; color:#dc2626; box-shadow:0 0 0 2px rgba(220,38,38,.1); }
-.tr-lang-opt label:hover { border-color:#fca5a5; color:#b91c1c; }
+/* ── PDF Viewer ────────────────────────────────────── */
+.tr-viewer { border-radius: 18px; overflow: hidden; background: #0f172a; box-shadow: 0 8px 36px rgba(0,0,0,.28); }
+.tr-viewer-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; background: #1e293b;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.tr-viewer-file { display: flex; align-items: center; gap: 10px; }
+.tr-viewer-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--tr); display: flex; align-items: center;
+  justify-content: center; font-size: .76rem; color: #fff; flex-shrink: 0;
+}
+.tr-viewer-filename {
+  font-size: .8rem; font-weight: 700; color: #e2e8f0;
+  max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.tr-viewer-dpi { font-size: .64rem; color: #64748b; }
+.tr-viewer-ctrls { display: flex; align-items: center; gap: 5px; }
+.tr-ctrl {
+  width: 30px; height: 30px; border-radius: 7px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06); color: #e2e8f0;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; font-size: .72rem; transition: background .15s;
+}
+.tr-ctrl:hover:not(:disabled) { background: rgba(255,255,255,.15); }
+.tr-ctrl:disabled { opacity: .3; cursor: not-allowed; }
+.tr-pg-label { font-size: .74rem; color: #94a3b8; min-width: 48px; text-align: center; font-weight: 600; }
+.tr-divider { width: 1px; height: 20px; background: rgba(255,255,255,.1); margin: 0 3px; }
 
-.tr-submit { width:100%; padding:.9rem; background:linear-gradient(135deg,#991b1b,#b91c1c,#dc2626); color:#fff; border:none; border-radius:14px; font-size:1rem; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:.6rem; transition:opacity .2s,transform .1s; box-shadow:0 5px 20px rgba(220,38,38,.35); }
-.tr-submit:hover:not(:disabled) { opacity:.9; transform:translateY(-2px); }
-.tr-submit:disabled { opacity:.4; cursor:not-allowed; box-shadow:none; }
+.tr-page-area {
+  padding: 18px 20px; display: flex; align-items: flex-start;
+  justify-content: center; background: #0f172a; min-height: 420px;
+  position: relative;
+}
+.tr-page-area img {
+  max-width: 100%; border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  transition: opacity .22s; display: block;
+}
+.tr-page-skeleton {
+  position: absolute; inset: 18px 20px;
+  background: linear-gradient(90deg,#1e293b 25%,#2d3f55 50%,#1e293b 75%);
+  background-size: 200% 100%;
+  border-radius: 8px;
+  animation: tr-shimmer 1.4s ease-in-out infinite;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 12px;
+}
+.tr-page-skeleton i     { font-size: 2.2rem; color: #334155; }
+.tr-page-skeleton span  { font-size: .76rem; color: #475569; font-weight: 600; }
+.tr-page-skeleton.hidden { display: none; }
+@keyframes tr-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
-.tr-result-card { background:#fff; border:1.5px solid #fca5a5; border-radius:16px; margin-top:1.4rem; overflow:hidden; box-shadow:0 2px 12px rgba(220,38,38,.08); }
-.tr-result-head { display:flex; align-items:center; justify-content:space-between; padding:.85rem 1.2rem; border-bottom:1px solid #fecaca; background:#fff8f8; }
-.tr-result-head-left { display:flex; align-items:center; gap:.5rem; font-size:.82rem; font-weight:700; color:#111; }
-.tr-result-head-left i { color:#dc2626; }
-.tr-result-actions { display:flex; gap:.5rem; }
-.tr-action-btn { display:inline-flex; align-items:center; gap:.35rem; background:#fff; border:1.5px solid #fca5a5; border-radius:8px; padding:.3rem .75rem; font-size:.76rem; font-weight:600; color:#dc2626; cursor:pointer; transition:all .15s; text-decoration:none; }
-.tr-action-btn:hover { background:#fee2e2; }
-.tr-result-body { padding:1.2rem 1.4rem; line-height:1.8; color:#111; white-space:pre-wrap; font-size:.9rem; max-height:520px; overflow-y:auto; }
+.tr-thumb-strip {
+  display: flex; gap: 6px; padding: 10px 16px;
+  overflow-x: auto; background: #1a2744;
+  border-top: 1px solid rgba(255,255,255,.06);
+  scrollbar-width: thin; scrollbar-color: #334155 transparent;
+}
+.tr-thumb {
+  flex-shrink: 0; width: 48px; cursor: pointer;
+  border-radius: 5px; overflow: hidden;
+  border: 2px solid transparent; opacity: .5;
+  transition: opacity .15s, border-color .15s;
+}
+.tr-thumb.active { border-color: var(--tr); opacity: 1; }
+.tr-thumb img { width: 100%; display: block; }
 
-.tr-info-strip { display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1.6rem; }
-.tr-info-card { flex:1; min-width:140px; background:#fff; border:1px solid #e8e8e8; border-radius:12px; padding:.9rem 1rem; display:flex; align-items:center; gap:.75rem; box-shadow:0 1px 4px rgba(0,0,0,.04); }
-.tr-info-icon { width:36px; height:36px; border-radius:10px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:.88rem; background:#fee2e2; color:#dc2626; }
-.tr-info-title { font-size:.78rem; font-weight:700; color:#111; }
-.tr-info-desc  { font-size:.68rem; color:#aaa; margin-top:.1rem; }
+/* ── Right cards ───────────────────────────────────── */
+.tr-card {
+  background: var(--surface,#fff);
+  border: 1.5px solid var(--border,#e5e7eb);
+  border-radius: 16px; overflow: hidden;
+}
+.tr-card-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px; border-bottom: 1px solid var(--border,#e5e7eb);
+}
+.tr-card-icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .84rem; flex-shrink: 0; color: #fff;
+}
+.tr-card-title { font-size: .9rem; font-weight: 800; color: var(--text-primary,#111); }
+.tr-card-sub   { font-size: .7rem; color: var(--text-muted,#888); margin-top: 1px; }
+.tr-card-body  { padding: 16px 18px; }
+
+/* file meta chips */
+.tr-meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.tr-meta-chip {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--surface-raised,#f8fafc);
+  border: 1px solid var(--border,#e5e7eb);
+  border-radius: 8px; padding: 4px 10px;
+  font-size: .73rem; font-weight: 600; color: var(--text-muted,#555);
+}
+.tr-meta-chip i { font-size: .68rem; color: var(--tr); }
+
+/* language picker */
+.tr-lang-label {
+  font-size: .72rem; font-weight: 700;
+  color: var(--text-muted,#888); text-transform: uppercase;
+  letter-spacing: .06em; display: flex; align-items: center;
+  gap: 5px; margin-bottom: 7px;
+}
+.tr-lang-label i { color: var(--tr); }
+.tr-lang-wrap { position: relative; margin-bottom: 14px; }
+.tr-lang-wrap .tr-lang-icon {
+  position: absolute; left: 12px; top: 50%;
+  transform: translateY(-50%); color: var(--tr);
+  font-size: .88rem; pointer-events: none;
+}
+.tr-lang-dd {
+  width: 100%; padding: .72rem 1rem .72rem 2.4rem;
+  border: 1.5px solid var(--border,#e5e7eb); border-radius: 11px;
+  background: var(--surface,#fff); color: var(--text-primary,#111);
+  font-size: .88rem; font-weight: 600; cursor: pointer;
+  appearance: none; -webkit-appearance: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.tr-lang-dd:focus { outline: none; border-color: var(--tr); box-shadow: 0 0 0 3px var(--tr-ring); }
+
+/* translate button */
+.tr-submit-btn {
+  width: 100%; padding: .85rem; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, var(--tr-xdark), var(--tr), #14b8a6);
+  color: #fff; font-size: .95rem; font-weight: 800;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: .55rem;
+  box-shadow: 0 4px 18px var(--tr-ring);
+  transition: opacity .2s, transform .12s, box-shadow .15s;
+}
+.tr-submit-btn:hover:not(:disabled) { opacity: .92; transform: translateY(-2px); box-shadow: 0 6px 24px var(--tr-ring); }
+.tr-submit-btn:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; transform: none; }
+
+/* step loader */
+.tr-steps { display: flex; flex-direction: column; gap: 10px; padding: 20px 18px; }
+.tr-step {
+  display: flex; align-items: center; gap: 11px;
+  font-size: .82rem; color: var(--text-muted,#aaa); font-weight: 500;
+}
+.tr-step.done   { color: #16a34a; }
+.tr-step.active { color: var(--text-primary,#111); font-weight: 700; }
+.tr-step-dot {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-raised,#f1f5f9);
+  border: 1.5px solid var(--border,#e5e7eb);
+  font-size: .72rem; color: var(--text-muted,#aaa);
+  transition: all .25s;
+}
+.tr-step.done   .tr-step-dot { background: #dcfce7; border-color: #86efac; color: #16a34a; }
+.tr-step.active .tr-step-dot {
+  background: #ccfbf1; border-color: #5eead4; color: var(--tr);
+  animation: tr-pulse .9s ease-in-out infinite;
+}
+@keyframes tr-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+
+/* output */
+.tr-out-body {
+  font-size: .875rem; line-height: 1.78;
+  color: var(--text-primary,#111); max-height: 52vh; overflow-y: auto;
+  white-space: pre-wrap; word-break: break-word;
+  scrollbar-width: thin; scrollbar-color: #5eead4 transparent;
+}
+
+/* stats row */
+.tr-stats-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.tr-stat {
+  flex: 1; background: var(--surface-raised,#f8fafc);
+  border: 1px solid var(--border,#e5e7eb); border-radius: 10px;
+  padding: 8px 10px; text-align: center;
+}
+.tr-stat .n { font-size: 1.05rem; font-weight: 900; color: var(--tr); }
+.tr-stat .l { font-size: .64rem; color: var(--text-muted,#aaa); text-transform: uppercase; letter-spacing: .05em; }
+
+/* action buttons */
+.tr-action-row { display: flex; gap: 8px; margin-top: 12px; }
+.tr-action-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: .4rem;
+  border: 1.5px solid var(--border,#e5e7eb);
+  background: var(--surface,#fff); color: var(--text-primary,#111);
+  border-radius: 9px; padding: .5rem .6rem;
+  font-size: .76rem; font-weight: 600; cursor: pointer;
+  text-decoration: none;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.tr-action-btn:hover { border-color: var(--tr); color: var(--tr); background: var(--tr-light); }
+.tr-action-btn i { font-size: .72rem; }
+
+[data-theme="dark"] .tr-drop { border-color: #334155; background: #1e293b; }
+[data-theme="dark"] .tr-drop:hover, [data-theme="dark"] .tr-drop.drag-over { border-color: var(--tr); background: var(--tr-light); }
+[data-theme="dark"] .tr-drop h2 { color: #f1f5f9; }
+[data-theme="dark"] .tr-drop p  { color: #94a3b8; }
 </style>
 {% endblock %}
 
 {% block content %}
-<style>
-/* ── Split layout ── */
-.tr-split { display:grid; grid-template-columns:1fr 480px; gap:20px; align-items:start; }
-.tr-split-right { display:flex; flex-direction:column; gap:16px; position:sticky; top:16px; }
-@media(max-width:1060px){ .tr-split{ grid-template-columns:1fr; } .tr-split-right{ position:static; } }
-
-/* ── PDF Viewer (same dark style) ── */
-.tr-viewer { border-radius:16px; overflow:hidden; background:#0f172a; box-shadow:0 8px 32px rgba(0,0,0,.3); }
-.tr-viewer-bar { display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#1e293b;border-bottom:1px solid rgba(255,255,255,.08); }
-.tr-viewer-icon { width:28px;height:28px;border-radius:7px;background:#0d9488;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#fff; }
-.tr-ctrl { width:30px;height:30px;border-radius:7px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.72rem;transition:background .15s; }
-.tr-ctrl:hover:not(:disabled){ background:rgba(255,255,255,.14); }
-.tr-ctrl:disabled{ opacity:.3;cursor:not-allowed; }
-.tr-page-area { padding:16px;display:flex;align-items:flex-start;justify-content:center;background:#0f172a; }
-.tr-page-area img { max-width:100%;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.5);transition:opacity .2s;display:block; }
-.tr-thumb-strip { display:flex;gap:6px;padding:10px 16px;overflow-x:auto;background:#1a2744;border-top:1px solid rgba(255,255,255,.06); }
-.tr-thumb { flex-shrink:0;width:50px;cursor:pointer;border-radius:5px;overflow:hidden;border:2px solid transparent;opacity:.55;transition:opacity .15s,border-color .15s; }
-.tr-thumb.active { border-color:#0d9488;opacity:1; }
-.tr-thumb img { width:100%;display:block; }
-
-/* ── Right panel cards ── */
-.tr-card { background:var(--bg-card);border:1.5px solid var(--border);border-radius:16px;overflow:hidden; }
-.tr-card-head { padding:14px 18px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--bg-card),var(--bg-page,#f8fafc));display:flex;align-items:center;justify-content:space-between; }
-.tr-card-head-left { display:flex;align-items:center;gap:9px; }
-.tr-card-icon { width:32px;height:32px;border-radius:8px;background:#0d9488;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff;flex-shrink:0; }
-.tr-card-title { font-size:.9rem;font-weight:800;color:var(--text-primary); }
-.tr-card-sub   { font-size:.72rem;color:var(--text-muted); }
-.tr-card-body  { padding:16px 18px; }
-
-/* language dropdown */
-.tr-lang-select-wrap { position:relative; }
-.tr-lang-select-wrap i { position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#0d9488;font-size:.88rem;pointer-events:none; }
-.tr-lang-dd {
-  width:100%;padding:.72rem 1rem .72rem 2.4rem;
-  border:1.5px solid var(--border);border-radius:11px;
-  background:var(--bg-card);color:var(--text-primary);
-  font-size:.88rem;font-weight:600;cursor:pointer;
-  appearance:none;-webkit-appearance:none;
-  transition:border-color .15s,box-shadow .15s;
-}
-.tr-lang-dd:focus { outline:none;border-color:#0d9488;box-shadow:0 0 0 3px rgba(13,148,136,.12); }
-
-/* translated output */
-.tr-out-body { font-size:.875rem;line-height:1.75;color:var(--text-primary);max-height:55vh;overflow-y:auto;white-space:pre-wrap;word-break:break-word; }
-
-/* loading spinner */
-.tr-loading { display:none;flex-direction:column;align-items:center;gap:14px;padding:36px 20px; }
-.tr-loading.show { display:flex; }
-.tr-spin { width:44px;height:44px;border-radius:50%;border:3.5px solid #ccfbf1;border-top-color:#0d9488;animation:tr-spin .75s linear infinite; }
-@keyframes tr-spin{ to{transform:rotate(360deg)} }
-</style>
+</div>
 
 <form id="translateForm" enctype="multipart/form-data">
 {% csrf_token %}
 <input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
 
-<!-- Step 1: Drop zone -->
-<div class="tr-drop" id="uploadZone">
-  <div class="tr-drop-icon"><i class="fa-solid fa-language"></i></div>
-  <h2 style="font-size:2rem;font-weight:900;color:#111;margin:0 0 .3rem;letter-spacing:-.03em;">Translate PDF</h2>
-  <h3>Drop your PDF here</h3>
-  <p>Upload any PDF — AI will translate the entire document content</p>
-  <button type="button" class="tr-drop-btn" onclick="document.getElementById('fileInput').click()">
-    <i class="fa-solid fa-plus"></i> Select PDF File
-  </button>
+<!-- ─── Step 1: Drop zone ──────────────────────────── -->
+<div id="uploadZone">
+  <div class="tr-drop" id="dropArea">
+    <div class="tr-drop-icon-wrap">
+      <i class="fa-solid fa-language"></i>
+      <div class="tr-badge"><i class="fa-solid fa-bolt"></i></div>
+    </div>
+    <h2>Translate PDF</h2>
+    <p>Upload any PDF — AI will translate the entire document content into your chosen language</p>
+    <button type="button" class="tr-drop-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-plus"></i> Select PDF File
+    </button>
+    <div class="tr-drop-meta">
+      <span><i class="fa-solid fa-check-circle"></i> Up to 100 MB</span>
+      <span><i class="fa-solid fa-check-circle"></i> 20 languages</span>
+      <span><i class="fa-solid fa-check-circle"></i> Drag &amp; drop supported</span>
+    </div>
+  </div>
 </div>
 
-<!-- Step 2: Side-by-side (after file pick) -->
-<div class="tr-split" id="splitView" style="display:none">
+<!-- ─── Step 2: Split view ────────────────────────── -->
+<div id="splitView" style="display:none">
+<div class="tr-split">
 
   <!-- LEFT: PDF Viewer -->
   <div class="tr-viewer" id="pdfViewer">
     <div class="tr-viewer-bar">
-      <div style="display:flex;align-items:center;gap:9px">
-        <div class="tr-viewer-icon"><i class="fa-solid fa-file-image"></i></div>
+      <div class="tr-viewer-file">
+        <div class="tr-viewer-icon"><i class="fa-solid fa-file-pdf"></i></div>
         <div>
-          <div style="font-size:.82rem;font-weight:700;color:#e2e8f0" id="viewerTitle">PDF Pages</div>
-          <div style="font-size:.68rem;color:#64748b">Rendered at 150 DPI</div>
+          <div class="tr-viewer-filename" id="viewerTitle">PDF Pages</div>
+          <div class="tr-viewer-dpi">Rendered at 150 DPI</div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:5px">
-        <button type="button" class="tr-ctrl" id="pgPrev" onclick="pgGo(pgCur-1)" disabled><i class="fa-solid fa-chevron-left"></i></button>
-        <span id="pgLabel" style="font-size:.76rem;color:#94a3b8;min-width:48px;text-align:center;font-weight:600">1 / 1</span>
-        <button type="button" class="tr-ctrl" id="pgNext" onclick="pgGo(pgCur+1)"><i class="fa-solid fa-chevron-right"></i></button>
-        <div style="width:1px;height:20px;background:rgba(255,255,255,.1);margin:0 4px"></div>
-        <button type="button" class="tr-ctrl" title="Change PDF" onclick="resetUpload()"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+      <div class="tr-viewer-ctrls">
+        <button type="button" class="tr-ctrl" id="pgPrev" onclick="pgGo(pgCur-1)" disabled>
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <span class="tr-pg-label" id="pgLabel">1 / 1</span>
+        <button type="button" class="tr-ctrl" id="pgNext" onclick="pgGo(pgCur+1)">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+        <div class="tr-divider"></div>
+        <button type="button" class="tr-ctrl" title="Change PDF" onclick="resetUpload()">
+          <i class="fa-solid fa-arrow-rotate-left"></i>
+        </button>
       </div>
     </div>
     <div class="tr-page-area" id="pgArea">
-      <img id="pgImg" src="" alt="page">
+      <div class="tr-page-skeleton" id="pgSkeleton">
+        <i class="fa-solid fa-file-pdf"></i>
+        <span>Rendering pages…</span>
+      </div>
+      <img id="pgImg" src="" alt="page" style="opacity:0;display:none">
     </div>
     <div class="tr-thumb-strip" id="pgThumbStrip" style="display:none"></div>
   </div>
 
   <!-- RIGHT: Controls + Output -->
-  <div class="tr-split-right">
+  <div class="tr-right">
 
-    <!-- File info -->
+    <!-- File info + translate controls -->
     <div class="tr-card">
       <div class="tr-card-head">
-        <div class="tr-card-head-left">
-          <div class="tr-card-icon"><i class="fa-solid fa-file-pdf"></i></div>
-          <div>
-            <div class="tr-card-title" id="fileBarName2">—</div>
-            <div class="tr-card-sub" id="fileBarMeta">—</div>
-          </div>
+        <div class="tr-card-icon" style="background:var(--tr)"><i class="fa-solid fa-file-pdf"></i></div>
+        <div>
+          <div class="tr-card-title" id="fileCardName">—</div>
+          <div class="tr-card-sub"   id="fileCardMeta">—</div>
         </div>
       </div>
-      <div class="tr-card-body" style="display:flex;flex-direction:column;gap:12px">
-        <!-- Language dropdown -->
-        <div>
-          <label style="font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">
-            <i class="fa-solid fa-globe" style="color:#0d9488;margin-right:4px"></i> Target Language
-          </label>
-          <div class="tr-lang-select-wrap">
-            <i class="fa-solid fa-language"></i>
-            <select name="language" id="langSelect" class="tr-lang-dd">
-              <optgroup label="🇮🇳 Indian Languages">
-                <option value="Hindi">🇮🇳 Hindi</option>
-                <option value="Telugu">Telugu</option>
-                <option value="Tamil">Tamil</option>
-                <option value="Kannada">Kannada</option>
-                <option value="Malayalam">Malayalam</option>
-                <option value="Bengali">Bengali</option>
-                <option value="Marathi">Marathi</option>
-                <option value="Gujarati">Gujarati</option>
-                <option value="Punjabi">Punjabi</option>
-              </optgroup>
-              <optgroup label="🌍 Global Languages">
-                <option value="French">🇫🇷 French</option>
-                <option value="Spanish">🇪🇸 Spanish</option>
-                <option value="German">🇩🇪 German</option>
-                <option value="Arabic">🇸🇦 Arabic</option>
-                <option value="Chinese (Simplified)">🇨🇳 Chinese</option>
-                <option value="Japanese">🇯🇵 Japanese</option>
-                <option value="Korean">🇰🇷 Korean</option>
-                <option value="Portuguese">🇵🇹 Portuguese</option>
-                <option value="Russian">🇷🇺 Russian</option>
-                <option value="Italian">🇮🇹 Italian</option>
-                <option value="Dutch">🇳🇱 Dutch</option>
-              </optgroup>
-            </select>
-          </div>
+      <div class="tr-card-body">
+        <div class="tr-meta-row" id="metaRow" style="display:none">
+          <div class="tr-meta-chip"><i class="fa-solid fa-file"></i> <span id="metaSize">—</span></div>
+          <div class="tr-meta-chip"><i class="fa-solid fa-copy"></i> <span id="metaPages">—</span></div>
         </div>
-        <button type="submit" class="tr-submit" id="submitBtn" style="margin-top:0">
+        <div class="tr-lang-label"><i class="fa-solid fa-globe"></i> Target Language</div>
+        <div class="tr-lang-wrap">
+          <i class="fa-solid fa-language tr-lang-icon"></i>
+          <select name="language" id="langSelect" class="tr-lang-dd">
+            <optgroup label="🇮🇳 Indian Languages">
+              <option value="Hindi">🇮🇳 Hindi</option>
+              <option value="Telugu">Telugu</option>
+              <option value="Tamil">Tamil</option>
+              <option value="Kannada">Kannada</option>
+              <option value="Malayalam">Malayalam</option>
+              <option value="Bengali">Bengali</option>
+              <option value="Marathi">Marathi</option>
+              <option value="Gujarati">Gujarati</option>
+              <option value="Punjabi">Punjabi</option>
+            </optgroup>
+            <optgroup label="🌍 Global Languages">
+              <option value="French">🇫🇷 French</option>
+              <option value="Spanish">🇪🇸 Spanish</option>
+              <option value="German">🇩🇪 German</option>
+              <option value="Arabic">🇸🇦 Arabic</option>
+              <option value="Chinese (Simplified)">🇨🇳 Chinese</option>
+              <option value="Japanese">🇯🇵 Japanese</option>
+              <option value="Korean">🇰🇷 Korean</option>
+              <option value="Portuguese">🇵🇹 Portuguese</option>
+              <option value="Russian">🇷🇺 Russian</option>
+              <option value="Italian">🇮🇹 Italian</option>
+              <option value="Dutch">🇳🇱 Dutch</option>
+            </optgroup>
+          </select>
+        </div>
+        <button type="submit" class="tr-submit-btn" id="submitBtn">
           <i class="fa-solid fa-language"></i> Translate PDF
         </button>
       </div>
     </div>
 
-    <!-- Loading -->
+    <!-- Step loader -->
     <div class="tr-card" id="loadingCard" style="display:none">
-      <div class="tr-loading show">
-        <div class="tr-spin"></div>
-        <div style="font-size:.88rem;font-weight:700;color:var(--text-primary)" id="progressMsg">Translating document…</div>
-        <div style="font-size:.76rem;color:var(--text-muted)">This may take 20–60 seconds</div>
+      <div class="tr-card-head">
+        <div class="tr-card-icon" style="background:var(--tr)"><i class="fa-solid fa-spinner fa-spin"></i></div>
+        <div>
+          <div class="tr-card-title">Translating…</div>
+          <div class="tr-card-sub">This may take 20–60 seconds</div>
+        </div>
+      </div>
+      <div class="tr-steps" id="stepsContainer">
+        <div class="tr-step" id="step1">
+          <div class="tr-step-dot"><i class="fa-solid fa-file-import"></i></div>
+          <span>Uploading &amp; validating PDF</span>
+        </div>
+        <div class="tr-step" id="step2">
+          <div class="tr-step-dot"><i class="fa-solid fa-text"></i></div>
+          <span>Extracting text content</span>
+        </div>
+        <div class="tr-step" id="step3">
+          <div class="tr-step-dot"><i class="fa-solid fa-robot"></i></div>
+          <span>AI translating document</span>
+        </div>
+        <div class="tr-step" id="step4">
+          <div class="tr-step-dot"><i class="fa-solid fa-check"></i></div>
+          <span>Finalising translation</span>
+        </div>
       </div>
     </div>
 
-    <!-- Output -->
+    <!-- Output panel -->
     <div class="tr-card" id="resultPanel" style="display:none">
       <div class="tr-card-head">
-        <div class="tr-card-head-left">
-          <div class="tr-card-icon" style="background:#16a34a"><i class="fa-solid fa-check"></i></div>
-          <div>
-            <div class="tr-card-title">Translated Text</div>
-            <div class="tr-card-sub" id="pageCount">—</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px">
-          <a id="downloadBtn" class="tr-action-btn"><i class="fa-solid fa-download"></i> Download</a>
-          <button class="tr-action-btn" onclick="copyText()"><i class="fa-solid fa-copy"></i> Copy</button>
+        <div class="tr-card-icon" style="background:#16a34a"><i class="fa-solid fa-check"></i></div>
+        <div>
+          <div class="tr-card-title">Translation Complete</div>
+          <div class="tr-card-sub" id="resultMeta">—</div>
         </div>
       </div>
       <div class="tr-card-body">
+        <div class="tr-stats-row" id="statsRow">
+          <div class="tr-stat"><div class="n" id="statPages">—</div><div class="l">Pages</div></div>
+          <div class="tr-stat"><div class="n" id="statWords">—</div><div class="l">Words</div></div>
+          <div class="tr-stat"><div class="n" id="statLang">—</div><div class="l">Language</div></div>
+        </div>
         <div class="tr-out-body" id="translatedContent"></div>
+        <div class="tr-action-row">
+          <a id="downloadBtn" class="tr-action-btn" href="#" download>
+            <i class="fa-solid fa-download"></i> Download
+          </a>
+          <button type="button" class="tr-action-btn" onclick="copyText()">
+            <i class="fa-solid fa-copy"></i> Copy
+          </button>
+          <button type="button" class="tr-action-btn" onclick="resetUpload()">
+            <i class="fa-solid fa-plus"></i> New PDF
+          </button>
+        </div>
       </div>
     </div>
 
-  </div><!-- /tr-split-right -->
+  </div><!-- /tr-right -->
 </div><!-- /tr-split -->
+</div><!-- /splitView -->
 </form>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 const zone      = document.getElementById('uploadZone');
+const dropArea  = document.getElementById('dropArea');
 const input     = document.getElementById('fileInput');
 const form      = document.getElementById('translateForm');
 const submitBtn = document.getElementById('submitBtn');
@@ -298,21 +475,33 @@ const dlBtn     = document.getElementById('downloadBtn');
 
 let pgPages = [], pgCur = 0;
 
-zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
-zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
-zone.addEventListener('click', () => input.click());
-input.addEventListener('change', () => setFile(input.files[0]));
+// ── Drop zone ────────────────────────────────────────────
+dropArea.addEventListener('dragover',  e => { e.preventDefault(); dropArea.classList.add('drag-over'); });
+dropArea.addEventListener('dragleave', ()=> dropArea.classList.remove('drag-over'));
+dropArea.addEventListener('drop', e => {
+  e.preventDefault(); dropArea.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+});
+dropArea.addEventListener('click', e => { if (e.target.tagName !== 'BUTTON') input.click(); });
+input.addEventListener('change', () => { if (input.files[0]) setFile(input.files[0]); });
 
+// ── File selected ────────────────────────────────────────
 async function setFile(f) {
   if (!f) return;
   const dt = new DataTransfer(); dt.items.add(f); input.files = dt.files;
+
   zone.style.display = 'none';
   document.getElementById('splitView').style.display = '';
-  document.getElementById('fileBarName2').textContent = f.name;
-  document.getElementById('fileBarMeta').textContent  = (f.size/1024).toFixed(1)+' KB  ·  Loading pages…';
+  document.getElementById('resultPanel').style.display = 'none';
+  document.getElementById('loadingCard').style.display = 'none';
+
+  const kb = (f.size / 1024).toFixed(1);
+  document.getElementById('fileCardName').textContent = f.name;
+  document.getElementById('fileCardMeta').textContent = kb + ' KB · Loading pages…';
   document.getElementById('viewerTitle').textContent  = 'Rendering pages…';
-  document.getElementById('pgImg').style.opacity = '0.3';
+  document.getElementById('pgImg').style.opacity = '0';
+  document.getElementById('pgImg').style.display = 'none';
+  document.getElementById('pgSkeleton').classList.remove('hidden');
 
   try {
     const fd = new FormData();
@@ -320,10 +509,19 @@ async function setFile(f) {
     fd.append('file', f);
     const res  = await fetch('/tools/api/render-pdf-pages/', { method:'POST', body:fd });
     const data = await res.json();
-    if (data.error || !data.page_images) { document.getElementById('viewerTitle').textContent = 'Preview unavailable'; return; }
+    if (data.error || !data.page_images) {
+      document.getElementById('viewerTitle').textContent = 'Preview unavailable';
+      document.getElementById('pgSkeleton').classList.add('hidden');
+      return;
+    }
     pgPages = data.page_images; pgCur = 0;
-    document.getElementById('viewerTitle').textContent = `PDF Pages (${pgPages.length})`;
-    document.getElementById('fileBarMeta').textContent = `${(f.size/1024).toFixed(1)} KB  ·  ${pgPages.length} page${pgPages.length!==1?'s':''}`;
+
+    const pagesTxt = pgPages.length + ' page' + (pgPages.length !== 1 ? 's' : '');
+    document.getElementById('viewerTitle').textContent  = f.name;
+    document.getElementById('fileCardMeta').textContent = kb + ' KB · ' + pagesTxt;
+    document.getElementById('metaSize').textContent  = kb + ' KB';
+    document.getElementById('metaPages').textContent = pagesTxt;
+    document.getElementById('metaRow').style.display = 'flex';
 
     const strip = document.getElementById('pgThumbStrip');
     strip.innerHTML = '';
@@ -331,37 +529,61 @@ async function setFile(f) {
       strip.style.display = 'flex';
       pgPages.forEach((b64, i) => {
         const d = document.createElement('div');
-        d.className = 'tr-thumb' + (i===0?' active':'');
-        d.innerHTML = `<img src="data:image/jpeg;base64,${b64}">`;
+        d.className = 'tr-thumb' + (i === 0 ? ' active' : '');
+        d.innerHTML = '<img src="data:image/jpeg;base64,' + b64 + '">';
         d.addEventListener('click', () => pgGo(i));
         strip.appendChild(d);
       });
     } else strip.style.display = 'none';
     pgGo(0);
-  } catch(e) { document.getElementById('viewerTitle').textContent = 'Preview unavailable'; }
+  } catch(_) {
+    document.getElementById('viewerTitle').textContent = 'Preview unavailable';
+    document.getElementById('pgSkeleton').classList.add('hidden');
+  }
 }
 
 function pgGo(idx) {
   if (!pgPages.length) return;
-  pgCur = Math.max(0, Math.min(idx, pgPages.length-1));
-  const img = document.getElementById('pgImg');
+  pgCur = Math.max(0, Math.min(idx, pgPages.length - 1));
+  const img  = document.getElementById('pgImg');
+  const skel = document.getElementById('pgSkeleton');
   img.style.opacity = '0';
   img.src = 'data:image/jpeg;base64,' + pgPages[pgCur];
-  img.onload = () => { img.style.opacity = '1'; };
-  document.getElementById('pgLabel').textContent = `${pgCur+1} / ${pgPages.length}`;
+  img.onload = () => {
+    skel.classList.add('hidden');
+    img.style.display = 'block';
+    img.style.opacity = '1';
+  };
+  document.getElementById('pgLabel').textContent = (pgCur + 1) + ' / ' + pgPages.length;
   document.getElementById('pgPrev').disabled = pgCur === 0;
-  document.getElementById('pgNext').disabled = pgCur === pgPages.length-1;
-  document.querySelectorAll('.tr-thumb').forEach((d,i) => d.classList.toggle('active', i===pgCur));
+  document.getElementById('pgNext').disabled = pgCur === pgPages.length - 1;
+  document.querySelectorAll('.tr-thumb').forEach((d, i) => d.classList.toggle('active', i === pgCur));
 }
 
 function resetUpload() {
   input.value = ''; pgPages = []; pgCur = 0;
-  zone.style.display = '';
   document.getElementById('splitView').style.display = 'none';
+  document.getElementById('uploadZone').style.display = '';
   document.getElementById('resultPanel').style.display = 'none';
   document.getElementById('loadingCard').style.display = 'none';
+  document.getElementById('metaRow').style.display = 'none';
+  document.getElementById('pgSkeleton').classList.remove('hidden');
+  const img = document.getElementById('pgImg');
+  img.src = ''; img.style.display = 'none'; img.style.opacity = '0';
 }
 
+// ── Step loader ──────────────────────────────────────────
+const STEPS = ['step1','step2','step3','step4'];
+function setStep(n) {
+  STEPS.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.classList.remove('done','active');
+    if (i < n)        el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+  });
+}
+
+// ── Submit ───────────────────────────────────────────────
 form.addEventListener('submit', async e => {
   e.preventDefault();
   if (!input.files[0]) { showToast('Please select a PDF file.', 'error'); return; }
@@ -369,26 +591,39 @@ form.addEventListener('submit', async e => {
   document.getElementById('loadingCard').style.display = '';
   document.getElementById('resultPanel').style.display = 'none';
   submitBtn.disabled = true;
+  setStep(0);
 
-  const msgs = ['Translating document…','Processing pages…','Almost done…'];
-  let mi = 0;
-  const ticker = setInterval(() => { document.getElementById('progressMsg').textContent = msgs[Math.min(++mi, msgs.length-1)]; }, 5000);
+  const stepTimers = [
+    setTimeout(() => setStep(1), 2000),
+    setTimeout(() => setStep(2), 6000),
+    setTimeout(() => setStep(3), 12000),
+  ];
 
-  const fd = new FormData(form);
   try {
+    const fd = new FormData(form);
     const resp = await fetch('/tools/api/translate-pdf/', { method:'POST', body:fd });
     const data = await resp.json();
-    clearInterval(ticker);
+    stepTimers.forEach(clearTimeout);
+    setStep(4);
+    await new Promise(r => setTimeout(r, 400));
+
     document.getElementById('loadingCard').style.display = 'none';
     submitBtn.disabled = false;
     if (data.error) { showToast(data.error, 'error'); return; }
+
+    const lang     = document.getElementById('langSelect').selectedOptions[0].text;
+    const words    = (data.translated || '').split(/\s+/).filter(Boolean).length;
     contentEl.textContent = data.translated;
-    document.getElementById('pageCount').textContent = data.pages + ' page' + (data.pages!==1?'s':'') + ' translated';
+    document.getElementById('statPages').textContent = data.pages || '—';
+    document.getElementById('statWords').textContent = words.toLocaleString();
+    document.getElementById('statLang').textContent  = lang.replace(/^[^\w]+/, '').split(' ')[0];
+    document.getElementById('resultMeta').textContent =
+      data.pages + ' page' + (data.pages !== 1 ? 's' : '') + ' → ' + lang;
     dlBtn.href     = data.download_url;
     dlBtn.download = data.filename;
     document.getElementById('resultPanel').style.display = '';
-  } catch(err) {
-    clearInterval(ticker);
+  } catch(_) {
+    stepTimers.forEach(clearTimeout);
     document.getElementById('loadingCard').style.display = 'none';
     submitBtn.disabled = false;
     showToast('Request failed. Please try again.', 'error');
@@ -401,9 +636,10 @@ function copyText() {
 
 function showToast(msg, type) {
   const c = document.getElementById('toastContainer');
+  if (!c) return;
   const t = document.createElement('div');
-  t.className = 'toast toast-' + (type||'info');
-  t.innerHTML = `<i class="fa-solid fa-${type==='error'?'circle-xmark':'circle-check'}"></i> ${msg}`;
+  t.className = 'toast toast-' + (type || 'info');
+  t.innerHTML = '<i class="fa-solid fa-' + (type === 'error' ? 'circle-xmark' : 'circle-check') + '"></i> ' + msg;
   c.appendChild(t); setTimeout(() => t.remove(), 4000);
 }
 </script>
