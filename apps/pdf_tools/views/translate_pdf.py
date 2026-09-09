@@ -10,7 +10,7 @@ from apps.pdf_tools.utils import save_uploaded_file, get_output_path, media_url,
 
 logger = logging.getLogger(__name__)
 
-_MAX_CHARS = 10000
+_MAX_CHARS = 18000  # ~5-6 pages of dense text
 
 _LANGUAGES = {
     'Hindi': 'hi', 'Telugu': 'te', 'Tamil': 'ta', 'Kannada': 'kn', 'Malayalam': 'ml',
@@ -52,7 +52,7 @@ def _mistral_translate(text, target_lang):
         headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'},
         method='POST',
     )
-    with urllib.request.urlopen(req, timeout=90) as resp:
+    with urllib.request.urlopen(req, timeout=120) as resp:
         data = json.loads(resp.read().decode())
     return data['choices'][0]['message']['content'].strip()
 

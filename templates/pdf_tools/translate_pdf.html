@@ -638,7 +638,9 @@ form.addEventListener('submit', async e => {
   try {
     const fd = new FormData(form);
     const resp = await fetch('/tools/api/translate-pdf/', { method:'POST', body:fd });
-    const data = await resp.json();
+    let data;
+    try { data = await resp.json(); }
+    catch(_) { data = { error: 'Server error (status ' + resp.status + '). Try a smaller PDF or check server logs.' }; }
     stepTimers.forEach(clearTimeout);
     setStep(4);
     await new Promise(r => setTimeout(r, 400));
@@ -658,11 +660,11 @@ form.addEventListener('submit', async e => {
     dlBtn.href     = data.download_url;
     dlBtn.download = data.filename;
     document.getElementById('resultPanel').style.display = '';
-  } catch(_) {
+  } catch(err) {
     stepTimers.forEach(clearTimeout);
     document.getElementById('loadingCard').style.display = 'none';
     submitBtn.disabled = false;
-    showToast('Request failed. Please try again.', 'error');
+    showToast('Connection failed: ' + (err.message || 'Please try again.'), 'error');
   }
 });
 
