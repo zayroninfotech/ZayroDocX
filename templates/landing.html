@@ -1229,7 +1229,7 @@ if (io) {
 <!-- ── Locked tool click intercept ── -->
 <script>
 (function(){
-  var locked = {{ locked_slugs_json|default:"[]" }};
+  var locked = {{ locked_slugs_json|default:"[]"|safe }};
   if(!locked.length) return;
   document.addEventListener('click', function(e){
     var a = e.target.closest('a[href]');
