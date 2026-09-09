@@ -1,57 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}PDF Viewer — ZayroDocX{% endblock %}
+{% block title %}OCR PDF — ZayroDocX{% endblock %}
 {% block active_ocr %}active{% endblock %}
-{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">PDF Viewer</span>{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">OCR PDF</span>{% endblock %}
 
 {% block extra_head %}
 <style>
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
-@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
-
-/* ── Hero ── */
-.ocr-hero {
-  background: linear-gradient(135deg,#7f1d1d 0%,#b91c1c 45%,#dc2626 80%,#ef4444 100%);
-  border-radius: 18px; padding: 2rem 2.2rem; margin-bottom: 1.6rem;
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.2rem;
-  box-shadow: 0 6px 28px rgba(220,38,38,.28); position: relative; overflow: hidden;
-}
-.ocr-hero-icon {
-  width: 110px; height: 110px;
-  margin: 0 auto 1.5rem;
-  background: rgba(37,99,235,.10);
-  border-radius: 22px;
-  display: flex; align-items: center; justify-content: center;
-  position: relative;
-}
-.ocr-hero-icon i.ocr-hero-main {
-  font-size: 2.6rem;
-  color: #2563eb;
-}
-.ocr-hero-icon .ocr-hero-badge {
-  position: absolute;
-  bottom: -6px; right: -6px;
-  width: 34px; height: 34px;
-  background: #2563eb;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 3px 10px rgba(37,99,235,.4);
-  border: 3px solid #fff;
-}
-.ocr-hero-badge i {
-  color: #fff;
-  font-size: .8rem;
-}
-.ocr-hero::before { content:''; position:absolute; top:-60px; right:-40px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,.07); pointer-events:none; }
-.ocr-hero-left { position:relative; z-index:1; }
-.ocr-eyebrow { display:inline-flex; align-items:center; gap:.4rem; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); border-radius:999px; padding:.22rem .75rem; font-size:.68rem; font-weight:700; color:#fff; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.55rem; }
-.ocr-hero-left h2 { font-size:1.65rem; font-weight:900; color:#fff; margin:0 0 .3rem; letter-spacing:-.03em; }
-.ocr-hero-left p  { font-size:.82rem; color:rgba(255,255,255,.75); margin:0; }
-.ocr-hero-pills { display:flex; gap:.75rem; flex-shrink:0; position:relative; z-index:1; }
-.ocr-hero-pill { background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.18); border-radius:12px; padding:.75rem 1.1rem; text-align:center; min-width:72px; }
-.ocr-hero-pill .n { font-size:.95rem; font-weight:900; color:#fff; line-height:1; display:block; }
-.ocr-hero-pill .l { font-size:.58rem; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.07em; }
+@keyframes spin      { to { transform: rotate(360deg); } }
+@keyframes shimmerBg { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
 
 /* ── Drop zone ── */
 .ocr-drop {
@@ -60,22 +16,22 @@
   cursor: pointer; transition: border-color .2s, background .2s;
   background: #fafafa; margin-bottom: 1.2rem;
 }
-.ocr-drop.dragging { border-color: #2563eb; background: #f0f6ff; }
+.ocr-drop.dragging { border-color: #2563eb; background: #eff6ff; }
 .ocr-drop.processing { pointer-events: none; opacity: .55; }
 .ocr-drop input[type=file] { position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer; }
 .ocr-drop-icon {
-  width: 64px; height: 64px; border-radius: 18px;
-  background: linear-gradient(135deg,#b91c1c,#dc2626);
-  color: #fff; display: flex; align-items: center; justify-content: center;
-  font-size: 1.8rem; margin: 0 auto 1rem;
-  box-shadow: 0 4px 20px rgba(220,38,38,.3);
+  width: 72px; height: 72px; border-radius: 18px;
+  background: #eff6ff; color: #2563eb;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; margin: 0 auto 1rem;
+  box-shadow: 0 4px 20px rgba(37,99,235,.15);
 }
-.ocr-drop h3 { font-size: 1.05rem; font-weight: 700; margin: 0 0 .35rem; }
-.ocr-drop p  { font-size: .84rem; color: var(--text-muted); margin: 0 0 1.2rem; }
+.ocr-drop h2  { font-size: 2rem; font-weight: 900; color: #111; margin: 0 0 .25rem; letter-spacing: -.03em; }
+.ocr-drop h3  { font-size: 1.1rem; font-weight: 700; margin: 0 0 .35rem; color: #333; }
+.ocr-drop p   { font-size: .84rem; color: var(--text-muted); margin: 0 0 1.2rem; }
 .ocr-drop-btn {
   display: inline-flex; align-items: center; gap: .55rem;
-  background: #2563eb;
-  color: #fff; border: none; border-radius: 12px;
+  background: #2563eb; color: #fff; border: none; border-radius: 12px;
   padding: .9rem 2.5rem; font-size: 1.1rem; font-weight: 700;
   cursor: pointer; position: relative; z-index: 1;
   transition: background .15s, transform .1s;
@@ -84,620 +40,634 @@
 .ocr-drop-btn:hover { background: #1d4ed8; transform: translateY(-1px); }
 .ocr-drop-hint { display: block; margin-top: .7rem; font-size: .74rem; color: var(--text-muted); }
 
-/* ── Fullscreen loader overlay ── */
+/* ── Loader overlay ── */
 .ocr-loader {
   display: none; position: fixed; inset: 0; z-index: 9000;
-  background: rgba(255,255,255,.85); backdrop-filter: blur(4px);
-  align-items: center; justify-content: center; flex-direction: column; gap: 1.2rem;
+  background: rgba(255,255,255,.88); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center; flex-direction: column; gap: 1rem;
 }
 .ocr-loader.show { display: flex; }
 .ocr-loader-ring {
-  width: 72px; height: 72px;
-  border: 6px solid #fee2e2; border-top-color: #dc2626;
-  border-radius: 50%; animation: ocrSpin .75s linear infinite;
+  width: 64px; height: 64px;
+  border: 5px solid #dbeafe; border-top-color: #2563eb;
+  border-radius: 50%; animation: spin .75s linear infinite;
 }
-@keyframes ocrSpin { to { transform: rotate(360deg); } }
-.ocr-loader-text { font-size: 1rem; font-weight: 700; color: #dc2626; }
-.ocr-loader-sub  { font-size: .78rem; color: #888; margin-top: -.6rem; }
+.ocr-loader-text { font-size: .95rem; font-weight: 700; color: #2563eb; }
+.ocr-loader-sub  { font-size: .78rem; color: #888; margin-top: -.4rem; }
 
-/* ── Pages header ── */
-.pdf-pages-header {
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
-  gap: 10px; padding: 1rem 1.2rem; margin-top: 1.2rem;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px 12px 0 0;
-  border-bottom: 2px solid #dc2626;
-}
-.pdf-pages-title {
-  display: flex; align-items: center; gap: .5rem;
-  font-weight: 700; font-size: .94rem; color: var(--text);
-}
-.pdf-pages-count {
-  font-size: .75rem; color: var(--text-muted); background: var(--bg);
-  border: 1px solid var(--border); border-radius: 20px; padding: 2px 10px;
+/* ── Error banner ── */
+#ocrErr {
+  display: none; background: #fee2e2; border: 1px solid #fca5a5;
+  border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1rem;
+  align-items: center; gap: .8rem; color: #991b1b; font-size: .875rem;
 }
 
-/* toolbar */
-.ocr-toolbar { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
-.ocr-search-wrap {
-  position: relative; display: flex; align-items: center;
+/* ══════════════════════════════════════════
+   SPLIT VIEWER
+══════════════════════════════════════════ */
+.sv-header {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px;
+  padding: .75rem 1rem; margin-bottom: .75rem;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
 }
-.ocr-search-wrap i { position:absolute;left:8px;color:var(--text-muted);font-size:.75rem;pointer-events:none; }
-.ocr-search-input {
-  padding: 5px 26px 5px 26px; border: 1px solid var(--border); border-radius: 8px;
-  font-size: .78rem; background: var(--bg); color: var(--text); width: 150px; outline: none;
+.sv-file-info { display: flex; align-items: center; gap: .6rem; }
+.sv-filename  { font-weight: 700; font-size: .9rem; color: var(--text); }
+.sv-pages-badge {
+  font-size: .7rem; font-weight: 700; background: #eff6ff; color: #2563eb;
+  border: 1px solid #bfdbfe; border-radius: 20px; padding: 2px 10px;
 }
-.ocr-search-input:focus { border-color: #dc2626; }
-.ocr-search-clear { position:absolute;right:6px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.9rem;display:none; }
-.ocr-zoom-group { display: flex; gap: 3px; }
-.zoom-btn {
-  padding: 4px 9px; border: 1px solid var(--border); border-radius: 6px;
-  background: var(--bg); color: var(--text-muted); cursor: pointer;
-  font-size: .75rem; transition: background .15s;
-}
-.zoom-btn.active, .zoom-btn:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
-.ocr-action-btn {
+.sv-actions { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.sv-new-btn {
   display: inline-flex; align-items: center; gap: .4rem;
-  border: none; border-radius: 8px; padding: 5px 12px;
-  font-size: .78rem; font-weight: 600; cursor: pointer; transition: opacity .2s;
-  white-space: nowrap;
+  border: 1.5px solid #e0e0e0; border-radius: 8px; background: none;
+  padding: .38rem .9rem; font-size: .78rem; font-weight: 700; color: #666; cursor: pointer;
+  transition: border-color .15s, color .15s;
 }
-.ocr-action-btn:hover { opacity: .85; }
-.ocr-btn-excel  { background: #059669; color: #fff; }
-.ocr-btn-stmt   { background: #1e3a5f; color: #fff; }
+.sv-new-btn:hover { border-color: #2563eb; color: #2563eb; }
+.sv-all-btn {
+  display: inline-flex; align-items: center; gap: .4rem; border: none;
+  border-radius: 8px; padding: .38rem .9rem; font-size: .78rem; font-weight: 600;
+  cursor: pointer; transition: opacity .2s; white-space: nowrap;
+}
+.sv-all-btn:hover { opacity: .85; }
+.sv-all-ocr { background: #1e40af; color: #fff; }
+.sv-all-ai  { background: #059669; color: #fff; }
+.sv-provider-wrap {
+  display: inline-flex; align-items: stretch; border-radius: 8px;
+  overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+.sv-provider-sel {
+  font-size: .75rem; padding: 0 8px; border: none; color: #fff;
+  background: #1e3a5f; cursor: pointer; outline: none;
+}
 
-/* ── Grid ── */
-.pdf-pages-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px; padding: 16px;
-  background: var(--surface); border: 1px solid var(--border); border-top: none;
-  border-radius: 0 0 12px 12px; max-height: 74vh; overflow-y: auto;
+/* ── Main split body ── */
+.sv-body {
+  display: grid; grid-template-columns: 280px 1fr;
+  gap: 10px; align-items: start;
+  min-height: 70vh;
 }
-.pdf-pages-grid::-webkit-scrollbar { width: 5px; }
-.pdf-pages-grid::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 3px; }
-.pdf-pages-grid.zoom-sm { grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); }
-.pdf-pages-grid.zoom-md { grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); }
-.pdf-pages-grid.zoom-lg { grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); }
+@media(max-width: 768px) {
+  .sv-body { grid-template-columns: 1fr; }
+}
 
-/* ── Page card ── */
-.pdf-page-card {
-  display: flex; flex-direction: column;
-  background: var(--bg); border: 1.5px solid var(--border);
-  border-radius: 10px; overflow: hidden;
-  transition: box-shadow .18s, border-color .18s, transform .18s;
+/* ── Left panel: page list ── */
+.sv-left {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  overflow: hidden; position: sticky; top: 70px;
 }
-.pdf-page-card:hover { border-color: #dc2626; box-shadow: 0 6px 20px rgba(220,38,38,.2); transform: translateY(-2px); }
-.pdf-card-img-wrap { width: 100%; cursor: pointer; overflow: hidden; }
-.pdf-card-img-wrap img { width: 100%; display: block; object-fit: contain; transition: transform .2s; }
-.pdf-card-img-wrap:hover img { transform: scale(1.03); }
-.pdf-card-footer {
-  width: 100%; padding: 7px 9px;
+.sv-left-head {
   display: flex; align-items: center; justify-content: space-between;
-  border-top: 1px solid var(--border); gap: 5px;
-}
-.pdf-page-badge {
-  font-size: .65rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-  color: #f87171; background: rgba(124,58,237,.15);
-  padding: 2px 8px; border-radius: 20px; flex-shrink: 0;
-}
-.pdf-card-actions { display: flex; gap: 4px; }
-.pdf-card-btn {
-  width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border);
-  background: var(--surface); color: var(--text-muted); cursor: pointer;
-  display: flex; align-items: center; justify-content: center; font-size: .7rem;
-  transition: background .15s, color .15s, border-color .15s;
-}
-.pdf-card-btn:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
-.pdf-card-btn.loading { pointer-events: none; opacity: .5; }
-.pdf-page-card.search-match { border-color: #f59e0b !important; box-shadow: 0 0 0 2px rgba(245,158,11,.3) !important; }
-.pdf-page-card.search-no-match { opacity: .25; }
-
-/* ── Modal ── */
-.page-modal {
-  display: none; position: fixed; inset: 0; z-index: 9998;
-  background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
-  align-items: flex-start; justify-content: center; padding: 24px 16px; overflow-y: auto;
-}
-.page-modal.open { display: flex; }
-.page-modal-box {
-  background: var(--surface); border-radius: 16px; width: 100%; max-width: 980px;
-  box-shadow: 0 24px 64px rgba(0,0,0,.5); overflow: hidden; margin: auto;
-  border: 1px solid var(--border);
-}
-.page-modal-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 20px; border-bottom: 1px solid var(--border);
+  padding: .65rem 1rem; border-bottom: 1px solid var(--border);
   background: var(--bg);
 }
-.page-modal-title { font-weight: 700; font-size: .92rem; color: var(--text); display: flex; align-items: center; gap: 8px; }
-.page-modal-close {
-  width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border);
-  background: transparent; color: var(--text); cursor: pointer; font-size: .95rem;
-  display: flex; align-items: center; justify-content: center; transition: background .15s;
+.sv-left-head-title {
+  font-size: .75rem; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .06em;
 }
-.page-modal-close:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
-.page-modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; min-height: 500px; }
-@media(max-width:700px){ .page-modal-body { grid-template-columns: 1fr; } }
-.page-modal-img {
-  background: var(--bg); padding: 20px;
-  display: flex; align-items: flex-start; justify-content: center; flex-direction: column; gap: 8px;
-  border-right: 1px solid var(--border);
+.sv-page-scroll {
+  overflow-y: auto; max-height: calc(100vh - 200px);
+  padding: 8px;
+  display: flex; flex-direction: column; gap: 6px;
 }
-.modal-img-wrap { position: relative; display: inline-block; max-width: 100%; }
-.modal-img-wrap img { max-width: 100%; display: block; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
-#selCanvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; border-radius: 8px; }
-.crop-hint { font-size: .7rem; color: #888; text-align: center; width: 100%; }
-.crop-hint i { color: #2563eb; }
-.page-modal-text-panel { padding: 18px; display: flex; flex-direction: column; gap: 10px; }
-.page-modal-section-title {
-  font-size: .7rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
-  color: var(--text-muted); display: flex; align-items: center; gap: 6px;
+.sv-page-scroll::-webkit-scrollbar { width: 4px; }
+.sv-page-scroll::-webkit-scrollbar-thumb { background: #bfdbfe; border-radius: 2px; }
+
+.sv-page-thumb {
+  border-radius: 8px; overflow: hidden; cursor: pointer;
+  border: 2px solid var(--border); transition: border-color .15s, box-shadow .15s;
+  background: var(--bg); position: relative;
 }
-.page-modal-txt {
-  font-family: 'Courier New', monospace; font-size: .78rem; line-height: 1.7;
+.sv-page-thumb:hover { border-color: #93c5fd; box-shadow: 0 2px 8px rgba(37,99,235,.15); }
+.sv-page-thumb.active {
+  border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.2);
+}
+.sv-page-thumb img { width: 100%; display: block; object-fit: contain; }
+.sv-page-thumb-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,.55); color: #fff;
+  font-size: .63rem; font-weight: 700; text-align: center;
+  padding: 3px 0; letter-spacing: .04em;
+}
+.sv-page-thumb.ocr-done::after,
+.sv-page-thumb.ai-done::after {
+  content: ''; position: absolute; top: 5px; right: 5px;
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.sv-page-thumb.ocr-done::after { background: #2563eb; }
+.sv-page-thumb.ai-done::after  { background: #059669; }
+
+/* ── Right panel: extraction card ── */
+.sv-right { display: flex; flex-direction: column; gap: 10px; }
+
+.extract-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.extract-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .75rem 1rem; border-bottom: 1px solid var(--border);
+  background: var(--bg); flex-wrap: wrap; gap: .5rem;
+}
+.active-page-label {
+  font-weight: 700; font-size: .9rem; color: var(--text);
+  display: flex; align-items: center; gap: .4rem;
+}
+.active-page-label i { color: #2563eb; }
+
+.toggle-row {
+  display: flex; align-items: center; gap: .9rem; flex-wrap: wrap;
+}
+.toggle-item {
+  display: flex; align-items: center; gap: .5rem; cursor: pointer;
+  user-select: none;
+}
+.toggle-item-label {
+  font-size: .78rem; font-weight: 600; color: var(--text-muted);
+  transition: color .2s;
+}
+.toggle-item.on .toggle-item-label { color: var(--text); }
+
+.toggle-track {
+  width: 40px; height: 22px; border-radius: 11px;
+  background: #e0e0e0; position: relative;
+  transition: background .2s; flex-shrink: 0;
+}
+.toggle-track.on-ocr { background: #2563eb; }
+.toggle-track.on-ai  { background: #059669; }
+.toggle-knob {
+  position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25);
+  transition: left .2s;
+}
+.toggle-track.on-ocr .toggle-knob,
+.toggle-track.on-ai  .toggle-knob { left: 21px; }
+
+.toggle-badge {
+  font-size: .62rem; font-weight: 700; padding: 2px 7px; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.badge-ocr { background: #dbeafe; color: #1d4ed8; }
+.badge-ai  { background: #d1fae5; color: #065f46; }
+
+/* ── Extraction body ── */
+.extract-body {
+  padding: 1rem; display: flex; flex-direction: column; gap: 1rem;
+  min-height: 300px;
+}
+
+.extract-empty {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: .75rem; padding: 3rem 1rem;
+  color: var(--text-muted); text-align: center;
+}
+.extract-empty i { font-size: 2rem; opacity: .3; }
+.extract-empty p { font-size: .84rem; margin: 0; line-height: 1.6; }
+
+.result-block {
+  display: flex; flex-direction: column; gap: .5rem;
+}
+.result-block-head {
+  display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+}
+.result-block-title {
+  font-size: .72rem; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; display: flex; align-items: center; gap: .4rem;
+}
+.result-block-title.ocr-color { color: #2563eb; }
+.result-block-title.ai-color  { color: #059669; }
+.result-actions { display: flex; align-items: center; gap: .4rem; }
+
+.result-copy-btn {
+  display: inline-flex; align-items: center; gap: .3rem;
+  border: 1px solid var(--border); border-radius: 6px; background: var(--bg);
+  color: var(--text-muted); cursor: pointer; padding: 3px 8px; font-size: .72rem;
+  transition: background .15s, color .15s;
+}
+.result-copy-btn:hover { background: #2563eb; color: #fff; border-color: #2563eb; }
+
+.result-text {
+  font-family: 'Courier New', monospace; font-size: .78rem; line-height: 1.75;
   color: var(--text); white-space: pre-wrap; word-break: break-word;
   background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
-  padding: 12px; flex: 1; overflow-y: auto; max-height: 380px;
+  padding: 12px; max-height: 340px; overflow-y: auto; min-height: 80px;
 }
-.page-modal-txt::-webkit-scrollbar { width: 4px; }
-.page-modal-txt::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 3px; }
-.page-modal-actions { display: flex; gap: 7px; flex-wrap: wrap; padding: 10px 20px; border-top: 1px solid var(--border); background: var(--bg); }
-.pm-nav { display: flex; gap: 7px; margin-left: auto; }
-.modal-text-actions { display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:10px 0 4px; border-top:1px solid var(--border); margin-top:8px; }
-.mta-right { display:flex; gap:6px; align-items:center; margin-left:auto; }
-.mta-copy { background:var(--surface-alt);border:1px solid var(--border);color:var(--text); }
-.mta-provider { font-size:11px;padding:3px 6px;border:1px solid #dc2626;border-radius:6px;color:#dc2626;background:#fff8f8;cursor:pointer;max-width:130px; }
-.mta-ai { background:#dc2626;color:#fff;border:none;cursor:pointer; }
-.btn-spin { width:12px;height:12px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:4px; }
+.result-text::-webkit-scrollbar { width: 4px; }
+.result-text::-webkit-scrollbar-thumb { background: #bfdbfe; border-radius: 2px; }
 
-/* summary panel */
-#summaryPanel { background: var(--surface); border: 1px solid var(--border); border-top: none; padding: 14px 18px; }
+.result-loading {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: .82rem; color: var(--text-muted); padding: .5rem 0;
+}
+.spin-ring {
+  width: 14px; height: 14px; border: 2px solid currentColor;
+  border-top-color: transparent; border-radius: 50%;
+  animation: spin .65s linear infinite; flex-shrink: 0;
+}
+
+.dl-btn {
+  display: inline-flex; align-items: center; gap: .4rem;
+  border: none; border-radius: 8px; padding: .42rem 1rem;
+  font-size: .78rem; font-weight: 700; cursor: pointer;
+  text-decoration: none; transition: opacity .2s;
+}
+.dl-btn:hover { opacity: .85; }
+.dl-green { background: #16a34a; color: #fff; }
+.dl-excel-wrap { display: flex; gap: .5rem; flex-wrap: wrap; padding-top: .25rem; }
 </style>
 {% endblock %}
 
 {% block content %}
 
-
-<!-- Error banner (shown when OCR/upload fails) -->
+<!-- Error banner -->
 <div id="ocrErr" style="display:none;background:#fee2e2;border:1px solid #fca5a5;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;display:none;align-items:center;gap:.8rem;color:#991b1b;font-size:.875rem">
   <i class="fa-solid fa-circle-exclamation" style="font-size:1.1rem;flex-shrink:0"></i>
   <span id="ocrErrMsg"></span>
 </div>
 
-<!-- Drop zone -->
+<!-- ── Drop zone ── -->
 <div class="ocr-drop" id="uploadZone">
   <input type="file" id="fileInput" accept=".pdf">
-   <div class="ocr-hero-icon">
-  <i class="fa-solid fa-file-lines ocr-hero-main"></i>
-  <div class="ocr-hero-badge">
-    <i class="fa-solid fa-eye"></i>
-  </div>
-</div>
-  <h2 style="font-size:2rem;font-weight:900;color:#111;margin:0 0 .3rem;letter-spacing:-.03em;">OCR PDF</h2>
+  <div class="ocr-drop-icon"><i class="fa-solid fa-file-lines"></i></div>
+  <h2>OCR PDF</h2>
   <h3>Drop your PDF here</h3>
-  <p>Upload a PDF — all pages are processed and displayed with OCR text extraction</p>
+  <p>Upload a PDF — view all pages on the left, extract text &amp; data on the right</p>
   <button type="button" class="ocr-drop-btn" onclick="document.getElementById('fileInput').click()">
     <i class="fa-solid fa-plus"></i> Select PDF File
   </button>
   <span class="ocr-drop-hint">Supports multi-page PDFs · Bank statements · Scanned documents</span>
 </div>
 
-<!-- Fullscreen loader overlay -->
+<!-- ── Loader ── -->
 <div class="ocr-loader" id="pdfLoader">
   <div class="ocr-loader-ring"></div>
-  <div class="ocr-loader-text">Processing PDF with OCR…</div>
+  <div class="ocr-loader-text">Processing PDF…</div>
   <div class="ocr-loader-sub" id="loaderSub">Starting…</div>
 </div>
 
-<!-- Pages viewer -->
-<div id="pdfViewer" style="display:none">
-  <div class="pdf-pages-header">
-    <div class="pdf-pages-title">
-      <i class="fa-solid fa-images" style="color:#dc2626"></i>
-      <span id="viewerTitle">Document</span>
-      <span class="pdf-pages-count" id="pagesCount">0 pages</span>
+<!-- ══════════════════════════════════════════
+     SPLIT VIEWER
+══════════════════════════════════════════ -->
+<div id="splitViewer" style="display:none">
+
+  <!-- Header bar -->
+  <div class="sv-header">
+    <div class="sv-file-info">
+      <i class="fa-solid fa-file-pdf" style="color:#dc2626;font-size:1.1rem"></i>
+      <span class="sv-filename" id="svFilename">Document</span>
+      <span class="sv-pages-badge" id="svPagesCount">0 pages</span>
     </div>
-    <button onclick="resetOcr()" style="display:inline-flex;align-items:center;gap:.4rem;background:none;border:1.5px solid #e0e0e0;border-radius:8px;padding:.4rem 1rem;font-size:.78rem;font-weight:700;color:#666;cursor:pointer;margin-right:.5rem;">
-      <i class="fa-solid fa-arrow-left"></i> New PDF
-    </button>
-    <div class="ocr-toolbar">
-      <!-- Extract All buttons -->
-      <button class="ocr-action-btn" id="extractAllOcrBtn" onclick="extractAllPages('ocr')" title="OCR all pages → one Excel">
+    <div class="sv-actions">
+      <button class="sv-new-btn" onclick="resetOcr()">
+        <i class="fa-solid fa-arrow-left"></i> New PDF
+      </button>
+      <button class="sv-all-btn sv-all-ocr" onclick="extractAllPages('ocr')" id="allOcrBtn">
         <i class="fa-solid fa-file-excel"></i> All Pages OCR
       </button>
-      <div style="display:inline-flex;align-items:stretch;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.12)">
-        <select id="allPagesAiProvider" style="font-size:11px;padding:0 8px;border:none;border-right:1px solid rgba(255,255,255,.25);color:#fff;background:#1e3a5f;cursor:pointer;outline:none;min-width:110px">
+      <div class="sv-provider-wrap">
+        <select id="allPagesAiProvider" class="sv-provider-sel">
+          <option value="gpt">GPT-4o</option>
           <option value="gemini">Zayron LLM</option>
           <option value="mistral">Zayron LLM PRO</option>
         </select>
-        <button class="ocr-action-btn ocr-btn-stmt" id="extractAllAiBtn" onclick="extractAllPages('ai')" title="AI extract all pages → one Excel" style="border:none;border-radius:0;margin:0;border-left:1px solid rgba(255,255,255,.2)">
+        <button class="sv-all-btn sv-all-ai" onclick="extractAllPages('ai')" id="allAiBtn" style="border-radius:0 8px 8px 0">
           <i class="fa-solid fa-wand-magic-sparkles"></i> All Pages AI
         </button>
       </div>
-      <!-- Zoom -->
-      <div class="ocr-zoom-group">
-        <button class="zoom-btn" onclick="setZoom('sm')" id="zoomSm" title="Small"><i class="fa-solid fa-grip"></i></button>
-        <button class="zoom-btn active" onclick="setZoom('md')" id="zoomMd" title="Medium"><i class="fa-solid fa-table-cells-large"></i></button>
-        <button class="zoom-btn" onclick="setZoom('lg')" id="zoomLg" title="Large"><i class="fa-solid fa-square-full"></i></button>
-      </div>
     </div>
   </div>
 
-  <!-- Summary panel (shows after extraction) -->
-  <div id="summaryPanel" style="display:none;background:var(--card-bg);border:1px solid var(--border);border-top:none;padding:16px 20px;border-radius:0 0 0 0">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px">
-      <span style="font-weight:700;font-size:.88rem;color:var(--text)"><i class="fa-solid fa-circle-check" style="color:#dc2626"></i> Statement Summary Extracted</span>
-      <a id="summaryExcelBtn" href="#" class="btn btn-sm" style="background:#dc2626;color:#fff;border:none;padding:5px 14px;border-radius:8px;font-size:.8rem">
-        <i class="fa-solid fa-file-excel"></i> Download Summary Excel
-      </a>
-    </div>
-    <div id="summaryFields" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px"></div>
-  </div>
+  <!-- Body: left thumbnails + right card -->
+  <div class="sv-body">
 
-  <div class="pdf-pages-grid zoom-md" id="pagesGrid"></div>
-</div>
-
-<!-- Page Detail Modal -->
-<div class="page-modal" id="pageModal">
-  <div class="page-modal-box">
-    <div class="page-modal-head">
-      <div class="page-modal-title">
-        <i class="fa-solid fa-file-lines" style="color:#dc2626"></i>
-        <span id="modalTitle">Page 1</span>
+    <!-- ── Left: page thumbnails ── -->
+    <div class="sv-left">
+      <div class="sv-left-head">
+        <span class="sv-left-head-title"><i class="fa-solid fa-images" style="color:#2563eb"></i> Pages</span>
+        <span class="sv-pages-badge" id="svThumbCount" style="font-size:.65rem">0</span>
       </div>
-      <button class="page-modal-close" id="modalClose"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="page-modal-body">
-      <div class="page-modal-img">
-        <div class="modal-img-wrap">
-          <img id="modalImg" src="" alt="Page">
-          <canvas id="selCanvas"></canvas>
-        </div>
-        <div class="crop-hint"><i class="fa-solid fa-hand-pointer"></i> Drag on the image to OCR a specific region</div>
+      <div class="sv-page-scroll" id="pageThumbList">
+        <!-- Populated by JS -->
       </div>
-      <div class="page-modal-text-panel">
-        <div class="page-modal-section-title" style="justify-content:space-between">
-          <span><i class="fa-solid fa-align-left"></i> Extracted Text</span>
-          <span id="modalWordCount" style="font-size:.7rem;font-weight:400;color:var(--text-muted)"></span>
-        </div>
-        <div class="page-modal-txt" id="modalTxt">Loading…</div>
+    </div>
 
-        <!-- Action buttons below extracted text -->
-        <div class="modal-text-actions">
-          <button class="btn btn-primary btn-sm" id="modalExtractBtn" onclick="extractCurrentPage()">
-            <i class="fa-solid fa-eye"></i> OCR Extract
-          </button>
-          <button class="btn btn-sm mta-copy" onclick="copyModalText()">
-            <i class="fa-solid fa-copy"></i> Copy
-          </button>
-          <a class="btn btn-sm" id="cropExcelBtn" href="#" style="display:none;background:#059669;color:#fff;border:none;text-decoration:none">
-            <i class="fa-solid fa-file-excel"></i> Region Excel
-          </a>
-          <div class="mta-right">
-            <select id="aiProviderSelect" class="mta-provider">
-              <option value="gemini">Zayron LLM</option>
-              <option value="mistral">Zayron LLM PRO</option>
-            </select>
-            <button class="btn btn-sm mta-ai" id="modalAiBtn" onclick="aiExtractModal()">
-              <i class="fa-solid fa-wand-magic-sparkles"></i> AI Extract
-            </button>
+    <!-- ── Right: extraction card ── -->
+    <div class="sv-right">
+      <div class="extract-card">
+        <!-- Card header with toggles -->
+        <div class="extract-card-head">
+          <div class="active-page-label">
+            <i class="fa-solid fa-file-lines"></i>
+            <span id="activePageLabel">Select a page</span>
+          </div>
+          <div class="toggle-row">
+            <!-- OCR toggle -->
+            <div class="toggle-item" id="ocrToggleItem" onclick="toggleMode('ocr')">
+              <span class="toggle-badge badge-ocr">OCR</span>
+              <div class="toggle-track" id="ocrTrack"><div class="toggle-knob"></div></div>
+              <span class="toggle-item-label">Tesseract</span>
+            </div>
+            <!-- AI toggle -->
+            <div class="toggle-item" id="aiToggleItem" onclick="toggleMode('ai')">
+              <span class="toggle-badge badge-ai">AI</span>
+              <div class="toggle-track" id="aiTrack"><div class="toggle-knob"></div></div>
+              <span class="toggle-item-label">GPT-4o</span>
+            </div>
           </div>
         </div>
 
-        <!-- Excel download after AI Extract -->
-        <div id="modalExcelWrap" style="display:none;padding:8px 0 2px">
-          <a class="btn btn-sm" id="modalExcelBtn" href="#"
-            style="background:#16a34a;color:#fff;border:none;text-decoration:none;font-weight:700;display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;font-size:.85rem;width:100%;justify-content:center">
-            <i class="fa-solid fa-file-excel"></i> Download Excel
-          </a>
+        <!-- Extraction body -->
+        <div class="extract-body" id="extractBody">
+
+          <!-- Empty state -->
+          <div class="extract-empty" id="extractEmpty">
+            <i class="fa-solid fa-hand-pointer"></i>
+            <p>Click a page on the left, then enable<br><strong>Tesseract</strong> or <strong>AI</strong> to extract its content.</p>
+          </div>
+
+          <!-- OCR result block -->
+          <div class="result-block" id="ocrBlock" style="display:none">
+            <div class="result-block-head">
+              <div class="result-block-title ocr-color">
+                <i class="fa-solid fa-font"></i> Tesseract OCR
+              </div>
+              <div class="result-actions">
+                <button class="result-copy-btn" onclick="copyResultText('ocrResultText')">
+                  <i class="fa-solid fa-copy"></i> Copy
+                </button>
+              </div>
+            </div>
+            <div class="result-text" id="ocrResultText"></div>
+            <div class="dl-excel-wrap" id="ocrExcelWrap" style="display:none">
+              <a class="dl-btn dl-green" id="ocrExcelBtn" href="#">
+                <i class="fa-solid fa-file-excel"></i> Download Excel
+              </a>
+            </div>
+          </div>
+
+          <!-- AI result block -->
+          <div class="result-block" id="aiBlock" style="display:none">
+            <div class="result-block-head">
+              <div class="result-block-title ai-color">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Extract
+                <span id="aiProviderLabel" style="font-weight:400;text-transform:none;font-size:.72rem;color:var(--text-muted)">· GPT-4o</span>
+              </div>
+              <div class="result-actions">
+                <button class="result-copy-btn" onclick="copyResultText('aiResultText')">
+                  <i class="fa-solid fa-copy"></i> Copy
+                </button>
+              </div>
+            </div>
+            <div class="result-text" id="aiResultText"></div>
+            <div class="dl-excel-wrap" id="aiExcelWrap" style="display:none">
+              <a class="dl-btn dl-green" id="aiExcelBtn" href="#">
+                <i class="fa-solid fa-file-excel"></i> Download Excel
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
-    <!-- Bottom bar: only page navigation -->
-    <div class="page-modal-actions" style="justify-content:flex-end">
-      <div class="pm-nav">
-        <button class="btn btn-outline btn-sm" id="modalPrev"><i class="fa-solid fa-chevron-left"></i> Prev</button>
-        <button class="btn btn-outline btn-sm" id="modalNext">Next <i class="fa-solid fa-chevron-right"></i></button>
-      </div>
-    </div>
-  </div>
-</div>
+
+  </div><!-- /.sv-body -->
+</div><!-- /#splitViewer -->
+
 {% endblock %}
 
 {% block extra_js %}<script>
-// Override global showError — ocr page has no .result-card, show inline banner instead
+// Override showError
 function showError(msg) {
-  const errDiv = document.getElementById('ocrErr');
-  const errMsg = document.getElementById('ocrErrMsg');
-  if (!errDiv) return;
-  errMsg.textContent = msg;
-  errDiv.style.display = 'flex';
-  errDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  const d = document.getElementById('ocrErr');
+  document.getElementById('ocrErrMsg').textContent = msg;
+  d.style.display = 'flex';
+  d.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
+/* ─── State ─── */
 let _imgs      = [];
-let _texts     = {};   // cache: page_index → extracted text
-let _imgPaths  = {};   // cache: page_index → server path for extraction
-let _modalIdx  = 0;
 let _stem      = '';
+let _activeIdx = -1;
+let _ocrOn     = false;
+let _aiOn      = false;
+let _ocrCache  = {};   // idx → { text, excel_url, excel_name }
+let _aiCache   = {};   // idx → { text, excel_url, excel_name }
 
 function imgSrc(src) {
+  if (!src) return '';
   if (src.startsWith('data:') || src.startsWith('http') || src.startsWith('/media/')) return src;
   return 'data:image/jpeg;base64,' + src;
 }
 
-// ── Reset ──
+/* ─── Reset ─── */
 function resetOcr() {
-  _imgs = []; _texts = {}; _imgPaths = {}; _stem = '';
-  document.getElementById('pdfViewer').style.display = 'none';
-  document.getElementById('pagesGrid').innerHTML = '';
+  _imgs = []; _stem = ''; _activeIdx = -1;
+  _ocrOn = false; _aiOn = false; _ocrCache = {}; _aiCache = {};
+  document.getElementById('splitViewer').style.display = 'none';
+  document.getElementById('pageThumbList').innerHTML = '';
   document.getElementById('uploadZone').style.display = '';
+  clearExtractBody();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ── Progress ──
+/* ─── Loader ─── */
 function setProgress(pct, page, total) {
   const sub = document.getElementById('loaderSub');
-  if (sub) sub.textContent = (page && total) ? 'Page ' + page + ' of ' + total + ' — ' + pct + '%' : 'Starting…';
+  if (sub) sub.textContent = (page && total)
+    ? 'Page ' + page + ' of ' + total + ' — ' + pct + '%'
+    : 'Starting…';
 }
 
-// ── Build Grid ──
-function buildGrid() {
-  const grid = document.getElementById('pagesGrid');
-  grid.innerHTML = '';
+/* ─── Build left thumbnails ─── */
+function buildThumbs() {
+  const list = document.getElementById('pageThumbList');
+  list.innerHTML = '';
   _imgs.forEach((src, i) => {
-    const card = document.createElement('div');
-    card.className = 'pdf-page-card';
-    card.id = 'card-' + i;
-    card.innerHTML = `
-      <div class="pdf-card-img-wrap" data-idx="${i}">
-        <img src="${imgSrc(src)}" alt="Page ${i+1}" loading="lazy">
-      </div>
-      <div class="pdf-card-footer">
-        <span class="pdf-page-badge">Page ${i+1}</span>
-        <div class="pdf-card-actions">
-          <button class="pdf-card-btn" title="View &amp; Extract Text" onclick="openModal(${i})">
-            <i class="fa-solid fa-eye"></i>
-          </button>
-        </div>
-      </div>`;
-    card.querySelector('.pdf-card-img-wrap').addEventListener('click', () => openModal(i));
-    grid.appendChild(card);
+    const div = document.createElement('div');
+    div.className = 'sv-page-thumb';
+    div.id = 'thumb-' + i;
+    div.onclick = () => selectPage(i);
+    const img = document.createElement('img');
+    img.src = imgSrc(src);
+    img.alt = 'Page ' + (i + 1);
+    img.loading = 'lazy';
+    const lbl = document.createElement('div');
+    lbl.className = 'sv-page-thumb-label';
+    lbl.textContent = 'PAGE ' + (i + 1);
+    div.appendChild(img);
+    div.appendChild(lbl);
+    list.appendChild(div);
   });
 }
 
-// ── Modal ──
-async function openModal(idx) {
-  _modalIdx = idx;
-  const modal = document.getElementById('pageModal');
-  modal.classList.add('open');
-  document.body.style.overflow = 'hidden';
+/* ─── Select a page ─── */
+async function selectPage(idx) {
+  _activeIdx = idx;
 
-  document.getElementById('modalTitle').textContent = 'Page ' + (idx + 1) + ' of ' + _imgs.length;
-  document.getElementById('modalImg').src = imgSrc(_imgs[idx]);
-  document.getElementById('modalPrev').disabled = idx === 0;
-  document.getElementById('modalNext').disabled = idx === _imgs.length - 1;
-  document.getElementById('modalExcelWrap').style.display = 'none';
+  // Highlight thumb
+  document.querySelectorAll('.sv-page-thumb').forEach(t => t.classList.remove('active'));
+  const thumb = document.getElementById('thumb-' + idx);
+  if (thumb) {
+    thumb.classList.add('active');
+    thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 
-  if (_texts[idx] !== undefined) {
-    document.getElementById('modalTxt').textContent = _texts[idx] || '(No text found on this page)';
-    updateModalWordCount(_texts[idx]);
+  // Update label
+  document.getElementById('activePageLabel').textContent = 'Page ' + (idx + 1) + ' of ' + _imgs.length;
+
+  // Clear any old results, show them again if cached
+  renderExtractBody();
+
+  // Auto-extract if toggles are on
+  const tasks = [];
+  if (_ocrOn && !_ocrCache[idx]) tasks.push(runOCR(idx));
+  if (_aiOn  && !_aiCache[idx])  tasks.push(runAI(idx));
+  await Promise.all(tasks);
+}
+
+/* ─── Toggle logic ─── */
+function toggleMode(mode) {
+  if (mode === 'ocr') {
+    _ocrOn = !_ocrOn;
+    document.getElementById('ocrTrack').className = 'toggle-track' + (_ocrOn ? ' on-ocr' : '');
+    document.getElementById('ocrToggleItem').className = 'toggle-item' + (_ocrOn ? ' on' : '');
   } else {
-    document.getElementById('modalTxt').innerHTML = '<span style="color:#aaa;font-size:.82rem;">Click <strong>Extract Text</strong> to extract text from this page.</span>';
-    document.getElementById('modalWordCount').textContent = '';
+    _aiOn = !_aiOn;
+    document.getElementById('aiTrack').className = 'toggle-track' + (_aiOn ? ' on-ai' : '');
+    document.getElementById('aiToggleItem').className = 'toggle-item' + (_aiOn ? ' on' : '');
   }
+
+  renderExtractBody();
+
+  // Trigger extraction for active page if needed
+  if (_activeIdx < 0) return;
+  if (mode === 'ocr' && _ocrOn && !_ocrCache[_activeIdx]) runOCR(_activeIdx);
+  if (mode === 'ai'  && _aiOn  && !_aiCache[_activeIdx])  runAI(_activeIdx);
 }
 
-function closeModal() {
-  document.getElementById('pageModal').classList.remove('open');
-  document.body.style.overflow = '';
+/* ─── Render the right-panel body ─── */
+function clearExtractBody() {
+  document.getElementById('ocrBlock').style.display = 'none';
+  document.getElementById('aiBlock').style.display  = 'none';
+  document.getElementById('extractEmpty').style.display = '';
 }
 
-async function extractPage(idx) {
-  const imgUrl = _imgs[idx];
-  try {
-    const fd = new FormData();
-    fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-    fd.append('img_url', imgUrl);
-    fd.append('page', idx + 1);
-    fd.append('stem', _stem);
+function renderExtractBody() {
+  const noPage    = _activeIdx < 0;
+  const noToggles = !_ocrOn && !_aiOn;
+  const showEmpty = noPage || noToggles;
 
-    const res  = await fetch('{% url "api_extract_page" %}', { method: 'POST', body: fd });
-    const data = await res.json();
+  document.getElementById('extractEmpty').style.display = showEmpty ? '' : 'none';
 
-    if (data.error) {
-      document.getElementById('modalTxt').textContent = 'Error: ' + data.error;
-      return;
-    }
-    _texts[idx] = data.text || '';
-    document.getElementById('modalTxt').textContent = _texts[idx] || '(No text found on this page)';
-    updateModalWordCount(_texts[idx]);
-
-    if (data.excel_url) {
-      const dlBtn = document.getElementById('modalExcelBtn');
-      dlBtn.href = data.excel_url;
-      dlBtn.download = data.excel_name || 'page.xlsx';
-      document.getElementById('modalExcelWrap').style.display = '';
-    }
-  } catch(e) {
-    document.getElementById('modalTxt').textContent = 'Extraction failed: ' + e.message;
-  }
-}
-
-async function extractCurrentPage() {
-  _texts[_modalIdx] = undefined;
-  document.getElementById('modalTxt').innerHTML = '<span class="btn-spin"></span> Extracting text…';
-  await extractPage(_modalIdx);
-}
-
-async function downloadPageExcel(e, idx) {
-  e.stopPropagation();
-  const btn = e.currentTarget;
-  btn.classList.add('loading');
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-
-  const imgUrl = _imgs[idx];
-  try {
-    const fd = new FormData();
-    fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-    fd.append('img_url', imgUrl);
-    fd.append('page', idx + 1);
-    fd.append('stem', _stem);
-
-    const res  = await fetch('{% url "api_extract_page" %}', { method: 'POST', body: fd });
-    const data = await res.json();
-
-    if (data.excel_url) {
-      const a = document.createElement('a');
-      a.href = data.excel_url; a.download = data.excel_name || 'page.xlsx';
-      a.click();
+  if (_ocrOn && !noPage) {
+    document.getElementById('ocrBlock').style.display = '';
+    const cached = _ocrCache[_activeIdx];
+    const el = document.getElementById('ocrResultText');
+    if (cached) {
+      el.textContent = cached.text || '(No text found)';
+      if (cached.excel_url) {
+        document.getElementById('ocrExcelBtn').href     = cached.excel_url;
+        document.getElementById('ocrExcelBtn').download = cached.excel_name || 'page.xlsx';
+        document.getElementById('ocrExcelWrap').style.display = '';
+      } else {
+        document.getElementById('ocrExcelWrap').style.display = 'none';
+      }
     } else {
-      alert('Could not generate Excel for this page.');
+      el.innerHTML = '<span class="result-loading"><span class="spin-ring"></span> Extracting with Tesseract…</span>';
+      document.getElementById('ocrExcelWrap').style.display = 'none';
     }
-  } catch(e) { alert('Error: ' + e.message); }
-  finally {
-    btn.classList.remove('loading');
-    btn.innerHTML = '<i class="fa-solid fa-file-excel"></i>';
+  } else {
+    document.getElementById('ocrBlock').style.display = 'none';
+  }
+
+  if (_aiOn && !noPage) {
+    document.getElementById('aiBlock').style.display = '';
+    const prov = document.getElementById('allPagesAiProvider').value;
+    const provLabels = { gpt: 'GPT-4o', gemini: 'Zayron LLM', mistral: 'Zayron LLM PRO', groq: 'Groq' };
+    document.getElementById('aiProviderLabel').textContent = '· ' + (provLabels[prov] || prov);
+
+    const cached = _aiCache[_activeIdx];
+    const el = document.getElementById('aiResultText');
+    if (cached) {
+      el.textContent = cached.text || '(No data extracted)';
+      if (cached.excel_url) {
+        document.getElementById('aiExcelBtn').href     = cached.excel_url;
+        document.getElementById('aiExcelBtn').download = cached.excel_name || 'ai_page.xlsx';
+        document.getElementById('aiExcelWrap').style.display = '';
+      } else {
+        document.getElementById('aiExcelWrap').style.display = 'none';
+      }
+    } else {
+      el.innerHTML = '<span class="result-loading"><span class="spin-ring"></span> AI extracting…</span>';
+      document.getElementById('aiExcelWrap').style.display = 'none';
+    }
+  } else {
+    document.getElementById('aiBlock').style.display = 'none';
   }
 }
 
-// ── Statement Summary ──
-async function extractSummary() {
-  if (!_stem) { alert('Please upload a PDF first.'); return; }
-  const btn = document.getElementById('summaryBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="btn-spin"></span> Extracting…';
-
-  try {
-    const fd = new FormData();
-    fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-    fd.append('stem', _stem);
-    const res  = await fetch('{% url "api_extract_statement_summary" %}', { method: 'POST', body: fd });
-    const data = await res.json();
-    if (data.error) { alert('Error: ' + data.error); return; }
-
-    const f = data.fields || {};
-    const LABELS = {
-      customer_name:    'Customer Name',
-      customer_no:      'Customer No',
-      account_no:       'Account No',
-      period_from:      'Period From',
-      period_to:        'Period To',
-      txn_total_debit:  'Transaction Total Debit',
-      txn_total_credit: 'Transaction Total Credit',
-      closing_balance:  'Closing Balance',
-    };
-    const COLORS = {
-      customer_name:'#dc2626', txn_total_debit:'#dc2626',
-      txn_total_credit:'#dc2626', closing_balance:'#dc2626',
-    };
-    const NUM_FIELDS = new Set(['txn_total_debit','txn_total_credit','closing_balance']);
-
-    const container = document.getElementById('summaryFields');
-    container.innerHTML = '';
-    Object.entries(LABELS).forEach(([key, label]) => {
-      let val = f[key];
-      if (val === null || val === undefined || val === '') return;
-      if (NUM_FIELDS.has(key)) val = parseFloat(val).toLocaleString('en-IN', {minimumFractionDigits:2});
-      const color = COLORS[key] || 'var(--text)';
-      const card = document.createElement('div');
-      card.style.cssText = 'background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px';
-      card.innerHTML = `<div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:4px">${label}</div>
-        <div style="font-weight:700;font-size:.95rem;color:${color}">${val}</div>`;
-      container.appendChild(card);
-    });
-
-    if (data.excel_url) {
-      const dlBtn = document.getElementById('summaryExcelBtn');
-      dlBtn.href = data.excel_url;
-      dlBtn.download = data.excel_name || 'summary.xlsx';
-    }
-    document.getElementById('summaryPanel').style.display = '';
-  } catch(e) { alert('Failed: ' + e.message); }
-  finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-table-list"></i> Statement Summary Excel';
-  }
-}
-
-// ── AI Extract ──
-function _aiProvider() {
-  const sel = document.getElementById('aiProviderSelect');
-  return sel ? sel.value : 'gemini';
-}
-async function _callAiExtract(idx) {
-  const imgUrl = _imgs[idx];
+/* ─── OCR extraction ─── */
+async function runOCR(idx) {
   const fd = new FormData();
   fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-  fd.append('img_url', imgUrl);
+  fd.append('img_url', _imgs[idx]);
   fd.append('page', idx + 1);
   fd.append('stem', _stem);
-  fd.append('provider', _aiProvider());
-  const res  = await fetch('{% url "api_extract_page_ai" %}', { method: 'POST', body: fd });
-  return await res.json();
-}
-
-async function aiExtractModal() {
-  const btn = document.getElementById('modalAiBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="btn-spin"></span> Extracting…';
-  const _provLabels = { gemini:'Zayron LLM', groq:'Groq Llama', mistral:'Zayron LLM PRO', gpt:'GPT-4o-mini', 'claude-haiku':'Claude Haiku', 'claude-sonnet':'Claude Sonnet' };
-  const provLabel = _provLabels[_aiProvider()] || _aiProvider();
-  document.getElementById('modalTxt').innerHTML = `<span class="btn-spin"></span> ${provLabel} is reading the page…`;
-  document.getElementById('modalExcelWrap').style.display = 'none';
   try {
-    const data = await _callAiExtract(_modalIdx);
-    if (data.error) { document.getElementById('modalTxt').textContent = 'Error: ' + data.error; return; }
-    _texts[_modalIdx] = data.text || '';
-    document.getElementById('modalTxt').textContent = _texts[_modalIdx] || '(No data extracted)';
-    const dlBtn = document.getElementById('modalExcelBtn');
-    const wrap  = document.getElementById('modalExcelWrap');
-    if (data.excel_url) {
-      dlBtn.href = data.excel_url;
-      dlBtn.download = data.excel_name || 'ai_page.xlsx';
-      dlBtn.style.opacity = '1';
-      dlBtn.style.pointerEvents = 'auto';
+    const res  = await fetch('{% url "api_extract_page" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) {
+      _ocrCache[idx] = { text: 'Error: ' + data.error, excel_url: null };
     } else {
-      dlBtn.href = '#';
-      dlBtn.style.opacity = '0.5';
-      dlBtn.style.pointerEvents = 'none';
+      _ocrCache[idx] = {
+        text:       data.text || '',
+        excel_url:  data.excel_url  || null,
+        excel_name: data.excel_name || 'page.xlsx',
+      };
+      // Mark thumb as done
+      const th = document.getElementById('thumb-' + idx);
+      if (th) th.classList.add('ocr-done');
     }
-    wrap.style.display = '';
   } catch(e) {
-    document.getElementById('modalTxt').textContent = 'AI extraction failed: ' + e.message;
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> AI Extract';
+    _ocrCache[idx] = { text: 'Failed: ' + e.message, excel_url: null };
   }
+  if (_activeIdx === idx) renderExtractBody();
 }
 
-async function aiExtractCard(e, idx) {
-  e.stopPropagation();
-  const btn = e.currentTarget;
-  btn.classList.add('loading');
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+/* ─── AI extraction ─── */
+async function runAI(idx) {
+  const prov = document.getElementById('allPagesAiProvider').value;
+  const fd = new FormData();
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fd.append('img_url', _imgs[idx]);
+  fd.append('page', idx + 1);
+  fd.append('stem', _stem);
+  fd.append('provider', prov);
   try {
-    const data = await _callAiExtract(idx);
-    if (data.excel_url) {
-      const a = document.createElement('a');
-      a.href = data.excel_url; a.download = data.excel_name || 'ai_page.xlsx';
-      a.click();
-      _texts[idx] = data.text || '';
+    const res  = await fetch('{% url "api_extract_page_ai" %}', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) {
+      _aiCache[idx] = { text: 'Error: ' + data.error, excel_url: null };
     } else {
-      alert('AI extraction failed: ' + (data.error || 'unknown error'));
+      _aiCache[idx] = {
+        text:       data.text || '',
+        excel_url:  data.excel_url  || null,
+        excel_name: data.excel_name || 'ai_page.xlsx',
+      };
+      const th = document.getElementById('thumb-' + idx);
+      if (th) th.classList.add('ai-done');
     }
-  } catch(e) { alert('Error: ' + e.message); }
-  finally {
-    btn.classList.remove('loading');
-    btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i>';
-    btn.style.color = '#dc2626';
-    btn.style.borderColor = '#dc2626';
+  } catch(e) {
+    _aiCache[idx] = { text: 'Failed: ' + e.message, excel_url: null };
   }
+  if (_activeIdx === idx) renderExtractBody();
 }
 
-// ── Copy modal text ──
-function copyModalText() {
-  const text = _texts[_modalIdx] || document.getElementById('modalTxt').textContent || '';
+/* ─── Copy text ─── */
+function copyResultText(elId) {
+  const text = document.getElementById(elId).textContent || '';
   navigator.clipboard.writeText(text).then(() => {
     const btn = event.currentTarget;
     const orig = btn.innerHTML;
@@ -706,123 +676,22 @@ function copyModalText() {
   });
 }
 
-// ── Download page image ──
-function downloadModalImage() {
-  const src = _imgs[_modalIdx];
-  if (!src) return;
-  const a = document.createElement('a');
-  a.href = src.startsWith('data:') ? src : 'data:image/jpeg;base64,' + src;
-  a.download = 'page_' + (_modalIdx + 1) + '.jpg';
-  a.click();
-}
-
-// ── Update word count in modal ──
-function updateModalWordCount(text) {
-  const words = text && text.trim() ? text.trim().split(/\s+/).length : 0;
-  document.getElementById('modalWordCount').textContent = words + ' words · ' + (text||'').length + ' chars';
-}
-
-// ── Search pages ──
-function ocrSearchPages(q) {
-  const ql = q.trim().toLowerCase();
-  document.getElementById('ocrSearchClear').style.display = ql ? 'block' : 'none';
-  const cards = document.querySelectorAll('.pdf-page-card');
-  if (!ql) {
-    cards.forEach(c => { c.classList.remove('search-match','search-no-match'); });
-    document.getElementById('ocrSearchCount').textContent = '';
-    return;
-  }
-  let matches = 0;
-  cards.forEach((card, idx) => {
-    const text = (_texts[idx] || '').toLowerCase();
-    if (text.includes(ql)) {
-      card.classList.add('search-match');
-      card.classList.remove('search-no-match');
-      matches++;
-    } else {
-      card.classList.add('search-no-match');
-      card.classList.remove('search-match');
-    }
-  });
-  document.getElementById('ocrSearchCount').textContent = matches + ' match' + (matches !== 1 ? 'es' : '');
-}
-
-function clearOcrSearch() {
-  document.getElementById('ocrSearch').value = '';
-  document.getElementById('ocrSearchClear').style.display = 'none';
-  document.getElementById('ocrSearchCount').textContent = '';
-  document.querySelectorAll('.pdf-page-card').forEach(c => c.classList.remove('search-match','search-no-match'));
-}
-
-// ── Zoom grid ──
-function setZoom(size) {
-  const grid = document.getElementById('pagesGrid');
-  grid.classList.remove('zoom-sm','zoom-md','zoom-lg');
-  grid.classList.add('zoom-' + size);
-  document.querySelectorAll('.zoom-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('zoom' + size.charAt(0).toUpperCase() + size.slice(1)).classList.add('active');
-}
-
-// ── Extract all pages to one Excel ──
-async function extractAllExcel() {
-  if (!_stem || !_imgs.length) { alert('Please upload a PDF first.'); return; }
-  const btn = document.getElementById('extractAllBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="btn-spin"></span> Extracting all…';
-
-  try {
-    // Extract each page sequentially, collect excel URLs
-    const results = [];
-    for (let i = 0; i < _imgs.length; i++) {
-      btn.innerHTML = `<span class="btn-spin"></span> Page ${i+1}/${_imgs.length}…`;
-      const fd = new FormData();
-      fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-      fd.append('img_url', _imgs[i]);
-      fd.append('page', i + 1);
-      fd.append('stem', _stem);
-      const res  = await fetch('{% url "api_extract_page" %}', { method:'POST', body:fd });
-      const data = await res.json();
-      if (data.text) _texts[i] = data.text;
-      if (data.excel_url) results.push({ page: i+1, url: data.excel_url, name: data.excel_name });
-    }
-    // Download all excel files
-    for (const r of results) {
-      const a = document.createElement('a');
-      a.href = r.url; a.download = r.name || `page_${r.page}.xlsx`;
-      a.click();
-      await new Promise(res => setTimeout(res, 300));
-    }
-    alert(`Done! Downloaded ${results.length} Excel file${results.length!==1?'s':''}.`);
-    // Refresh search highlights now that texts are cached
-    const q = document.getElementById('ocrSearch').value.trim();
-    if (q) ocrSearchPages(q);
-  } catch(e) {
-    alert('Error: ' + e.message);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-file-excel"></i> All Pages Excel';
-  }
-}
-
-// ── Extract ALL pages → one Excel ──
-async function extractAllPages(provider) {
-  if (!_stem || !_imgs.length) { showToast('Please upload a PDF first.', 'error'); return; }
-
-  const btn = provider === 'ai'
-    ? document.getElementById('extractAllAiBtn')
-    : document.getElementById('extractAllOcrBtn');
+/* ─── Extract all pages → one Excel ─── */
+async function extractAllPages(mode) {
+  if (!_stem || !_imgs.length) { showToast('Upload a PDF first.', 'error'); return; }
+  const btnId = mode === 'ai' ? 'allAiBtn' : 'allOcrBtn';
+  const btn   = document.getElementById(btnId);
   const origHtml = btn.innerHTML;
   btn.disabled = true;
-  btn.innerHTML = '<span class="btn-spin"></span> Processing…';
+  btn.innerHTML = '<span class="spin-ring"></span> Processing…';
 
   const fd = new FormData();
   fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
   fd.append('stem', _stem);
-  // For AI mode, use the top-bar provider selector; for OCR use 'ocr'
-  const aiProv = provider === 'ai'
-    ? (document.getElementById('allPagesAiProvider')?.value || 'gemini')
-    : provider;
-  fd.append('provider', aiProv);
+  const prov = mode === 'ai'
+    ? (document.getElementById('allPagesAiProvider')?.value || 'gpt')
+    : mode;
+  fd.append('provider', prov);
 
   try {
     const res  = await fetch('{% url "api_all_pages_excel" %}', { method: 'POST', body: fd });
@@ -832,7 +701,7 @@ async function extractAllPages(provider) {
     a.href = data.excel_url;
     a.download = data.excel_name || 'all_pages.xlsx';
     a.click();
-    showToast(`Downloaded ${data.pages}-page Excel!`, 'success');
+    showToast('Downloaded ' + data.pages + '-page Excel!', 'success');
   } catch(e) {
     showToast('Error: ' + e.message, 'error');
   } finally {
@@ -841,106 +710,7 @@ async function extractAllPages(provider) {
   }
 }
 
-// ── Region selection (drag to OCR a crop) ──
-(function() {
-  const canvas = document.getElementById('selCanvas');
-  const ctx    = canvas.getContext('2d');
-  let _dragging = false, _startX = 0, _startY = 0, _sel = null;
-
-  function resizeCanvas() {
-    const img = document.getElementById('modalImg');
-    if (!img.naturalWidth) return;
-    canvas.width  = img.offsetWidth;
-    canvas.height = img.offsetHeight;
-  }
-
-  document.getElementById('modalImg').addEventListener('load', () => {
-    resizeCanvas(); ctx.clearRect(0, 0, canvas.width, canvas.height);
-  });
-
-  canvas.addEventListener('mousedown', e => {
-    e.preventDefault();
-    resizeCanvas();
-    const r = canvas.getBoundingClientRect();
-    _startX = e.clientX - r.left;
-    _startY = e.clientY - r.top;
-    _dragging = true; _sel = null;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  });
-
-  canvas.addEventListener('mousemove', e => {
-    if (!_dragging) return;
-    const r = canvas.getBoundingClientRect();
-    const cx = e.clientX - r.left, cy = e.clientY - r.top;
-    _sel = { x: Math.min(_startX, cx), y: Math.min(_startY, cy),
-             w: Math.abs(cx - _startX), h: Math.abs(cy - _startY) };
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'rgba(37,99,235,0.12)';
-    ctx.fillRect(_sel.x, _sel.y, _sel.w, _sel.h);
-    ctx.strokeStyle = '#2563eb';
-    ctx.lineWidth = 2; ctx.setLineDash([5, 3]);
-    ctx.strokeRect(_sel.x, _sel.y, _sel.w, _sel.h);
-  });
-
-  async function doExtractCrop() {
-    if (!_sel || _sel.w < 10 || _sel.h < 10) { return; }
-    if (!_stem || !_imgs[_modalIdx]) return;
-
-    const x_pct = _sel.x / canvas.width;
-    const y_pct = _sel.y / canvas.height;
-    const w_pct = _sel.w / canvas.width;
-    const h_pct = _sel.h / canvas.height;
-
-    document.getElementById('modalTxt').innerHTML = '<span class="btn-spin"></span> Extracting region…';
-    document.getElementById('modalWordCount').textContent = '';
-
-    const fd = new FormData();
-    fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-    fd.append('stem', _stem);
-    fd.append('img_url', _imgs[_modalIdx]);
-    fd.append('x_pct', x_pct);
-    fd.append('y_pct', y_pct);
-    fd.append('w_pct', w_pct);
-    fd.append('h_pct', h_pct);
-
-    try {
-      const res  = await fetch('{% url "api_crop_extract_region" %}', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (data.error) { document.getElementById('modalTxt').textContent = 'Error: ' + data.error; return; }
-      document.getElementById('modalTxt').textContent = data.text;
-      updateModalWordCount(data.text);
-      _texts[_modalIdx] = data.text;
-      // Show crop Excel download button
-      const cropBtn = document.getElementById('cropExcelBtn');
-      if (data.excel_url) {
-        cropBtn.href     = data.excel_url;
-        cropBtn.download = data.excel_name || 'crop_region.xlsx';
-        cropBtn.style.display = '';
-      } else {
-        cropBtn.style.display = 'none';
-      }
-    } catch(e) {
-      document.getElementById('modalTxt').textContent = 'Error: ' + e.message;
-    }
-  }
-
-  canvas.addEventListener('mouseup',    e => { if (!_dragging) return; _dragging = false; doExtractCrop(); });
-  canvas.addEventListener('mouseleave', e => { if (_dragging) { _dragging = false; doExtractCrop(); } });
-})();
-
-document.getElementById('modalClose').addEventListener('click', closeModal);
-document.getElementById('pageModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
-document.getElementById('modalPrev').addEventListener('click', () => { if(_modalIdx>0) openModal(_modalIdx-1); });
-document.getElementById('modalNext').addEventListener('click', () => { if(_modalIdx<_imgs.length-1) openModal(_modalIdx+1); });
-document.addEventListener('keydown', e => {
-  if (!document.getElementById('pageModal').classList.contains('open')) return;
-  if (e.key==='Escape') closeModal();
-  if (e.key==='ArrowLeft'  && _modalIdx>0)             openModal(_modalIdx-1);
-  if (e.key==='ArrowRight' && _modalIdx<_imgs.length-1) openModal(_modalIdx+1);
-});
-
-// ── File Upload + OCR ──
-// ── Drag & drop on upload zone ──
+/* ─── Drag & drop on upload zone ─── */
 const _zone = document.getElementById('uploadZone');
 _zone.addEventListener('dragover',  e => { e.preventDefault(); _zone.classList.add('dragging'); });
 _zone.addEventListener('dragleave', ()  => _zone.classList.remove('dragging'));
@@ -954,14 +724,14 @@ _zone.addEventListener('drop', e => {
   }
 });
 
+/* ─── File upload + OCR stream ─── */
 document.getElementById('fileInput').addEventListener('change', async function () {
   if (!this.files.length) return;
   const file = this.files[0];
-  // Clear any previous error
-  document.getElementById('ocrErr').style.display = 'none';
 
-  _imgs = []; _texts = {}; _imgPaths = {}; _stem = '';
-  document.getElementById('pdfViewer').style.display = 'none';
+  document.getElementById('ocrErr').style.display = 'none';
+  _imgs = []; _stem = ''; _activeIdx = -1; _ocrCache = {}; _aiCache = {};
+  document.getElementById('splitViewer').style.display = 'none';
   document.getElementById('uploadZone').classList.add('processing');
 
   const loader = document.getElementById('pdfLoader');
@@ -997,15 +767,18 @@ document.getElementById('fileInput').addEventListener('change', async function (
 
         if (data.done) {
           clearInterval(pollTimer);
-          setProgress(100, data.total, data.total);
           setTimeout(() => {
-            document.getElementById('viewerTitle').textContent = file.name;
-            document.getElementById('pagesCount').textContent  = _imgs.length + ' page' + (_imgs.length===1?'':'s');
-            buildGrid();
+            document.getElementById('svFilename').textContent  = file.name;
+            document.getElementById('svPagesCount').textContent = _imgs.length + ' page' + (_imgs.length === 1 ? '' : 's');
+            document.getElementById('svThumbCount').textContent = _imgs.length;
+            buildThumbs();
+            clearExtractBody();
             stopLoader();
             document.getElementById('uploadZone').style.display = 'none';
-            document.getElementById('pdfViewer').style.display = '';
+            document.getElementById('splitViewer').style.display = '';
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Auto-select first page
+            selectPage(0);
           }, 400);
         }
       } catch(e) { showError('Polling error: ' + e.message); stopLoader(); }
@@ -1015,5 +788,4 @@ document.getElementById('fileInput').addEventListener('change', async function (
     showError(err.message); stopLoader();
   }
 });
-
 </script>{% endblock %}
