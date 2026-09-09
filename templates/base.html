@@ -408,34 +408,6 @@
       <!-- Right actions -->
       <div class="mh-actions">
 
-        <!-- Language Switcher -->
-        <div class="mh-lang-drop" id="mhLangDrop">
-          <button class="mh-lang-btn" id="mhLangBtn" aria-label="Select language">
-            <i class="fa-solid fa-globe"></i>
-            <span class="mh-lang-cur" id="mhLangCur">EN</span>
-          </button>
-          <div class="mh-lang-menu" id="mhLangMenu">
-            <div class="mh-lang-menu-inner">
-              <button class="mh-lang-item" data-lang="en"    data-label="EN">🇺🇸 English</button>
-              <button class="mh-lang-item" data-lang="es"    data-label="ES">🇪🇸 Español</button>
-              <button class="mh-lang-item" data-lang="fr"    data-label="FR">🇫🇷 Français</button>
-              <button class="mh-lang-item" data-lang="de"    data-label="DE">🇩🇪 Deutsch</button>
-              <button class="mh-lang-item" data-lang="nl"    data-label="NL">🇳🇱 Nederlands</button>
-              <button class="mh-lang-item" data-lang="pt"    data-label="PT">🇧🇷 Português (Brasil)</button>
-              <button class="mh-lang-item" data-lang="ar"    data-label="AR">🇸🇦 العربية</button>
-              <button class="mh-lang-item" data-lang="hi"    data-label="HI">🇮🇳 हिन्दी</button>
-              <button class="mh-lang-item" data-lang="zh-CN" data-label="ZH">🇨🇳 简体中文</button>
-              <button class="mh-lang-item" data-lang="zh-TW" data-label="ZH">🇹🇼 繁體中文</button>
-              <button class="mh-lang-item" data-lang="ja"    data-label="JA">🇯🇵 日本語</button>
-              <button class="mh-lang-item" data-lang="ko"    data-label="KO">🇰🇷 한국어</button>
-              <button class="mh-lang-item" data-lang="id"    data-label="ID">🇮🇩 Bahasa Indonesia</button>
-              <button class="mh-lang-item" data-lang="vi"    data-label="VI">🇻🇳 Tiếng Việt</button>
-              <button class="mh-lang-item" data-lang="th"    data-label="TH">🇹🇭 ภาษาไทย</button>
-              <button class="mh-lang-item" data-lang="he"    data-label="HE">🇮🇱 עברית</button>
-            </div>
-          </div>
-        </div>
-
         {% if request.user.is_authenticated %}
         {% if request.user.is_superuser %}
         <a href="/zayro-admin/" class="mh-admin-btn" title="Admin Panel">
@@ -486,6 +458,34 @@
           <i class="fa-solid fa-moon" id="mhThemeIcon"></i>
         </button>
         {% endif %}
+
+        <!-- Language Switcher -->
+        <div class="mh-lang-drop" id="mhLangDrop">
+          <button class="mh-lang-btn" id="mhLangBtn" aria-label="Select language">
+            <i class="fa-solid fa-globe"></i>
+            <span class="mh-lang-cur" id="mhLangCur">EN</span>
+          </button>
+          <div class="mh-lang-menu" id="mhLangMenu">
+            <div class="mh-lang-menu-inner">
+              <button class="mh-lang-item" data-lang="en"    data-label="EN">🇺🇸 English</button>
+              <button class="mh-lang-item" data-lang="es"    data-label="ES">🇪🇸 Español</button>
+              <button class="mh-lang-item" data-lang="fr"    data-label="FR">🇫🇷 Français</button>
+              <button class="mh-lang-item" data-lang="de"    data-label="DE">🇩🇪 Deutsch</button>
+              <button class="mh-lang-item" data-lang="nl"    data-label="NL">🇳🇱 Nederlands</button>
+              <button class="mh-lang-item" data-lang="pt"    data-label="PT">🇧🇷 Português (Brasil)</button>
+              <button class="mh-lang-item" data-lang="ar"    data-label="AR">🇸🇦 العربية</button>
+              <button class="mh-lang-item" data-lang="hi"    data-label="HI">🇮🇳 हिन्दी</button>
+              <button class="mh-lang-item" data-lang="zh-CN" data-label="ZH">🇨🇳 简体中文</button>
+              <button class="mh-lang-item" data-lang="zh-TW" data-label="ZH">🇹🇼 繁體中文</button>
+              <button class="mh-lang-item" data-lang="ja"    data-label="JA">🇯🇵 日本語</button>
+              <button class="mh-lang-item" data-lang="ko"    data-label="KO">🇰🇷 한국어</button>
+              <button class="mh-lang-item" data-lang="id"    data-label="ID">🇮🇩 Bahasa Indonesia</button>
+              <button class="mh-lang-item" data-lang="vi"    data-label="VI">🇻🇳 Tiếng Việt</button>
+              <button class="mh-lang-item" data-lang="th"    data-label="TH">🇹🇭 ภาษาไทย</button>
+              <button class="mh-lang-item" data-lang="he"    data-label="HE">🇮🇱 עברית</button>
+            </div>
+          </div>
+        </div>
 
         <!-- Mobile hamburger -->
         <button class="mh-hamburger" id="mhHamburger" aria-label="Menu">
