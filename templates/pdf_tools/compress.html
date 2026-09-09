@@ -44,7 +44,7 @@
   cursor: pointer; transition: border-color .2s, background .2s;
   background: transparent; margin-bottom: 1rem;
 }
-.cp-drop:hover, .cp-drop.dragging { border-color: #2563eb; background: #eff6ff; }
+.cp-drop.dragging { border-color: #2563eb; background: #eff6ff; }
 .cp-drop input[type=file] { position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer; }
 .cp-drop h3 { font-size:1.2rem; font-weight:800; margin:0 0 .3rem; color:#111; }
 .cp-drop p  { font-size:.88rem; color:#888; margin:0 0 1.4rem; }
@@ -207,7 +207,7 @@
   <h3 style="font-size:1rem;font-weight:500;color:#555;margin:0 0 .3rem;">Drop your PDF here</h3>
   <p>Select a PDF to reduce its file size</p>
   <button type="button" class="cp-drop-btn" onclick="document.getElementById('fileInput').click()">
-    <i class="fa-solid fa-folder-open"></i> + Select PDF File
+    + Select PDF File
   </button>
 </div>
 
