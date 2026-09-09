@@ -760,32 +760,23 @@
   <!-- Google Translate -->
   <div id="google_translate_element" style="display:none;position:absolute;top:-9999px;left:-9999px;"></div>
   <script>
-    function googleTranslateElementInit(){
-      new google.translate.TranslateElement({
-        pageLanguage: 'en',
-        autoDisplay: true
-      }, 'google_translate_element');
-    }
-  </script>
-  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-  <script>
-  /* Fallback: if cookie is set but widget hasn't applied, force it via combo */
-  (function(){
-    var saved = localStorage.getItem('zdx-lang') || 'en';
-    if(saved === 'en') return;
-    var attempts = 0;
-    var iv = setInterval(function(){
+  function googleTranslateElementInit(){
+    new google.translate.TranslateElement({pageLanguage:'en',autoDisplay:true},'google_translate_element');
+    var _lang = localStorage.getItem('zdx-lang') || 'en';
+    if(_lang === 'en') return;
+    /* widget just finished loading — trigger translation */
+    var _t = 0;
+    var _iv = setInterval(function(){
       var sel = document.querySelector('.goog-te-combo');
       if(sel){
-        clearInterval(iv);
-        if(sel.value !== saved){
-          sel.value = saved;
-          sel.dispatchEvent(new Event('change'));
-        }
-      } else if(++attempts > 60){ clearInterval(iv); }
-    }, 150);
-  })();
+        clearInterval(_iv);
+        sel.value = _lang;
+        sel.dispatchEvent(new Event('change'));
+      } else if(++_t > 40){ clearInterval(_iv); }
+    }, 100);
+  }
   </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
   <script>
   (function(){
