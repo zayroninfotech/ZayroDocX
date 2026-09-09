@@ -90,14 +90,6 @@
 .sv-all-btn:hover { opacity: .85; }
 .sv-all-ocr { background: #1e40af; color: #fff; }
 .sv-all-ai  { background: #059669; color: #fff; }
-.sv-provider-wrap {
-  display: inline-flex; align-items: stretch; border-radius: 8px;
-  overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.1);
-}
-.sv-provider-sel {
-  font-size: .75rem; padding: 0 8px; border: none; color: #fff;
-  background: #1e3a5f; cursor: pointer; outline: none;
-}
 
 /* ── Split body ── */
 .sv-body {
@@ -364,16 +356,9 @@
       <button class="sv-all-btn sv-all-ocr" onclick="extractAllPages('ocr')" id="allOcrBtn">
         <i class="fa-solid fa-file-excel"></i> All Pages OCR
       </button>
-      <div class="sv-provider-wrap">
-        <select id="allPagesAiProvider" class="sv-provider-sel">
-          <option value="gpt">GPT-4o</option>
-          <option value="gemini">Zayron LLM</option>
-          <option value="mistral">Zayron LLM PRO</option>
-        </select>
-        <button class="sv-all-btn sv-all-ai" onclick="extractAllPages('ai')" id="allAiBtn" style="border-radius:0 8px 8px 0">
-          <i class="fa-solid fa-wand-magic-sparkles"></i> All Pages AI
-        </button>
-      </div>
+      <button class="sv-all-btn sv-all-ai" onclick="extractAllPages('ai')" id="allAiBtn">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> All Pages AI
+      </button>
     </div>
   </div>
 
@@ -616,8 +601,8 @@ function renderBody(){
 
   if(_aiOn&&!noPage){
     document.getElementById('aiBlock').style.display='';
-    var prov=document.getElementById('allPagesAiProvider').value;
-    var plbl={gpt:'GPT-4o',gemini:'Zayron LLM',mistral:'Zayron LLM PRO'};
+    var prov='gpt';
+    var plbl={gpt:'GPT-4o'};
     document.getElementById('aiProviderLabel').textContent='· '+(plbl[prov]||prov);
     if(_aiCache[_activeIdx]){
       renderAi(_activeIdx);
@@ -760,7 +745,7 @@ async function runOCR(idx){
 
 /* ── AI extraction ── */
 async function runAI(idx){
-  var prov=document.getElementById('allPagesAiProvider').value;
+  var prov='gpt';
   var fd=new FormData();
   fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
   fd.append('img_url',_imgs[idx]);fd.append('page',idx+1);fd.append('stem',_stem);fd.append('provider',prov);
@@ -831,7 +816,7 @@ async function extractAllPages(mode){
   var btn=document.getElementById(btnId),orig=btn.innerHTML;
   btn.disabled=true;btn.innerHTML='<span class="spin-ring"></span> Processing…';
   var fd=new FormData();
-  var prov=mode==='ai'?(document.getElementById('allPagesAiProvider').value||'gpt'):mode;
+  var prov=mode==='ai'?'gpt':mode;
   fd.append('csrfmiddlewaretoken','{{ csrf_token }}');fd.append('stem',_stem);fd.append('provider',prov);
   try{
     var r=await fetch('{% url "api_all_pages_excel" %}',{method:'POST',body:fd});
