@@ -6,8 +6,7 @@
 
 {% block extra_head %}
 <style>
-@keyframes spin      { to { transform: rotate(360deg); } }
-@keyframes shimmerBg { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Drop zone ── */
 .ocr-drop {
@@ -62,9 +61,7 @@
   align-items: center; gap: .8rem; color: #991b1b; font-size: .875rem;
 }
 
-/* ══════════════════════════════════════════
-   SPLIT VIEWER
-══════════════════════════════════════════ */
+/* ══ SPLIT VIEWER ══ */
 .sv-header {
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 10px;
@@ -102,17 +99,14 @@
   background: #1e3a5f; cursor: pointer; outline: none;
 }
 
-/* ── Main split body ── */
+/* ── Split body ── */
 .sv-body {
-  display: grid; grid-template-columns: 280px 1fr;
+  display: grid; grid-template-columns: 260px 1fr;
   gap: 10px; align-items: start;
-  min-height: 70vh;
 }
-@media(max-width: 768px) {
-  .sv-body { grid-template-columns: 1fr; }
-}
+@media(max-width: 768px) { .sv-body { grid-template-columns: 1fr; } }
 
-/* ── Left panel: page list ── */
+/* ── Left: page list ── */
 .sv-left {
   background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
   overflow: hidden; position: sticky; top: 70px;
@@ -123,51 +117,43 @@
   background: var(--bg);
 }
 .sv-left-head-title {
-  font-size: .75rem; font-weight: 700; color: var(--text-muted);
+  font-size: .72rem; font-weight: 700; color: var(--text-muted);
   text-transform: uppercase; letter-spacing: .06em;
 }
 .sv-page-scroll {
   overflow-y: auto; max-height: calc(100vh - 200px);
-  padding: 8px;
-  display: flex; flex-direction: column; gap: 6px;
+  padding: 8px; display: flex; flex-direction: column; gap: 6px;
 }
 .sv-page-scroll::-webkit-scrollbar { width: 4px; }
 .sv-page-scroll::-webkit-scrollbar-thumb { background: #bfdbfe; border-radius: 2px; }
-
 .sv-page-thumb {
   border-radius: 8px; overflow: hidden; cursor: pointer;
   border: 2px solid var(--border); transition: border-color .15s, box-shadow .15s;
   background: var(--bg); position: relative;
 }
 .sv-page-thumb:hover { border-color: #93c5fd; box-shadow: 0 2px 8px rgba(37,99,235,.15); }
-.sv-page-thumb.active {
-  border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.2);
-}
+.sv-page-thumb.active { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.2); }
 .sv-page-thumb img { width: 100%; display: block; object-fit: contain; }
 .sv-page-thumb-label {
   position: absolute; bottom: 0; left: 0; right: 0;
   background: rgba(0,0,0,.55); color: #fff;
-  font-size: .63rem; font-weight: 700; text-align: center;
+  font-size: .62rem; font-weight: 700; text-align: center;
   padding: 3px 0; letter-spacing: .04em;
 }
-.sv-page-thumb.ocr-done::after,
-.sv-page-thumb.ai-done::after {
-  content: ''; position: absolute; top: 5px; right: 5px;
-  width: 10px; height: 10px; border-radius: 50%;
-}
-.sv-page-thumb.ocr-done::after { background: #2563eb; }
-.sv-page-thumb.ai-done::after  { background: #059669; }
+.sv-page-thumb.ocr-done .sv-page-thumb-label { background: rgba(37,99,235,.85); }
+.sv-page-thumb.ai-done  .sv-page-thumb-label { background: rgba(5,150,105,.85); }
 
-/* ── Right panel: extraction card ── */
+/* ── Right: extraction card ── */
 .sv-right { display: flex; flex-direction: column; gap: 10px; }
-
 .extract-card {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 12px; overflow: hidden;
 }
+
+/* Card header row 1: page label + OCR/AI toggles */
 .extract-card-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: .75rem 1rem; border-bottom: 1px solid var(--border);
+  padding: .65rem 1rem; border-bottom: 1px solid var(--border);
   background: var(--bg); flex-wrap: wrap; gap: .5rem;
 }
 .active-page-label {
@@ -176,35 +162,25 @@
 }
 .active-page-label i { color: #2563eb; }
 
-.toggle-row {
-  display: flex; align-items: center; gap: .9rem; flex-wrap: wrap;
-}
+.toggle-row { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; }
 .toggle-item {
-  display: flex; align-items: center; gap: .5rem; cursor: pointer;
-  user-select: none;
+  display: flex; align-items: center; gap: .5rem; cursor: pointer; user-select: none;
 }
-.toggle-item-label {
-  font-size: .78rem; font-weight: 600; color: var(--text-muted);
-  transition: color .2s;
-}
+.toggle-item-label { font-size: .78rem; font-weight: 600; color: var(--text-muted); transition: color .2s; }
 .toggle-item.on .toggle-item-label { color: var(--text); }
-
 .toggle-track {
   width: 40px; height: 22px; border-radius: 11px;
-  background: #e0e0e0; position: relative;
-  transition: background .2s; flex-shrink: 0;
+  background: #e0e0e0; position: relative; transition: background .2s; flex-shrink: 0;
 }
 .toggle-track.on-ocr { background: #2563eb; }
 .toggle-track.on-ai  { background: #059669; }
 .toggle-knob {
   position: absolute; top: 3px; left: 3px;
   width: 16px; height: 16px; border-radius: 50%;
-  background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25);
-  transition: left .2s;
+  background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); transition: left .2s;
 }
 .toggle-track.on-ocr .toggle-knob,
 .toggle-track.on-ai  .toggle-knob { left: 21px; }
-
 .toggle-badge {
   font-size: .62rem; font-weight: 700; padding: 2px 7px; border-radius: 20px;
   text-transform: uppercase; letter-spacing: .05em;
@@ -212,12 +188,30 @@
 .badge-ocr { background: #dbeafe; color: #1d4ed8; }
 .badge-ai  { background: #d1fae5; color: #065f46; }
 
+/* Card header row 2: output format pills */
+.format-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .5rem 1rem; border-bottom: 1px solid var(--border);
+  background: var(--bg); flex-wrap: wrap; gap: .5rem;
+}
+.format-label { font-size: .72rem; font-weight: 600; color: var(--text-muted); }
+.format-pills { display: flex; gap: .35rem; }
+.fmt-pill {
+  display: inline-flex; align-items: center; gap: .3rem;
+  border: 1.5px solid var(--border); border-radius: 20px;
+  padding: 3px 12px; font-size: .72rem; font-weight: 700;
+  cursor: pointer; transition: background .15s, border-color .15s, color .15s;
+  color: var(--text-muted); background: var(--surface);
+}
+.fmt-pill.active-excel { background: #d1fae5; border-color: #059669; color: #065f46; }
+.fmt-pill.active-json  { background: #fef3c7; border-color: #d97706; color: #92400e; }
+.fmt-pill.active-kv    { background: #ede9fe; border-color: #7c3aed; color: #4c1d95; }
+
 /* ── Extraction body ── */
 .extract-body {
-  padding: 1rem; display: flex; flex-direction: column; gap: 1rem;
-  min-height: 300px;
+  padding: .85rem; display: flex; flex-direction: column; gap: .85rem;
+  min-height: 280px;
 }
-
 .extract-empty {
   flex: 1; display: flex; flex-direction: column; align-items: center;
   justify-content: center; gap: .75rem; padding: 3rem 1rem;
@@ -226,9 +220,8 @@
 .extract-empty i { font-size: 2rem; opacity: .3; }
 .extract-empty p { font-size: .84rem; margin: 0; line-height: 1.6; }
 
-.result-block {
-  display: flex; flex-direction: column; gap: .5rem;
-}
+/* ── Result block ── */
+.result-block { display: flex; flex-direction: column; gap: .5rem; }
 .result-block-head {
   display: flex; align-items: center; justify-content: space-between; gap: .5rem;
 }
@@ -239,7 +232,6 @@
 .result-block-title.ocr-color { color: #2563eb; }
 .result-block-title.ai-color  { color: #059669; }
 .result-actions { display: flex; align-items: center; gap: .4rem; }
-
 .result-copy-btn {
   display: inline-flex; align-items: center; gap: .3rem;
   border: 1px solid var(--border); border-radius: 6px; background: var(--bg);
@@ -248,15 +240,65 @@
 }
 .result-copy-btn:hover { background: #2563eb; color: #fff; border-color: #2563eb; }
 
+/* Plain text (OCR / JSON raw) */
 .result-text {
-  font-family: 'Courier New', monospace; font-size: .78rem; line-height: 1.75;
+  font-family: 'Courier New', monospace; font-size: .76rem; line-height: 1.75;
   color: var(--text); white-space: pre-wrap; word-break: break-word;
   background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
-  padding: 12px; max-height: 340px; overflow-y: auto; min-height: 80px;
+  padding: 12px; max-height: 360px; overflow-y: auto; min-height: 60px;
 }
 .result-text::-webkit-scrollbar { width: 4px; }
 .result-text::-webkit-scrollbar-thumb { background: #bfdbfe; border-radius: 2px; }
 
+/* ── Live data table ── */
+.live-data-wrap {
+  border: 1px solid var(--border); border-radius: 8px;
+  overflow: hidden; max-height: 420px; overflow-y: auto;
+}
+.live-data-wrap::-webkit-scrollbar { width: 4px; }
+.live-data-wrap::-webkit-scrollbar-thumb { background: #d1fae5; border-radius: 2px; }
+
+.live-section-title {
+  display: flex; align-items: center; gap: .4rem;
+  padding: 6px 12px; font-size: .68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.live-section-title.title-header { background: #1e3a5f; color: #fff; }
+.live-section-title.title-items  { background: #dc2626; color: #fff; }
+.live-section-title.title-summary{ background: #059669; color: #fff; }
+
+.kv-grid {
+  display: grid; grid-template-columns: auto 1fr;
+  border-bottom: 1px solid var(--border);
+}
+.kv-key {
+  background: #eff6ff; color: #1e3a5f; font-size: .75rem; font-weight: 700;
+  padding: 6px 12px; border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+.kv-val {
+  background: var(--bg); color: var(--text); font-size: .78rem;
+  padding: 6px 12px; border-bottom: 1px solid var(--border); word-break: break-word;
+}
+.kv-key.summary-key { background: #d1fae5; color: #065f46; font-weight: 700; }
+.kv-val.summary-val { background: var(--bg); font-weight: 600; }
+
+.live-table { width: 100%; border-collapse: collapse; font-size: .75rem; }
+.live-table th {
+  background: #dc2626; color: #fff; font-weight: 700;
+  padding: 7px 10px; text-align: left; white-space: nowrap;
+  border-right: 1px solid rgba(255,255,255,.15);
+  position: sticky; top: 0; z-index: 1;
+}
+.live-table td {
+  padding: 6px 10px; border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border); vertical-align: top; color: var(--text);
+}
+.live-table tr:nth-child(even) td { background: #fef2f2; }
+.live-table tr:nth-child(odd)  td { background: var(--bg); }
+.live-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* loading spinner */
 .result-loading {
   display: flex; align-items: center; gap: .5rem;
   font-size: .82rem; color: var(--text-muted); padding: .5rem 0;
@@ -267,6 +309,8 @@
   animation: spin .65s linear infinite; flex-shrink: 0;
 }
 
+/* Download buttons */
+.dl-row { display: flex; gap: .5rem; flex-wrap: wrap; padding-top: .25rem; }
 .dl-btn {
   display: inline-flex; align-items: center; gap: .4rem;
   border: none; border-radius: 8px; padding: .42rem 1rem;
@@ -274,42 +318,40 @@
   text-decoration: none; transition: opacity .2s;
 }
 .dl-btn:hover { opacity: .85; }
-.dl-green { background: #16a34a; color: #fff; }
-.dl-excel-wrap { display: flex; gap: .5rem; flex-wrap: wrap; padding-top: .25rem; }
+.dl-excel { background: #16a34a; color: #fff; }
+.dl-json  { background: #d97706; color: #fff; }
 </style>
 {% endblock %}
 
 {% block content %}
 
 <!-- Error banner -->
-<div id="ocrErr" style="display:none;background:#fee2e2;border:1px solid #fca5a5;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;display:none;align-items:center;gap:.8rem;color:#991b1b;font-size:.875rem">
+<div id="ocrErr" style="display:none;background:#fee2e2;border:1px solid #fca5a5;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;align-items:center;gap:.8rem;color:#991b1b;font-size:.875rem">
   <i class="fa-solid fa-circle-exclamation" style="font-size:1.1rem;flex-shrink:0"></i>
   <span id="ocrErrMsg"></span>
 </div>
 
-<!-- ── Drop zone ── -->
+<!-- Drop zone -->
 <div class="ocr-drop" id="uploadZone">
   <input type="file" id="fileInput" accept=".pdf">
   <div class="ocr-drop-icon"><i class="fa-solid fa-file-lines"></i></div>
   <h2>OCR PDF</h2>
   <h3>Drop your PDF here</h3>
-  <p>Upload a PDF — view all pages on the left, extract text &amp; data on the right</p>
+  <p>Upload a PDF — view pages on the left, extract &amp; download on the right</p>
   <button type="button" class="ocr-drop-btn" onclick="document.getElementById('fileInput').click()">
     <i class="fa-solid fa-plus"></i> Select PDF File
   </button>
-  <span class="ocr-drop-hint">Supports multi-page PDFs · Bank statements · Scanned documents</span>
+  <span class="ocr-drop-hint">Supports multi-page PDFs · Bank statements · Invoices · Scanned docs</span>
 </div>
 
-<!-- ── Loader ── -->
+<!-- Loader -->
 <div class="ocr-loader" id="pdfLoader">
   <div class="ocr-loader-ring"></div>
   <div class="ocr-loader-text">Processing PDF…</div>
   <div class="ocr-loader-sub" id="loaderSub">Starting…</div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     SPLIT VIEWER
-══════════════════════════════════════════ -->
+<!-- ══ SPLIT VIEWER ══ -->
 <div id="splitViewer" style="display:none">
 
   <!-- Header bar -->
@@ -339,42 +381,55 @@
     </div>
   </div>
 
-  <!-- Body: left thumbnails + right card -->
+  <!-- Body -->
   <div class="sv-body">
 
-    <!-- ── Left: page thumbnails ── -->
+    <!-- Left: thumbnails -->
     <div class="sv-left">
       <div class="sv-left-head">
         <span class="sv-left-head-title"><i class="fa-solid fa-images" style="color:#2563eb"></i> Pages</span>
         <span class="sv-pages-badge" id="svThumbCount" style="font-size:.65rem">0</span>
       </div>
-      <div class="sv-page-scroll" id="pageThumbList">
-        <!-- Populated by JS -->
-      </div>
+      <div class="sv-page-scroll" id="pageThumbList"></div>
     </div>
 
-    <!-- ── Right: extraction card ── -->
+    <!-- Right: extraction card -->
     <div class="sv-right">
       <div class="extract-card">
-        <!-- Card header with toggles -->
+
+        <!-- Row 1: page label + OCR/AI toggles -->
         <div class="extract-card-head">
           <div class="active-page-label">
             <i class="fa-solid fa-file-lines"></i>
             <span id="activePageLabel">Select a page</span>
           </div>
           <div class="toggle-row">
-            <!-- OCR toggle -->
             <div class="toggle-item" id="ocrToggleItem" onclick="toggleMode('ocr')">
               <span class="toggle-badge badge-ocr">OCR</span>
               <div class="toggle-track" id="ocrTrack"><div class="toggle-knob"></div></div>
               <span class="toggle-item-label">Tesseract</span>
             </div>
-            <!-- AI toggle -->
             <div class="toggle-item" id="aiToggleItem" onclick="toggleMode('ai')">
               <span class="toggle-badge badge-ai">AI</span>
               <div class="toggle-track" id="aiTrack"><div class="toggle-knob"></div></div>
               <span class="toggle-item-label">GPT-4o</span>
             </div>
+          </div>
+        </div>
+
+        <!-- Row 2: output format pills -->
+        <div class="format-bar">
+          <span class="format-label"><i class="fa-solid fa-sliders"></i> Output Format</span>
+          <div class="format-pills">
+            <button class="fmt-pill active-excel" id="fmtExcel" onclick="setFormat('excel')">
+              <i class="fa-solid fa-table"></i> Excel
+            </button>
+            <button class="fmt-pill" id="fmtJson" onclick="setFormat('json')">
+              <i class="fa-solid fa-code"></i> JSON
+            </button>
+            <button class="fmt-pill" id="fmtKv" onclick="setFormat('kv')">
+              <i class="fa-solid fa-list"></i> Key-Value
+            </button>
           </div>
         </div>
 
@@ -394,14 +449,14 @@
                 <i class="fa-solid fa-font"></i> Tesseract OCR
               </div>
               <div class="result-actions">
-                <button class="result-copy-btn" onclick="copyResultText('ocrResultText')">
+                <button class="result-copy-btn" onclick="copyOcrText()">
                   <i class="fa-solid fa-copy"></i> Copy
                 </button>
               </div>
             </div>
             <div class="result-text" id="ocrResultText"></div>
-            <div class="dl-excel-wrap" id="ocrExcelWrap" style="display:none">
-              <a class="dl-btn dl-green" id="ocrExcelBtn" href="#">
+            <div class="dl-row" id="ocrDlRow" style="display:none">
+              <a class="dl-btn dl-excel" id="ocrExcelBtn" href="#">
                 <i class="fa-solid fa-file-excel"></i> Download Excel
               </a>
             </div>
@@ -415,16 +470,23 @@
                 <span id="aiProviderLabel" style="font-weight:400;text-transform:none;font-size:.72rem;color:var(--text-muted)">· GPT-4o</span>
               </div>
               <div class="result-actions">
-                <button class="result-copy-btn" onclick="copyResultText('aiResultText')">
+                <button class="result-copy-btn" id="aiCopyBtn" onclick="copyAiContent()">
                   <i class="fa-solid fa-copy"></i> Copy
                 </button>
               </div>
             </div>
-            <div class="result-text" id="aiResultText"></div>
-            <div class="dl-excel-wrap" id="aiExcelWrap" style="display:none">
-              <a class="dl-btn dl-green" id="aiExcelBtn" href="#">
+            <!-- Live table view (Excel / KV mode) -->
+            <div id="aiLiveView" style="display:none"></div>
+            <!-- Raw text / JSON view -->
+            <div class="result-text" id="aiResultText" style="display:none"></div>
+            <!-- Download row -->
+            <div class="dl-row" id="aiDlRow" style="display:none">
+              <a class="dl-btn dl-excel" id="aiExcelBtn" href="#">
                 <i class="fa-solid fa-file-excel"></i> Download Excel
               </a>
+              <button class="dl-btn dl-json" id="aiJsonBtn" onclick="downloadJsonForPage()">
+                <i class="fa-solid fa-code"></i> Download JSON
+              </button>
             </div>
           </div>
 
@@ -438,7 +500,6 @@
 {% endblock %}
 
 {% block extra_js %}<script>
-// Override showError
 function showError(msg) {
   const d = document.getElementById('ocrErr');
   document.getElementById('ocrErrMsg').textContent = msg;
@@ -453,12 +514,26 @@ let _activeIdx = -1;
 let _ocrOn     = false;
 let _aiOn      = false;
 let _ocrCache  = {};   // idx → { text, excel_url, excel_name }
-let _aiCache   = {};   // idx → { text, excel_url, excel_name }
+let _aiCache   = {};   // idx → { text, fields, excel_url, excel_name }
+let _fmt       = 'excel'; // 'excel' | 'json' | 'kv'
 
 function imgSrc(src) {
   if (!src) return '';
   if (src.startsWith('data:') || src.startsWith('http') || src.startsWith('/media/')) return src;
   return 'data:image/jpeg;base64,' + src;
+}
+
+/* ─── Format toggle ─── */
+function setFormat(fmt) {
+  _fmt = fmt;
+  ['excel','json','kv'].forEach(f => {
+    const el = document.getElementById('fmt' + f.charAt(0).toUpperCase() + f.slice(1));
+    el.className = 'fmt-pill' + (f === fmt ? ' active-' + f : '');
+  });
+  // Re-render active AI result in new format
+  if (_activeIdx >= 0 && _aiOn && _aiCache[_activeIdx]) {
+    renderAiResult(_activeIdx);
+  }
 }
 
 /* ─── Reset ─── */
@@ -490,14 +565,11 @@ function buildThumbs() {
     div.id = 'thumb-' + i;
     div.onclick = () => selectPage(i);
     const img = document.createElement('img');
-    img.src = imgSrc(src);
-    img.alt = 'Page ' + (i + 1);
-    img.loading = 'lazy';
+    img.src = imgSrc(src); img.alt = 'Page ' + (i + 1); img.loading = 'lazy';
     const lbl = document.createElement('div');
-    lbl.className = 'sv-page-thumb-label';
+    lbl.className = 'sv-page-thumb-label'; lbl.id = 'thumb-lbl-' + i;
     lbl.textContent = 'PAGE ' + (i + 1);
-    div.appendChild(img);
-    div.appendChild(lbl);
+    div.appendChild(img); div.appendChild(lbl);
     list.appendChild(div);
   });
 }
@@ -505,22 +577,11 @@ function buildThumbs() {
 /* ─── Select a page ─── */
 async function selectPage(idx) {
   _activeIdx = idx;
-
-  // Highlight thumb
   document.querySelectorAll('.sv-page-thumb').forEach(t => t.classList.remove('active'));
   const thumb = document.getElementById('thumb-' + idx);
-  if (thumb) {
-    thumb.classList.add('active');
-    thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  // Update label
+  if (thumb) { thumb.classList.add('active'); thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
   document.getElementById('activePageLabel').textContent = 'Page ' + (idx + 1) + ' of ' + _imgs.length;
-
-  // Clear any old results, show them again if cached
   renderExtractBody();
-
-  // Auto-extract if toggles are on
   const tasks = [];
   if (_ocrOn && !_ocrCache[idx]) tasks.push(runOCR(idx));
   if (_aiOn  && !_aiCache[idx])  tasks.push(runAI(idx));
@@ -538,29 +599,25 @@ function toggleMode(mode) {
     document.getElementById('aiTrack').className = 'toggle-track' + (_aiOn ? ' on-ai' : '');
     document.getElementById('aiToggleItem').className = 'toggle-item' + (_aiOn ? ' on' : '');
   }
-
   renderExtractBody();
-
-  // Trigger extraction for active page if needed
   if (_activeIdx < 0) return;
   if (mode === 'ocr' && _ocrOn && !_ocrCache[_activeIdx]) runOCR(_activeIdx);
   if (mode === 'ai'  && _aiOn  && !_aiCache[_activeIdx])  runAI(_activeIdx);
 }
 
-/* ─── Render the right-panel body ─── */
+/* ─── Clear / render extract panel ─── */
 function clearExtractBody() {
-  document.getElementById('ocrBlock').style.display = 'none';
-  document.getElementById('aiBlock').style.display  = 'none';
+  document.getElementById('ocrBlock').style.display    = 'none';
+  document.getElementById('aiBlock').style.display     = 'none';
   document.getElementById('extractEmpty').style.display = '';
 }
 
 function renderExtractBody() {
   const noPage    = _activeIdx < 0;
   const noToggles = !_ocrOn && !_aiOn;
-  const showEmpty = noPage || noToggles;
+  document.getElementById('extractEmpty').style.display = (noPage || noToggles) ? '' : 'none';
 
-  document.getElementById('extractEmpty').style.display = showEmpty ? '' : 'none';
-
+  /* OCR block */
   if (_ocrOn && !noPage) {
     document.getElementById('ocrBlock').style.display = '';
     const cached = _ocrCache[_activeIdx];
@@ -570,18 +627,19 @@ function renderExtractBody() {
       if (cached.excel_url) {
         document.getElementById('ocrExcelBtn').href     = cached.excel_url;
         document.getElementById('ocrExcelBtn').download = cached.excel_name || 'page.xlsx';
-        document.getElementById('ocrExcelWrap').style.display = '';
+        document.getElementById('ocrDlRow').style.display = '';
       } else {
-        document.getElementById('ocrExcelWrap').style.display = 'none';
+        document.getElementById('ocrDlRow').style.display = 'none';
       }
     } else {
       el.innerHTML = '<span class="result-loading"><span class="spin-ring"></span> Extracting with Tesseract…</span>';
-      document.getElementById('ocrExcelWrap').style.display = 'none';
+      document.getElementById('ocrDlRow').style.display = 'none';
     }
   } else {
     document.getElementById('ocrBlock').style.display = 'none';
   }
 
+  /* AI block */
   if (_aiOn && !noPage) {
     document.getElementById('aiBlock').style.display = '';
     const prov = document.getElementById('allPagesAiProvider').value;
@@ -589,23 +647,124 @@ function renderExtractBody() {
     document.getElementById('aiProviderLabel').textContent = '· ' + (provLabels[prov] || prov);
 
     const cached = _aiCache[_activeIdx];
-    const el = document.getElementById('aiResultText');
     if (cached) {
-      el.textContent = cached.text || '(No data extracted)';
-      if (cached.excel_url) {
-        document.getElementById('aiExcelBtn').href     = cached.excel_url;
-        document.getElementById('aiExcelBtn').download = cached.excel_name || 'ai_page.xlsx';
-        document.getElementById('aiExcelWrap').style.display = '';
-      } else {
-        document.getElementById('aiExcelWrap').style.display = 'none';
-      }
+      renderAiResult(_activeIdx);
     } else {
-      el.innerHTML = '<span class="result-loading"><span class="spin-ring"></span> AI extracting…</span>';
-      document.getElementById('aiExcelWrap').style.display = 'none';
+      document.getElementById('aiLiveView').style.display = 'none';
+      document.getElementById('aiResultText').style.display = '';
+      document.getElementById('aiResultText').innerHTML = '<span class="result-loading"><span class="spin-ring"></span> AI extracting…</span>';
+      document.getElementById('aiDlRow').style.display = 'none';
     }
   } else {
     document.getElementById('aiBlock').style.display = 'none';
   }
+}
+
+/* ─── Render AI result in chosen format ─── */
+function renderAiResult(idx) {
+  const cached = _aiCache[idx];
+  if (!cached) return;
+
+  const liveDiv = document.getElementById('aiLiveView');
+  const txtDiv  = document.getElementById('aiResultText');
+
+  if (_fmt === 'json') {
+    liveDiv.style.display = 'none';
+    txtDiv.style.display  = '';
+    try {
+      txtDiv.textContent = JSON.stringify(cached.fields || JSON.parse('{}'), null, 2);
+    } catch {
+      txtDiv.textContent = cached.text || '';
+    }
+  } else if (_fmt === 'kv') {
+    liveDiv.style.display = 'none';
+    txtDiv.style.display  = '';
+    txtDiv.textContent = cached.text || '';
+  } else {
+    // Excel mode: live table
+    txtDiv.style.display  = 'none';
+    liveDiv.style.display = '';
+    liveDiv.innerHTML = buildLiveTable(cached.fields);
+  }
+
+  if (cached.excel_url) {
+    document.getElementById('aiExcelBtn').href     = cached.excel_url;
+    document.getElementById('aiExcelBtn').download = cached.excel_name || 'ai_page.xlsx';
+  }
+  document.getElementById('aiDlRow').style.display = '';
+}
+
+/* ─── Build a pretty HTML live-table from the AI JSON ─── */
+function buildLiveTable(fields) {
+  if (!fields || typeof fields !== 'object') return '<div style="padding:1rem;color:var(--text-muted);font-size:.82rem">No structured data.</div>';
+
+  let html = '<div class="live-data-wrap">';
+
+  /* Header section */
+  const header  = fields.header  || {};
+  const hfields = header.fields  || {};
+  const title   = header.title   || (fields.page_type || 'Document').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+
+  html += `<div class="live-section-title title-header"><i class="fa-solid fa-circle-info"></i> ${escHtml(title)}</div>`;
+  if (Object.keys(hfields).length) {
+    html += '<div class="kv-grid">';
+    for (const [k, v] of Object.entries(hfields)) {
+      if (v == null || v === '') continue;
+      html += `<div class="kv-key">${escHtml(k.replace(/_/g,' '))}</div>`;
+      html += `<div class="kv-val">${escHtml(String(v))}</div>`;
+    }
+    html += '</div>';
+  }
+
+  /* Transactions / rows table */
+  const txns = fields.transactions || [];
+  if (txns.length) {
+    html += `<div class="live-section-title title-items"><i class="fa-solid fa-table-list"></i> Line Items (${txns.length})</div>`;
+    const keys = Object.keys(txns[0]).filter(k => k !== 'extra' || txns.some(t => t.extra));
+    const numKeys = new Set(['debit','credit','balance','amount','qty','rate','tax','subtotal','total']);
+    html += '<div style="overflow-x:auto"><table class="live-table"><thead><tr>';
+    for (const k of keys) {
+      html += `<th>${escHtml(k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</th>`;
+    }
+    html += '</tr></thead><tbody>';
+    for (const row of txns) {
+      html += '<tr>';
+      for (const k of keys) {
+        const v = row[k];
+        const isNum = numKeys.has(k) && v != null;
+        html += `<td class="${isNum ? 'num' : ''}">${v != null && v !== '' ? escHtml(String(v)) : ''}</td>`;
+      }
+      html += '</tr>';
+    }
+    html += '</tbody></table></div>';
+  }
+
+  /* Summary section */
+  const summary  = fields.summary  || {};
+  const sfields  = summary.fields  || {};
+  if (Object.keys(sfields).length) {
+    html += `<div class="live-section-title title-summary"><i class="fa-solid fa-sigma"></i> Summary</div>`;
+    html += '<div class="kv-grid">';
+    for (const [k, v] of Object.entries(sfields)) {
+      if (v == null || v === '') continue;
+      html += `<div class="kv-key summary-key">${escHtml(k.replace(/_/g,' '))}</div>`;
+      html += `<div class="kv-val summary-val">${escHtml(String(v))}</div>`;
+    }
+    html += '</div>';
+  }
+
+  /* Fallback: raw_text if no structured data at all */
+  if (!Object.keys(hfields).length && !txns.length && !Object.keys(sfields).length) {
+    const raw = fields.raw_text || '';
+    html += `<div style="padding:12px;font-size:.78rem;white-space:pre-wrap;word-break:break-word;color:var(--text)">${escHtml(raw)}</div>`;
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 /* ─── OCR extraction ─── */
@@ -618,18 +777,11 @@ async function runOCR(idx) {
   try {
     const res  = await fetch('{% url "api_extract_page" %}', { method: 'POST', body: fd });
     const data = await res.json();
-    if (data.error) {
-      _ocrCache[idx] = { text: 'Error: ' + data.error, excel_url: null };
-    } else {
-      _ocrCache[idx] = {
-        text:       data.text || '',
-        excel_url:  data.excel_url  || null,
-        excel_name: data.excel_name || 'page.xlsx',
-      };
-      // Mark thumb as done
-      const th = document.getElementById('thumb-' + idx);
-      if (th) th.classList.add('ocr-done');
-    }
+    _ocrCache[idx] = data.error
+      ? { text: 'Error: ' + data.error, excel_url: null }
+      : { text: data.text || '', excel_url: data.excel_url || null, excel_name: data.excel_name || 'page.xlsx' };
+    const th = document.getElementById('thumb-' + idx);
+    if (th && !data.error) th.classList.add('ocr-done');
   } catch(e) {
     _ocrCache[idx] = { text: 'Failed: ' + e.message, excel_url: null };
   }
@@ -649,10 +801,11 @@ async function runAI(idx) {
     const res  = await fetch('{% url "api_extract_page_ai" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) {
-      _aiCache[idx] = { text: 'Error: ' + data.error, excel_url: null };
+      _aiCache[idx] = { text: 'Error: ' + data.error, fields: null, excel_url: null };
     } else {
       _aiCache[idx] = {
-        text:       data.text || '',
+        text:       data.text       || '',
+        fields:     data.fields     || null,
         excel_url:  data.excel_url  || null,
         excel_name: data.excel_name || 'ai_page.xlsx',
       };
@@ -660,31 +813,56 @@ async function runAI(idx) {
       if (th) th.classList.add('ai-done');
     }
   } catch(e) {
-    _aiCache[idx] = { text: 'Failed: ' + e.message, excel_url: null };
+    _aiCache[idx] = { text: 'Failed: ' + e.message, fields: null, excel_url: null };
   }
   if (_activeIdx === idx) renderExtractBody();
 }
 
-/* ─── Copy text ─── */
-function copyResultText(elId) {
-  const text = document.getElementById(elId).textContent || '';
+/* ─── Copy helpers ─── */
+function copyOcrText() {
+  const text = document.getElementById('ocrResultText').textContent || '';
+  copyToClipboard(text, event.currentTarget);
+}
+function copyAiContent() {
+  let text = '';
+  if (_fmt === 'json') {
+    const cached = _aiCache[_activeIdx];
+    try { text = JSON.stringify(cached && cached.fields ? cached.fields : {}, null, 2); } catch { text = ''; }
+  } else if (_fmt === 'kv') {
+    text = document.getElementById('aiResultText').textContent || '';
+  } else {
+    text = document.getElementById('aiLiveView').innerText || '';
+  }
+  copyToClipboard(text, event.currentTarget);
+}
+function copyToClipboard(text, btn) {
   navigator.clipboard.writeText(text).then(() => {
-    const btn = event.currentTarget;
     const orig = btn.innerHTML;
     btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
     setTimeout(() => btn.innerHTML = orig, 1500);
   });
 }
 
+/* ─── Download JSON ─── */
+function downloadJsonForPage() {
+  const cached = _aiCache[_activeIdx];
+  if (!cached || !cached.fields) { showError('No AI data available to download.'); return; }
+  const blob = new Blob([JSON.stringify(cached.fields, null, 2)], { type: 'application/json' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `page_${_activeIdx + 1}_ai.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
 /* ─── Extract all pages → one Excel ─── */
 async function extractAllPages(mode) {
-  if (!_stem || !_imgs.length) { showToast('Upload a PDF first.', 'error'); return; }
+  if (!_stem || !_imgs.length) { showToast && showToast('Upload a PDF first.', 'error'); return; }
   const btnId = mode === 'ai' ? 'allAiBtn' : 'allOcrBtn';
   const btn   = document.getElementById(btnId);
   const origHtml = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = '<span class="spin-ring"></span> Processing…';
-
   const fd = new FormData();
   fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
   fd.append('stem', _stem);
@@ -692,25 +870,21 @@ async function extractAllPages(mode) {
     ? (document.getElementById('allPagesAiProvider')?.value || 'gpt')
     : mode;
   fd.append('provider', prov);
-
   try {
     const res  = await fetch('{% url "api_all_pages_excel" %}', { method: 'POST', body: fd });
     const data = await res.json();
-    if (data.error) { showToast(data.error, 'error'); return; }
+    if (data.error) { showToast && showToast(data.error, 'error'); return; }
     const a = document.createElement('a');
-    a.href = data.excel_url;
-    a.download = data.excel_name || 'all_pages.xlsx';
-    a.click();
-    showToast('Downloaded ' + data.pages + '-page Excel!', 'success');
+    a.href = data.excel_url; a.download = data.excel_name || 'all_pages.xlsx'; a.click();
+    showToast && showToast('Downloaded ' + data.pages + '-page Excel!', 'success');
   } catch(e) {
-    showToast('Error: ' + e.message, 'error');
+    showToast && showToast('Error: ' + e.message, 'error');
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = origHtml;
+    btn.disabled = false; btn.innerHTML = origHtml;
   }
 }
 
-/* ─── Drag & drop on upload zone ─── */
+/* ─── Drag & drop ─── */
 const _zone = document.getElementById('uploadZone');
 _zone.addEventListener('dragover',  e => { e.preventDefault(); _zone.classList.add('dragging'); });
 _zone.addEventListener('dragleave', ()  => _zone.classList.remove('dragging'));
@@ -724,51 +898,43 @@ _zone.addEventListener('drop', e => {
   }
 });
 
-/* ─── File upload + OCR stream ─── */
+/* ─── File upload ─── */
 document.getElementById('fileInput').addEventListener('change', async function () {
   if (!this.files.length) return;
   const file = this.files[0];
-
   document.getElementById('ocrErr').style.display = 'none';
   _imgs = []; _stem = ''; _activeIdx = -1; _ocrCache = {}; _aiCache = {};
   document.getElementById('splitViewer').style.display = 'none';
   document.getElementById('uploadZone').classList.add('processing');
-
   const loader = document.getElementById('pdfLoader');
   loader.classList.add('show');
   setProgress(0, 0, 0);
-
   const fd = new FormData();
   fd.append('file', file);
   fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
   fd.append('lang', 'eng');
-
   let pollTimer = null;
   function stopLoader() {
     if (pollTimer) clearInterval(pollTimer);
     loader.classList.remove('show');
     document.getElementById('uploadZone').classList.remove('processing');
   }
-
   try {
     const res = await fetch('{% url "api_ocr_pdf_stream" %}', { method: 'POST', body: fd });
     const { job_id, error } = await res.json();
     if (error) { showError(error); stopLoader(); return; }
-
     pollTimer = setInterval(async () => {
       try {
         const pr   = await fetch('{% url "api_ocr_progress" job_id="JOB_ID" %}'.replace('JOB_ID', job_id));
         const data = await pr.json();
         if (data.error) { showError(data.error); stopLoader(); return; }
-
         setProgress(data.pct, data.page, data.total);
         _imgs = data.page_images || [];
         if (data.img_folder) _stem = data.img_folder;
-
         if (data.done) {
           clearInterval(pollTimer);
           setTimeout(() => {
-            document.getElementById('svFilename').textContent  = file.name;
+            document.getElementById('svFilename').textContent   = file.name;
             document.getElementById('svPagesCount').textContent = _imgs.length + ' page' + (_imgs.length === 1 ? '' : 's');
             document.getElementById('svThumbCount').textContent = _imgs.length;
             buildThumbs();
@@ -777,15 +943,11 @@ document.getElementById('fileInput').addEventListener('change', async function (
             document.getElementById('uploadZone').style.display = 'none';
             document.getElementById('splitViewer').style.display = '';
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            // Auto-select first page
             selectPage(0);
           }, 400);
         }
       } catch(e) { showError('Polling error: ' + e.message); stopLoader(); }
     }, 1000);
-
-  } catch(err) {
-    showError(err.message); stopLoader();
-  }
+  } catch(err) { showError(err.message); stopLoader(); }
 });
 </script>{% endblock %}
