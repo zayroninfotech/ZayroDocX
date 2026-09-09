@@ -1094,6 +1094,24 @@ if (io) {
 
 {% include 'partials/_auth_popup.html' %}
 
+<!-- ── Locked tool click intercept ── -->
+<script>
+(function(){
+  var locked = {{ locked_slugs_json|default:"[]" }};
+  if(!locked.length) return;
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('a[href]');
+    if(!a) return;
+    var m = a.getAttribute('href').match(/\/tools\/([^\/]+)\//);
+    if(!m) return;
+    if(locked.indexOf(m[1]) === -1) return;
+    e.preventDefault();
+    var el = document.getElementById('signupPopup');
+    if(el){ el.classList.add('zp-open'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+  });
+})();
+</script>
+
 <!-- ── Theme Toggle ── -->
 <script>
 (function(){

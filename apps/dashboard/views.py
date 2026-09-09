@@ -19,10 +19,19 @@ def about(request):
     return render(request, 'about.html')
 
 
+def _locked_slugs_json():
+    import json
+    try:
+        slugs = [d['slug'] for d in get_all_tool_privs() if d.get('requires_login')]
+    except Exception:
+        slugs = []
+    return json.dumps(slugs)
+
+
 def landing(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
-    return render(request, 'landing.html')
+    return render(request, 'landing.html', {'locked_slugs_json': _locked_slugs_json()})
 
 
 def register(request):
@@ -34,7 +43,7 @@ def register(request):
 def guest_tools(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
-    return render(request, 'guest_tools.html')
+    return render(request, 'guest_tools.html', {'locked_slugs_json': _locked_slugs_json()})
 
 
 def dashboard(request):
