@@ -507,9 +507,6 @@
     {% endfor %}
     {% endif %}
     {% block content %}{% endblock %}
-    {% if access_status == 'login_required' %}
-    <script>document.addEventListener('DOMContentLoaded',function(){if(typeof openZpPopup==='function')openZpPopup('signupPopup');});</script>
-    {% endif %}
   </main>
 
   <footer class="footer-full">
@@ -840,6 +837,14 @@
   </script>
 
   {% include 'partials/_auth_popup.html' %}
+  {% if access_status == 'login_required' %}
+  <script>
+  (function(){
+    var el = document.getElementById('signupPopup');
+    if(el){ el.classList.add('zp-open'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+  })();
+  </script>
+  {% endif %}
 
   <!-- Logout Confirmation Modal -->
   <div id="logoutModal" style="
