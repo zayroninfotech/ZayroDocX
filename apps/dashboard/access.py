@@ -16,6 +16,13 @@ def _today_count(user_id, slug):
 
 
 def check_access(request, slug):
+    # Admin can lock any tool via the DB toggle — check that first
+    if not request.user.is_authenticated:
+        from .mongo_models import get_tool_priv
+        priv = get_tool_priv(slug)
+        if priv and priv.get('requires_login'):
+            return 'login_required', 'Sign in to use this tool.'
+
     plan = get_user_plan(request)
     allowed = PLAN_TOOLS.get(plan, set())
     if slug not in allowed:

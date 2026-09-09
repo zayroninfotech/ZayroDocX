@@ -13,10 +13,8 @@ def tool_page(template, slug):
     def view(request):
         from apps.dashboard.access import check_access
         status, msg = check_access(request, slug)
-        if status == 'login_required':
-            return redirect(f'/login/?next={urlquote(request.path)}')
         ctx = {}
-        if status in ('upgrade_required', 'limit_reached'):
+        if status in ('login_required', 'upgrade_required', 'limit_reached'):
             ctx['access_status'] = status
             ctx['access_msg'] = msg
         return render(request, f'pdf_tools/{template}', ctx)
