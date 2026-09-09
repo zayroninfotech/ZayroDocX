@@ -506,25 +506,9 @@
     </div>
     {% endfor %}
     {% endif %}
-    {% if access_status == 'login_required' %}
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:62vh;text-align:center;padding:3rem 1.5rem;gap:1.1rem;">
-      <div style="width:64px;height:64px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#dc2626;">
-        <i class="fa-solid fa-lock"></i>
-      </div>
-      <h2 style="font-size:1.3rem;font-weight:700;color:var(--text-primary,#14161a);letter-spacing:-.025em;margin:0;">Sign in to use this tool</h2>
-      <p style="font-size:.875rem;color:var(--text-secondary,#4b4e57);max-width:400px;line-height:1.65;margin:0;">{{ access_msg|default:"Create a free account to access this and all ZayroDocX tools — it's free." }}</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:.4rem;">
-        <button onclick="openZpPopup('signupPopup')" style="display:inline-flex;align-items:center;gap:8px;background:#dc2626;color:#fff;font-weight:600;font-size:.84rem;padding:.65rem 1.4rem;border-radius:999px;border:none;cursor:pointer;box-shadow:0 4px 14px -6px rgba(220,38,38,.45);transition:background .15s,transform .15s;" onmouseover="this.style.background='#b91c1c';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#dc2626';this.style.transform=''">
-          <i class="fa-solid fa-user-plus"></i> Create Free Account
-        </button>
-        <button onclick="openZpPopup('loginPopup')" style="display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--text-primary,#14161a);font-weight:600;font-size:.84rem;padding:.65rem 1.4rem;border-radius:999px;border:1.5px solid var(--border-color,#e2e8f0);cursor:pointer;transition:background .15s,transform .15s;" onmouseover="this.style.background='var(--bg-subtle,#f6f6f8)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='transparent';this.style.transform=''">
-          <i class="fa-solid fa-right-to-bracket"></i> Sign In
-        </button>
-      </div>
-    </div>
-    <script>document.addEventListener('DOMContentLoaded',function(){if(typeof openZpPopup==='function')openZpPopup('signupPopup');});</script>
-    {% else %}
     {% block content %}{% endblock %}
+    {% if access_status == 'login_required' %}
+    <script>document.addEventListener('DOMContentLoaded',function(){if(typeof openZpPopup==='function')openZpPopup('signupPopup');});</script>
     {% endif %}
   </main>
 
