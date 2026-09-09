@@ -124,17 +124,27 @@
 }
 .tr-page-skeleton {
   position: absolute; inset: 18px 20px;
-  background: linear-gradient(90deg,#1e293b 25%,#2d3f55 50%,#1e293b 75%);
-  background-size: 200% 100%;
+  background: #111d2e;
   border-radius: 8px;
-  animation: tr-shimmer 1.4s ease-in-out infinite;
   display: flex; align-items: center; justify-content: center;
-  flex-direction: column; gap: 12px;
+  flex-direction: column; gap: 14px;
 }
-.tr-page-skeleton i     { font-size: 2.2rem; color: #334155; }
-.tr-page-skeleton span  { font-size: .76rem; color: #475569; font-weight: 600; }
 .tr-page-skeleton.hidden { display: none; }
-@keyframes tr-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.tr-skel-pct {
+  font-size: 3rem; font-weight: 900; color: #e2e8f0;
+  line-height: 1; letter-spacing: -.04em; font-variant-numeric: tabular-nums;
+}
+.tr-skel-bar-wrap {
+  width: 60%; max-width: 240px;
+  background: #1e293b; border-radius: 99px;
+  height: 6px; overflow: hidden;
+}
+.tr-skel-bar {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--tr), #14b8a6);
+  width: 0%; transition: width .25s ease;
+}
+.tr-skel-label { font-size: .74rem; color: #475569; font-weight: 600; }
 
 .tr-thumb-strip {
   display: flex; gap: 6px; padding: 10px 16px;
@@ -337,8 +347,9 @@
     </div>
     <div class="tr-page-area" id="pgArea">
       <div class="tr-page-skeleton" id="pgSkeleton">
-        <i class="fa-solid fa-file-pdf"></i>
-        <span>Rendering pages…</span>
+        <div class="tr-skel-pct" id="pgPct">0%</div>
+        <div class="tr-skel-bar-wrap"><div class="tr-skel-bar" id="pgBar"></div></div>
+        <div class="tr-skel-label">Rendering pages…</div>
       </div>
       <img id="pgImg" src="" alt="page" style="opacity:0;display:none">
     </div>
@@ -473,7 +484,28 @@ const submitBtn = document.getElementById('submitBtn');
 const contentEl = document.getElementById('translatedContent');
 const dlBtn     = document.getElementById('downloadBtn');
 
-let pgPages = [], pgCur = 0;
+let pgPages = [], pgCur = 0, _pctIv = null;
+
+function startPct() {
+  let p = 0;
+  clearInterval(_pctIv);
+  setPct(0);
+  _pctIv = setInterval(() => {
+    const step = p < 30 ? 4 : p < 60 ? 2.5 : p < 80 ? 1.2 : p < 90 ? 0.4 : 0;
+    p = Math.min(90, p + step);
+    setPct(Math.round(p));
+  }, 180);
+}
+function stopPct(final) {
+  clearInterval(_pctIv);
+  setPct(final);
+}
+function setPct(v) {
+  const el = document.getElementById('pgPct');
+  const bar = document.getElementById('pgBar');
+  if (el)  el.textContent = v + '%';
+  if (bar) bar.style.width = v + '%';
+}
 
 // ── Drop zone ────────────────────────────────────────────
 dropArea.addEventListener('dragover',  e => { e.preventDefault(); dropArea.classList.add('drag-over'); });
@@ -502,6 +534,7 @@ async function setFile(f) {
   document.getElementById('pgImg').style.opacity = '0';
   document.getElementById('pgImg').style.display = 'none';
   document.getElementById('pgSkeleton').classList.remove('hidden');
+  startPct();
 
   try {
     const fd = new FormData();
@@ -510,10 +543,12 @@ async function setFile(f) {
     const res  = await fetch('/tools/api/render-pdf-pages/', { method:'POST', body:fd });
     const data = await res.json();
     if (data.error || !data.page_images) {
+      stopPct(0);
       document.getElementById('viewerTitle').textContent = 'Preview unavailable';
       document.getElementById('pgSkeleton').classList.add('hidden');
       return;
     }
+    stopPct(100);
     pgPages = data.page_images; pgCur = 0;
 
     const pagesTxt = pgPages.length + ' page' + (pgPages.length !== 1 ? 's' : '');
@@ -537,6 +572,7 @@ async function setFile(f) {
     } else strip.style.display = 'none';
     pgGo(0);
   } catch(_) {
+    stopPct(0);
     document.getElementById('viewerTitle').textContent = 'Preview unavailable';
     document.getElementById('pgSkeleton').classList.add('hidden');
   }
