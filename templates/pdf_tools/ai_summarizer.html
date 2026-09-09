@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block title %}AI Summarizer — ZayroDocX{% endblock %}
-
 {% block active_ai_summarizer %}active{% endblock %}
 
 {% block breadcrumb %}
@@ -12,564 +11,477 @@
 
 {% block extra_head %}
 <style>
-  .ai-hero {
-    background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 45%, #dc2626 80%, #ef4444 100%);
-    border-radius: 18px;
-    padding: 2rem 2.2rem;
-    margin-bottom: 1.6rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1.2rem;
-    box-shadow: 0 6px 28px rgba(220, 38, 38, .28);
-    position: relative;
-    overflow: hidden;
-  }
+/* ── Layout ─────────────────────────────────────────────── */
+.ais-wrap { width:100%; }
 
-  .ai-hero::before {
-    content: '';
-    position: absolute;
-    top: -60px;
-    right: -40px;
-    width: 220px;
-    height: 220px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, .07);
-    pointer-events: none;
-  }
-
-  .ai-hero-left {
-    position: relative;
-    z-index: 1;
-  }
-
-  .ai-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: .4rem;
-    background: rgba(255, 255, 255, .15);
-    border: 1px solid rgba(255, 255, 255, .25);
-    border-radius: 999px;
-    padding: .22rem .75rem;
-    font-size: .68rem;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: .05em;
-    text-transform: uppercase;
-    margin-bottom: .55rem;
-  }
-
-  .ai-hero-left h2 {
-    font-size: 1.65rem;
-    font-weight: 900;
-    color: #fff;
-    margin: 0 0 .3rem;
-    letter-spacing: -.03em;
-  }
-
-  .ai-hero-left p {
-    font-size: .82rem;
-    color: rgba(255, 255, 255, .75);
-    margin: 0;
-  }
-
-  .ai-hero-pills {
-    display: flex;
-    gap: .75rem;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 1;
-  }
-
-  .ai-pill {
-    background: rgba(0, 0, 0, .2);
-    border: 1px solid rgba(255, 255, 255, .18);
-    border-radius: 12px;
-    padding: .75rem 1.1rem;
-    text-align: center;
-    min-width: 72px;
-  }
-
-  .ai-pill .n {
-    font-size: 1rem;
-    font-weight: 900;
-    color: #fff;
-    line-height: 1;
-    display: block;
-  }
-
-  .ai-pill .l {
-    font-size: .58rem;
-    color: rgba(255, 255, 255, .6);
-    text-transform: uppercase;
-    letter-spacing: .07em;
-  }
-
-  .ai-drop {
-    border: 2px dashed #e0e0e0;
-    border-radius: 18px;
-    padding: 3rem 2rem;
-    text-align: center;
-    cursor: pointer;
-    position: relative;
-    transition: border-color .2s;
-    background: #fafafa;
-    margin-bottom: 1rem;
-  }
-
-  .ai-drop.drag-over {
-    border-color: #2563eb;
-    background: #f0f6ff;
-  }
-
-  .ai-drop input[type=file] {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-  }
-
-  .ai-drop-icon {
-    width: 110px;
-    height: 110px;
-    margin: 0 auto 1.1rem;
-    background: rgba(147, 51, 234, .10);
-    border-radius: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    box-shadow: none;
-  }
-
-  .ai-drop-icon i.ai-hero-main {
-    font-size: 2.6rem;
-    color: #9333ea;
-  }
-
-  .ai-drop-icon .ai-hero-badge {
-    position: absolute;
-    bottom: -6px;
-    right: -6px;
-    width: 34px;
-    height: 34px;
-    background: #9333ea;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 3px 10px rgba(147, 51, 234, .4);
-    border: 3px solid #fff;
-  }
-
-  .ai-hero-badge i {
-    color: #fff;
-    font-size: .8rem;
-  }
-
-  .ai-drop h3 {
-    font-size: 1.15rem;
-    font-weight: 800;
-    margin: 0 0 .3rem;
-    color: #111;
-  }
-
-  .ai-drop p {
-    font-size: .85rem;
-    color: #888;
-    margin: 0 0 1.2rem;
-  }
-
-.ai-drop-btn {
-  display:inline-flex; align-items:center; gap:.48rem;
-  background:#9333ea;
-  color:#fff; border:none; border-radius:10px;
-  padding:.9rem 2.5rem; font-size:1.1rem; font-weight:700;
-  cursor:pointer; position:relative; z-index:1;
-  box-shadow:0 3px 12px rgba(147,51,234,.3);
-  transition: background .18s ease, box-shadow .18s ease, transform .15s ease;
+/* ── Upload zone ─────────────────────────────────────────── */
+.ais-drop {
+  border: 2px dashed #d1d5db;
+  border-radius: 20px;
+  padding: 64px 32px 56px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  background: var(--surface, #fff);
+  transition: border-color .2s, background .2s;
 }
-.ai-drop-btn:hover {
-  background:#7e22ce;
-  transform:translateY(-1px);
-  box-shadow:0 5px 18px rgba(147,51,234,.4);
+.ais-drop:hover, .ais-drop.drag-over {
+  border-color: #9333ea;
+  background: rgba(147,51,234,.04);
 }
-.ai-drop-btn:active {
-  transform:translateY(0);
-  background:#6b21a8;
+.ais-drop input[type=file] {
+  position: absolute; inset: 0; opacity: 0;
+  width: 100%; height: 100%; cursor: pointer;
+}
+.ais-drop-icon-wrap {
+  width: 96px; height: 96px; margin: 0 auto 20px;
+  background: rgba(147,51,234,.1); border-radius: 24px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.ais-drop-icon-wrap i { font-size: 2.4rem; color: #9333ea; }
+.ais-drop-icon-wrap .ais-badge {
+  position: absolute; bottom: -8px; right: -8px;
+  width: 32px; height: 32px; background: #9333ea;
+  border-radius: 10px; display: flex; align-items: center;
+  justify-content: center; border: 3px solid var(--surface, #fff);
+  box-shadow: 0 3px 10px rgba(147,51,234,.4);
+}
+.ais-badge i { font-size: .72rem; color: #fff; }
+.ais-drop h2 {
+  font-size: 1.9rem; font-weight: 900; color: var(--text-primary, #111);
+  margin: 0 0 6px; letter-spacing: -.03em;
+}
+.ais-drop p {
+  font-size: .88rem; color: var(--text-muted, #888);
+  margin: 0 0 28px; max-width: 380px; margin-left: auto; margin-right: auto;
+}
+.ais-drop-btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: #9333ea; color: #fff; border: none; border-radius: 12px;
+  padding: .85rem 2.2rem; font-size: 1rem; font-weight: 700;
+  cursor: pointer; position: relative; z-index: 1;
+  box-shadow: 0 4px 16px rgba(147,51,234,.35);
+  transition: background .15s, transform .12s, box-shadow .15s;
+}
+.ais-drop-btn:hover { background: #7e22ce; transform: translateY(-2px); box-shadow: 0 6px 22px rgba(147,51,234,.45); }
+.ais-drop-btn:active { transform: translateY(0); }
+.ais-drop-meta {
+  display: flex; align-items: center; justify-content: center; gap: 20px;
+  margin-top: 24px; flex-wrap: wrap;
+}
+.ais-drop-meta span {
+  display: flex; align-items: center; gap: 5px;
+  font-size: .75rem; color: var(--text-muted, #999); font-weight: 500;
+}
+.ais-drop-meta i { font-size: .7rem; color: #9333ea; }
+
+/* ── Split view ──────────────────────────────────────────── */
+.ais-split {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 20px;
+  align-items: start;
+}
+@media(max-width:1080px){
+  .ais-split { grid-template-columns: 1fr; }
+  .ais-right  { position: static !important; }
 }
 
-  .ai-drop-hint {
-    display: none;
-  }
+/* ── PDF Viewer ──────────────────────────────────────────── */
+.ais-viewer {
+  border-radius: 18px; overflow: hidden;
+  background: #0f172a;
+  box-shadow: 0 8px 36px rgba(0,0,0,.28);
+}
+.ais-viewer-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; background: #1e293b;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.ais-viewer-file {
+  display: flex; align-items: center; gap: 10px;
+}
+.ais-viewer-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: #9333ea; display: flex; align-items: center;
+  justify-content: center; font-size: .76rem; color: #fff; flex-shrink: 0;
+}
+.ais-viewer-filename {
+  font-size: .8rem; font-weight: 700; color: #e2e8f0;
+  max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ais-viewer-dpi { font-size: .64rem; color: #64748b; }
+.ais-viewer-ctrls { display: flex; align-items: center; gap: 5px; }
+.ais-ctrl {
+  width: 30px; height: 30px; border-radius: 7px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06); color: #e2e8f0;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; font-size: .72rem;
+  transition: background .15s;
+}
+.ais-ctrl:hover:not(:disabled) { background: rgba(255,255,255,.15); }
+.ais-ctrl:disabled { opacity: .3; cursor: not-allowed; }
+.ais-pg-label {
+  font-size: .74rem; color: #94a3b8; min-width: 48px;
+  text-align: center; font-weight: 600;
+}
+.ais-divider { width: 1px; height: 20px; background: rgba(255,255,255,.1); margin: 0 3px; }
 
-  .ai-file-bar {
-    display: none;
-    align-items: center;
-    gap: .85rem;
-    background: #fff;
-    border: 1.5px solid #fca5a5;
-    border-radius: 14px;
-    padding: .85rem 1.1rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 10px rgba(220, 38, 38, .08);
-  }
+.ais-page-area {
+  padding: 18px 20px; display: flex; align-items: flex-start;
+  justify-content: center; background: #0f172a; min-height: 300px;
+}
+.ais-page-area img {
+  max-width: 100%; border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  transition: opacity .22s; display: block;
+}
+.ais-thumb-strip {
+  display: flex; gap: 6px; padding: 10px 16px;
+  overflow-x: auto; background: #1a2744;
+  border-top: 1px solid rgba(255,255,255,.06);
+  scrollbar-width: thin; scrollbar-color: #334155 transparent;
+}
+.ais-thumb {
+  flex-shrink: 0; width: 48px; cursor: pointer;
+  border-radius: 5px; overflow: hidden;
+  border: 2px solid transparent; opacity: .5;
+  transition: opacity .15s, border-color .15s;
+}
+.ais-thumb.active { border-color: #9333ea; opacity: 1; }
+.ais-thumb img { width: 100%; display: block; }
 
-  .ai-file-bar.show {
-    display: flex;
-  }
+/* ── Right panel ─────────────────────────────────────────── */
+.ais-right { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; }
 
-  .ai-file-bar-icon {
-    color: #dc2626;
-    font-size: 1.4rem;
-    flex-shrink: 0;
-  }
+.ais-card {
+  background: var(--surface, #fff);
+  border: 1.5px solid var(--border, #e5e7eb);
+  border-radius: 16px; overflow: hidden;
+}
+.ais-card-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  background: var(--surface, #fff);
+}
+.ais-card-icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .84rem; flex-shrink: 0; color: #fff;
+}
+.ais-card-title { font-size: .9rem; font-weight: 800; color: var(--text-primary, #111); }
+.ais-card-sub   { font-size: .7rem; color: var(--text-muted, #888); margin-top: 1px; }
+.ais-card-body  { padding: 16px 18px; }
 
-  .ai-file-bar-name {
-    font-size: .88rem;
-    font-weight: 700;
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #111;
-  }
+/* file info badges */
+.ais-meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.ais-meta-chip {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--surface-raised, #f8fafc);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 8px; padding: 4px 10px;
+  font-size: .73rem; font-weight: 600; color: var(--text-muted, #555);
+}
+.ais-meta-chip i { font-size: .68rem; color: #9333ea; }
 
-  .ai-file-bar-size {
-    font-size: .72rem;
-    color: #dc2626;
-    font-weight: 600;
-    background: #fee2e2;
-    padding: .18rem .55rem;
-    border-radius: 6px;
-    flex-shrink: 0;
-  }
+/* summarize button */
+.ais-submit-btn {
+  width: 100%; padding: .85rem; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, #7e22ce, #9333ea, #a855f7);
+  color: #fff; font-size: .95rem; font-weight: 800;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: .55rem;
+  box-shadow: 0 4px 18px rgba(147,51,234,.35);
+  transition: opacity .2s, transform .12s, box-shadow .15s;
+}
+.ais-submit-btn:hover:not(:disabled) {
+  opacity: .92; transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(147,51,234,.45);
+}
+.ais-submit-btn:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; transform: none; }
 
-  .ai-submit {
-    width: 100%;
-    padding: .9rem;
-    background: linear-gradient(135deg, #991b1b, #b91c1c, #dc2626);
-    color: #fff;
-    border: none;
-    border-radius: 14px;
-    font-size: 1rem;
-    font-weight: 800;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: .6rem;
-    transition: opacity .2s, transform .1s;
-    box-shadow: 0 5px 20px rgba(220, 38, 38, .35);
-    margin-top: .5rem;
-  }
+/* loading steps */
+.ais-steps { display: flex; flex-direction: column; gap: 10px; padding: 20px 18px; }
+.ais-step {
+  display: flex; align-items: center; gap: 11px;
+  font-size: .82rem; color: var(--text-muted, #aaa); font-weight: 500;
+}
+.ais-step.done   { color: #16a34a; }
+.ais-step.active { color: var(--text-primary, #111); font-weight: 700; }
+.ais-step-dot {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-raised, #f1f5f9);
+  border: 1.5px solid var(--border, #e5e7eb);
+  font-size: .72rem; color: var(--text-muted, #aaa);
+  transition: all .25s;
+}
+.ais-step.done   .ais-step-dot { background: #dcfce7; border-color: #86efac; color: #16a34a; }
+.ais-step.active .ais-step-dot {
+  background: #f3e8ff; border-color: #d8b4fe; color: #9333ea;
+  animation: ais-pulse .9s ease-in-out infinite;
+}
+@keyframes ais-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
 
-  .ai-submit:hover:not(:disabled) {
-    opacity: .9;
-    transform: translateY(-2px);
-  }
+/* summary output */
+.ais-summary-body {
+  font-size: .875rem; line-height: 1.78; color: var(--text-primary, #111);
+  max-height: 52vh; overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: #d8b4fe transparent;
+}
+.ais-summary-body h1,.ais-summary-body h2,.ais-summary-body h3 {
+  font-size: .9rem; font-weight: 800; color: var(--text-primary, #111);
+  margin: 1rem 0 .35rem; border-bottom: 1px solid var(--border, #f1f5f9); padding-bottom: .25rem;
+}
+.ais-summary-body strong { font-weight: 700; }
+.ais-summary-body ul, .ais-summary-body ol { padding-left: 1.3rem; margin: .4rem 0; }
+.ais-summary-body li { margin: .25rem 0; }
+.ais-summary-body p  { margin: .4rem 0; }
 
-  .ai-submit:disabled {
-    opacity: .4;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
+/* stats row */
+.ais-stats-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.ais-stat {
+  flex: 1; background: var(--surface-raised, #f8fafc);
+  border: 1px solid var(--border, #e5e7eb); border-radius: 10px;
+  padding: 8px 10px; text-align: center;
+}
+.ais-stat .n { font-size: 1.05rem; font-weight: 900; color: #9333ea; }
+.ais-stat .l { font-size: .64rem; color: var(--text-muted, #aaa); text-transform: uppercase; letter-spacing: .05em; }
 
-  .ai-result-card {
-    background: #fff;
-    border: 1.5px solid #fca5a5;
-    border-radius: 16px;
-    margin-top: 1.4rem;
-    overflow: hidden;
-    box-shadow: 0 2px 12px rgba(220, 38, 38, .08);
-  }
+/* action buttons */
+.ais-action-row { display: flex; gap: 8px; margin-top: 12px; }
+.ais-action-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: .4rem;
+  border: 1.5px solid var(--border, #e5e7eb);
+  background: var(--surface, #fff); color: var(--text-primary, #111);
+  border-radius: 9px; padding: .5rem .6rem;
+  font-size: .76rem; font-weight: 600; cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.ais-action-btn:hover { border-color: #9333ea; color: #9333ea; background: rgba(147,51,234,.05); }
+.ais-action-btn i { font-size: .72rem; }
 
-  .ai-result-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: .85rem 1.2rem;
-    border-bottom: 1px solid #fecaca;
-    background: #fff8f8;
-  }
-
-  .ai-result-head-left {
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-    font-size: .82rem;
-    font-weight: 700;
-    color: #111;
-  }
-
-  .ai-result-head-left i {
-    color: #dc2626;
-  }
-
-  .ai-result-actions {
-    display: flex;
-    gap: .5rem;
-  }
-
-  .ai-copy-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: .35rem;
-    background: #fff;
-    border: 1.5px solid #fca5a5;
-    border-radius: 8px;
-    padding: .3rem .75rem;
-    font-size: .76rem;
-    font-weight: 600;
-    color: #dc2626;
-    cursor: pointer;
-    transition: all .15s;
-  }
-
-  .ai-copy-btn:hover {
-    background: #fee2e2;
-  }
-
-  .ai-result-body {
-    padding: 1.2rem 1.4rem;
-    line-height: 1.8;
-    color: #111;
-    white-space: pre-wrap;
-    font-size: .9rem;
-    max-height: 520px;
-    overflow-y: auto;
-  }
-
-  .ai-info-strip {
-    display: flex;
-    gap: .75rem;
-    flex-wrap: wrap;
-    margin-top: 1.6rem;
-  }
-
-  .ai-info-card {
-    flex: 1;
-    min-width: 140px;
-    background: #fff;
-    border: 1px solid #e8e8e8;
-    border-radius: 12px;
-    padding: .9rem 1rem;
-    display: flex;
-    align-items: center;
-    gap: .75rem;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, .04);
-  }
-
-  .ai-info-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: .88rem;
-    background: #fee2e2;
-    color: #dc2626;
-  }
-
-  .ai-info-title {
-    font-size: .78rem;
-    font-weight: 700;
-    color: #111;
-  }
-
-  .ai-info-desc {
-    font-size: .68rem;
-    color: #aaa;
-    margin-top: .1rem;
-  }
+[data-theme="dark"] .ais-drop { border-color: #334155; background: #1e293b; }
+[data-theme="dark"] .ais-drop:hover, [data-theme="dark"] .ais-drop.drag-over { border-color: #9333ea; background: rgba(147,51,234,.08); }
+[data-theme="dark"] .ais-drop h2 { color: #f1f5f9; }
+[data-theme="dark"] .ais-drop p { color: #94a3b8; }
 </style>
 {% endblock %}
 
 {% block content %}
 </div>
 
-<style>
-.ais-split { display:grid; grid-template-columns:1fr 460px; gap:20px; align-items:start; }
-.ais-right { display:flex; flex-direction:column; gap:16px; position:sticky; top:16px; }
-@media(max-width:1060px){ .ais-split{ grid-template-columns:1fr; } .ais-right{ position:static; } }
-
-/* viewer */
-.ais-viewer { border-radius:16px; overflow:hidden; background:#0f172a; box-shadow:0 8px 32px rgba(0,0,0,.3); }
-.ais-viewer-bar { display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#1e293b;border-bottom:1px solid rgba(255,255,255,.08); }
-.ais-viewer-icon { width:28px;height:28px;border-radius:7px;background:#9333ea;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#fff; }
-.ais-ctrl { width:30px;height:30px;border-radius:7px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.72rem;transition:background .15s; }
-.ais-ctrl:hover:not(:disabled){ background:rgba(255,255,255,.14); }
-.ais-ctrl:disabled{ opacity:.3;cursor:not-allowed; }
-.ais-page-area { padding:16px;display:flex;align-items:flex-start;justify-content:center;background:#0f172a; }
-.ais-page-area img { max-width:100%;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.5);transition:opacity .2s;display:block; }
-.ais-thumb-strip { display:flex;gap:6px;padding:10px 16px;overflow-x:auto;background:#1a2744;border-top:1px solid rgba(255,255,255,.06); }
-.ais-thumb { flex-shrink:0;width:50px;cursor:pointer;border-radius:5px;overflow:hidden;border:2px solid transparent;opacity:.55;transition:opacity .15s,border-color .15s; }
-.ais-thumb.active { border-color:#9333ea;opacity:1; }
-.ais-thumb img { width:100%;display:block; }
-
-/* right panel */
-.ais-action-card { background:var(--bg-card);border:1.5px solid var(--border);border-radius:16px;overflow:hidden; }
-.ais-action-head { padding:14px 18px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--bg-card),var(--bg-page,#f8fafc));display:flex;align-items:center;gap:9px; }
-.ais-action-icon { width:32px;height:32px;border-radius:8px;background:#9333ea;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff;flex-shrink:0; }
-.ais-action-title { font-size:.9rem;font-weight:800;color:var(--text-primary); }
-.ais-action-body  { padding:16px 18px; }
-
-/* summary output */
-.ais-summary-body { font-size:.875rem;line-height:1.75;color:var(--text-primary);max-height:55vh;overflow-y:auto; }
-.ais-summary-body h1,.ais-summary-body h2,.ais-summary-body h3 { font-size:.95rem;font-weight:800;color:var(--text-primary);margin:1rem 0 .4rem; }
-.ais-summary-body strong { font-weight:700; }
-.ais-summary-body ul,.ais-summary-body ol { padding-left:1.4rem;margin:.4rem 0; }
-.ais-summary-body li { margin:.2rem 0; }
-.ais-summary-body p { margin:.4rem 0; }
-
-/* spinning loader inside right panel */
-.ais-loading { display:none;flex-direction:column;align-items:center;gap:14px;padding:36px 20px; }
-.ais-loading.show { display:flex; }
-.ais-spin { width:44px;height:44px;border-radius:50%;border:3.5px solid #ede9fe;border-top-color:#9333ea;animation:ais-spin .75s linear infinite; }
-@keyframes ais-spin{ to{transform:rotate(360deg)} }
-</style>
-
 <form id="summaryForm" enctype="multipart/form-data">
 {% csrf_token %}
 <input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
 
-<!-- Step 1: Drop zone (hidden once file picked) -->
-<div class="ai-drop" id="uploadZone">
-  <div class="ai-drop-icon">
-    <i class="fa-solid fa-file-lines ai-hero-main"></i>
-    <div class="ai-hero-badge"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+<!-- ─── Step 1: Drop zone ──────────────────────────────── -->
+<div class="ais-wrap" id="uploadZone">
+  <div class="ais-drop" id="dropArea">
+    <div class="ais-drop-icon-wrap">
+      <i class="fa-solid fa-file-lines"></i>
+      <div class="ais-badge"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+    </div>
+    <h2>AI Summarizer</h2>
+    <p>Upload any PDF — AI will extract and summarise all key content instantly</p>
+    <button type="button" class="ais-drop-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-plus"></i> Select PDF File
+    </button>
+    <div class="ais-drop-meta">
+      <span><i class="fa-solid fa-check-circle"></i> Up to 100 MB</span>
+      <span><i class="fa-solid fa-check-circle"></i> All PDF types</span>
+      <span><i class="fa-solid fa-check-circle"></i> Drag &amp; drop supported</span>
+    </div>
   </div>
-  <h2 style="font-size:2rem;font-weight:900;color:#111;margin:0 0 .3rem;letter-spacing:-.03em;">AI Summarizer</h2>
-  <h3>Drop your PDF here</h3>
-  <p>Upload any PDF — AI will extract and summarise all key content</p>
-  <button type="button" class="ai-drop-btn" onclick="document.getElementById('fileInput').click()">
-    <i class="fa-solid fa-plus"></i> Select PDF File
-  </button>
 </div>
 
-<!-- Step 2: Side-by-side (shown after file picked) -->
-<div class="ais-split" id="splitView" style="display:none">
+<!-- ─── Step 2: Split view ────────────────────────────── -->
+<div id="splitView" style="display:none">
+<div class="ais-split">
 
   <!-- LEFT: PDF Viewer -->
   <div class="ais-viewer" id="pdfViewer">
     <div class="ais-viewer-bar">
-      <div style="display:flex;align-items:center;gap:9px">
-        <div class="ais-viewer-icon"><i class="fa-solid fa-file-image"></i></div>
+      <div class="ais-viewer-file">
+        <div class="ais-viewer-icon"><i class="fa-solid fa-file-pdf"></i></div>
         <div>
-          <div style="font-size:.82rem;font-weight:700;color:#e2e8f0" id="viewerTitle">PDF Pages</div>
-          <div style="font-size:.68rem;color:#64748b">Rendered at 150 DPI</div>
+          <div class="ais-viewer-filename" id="viewerTitle">PDF Pages</div>
+          <div class="ais-viewer-dpi">Rendered at 150 DPI</div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:5px">
-        <button type="button" class="ais-ctrl" id="pgPrev" onclick="pgGo(pgCur-1)" disabled><i class="fa-solid fa-chevron-left"></i></button>
-        <span id="pgLabel" style="font-size:.76rem;color:#94a3b8;min-width:48px;text-align:center;font-weight:600">1 / 1</span>
-        <button type="button" class="ais-ctrl" id="pgNext" onclick="pgGo(pgCur+1)"><i class="fa-solid fa-chevron-right"></i></button>
-        <div style="width:1px;height:20px;background:rgba(255,255,255,.1);margin:0 4px"></div>
-        <button type="button" class="ais-ctrl" title="Change PDF" onclick="resetUpload()"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+      <div class="ais-viewer-ctrls">
+        <button type="button" class="ais-ctrl" id="pgPrev" onclick="pgGo(pgCur-1)" disabled>
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <span class="ais-pg-label" id="pgLabel">1 / 1</span>
+        <button type="button" class="ais-ctrl" id="pgNext" onclick="pgGo(pgCur+1)">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+        <div class="ais-divider"></div>
+        <button type="button" class="ais-ctrl" title="Change PDF" onclick="resetUpload()">
+          <i class="fa-solid fa-arrow-rotate-left"></i>
+        </button>
       </div>
     </div>
     <div class="ais-page-area" id="pgArea">
-      <img id="pgImg" src="" alt="page">
+      <img id="pgImg" src="" alt="page" style="opacity:0">
     </div>
     <div class="ais-thumb-strip" id="pgThumbStrip" style="display:none"></div>
   </div>
 
-  <!-- RIGHT: Summarize + Output -->
+  <!-- RIGHT: Controls + Output -->
   <div class="ais-right">
 
-    <!-- File info -->
-    <div class="ais-action-card">
-      <div class="ais-action-head">
-        <div class="ais-action-icon"><i class="fa-solid fa-file-pdf"></i></div>
+    <!-- File info card -->
+    <div class="ais-card" id="fileCard">
+      <div class="ais-card-head">
+        <div class="ais-card-icon" style="background:#9333ea"><i class="fa-solid fa-file-pdf"></i></div>
         <div>
-          <div class="ais-action-title" id="fileBarName2">—</div>
-          <div style="font-size:.72rem;color:var(--text-muted)" id="fileBarMeta">—</div>
+          <div class="ais-card-title" id="fileCardName">—</div>
+          <div class="ais-card-sub"  id="fileCardMeta">—</div>
         </div>
       </div>
-      <div class="ais-action-body">
-        <button type="submit" class="ai-submit" id="submitBtn" style="margin-top:0">
+      <div class="ais-card-body">
+        <div class="ais-meta-row" id="metaRow" style="display:none">
+          <div class="ais-meta-chip"><i class="fa-solid fa-file"></i> <span id="metaSize">—</span></div>
+          <div class="ais-meta-chip"><i class="fa-solid fa-copy"></i> <span id="metaPages">—</span></div>
+        </div>
+        <button type="submit" class="ais-submit-btn" id="submitBtn">
           <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize PDF
         </button>
       </div>
     </div>
 
-    <!-- Loading -->
-    <div class="ais-action-card" id="loadingCard" style="display:none">
-      <div class="ais-loading show">
-        <div class="ais-spin"></div>
-        <div style="font-size:.88rem;font-weight:700;color:var(--text-primary)" id="progressMsg">Analysing document…</div>
-        <div style="font-size:.76rem;color:var(--text-muted)">This may take 10–30 seconds</div>
+    <!-- Loading / Steps -->
+    <div class="ais-card" id="loadingCard" style="display:none">
+      <div class="ais-card-head">
+        <div class="ais-card-icon" style="background:#9333ea"><i class="fa-solid fa-spinner fa-spin"></i></div>
+        <div>
+          <div class="ais-card-title">Processing…</div>
+          <div class="ais-card-sub">This may take 10–30 seconds</div>
+        </div>
+      </div>
+      <div class="ais-steps" id="stepsContainer">
+        <div class="ais-step" id="step1">
+          <div class="ais-step-dot"><i class="fa-solid fa-file-import"></i></div>
+          <span>Uploading &amp; validating PDF</span>
+        </div>
+        <div class="ais-step" id="step2">
+          <div class="ais-step-dot"><i class="fa-solid fa-text"></i></div>
+          <span>Extracting text content</span>
+        </div>
+        <div class="ais-step" id="step3">
+          <div class="ais-step-dot"><i class="fa-solid fa-robot"></i></div>
+          <span>AI generating summary</span>
+        </div>
+        <div class="ais-step" id="step4">
+          <div class="ais-step-dot"><i class="fa-solid fa-check"></i></div>
+          <span>Finalising results</span>
+        </div>
       </div>
     </div>
 
     <!-- Summary output -->
-    <div class="ais-action-card" id="resultPanel" style="display:none">
-      <div class="ais-action-head" style="justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:9px">
-          <div class="ais-action-icon" style="background:#16a34a"><i class="fa-solid fa-check"></i></div>
+    <div class="ais-card" id="resultPanel" style="display:none">
+      <div class="ais-card-head" style="justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="ais-card-icon" style="background:#16a34a"><i class="fa-solid fa-check"></i></div>
           <div>
-            <div class="ais-action-title">AI Summary</div>
-            <div style="font-size:.72rem;color:var(--text-muted)" id="pageCount">—</div>
+            <div class="ais-card-title">AI Summary</div>
+            <div class="ais-card-sub" id="summaryMeta">—</div>
           </div>
         </div>
-        <button class="ai-copy-btn" onclick="copySummary()"><i class="fa-solid fa-copy"></i> Copy</button>
       </div>
-      <div class="ais-action-body">
+      <div class="ais-card-body">
+        <div class="ais-stats-row" id="statsRow">
+          <div class="ais-stat"><div class="n" id="statPages">—</div><div class="l">Pages</div></div>
+          <div class="ais-stat"><div class="n" id="statWords">—</div><div class="l">Words</div></div>
+          <div class="ais-stat"><div class="n" id="statRead">—</div><div class="l">Min read</div></div>
+        </div>
         <div class="ais-summary-body" id="summaryContent"></div>
+        <div class="ais-action-row">
+          <button type="button" class="ais-action-btn" onclick="copySummary()">
+            <i class="fa-solid fa-copy"></i> Copy
+          </button>
+          <button type="button" class="ais-action-btn" onclick="downloadTxt()">
+            <i class="fa-solid fa-download"></i> Download
+          </button>
+          <button type="button" class="ais-action-btn" onclick="resetUpload()">
+            <i class="fa-solid fa-plus"></i> New PDF
+          </button>
+        </div>
       </div>
     </div>
 
   </div><!-- /ais-right -->
 </div><!-- /ais-split -->
+</div><!-- /splitView -->
 </form>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-const zone     = document.getElementById('uploadZone');
-const input    = document.getElementById('fileInput');
-const form     = document.getElementById('summaryForm');
-const submitBtn= document.getElementById('submitBtn');
-const summaryEl= document.getElementById('summaryContent');
+const zone      = document.getElementById('uploadZone');
+const dropArea  = document.getElementById('dropArea');
+const input     = document.getElementById('fileInput');
+const form      = document.getElementById('summaryForm');
+const submitBtn = document.getElementById('submitBtn');
+const summaryEl = document.getElementById('summaryContent');
 
-let pgPages = [], pgCur = 0;
+let pgPages = [], pgCur = 0, _summaryText = '';
 
-// Drop zone events
-zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
-zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
-zone.addEventListener('click', () => input.click());
-input.addEventListener('change', () => setFile(input.files[0]));
+// ── Drop zone ──────────────────────────────────────────────
+dropArea.addEventListener('dragover',  e => { e.preventDefault(); dropArea.classList.add('drag-over'); });
+dropArea.addEventListener('dragleave', ()=> dropArea.classList.remove('drag-over'));
+dropArea.addEventListener('drop', e => {
+  e.preventDefault(); dropArea.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+});
+dropArea.addEventListener('click', e => { if (e.target.tagName !== 'BUTTON') input.click(); });
+input.addEventListener('change', () => { if (input.files[0]) setFile(input.files[0]); });
 
+// ── File selected ──────────────────────────────────────────
 async function setFile(f) {
   if (!f) return;
   const dt = new DataTransfer(); dt.items.add(f); input.files = dt.files;
 
-  // Show split view, hide drop zone
   zone.style.display = 'none';
   document.getElementById('splitView').style.display = '';
-  document.getElementById('fileBarName2').textContent = f.name;
-  document.getElementById('fileBarMeta').textContent = (f.size/1024).toFixed(1)+' KB  ·  Loading pages…';
-  document.getElementById('viewerTitle').textContent = 'Rendering pages…';
-  document.getElementById('pgImg').style.opacity = '0.3';
+  document.getElementById('resultPanel').style.display = 'none';
+  document.getElementById('loadingCard').style.display = 'none';
 
+  const kb = (f.size / 1024).toFixed(1);
+  document.getElementById('fileCardName').textContent = f.name;
+  document.getElementById('fileCardMeta').textContent = kb + ' KB · Loading pages…';
+  document.getElementById('viewerTitle').textContent  = 'Rendering pages…';
+  document.getElementById('pgImg').style.opacity = '0.2';
+
+  // Render pages via API
   try {
     const fd = new FormData();
     fd.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
     fd.append('file', f);
     const res  = await fetch('/tools/api/render-pdf-pages/', { method:'POST', body:fd });
     const data = await res.json();
-    if (data.error || !data.page_images) { document.getElementById('viewerTitle').textContent = 'Preview unavailable'; return; }
+    if (data.error || !data.page_images) {
+      document.getElementById('viewerTitle').textContent = 'Preview unavailable';
+      document.getElementById('pgImg').style.opacity = '1';
+      return;
+    }
     pgPages = data.page_images;
     pgCur = 0;
-    document.getElementById('viewerTitle').textContent = `PDF Pages (${pgPages.length})`;
-    document.getElementById('fileBarMeta').textContent = `${(f.size/1024).toFixed(1)} KB  ·  ${pgPages.length} page${pgPages.length!==1?'s':''}`;
+
+    const pagesTxt = pgPages.length + ' page' + (pgPages.length !== 1 ? 's' : '');
+    document.getElementById('viewerTitle').textContent  = f.name;
+    document.getElementById('fileCardMeta').textContent = kb + ' KB · ' + pagesTxt;
+
+    // Meta chips
+    document.getElementById('metaSize').textContent  = kb + ' KB';
+    document.getElementById('metaPages').textContent = pagesTxt;
+    document.getElementById('metaRow').style.display = 'flex';
 
     // Build thumbnails
     const strip = document.getElementById('pgThumbStrip');
@@ -578,38 +490,53 @@ async function setFile(f) {
       strip.style.display = 'flex';
       pgPages.forEach((b64, i) => {
         const d = document.createElement('div');
-        d.className = 'ais-thumb' + (i===0?' active':'');
-        d.innerHTML = `<img src="data:image/jpeg;base64,${b64}">`;
+        d.className = 'ais-thumb' + (i === 0 ? ' active' : '');
+        d.innerHTML = '<img src="data:image/jpeg;base64,' + b64 + '">';
         d.addEventListener('click', () => pgGo(i));
         strip.appendChild(d);
       });
     } else { strip.style.display = 'none'; }
     pgGo(0);
-  } catch(e) { document.getElementById('viewerTitle').textContent = 'Preview unavailable'; }
+  } catch(_) {
+    document.getElementById('viewerTitle').textContent = 'Preview unavailable';
+    document.getElementById('pgImg').style.opacity = '1';
+  }
 }
 
 function pgGo(idx) {
   if (!pgPages.length) return;
-  pgCur = Math.max(0, Math.min(idx, pgPages.length-1));
+  pgCur = Math.max(0, Math.min(idx, pgPages.length - 1));
   const img = document.getElementById('pgImg');
   img.style.opacity = '0';
   img.src = 'data:image/jpeg;base64,' + pgPages[pgCur];
   img.onload = () => { img.style.opacity = '1'; };
-  document.getElementById('pgLabel').textContent = `${pgCur+1} / ${pgPages.length}`;
+  document.getElementById('pgLabel').textContent = (pgCur + 1) + ' / ' + pgPages.length;
   document.getElementById('pgPrev').disabled = pgCur === 0;
-  document.getElementById('pgNext').disabled = pgCur === pgPages.length-1;
-  document.querySelectorAll('.ais-thumb').forEach((d,i) => d.classList.toggle('active', i===pgCur));
+  document.getElementById('pgNext').disabled = pgCur === pgPages.length - 1;
+  document.querySelectorAll('.ais-thumb').forEach((d, i) => d.classList.toggle('active', i === pgCur));
 }
 
 function resetUpload() {
-  input.value = ''; pgPages = []; pgCur = 0;
-  zone.style.display = '';
+  input.value = ''; pgPages = []; pgCur = 0; _summaryText = '';
   document.getElementById('splitView').style.display = 'none';
+  document.getElementById('uploadZone').style.display = '';
   document.getElementById('resultPanel').style.display = 'none';
   document.getElementById('loadingCard').style.display = 'none';
+  document.getElementById('metaRow').style.display = 'none';
 }
 
-// Summarize
+// ── Step loader ────────────────────────────────────────────
+const STEPS = ['step1','step2','step3','step4'];
+function setStep(n) {
+  STEPS.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.classList.remove('done','active');
+    if (i < n)      el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+  });
+}
+
+// ── Summarize ──────────────────────────────────────────────
 form.addEventListener('submit', async e => {
   e.preventDefault();
   if (!input.files[0]) { showToast('Please select a PDF file.', 'error'); return; }
@@ -617,32 +544,47 @@ form.addEventListener('submit', async e => {
   document.getElementById('loadingCard').style.display = '';
   document.getElementById('resultPanel').style.display = 'none';
   submitBtn.disabled = true;
+  setStep(0);
 
-  const msgs = ['Analysing document…','Reading pages…','Generating summary…','Almost done…'];
-  let mi = 0;
-  const ticker = setInterval(() => { document.getElementById('progressMsg').textContent = msgs[Math.min(++mi, msgs.length-1)]; }, 4000);
+  const stepTimers = [
+    setTimeout(() => setStep(1), 1800),
+    setTimeout(() => setStep(2), 4500),
+    setTimeout(() => setStep(3), 8000),
+  ];
 
   try {
     const fd = new FormData(form);
     const resp = await fetch('/tools/api/summarize-pdf/', { method:'POST', body:fd });
     const data = await resp.json();
-    clearInterval(ticker);
+    stepTimers.forEach(clearTimeout);
+    setStep(4);
+
+    await new Promise(r => setTimeout(r, 400));
     document.getElementById('loadingCard').style.display = 'none';
     submitBtn.disabled = false;
+
     if (data.error) { showToast(data.error, 'error'); return; }
 
-    // Render markdown-like summary
-    summaryEl.innerHTML = renderMd(data.summary);
-    document.getElementById('pageCount').textContent = data.pages + ' page' + (data.pages!==1?'s':'') + ' processed';
+    _summaryText = data.summary || '';
+    summaryEl.innerHTML = renderMd(_summaryText);
+
+    const words   = _summaryText.split(/\s+/).filter(Boolean).length;
+    const readMin = Math.max(1, Math.round(words / 200));
+    document.getElementById('statPages').textContent = data.pages || '—';
+    document.getElementById('statWords').textContent = words.toLocaleString();
+    document.getElementById('statRead').textContent  = readMin;
+    document.getElementById('summaryMeta').textContent = data.pages + ' page' + (data.pages !== 1 ? 's' : '') + ' processed';
+
     document.getElementById('resultPanel').style.display = '';
-  } catch(err) {
-    clearInterval(ticker);
+  } catch(_) {
+    stepTimers.forEach(clearTimeout);
     document.getElementById('loadingCard').style.display = 'none';
     submitBtn.disabled = false;
     showToast('Request failed. Please try again.', 'error');
   }
 });
 
+// ── Markdown renderer ──────────────────────────────────────
 function renderMd(text) {
   if (!text) return '';
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -653,21 +595,34 @@ function renderMd(text) {
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g,     '<em>$1</em>')
     .replace(/^- (.+)$/gm,    '<li>$1</li>')
-    .replace(/(<li>.*<\/li>\n?)+/g, s => '<ul>'+s+'</ul>')
+    .replace(/(<li>.*<\/li>\n?)+/g, s => '<ul>' + s + '</ul>')
     .replace(/\n\n+/g, '</p><p>')
-    .replace(/^(?!<[hul])/gm, '')
     .replace(/(.+)/s, '<p>$1</p>');
 }
 
+// ── Actions ────────────────────────────────────────────────
 function copySummary() {
-  navigator.clipboard.writeText(summaryEl.innerText).then(() => showToast('Summary copied!', 'success'));
+  navigator.clipboard.writeText(summaryEl.innerText)
+    .then(() => showToast('Summary copied to clipboard!', 'success'));
+}
+
+function downloadTxt() {
+  const blob = new Blob([summaryEl.innerText], { type: 'text/plain' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const name = (document.getElementById('fileCardName').textContent || 'summary').replace(/\.pdf$/i,'');
+  a.href = url; a.download = name + '_summary.txt';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  showToast('Summary downloaded!', 'success');
 }
 
 function showToast(msg, type) {
   const c = document.getElementById('toastContainer');
+  if (!c) return;
   const t = document.createElement('div');
-  t.className = 'toast toast-' + (type||'info');
-  t.innerHTML = `<i class="fa-solid fa-${type==='error'?'circle-xmark':'circle-check'}"></i> ${msg}`;
+  t.className = 'toast toast-' + (type || 'info');
+  t.innerHTML = '<i class="fa-solid fa-' + (type === 'error' ? 'circle-xmark' : 'circle-check') + '"></i> ' + msg;
   c.appendChild(t); setTimeout(() => t.remove(), 4000);
 }
 </script>

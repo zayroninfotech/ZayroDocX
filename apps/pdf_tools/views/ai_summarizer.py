@@ -27,18 +27,27 @@ def _extract_text(path):
     return '\n\n'.join(parts)
 
 
+PROMPT_TEMPLATE = (
+    'You are an expert document analyst. Read the following document text and produce a '
+    'clear, well-structured summary in Markdown. Use this exact structure:\n\n'
+    '## Overview\n'
+    'Write 2-3 concise sentences summarising the document\'s purpose and main conclusion.\n\n'
+    '## Key Points\n'
+    'A bullet list of the 5-8 most important points from the document.\n\n'
+    '## Key Figures & Facts\n'
+    'A bullet list of important numbers, dates, names, or statistics mentioned. '
+    'Skip this section if none are present.\n\n'
+    '## Conclusion\n'
+    'One or two sentences on the document\'s overall takeaway or recommendation.\n\n'
+    'Document text:\n{text}'
+)
+
+
 def _mistral_summarize(text):
     api_key = settings.MISTRAL_API_KEY
     if not api_key:
         raise ValueError('Mistral API key not configured in .env')
-    prompt = (
-        'You are an expert document analyst. Read the following document text and produce a '
-        'clear, well-structured summary. Include:\n'
-        '- A 2-3 sentence overview\n'
-        '- Key points (bullet list)\n'
-        '- Important figures, dates, or names if present\n\n'
-        f'Document text:\n{text[:_MAX_CHARS]}'
-    )
+    prompt = PROMPT_TEMPLATE.format(text=text[:_MAX_CHARS])
     payload = json.dumps({
         'model': 'mistral-small-latest',
         'messages': [{'role': 'user', 'content': prompt}],
@@ -62,17 +71,7 @@ def _openai_summarize(text):
     client = OpenAI(api_key=api_key)
     response = client.chat.completions.create(
         model='gpt-4o-mini',
-        messages=[{
-            'role': 'user',
-            'content': (
-                'You are an expert document analyst. Read the following document text and produce a '
-                'clear, well-structured summary. Include:\n'
-                '- A 2-3 sentence overview\n'
-                '- Key points (bullet list)\n'
-                '- Important figures, dates, or names if present\n\n'
-                f'Document text:\n{text[:_MAX_CHARS]}'
-            ),
-        }],
+        messages=[{'role': 'user', 'content': PROMPT_TEMPLATE.format(text=text[:_MAX_CHARS])}],
     )
     return response.choices[0].message.content.strip()
 
