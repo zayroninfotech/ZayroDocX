@@ -1205,18 +1205,14 @@ if (io) {
       if(lang==='en'){
         document.cookie='googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         document.cookie='googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.'+location.hostname+'; path=/;';
-        location.reload();
       } else {
-        var t=0,iv=setInterval(function(){ var s=document.querySelector('.goog-te-combo'); if(s){clearInterval(iv);s.value=lang;s.dispatchEvent(new Event('change'));}else if(++t>40){clearInterval(iv);} },150);
+        document.cookie='googtrans=/en/'+lang+'; path=/;';
+        document.cookie='googtrans=/en/'+lang+'; domain=.'+location.hostname+'; path=/;';
       }
+      location.reload();
     });
   });
   document.addEventListener('click',function(e){ if(!e.target.closest('#lnLangDrop')) drop.classList.remove('open'); });
-  if(saved&&saved!=='en'){
-    window.addEventListener('load',function(){
-      var t=0,iv=setInterval(function(){ var s=document.querySelector('.goog-te-combo'); if(s){clearInterval(iv);if(s.value!==saved){s.value=saved;s.dispatchEvent(new Event('change'));}}else if(++t>60){clearInterval(iv);} },150);
-    });
-  }
 })();
 </script>
 </body>

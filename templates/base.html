@@ -807,24 +807,13 @@
         localStorage.setItem('zdx-lang', lang);
 
         if(lang === 'en'){
-          // Clear Google Translate cookies and reload
-          ['googtrans'].forEach(function(name){
-            document.cookie = name+'=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-            document.cookie = name+'=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.'+location.hostname+'; path=/;';
-          });
-          location.reload();
+          document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+          document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.'+location.hostname+'; path=/;';
         } else {
-          // Wait for Google Translate widget to initialise, then switch
-          var attempts = 0;
-          var t = setInterval(function(){
-            var sel = document.querySelector('.goog-te-combo');
-            if(sel){
-              clearInterval(t);
-              sel.value = lang;
-              sel.dispatchEvent(new Event('change'));
-            } else if(++attempts > 40){ clearInterval(t); }
-          }, 150);
+          document.cookie = 'googtrans=/en/'+lang+'; path=/;';
+          document.cookie = 'googtrans=/en/'+lang+'; domain=.'+location.hostname+'; path=/;';
         }
+        location.reload();
       });
     });
 
@@ -832,23 +821,6 @@
     document.addEventListener('click', function(e){
       if(!e.target.closest('#mhLangDrop')) drop.classList.remove('open');
     });
-
-    // Re-apply on load if a non-English language was saved
-    if(saved && saved !== 'en'){
-      window.addEventListener('load', function(){
-        var attempts = 0;
-        var t = setInterval(function(){
-          var sel = document.querySelector('.goog-te-combo');
-          if(sel){
-            clearInterval(t);
-            if(sel.value !== saved){
-              sel.value = saved;
-              sel.dispatchEvent(new Event('change'));
-            }
-          } else if(++attempts > 60){ clearInterval(t); }
-        }, 150);
-      });
-    }
   })();
   </script>
 
