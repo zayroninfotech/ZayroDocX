@@ -10,8 +10,8 @@
 .ul-drop-icon { font-size: 3rem; color: #dc2626; margin-bottom: .8rem; }
 .ul-drop h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
 .ul-drop p  { color: #64748b; margin: 0 0 1.2rem; }
-.ul-drop-btn { background: #dc2626; color: #fff; border: none; border-radius: 10px; padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer; }
-.ul-drop-btn:hover { background: #b91c1c; }
+.ul-drop-btn { display:inline-flex; align-items:center; gap:.55rem; background:#2563eb; color:#fff; border:none; border-radius:12px; padding:.9rem 2.5rem; font-size:1.1rem; font-weight:700; cursor:pointer; transition:background .15s,transform .1s; box-shadow:0 4px 18px rgba(37,99,235,.35); }
+.ul-drop-btn:hover { background:#1d4ed8; transform:translateY(-1px); }
 
 .ul-split { display: none; grid-template-columns: 1fr 440px; gap: 20px; align-items: start; }
 .ul-split.show { display: grid; }
@@ -62,7 +62,7 @@
   <h3>Drop your protected PDF here</h3>
   <p>Enter the current password in the panel to remove encryption</p>
   <button type="button" class="ul-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
-    <i class="fa-solid fa-folder-open"></i> Select PDF File
+    <i class="fa-solid fa-plus"></i> Select PDF File
   </button>
 </div>
 

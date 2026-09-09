@@ -11,7 +11,7 @@
 .rz-drop-icon{font-size:3rem;color:#dc2626;margin-bottom:.8rem;}
 .rz-drop h3{font-size:1.3rem;font-weight:700;color:#1e293b;margin:0 0 .4rem;}
 .rz-drop p{color:#64748b;margin:0 0 1.2rem;}
-.rz-drop-btn{background:#dc2626;color:#fff;border:none;border-radius:10px;padding:.6rem 1.4rem;font-size:.9rem;font-weight:600;cursor:pointer;}
+.rz-drop-btn{ display:inline-flex; align-items:center; gap:.55rem; background:#2563eb; color:#fff; border:none; border-radius:12px; padding:.9rem 2.5rem; font-size:1.1rem; font-weight:700; cursor:pointer; transition:background .15s,transform .1s; box-shadow:0 4px 18px rgba(37,99,235,.35); }
 .rz-drop-btn:hover{background:#b91c1c;}
 
 /* ── layout ── */
@@ -89,7 +89,7 @@
   <h3>Drop your image here</h3>
   <p>Set the new dimensions in the panel</p>
   <button type="button" class="rz-drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">
-    <i class="fa-solid fa-folder-open"></i> Select Image
+    <i class="fa-solid fa-plus"></i> Select Image
   </button>
 </div>
 

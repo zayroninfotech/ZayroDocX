@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 {% block title %}PDF Viewer — ZayroDocX{% endblock %}
 {% block active_ocr %}active{% endblock %}
@@ -73,14 +73,15 @@
 .ocr-drop h3 { font-size: 1.05rem; font-weight: 700; margin: 0 0 .35rem; }
 .ocr-drop p  { font-size: .84rem; color: var(--text-muted); margin: 0 0 1.2rem; }
 .ocr-drop-btn {
-  display: inline-flex; align-items: center; gap: .5rem;
+  display: inline-flex; align-items: center; gap: .55rem;
   background: #2563eb;
-  color: #fff; border: none; border-radius: 9px;
-  padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600;
-  cursor: pointer; position: relative; z-index: 1; transition: opacity .2s;
-  box-shadow: 0 4px 14px rgba(37,99,235,.35);
+  color: #fff; border: none; border-radius: 12px;
+  padding: .9rem 2.5rem; font-size: 1.1rem; font-weight: 700;
+  cursor: pointer; position: relative; z-index: 1;
+  transition: background .15s, transform .1s;
+  box-shadow: 0 4px 18px rgba(37,99,235,.35);
 }
-.ocr-drop-btn:hover { opacity: .88; }
+.ocr-drop-btn:hover { background: #1d4ed8; transform: translateY(-1px); }
 .ocr-drop-hint { display: block; margin-top: .7rem; font-size: .74rem; color: var(--text-muted); }
 
 /* ── Fullscreen loader overlay ── */
@@ -276,7 +277,7 @@
   <h3>Drop your PDF here</h3>
   <p>Upload a PDF — all pages are processed and displayed with OCR text extraction</p>
   <button type="button" class="ocr-drop-btn" onclick="document.getElementById('fileInput').click()">
-    <i class="fa-solid fa-folder-open"></i> Select PDF File
+    <i class="fa-solid fa-plus"></i> Select PDF File
   </button>
   <span class="ocr-drop-hint">Supports multi-page PDFs · Bank statements · Scanned documents</span>
 </div>

@@ -9,7 +9,7 @@
 .bf-drop-icon{font-size:3rem;color:#dc2626;margin-bottom:.8rem;}
 .bf-drop h3{font-size:1.3rem;font-weight:700;color:#1e293b;margin:0 0 .4rem;}
 .bf-drop p{color:#64748b;margin:0 0 1.2rem;}
-.bf-drop-btn{background:#dc2626;color:#fff;border:none;border-radius:10px;padding:.6rem 1.4rem;font-size:.9rem;font-weight:600;cursor:pointer;}
+.bf-drop-btn{ display:inline-flex; align-items:center; gap:.55rem; background:#2563eb; color:#fff; border:none; border-radius:12px; padding:.9rem 2.5rem; font-size:1.1rem; font-weight:700; cursor:pointer; transition:background .15s,transform .1s; box-shadow:0 4px 18px rgba(37,99,235,.35); }
 .bf-split{display:none;grid-template-columns:1fr 320px;gap:20px;align-items:start;}
 .bf-split.show{display:grid;}
 .bf-viewer{border-radius:16px;overflow:hidden;position:relative;background:#1e293b;display:flex;align-items:center;justify-content:center;}
@@ -55,7 +55,7 @@
   <h3>Drop your image here</h3>
   <p>AI will detect and blur all faces automatically</p>
   <button type="button" class="bf-drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">
-    <i class="fa-solid fa-folder-open"></i> Select Image
+    <i class="fa-solid fa-plus"></i> Select Image
   </button>
 </div>
 

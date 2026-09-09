@@ -9,8 +9,8 @@
 .p2e-drop-icon { font-size: 3rem; color: #1d6f42; margin-bottom: .8rem; }
 .p2e-drop h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
 .p2e-drop p  { color: #64748b; margin: 0 0 1.2rem; }
-.p2e-drop-btn { background: #dc2626; color: #fff; border: none; border-radius: 10px; padding: .6rem 1.4rem; font-size: .9rem; font-weight: 600; cursor: pointer; }
-.p2e-drop-btn:hover { background: #b91c1c; }
+.p2e-drop-btn { display:inline-flex; align-items:center; gap:.55rem; background:#2563eb; color:#fff; border:none; border-radius:12px; padding:.9rem 2.5rem; font-size:1.1rem; font-weight:700; cursor:pointer; transition:background .15s,transform .1s; box-shadow:0 4px 18px rgba(37,99,235,.35); }
+.p2e-drop-btn:hover { background:#1d4ed8; transform:translateY(-1px); }
 
 .p2e-split { display: none; grid-template-columns: 1fr 420px; gap: 20px; align-items: start; }
 .p2e-split.show { display: grid; }
@@ -117,7 +117,7 @@
   <h3>Drop your PDF here</h3>
   <p>Tables and data will be extracted into an Excel spreadsheet</p>
   <button type="button" class="p2e-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
-    <i class="fa-solid fa-folder-open"></i> Select PDF File
+    <i class="fa-solid fa-plus"></i> Select PDF File
   </button>
 </div>
 

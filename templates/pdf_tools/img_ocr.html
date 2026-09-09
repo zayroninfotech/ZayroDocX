@@ -12,8 +12,8 @@
 .ito-drop h3{font-size:1.1rem;font-weight:700;color:#1e293b;margin:.5rem 0 .3rem}
 .ito-drop p{font-size:.85rem;color:#64748b;margin:0 0 1.3rem}
 .ito-drop-icon{font-size:3rem;color:#dc2626;margin-bottom:.8rem}
-.ito-drop-btn{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:10px;padding:.65rem 1.4rem;font-size:.85rem;font-weight:700;cursor:pointer;transition:opacity .15s}
-.ito-drop-btn:hover{opacity:.88}
+.ito-drop-btn{ display:inline-flex; align-items:center; gap:.55rem; background:#2563eb; color:#fff; border:none; border-radius:12px; padding:.9rem 2.5rem; font-size:1.1rem; font-weight:700; cursor:pointer; transition:background .15s,transform .1s; box-shadow:0 4px 18px rgba(37,99,235,.35); }
+.ito-drop-btn:hover{ background:#1d4ed8; transform:translateY(-1px); }
 /* ── Split Layout ────────────────────────────────────────────────────── */
 .ito-split{display:none;grid-template-columns:1fr 400px;gap:18px;align-items:start}
 .ito-split.show{display:grid}
@@ -139,7 +139,7 @@
   <h3>Drop your image here</h3>
   <p>Extract text from screenshots, scanned docs, photos</p>
   <button type="button" class="ito-drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">
-    <i class="fa-solid fa-folder-open"></i> Select Image
+    <i class="fa-solid fa-plus"></i> Select Image
   </button>
 </div>
 

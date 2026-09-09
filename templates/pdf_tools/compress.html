@@ -49,13 +49,13 @@
 .cp-drop h3 { font-size:1.2rem; font-weight:800; margin:0 0 .3rem; color:#111; }
 .cp-drop p  { font-size:.88rem; color:#888; margin:0 0 1.4rem; }
 .cp-drop-btn {
-  display:inline-flex; align-items:center; gap:.48rem;
-  background:#2563eb; color:#fff; border:none; border-radius:10px;
-  padding:.75rem 1.8rem; font-size:.95rem; font-weight:700;
-  cursor:pointer; transition:opacity .2s,transform .1s; position:relative; z-index:1;
-  box-shadow:0 3px 12px rgba(37,99,235,.3);
+  display:inline-flex; align-items:center; gap:.55rem;
+  background:#2563eb; color:#fff; border:none; border-radius:12px;
+  padding:.9rem 2.5rem; font-size:1.1rem; font-weight:700;
+  cursor:pointer; transition:background .15s,transform .1s; position:relative; z-index:1;
+  box-shadow:0 4px 18px rgba(37,99,235,.35);
 }
-.cp-drop-btn:hover { opacity:.88; transform:translateY(-1px); }
+.cp-drop-btn:hover { background:#1d4ed8; transform:translateY(-1px); }
 
 /* 2-column work area (shown after file selected) */
 .cp-workspace { display:none; gap:1.2rem; }
@@ -207,7 +207,7 @@
   <h3 style="font-size:1rem;font-weight:500;color:#555;margin:0 0 .3rem;">Drop your PDF here</h3>
   <p>Select a PDF to reduce its file size</p>
   <button type="button" class="cp-drop-btn" onclick="document.getElementById('fileInput').click()">
-    + Select PDF File
+    <i class="fa-solid fa-plus"></i> Select PDF File
   </button>
 </div>
 

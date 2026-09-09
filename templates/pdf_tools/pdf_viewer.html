@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block title %}PDF Viewer & Extractor — ZayroDocX{% endblock %}
 {% block active_pdf_viewer %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">PDF Viewer & Extractor</span>{% endblock %}
@@ -26,7 +26,7 @@
     <input type="file" id="fileInput" accept=".pdf">
     <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
     <h3>Drop your PDF here</h3><p>or click to browse</p>
-    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select PDF File</span>
+    <span class="upload-cta"><i class="fa-solid fa-plus"></i> Select PDF File</span>
   </div>
   <div class="action-bar" style="margin-top:12px">
     <button id="loadBtn" class="btn btn-primary btn-lg" disabled>

@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block title %}Invoice Extractor — ZayroDocX{% endblock %}
 {% block active_invoice %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Invoice Extractor</span>{% endblock %}
@@ -433,7 +433,7 @@
       <h2 style="font-size:2rem;font-weight:900;color:#111;margin:0 0 .3rem;letter-spacing:-.03em;">Invoice Extractor</h2>
       <div class="inv-upload-title">Drop your Invoice PDF here</div>
       <div class="inv-upload-sub">Supports normal PDFs and scanned invoices — drop or click to upload, and we'll extract all key fields instantly</div>
-      <span class="inv-upload-cta"><i class="fa-solid fa-folder-open"></i> Select Invoice PDF</span>
+      <span class="inv-upload-cta"><i class="fa-solid fa-plus"></i> Select Invoice PDF</span>
       <div class="inv-upload-hint">PDF files only &nbsp;·&nbsp; Max 50 MB &nbsp;·&nbsp; Auto-processes on upload</div>
     </div>
   </form>

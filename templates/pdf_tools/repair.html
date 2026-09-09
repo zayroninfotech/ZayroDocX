@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block title %}Repair PDF — ZayroDocX{% endblock %}
 {% block active_repair %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Repair PDF</span>{% endblock %}
@@ -14,7 +14,7 @@
   <div class="upload-zone"><input type="file" id="fileInput" name="file" accept=".pdf">
     <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
     <h3>Drop your file here</h3><p>or click to browse</p>
-    <span class="upload-cta"><i class="fa-solid fa-folder-open"></i> Select File</span>
+    <span class="upload-cta"><i class="fa-solid fa-plus"></i> Select File</span>
   </div>
   <div class="file-list" id="fileList"></div>
   
