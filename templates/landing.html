@@ -205,6 +205,44 @@ body{ padding-top:60px; }
 }
 .theme-toggle-btn:hover{ background:var(--surface-raised); color:var(--text); border-color:var(--text-secondary); }
 
+/* Language Switcher */
+.ln-lang-drop{ position:relative; }
+.ln-lang-btn{
+  display:inline-flex; align-items:center; gap:.35rem;
+  height:36px; padding:0 .65rem;
+  background:var(--surface); color:var(--text-secondary);
+  border:1.5px solid var(--border-strong); border-radius:8px;
+  font-size:.78rem; font-weight:600; cursor:pointer; white-space:nowrap;
+  transition:background .15s, color .15s, border-color .15s;
+}
+.ln-lang-btn:hover{ background:var(--surface-raised); color:var(--text); border-color:var(--text-secondary); }
+.ln-lang-btn i{ font-size:.84rem; }
+.ln-lang-menu{
+  display:none; position:absolute; top:calc(100% + 8px); right:0;
+  width:220px; background:#fff; border-radius:12px;
+  box-shadow:0 8px 36px rgba(0,0,0,.18); border:1px solid rgba(0,0,0,.08);
+  z-index:9999; overflow:hidden;
+  animation:lnLangSlide .15s ease;
+}
+@keyframes lnLangSlide{ from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+[data-theme="dark"] .ln-lang-menu{ background:#1e2235; border-color:rgba(255,255,255,.1); box-shadow:0 8px 36px rgba(0,0,0,.55); }
+.ln-lang-drop.open .ln-lang-menu{ display:block; }
+.ln-lang-menu-inner{ max-height:320px; overflow-y:auto; padding:.35rem; }
+.ln-lang-item{
+  display:flex; align-items:center; width:100%; padding:.48rem .7rem;
+  background:transparent; border:none; border-radius:8px;
+  color:#1a1a1a; font-size:.82rem; font-weight:500;
+  cursor:pointer; text-align:left; gap:.45rem; transition:background .12s;
+}
+[data-theme="dark"] .ln-lang-item{ color:#e2e8f0; }
+.ln-lang-item:hover{ background:#f1f5f9; }
+[data-theme="dark"] .ln-lang-item:hover{ background:rgba(255,255,255,.07); }
+.ln-lang-item.active{ background:#eff6ff; color:#2563eb; font-weight:600; }
+[data-theme="dark"] .ln-lang-item.active{ background:rgba(37,99,235,.18); color:#60a5fa; }
+@media(max-width:640px){ .ln-lang-cur{ display:none; } .ln-lang-menu{ width:200px; } }
+.goog-te-banner-frame,.skiptranslate{ display:none !important; }
+body{ top:0 !important; }
+
 /* Nav buttons — rounded corners, matching reference style */
 .btn-login{
   display:inline-flex; align-items:center; justify-content:center;
@@ -620,6 +658,33 @@ section{ padding:64px 0; }
     <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle dark/light mode" title="Toggle dark mode">
       <i class="fa-solid fa-moon" id="themeIcon"></i>
     </button>
+    <!-- Language Switcher -->
+    <div class="ln-lang-drop" id="lnLangDrop">
+      <button class="ln-lang-btn" id="lnLangBtn" aria-label="Select language">
+        <i class="fa-solid fa-globe"></i>
+        <span class="ln-lang-cur" id="lnLangCur">EN</span>
+      </button>
+      <div class="ln-lang-menu" id="lnLangMenu">
+        <div class="ln-lang-menu-inner">
+          <button class="ln-lang-item" data-lang="en"    data-label="EN">🇺🇸 English</button>
+          <button class="ln-lang-item" data-lang="es"    data-label="ES">🇪🇸 Español</button>
+          <button class="ln-lang-item" data-lang="fr"    data-label="FR">🇫🇷 Français</button>
+          <button class="ln-lang-item" data-lang="de"    data-label="DE">🇩🇪 Deutsch</button>
+          <button class="ln-lang-item" data-lang="nl"    data-label="NL">🇳🇱 Nederlands</button>
+          <button class="ln-lang-item" data-lang="pt"    data-label="PT">🇧🇷 Português (Brasil)</button>
+          <button class="ln-lang-item" data-lang="ar"    data-label="AR">🇸🇦 العربية</button>
+          <button class="ln-lang-item" data-lang="hi"    data-label="HI">🇮🇳 हिन्दी</button>
+          <button class="ln-lang-item" data-lang="zh-CN" data-label="ZH">🇨🇳 简体中文</button>
+          <button class="ln-lang-item" data-lang="zh-TW" data-label="ZH">🇹🇼 繁體中文</button>
+          <button class="ln-lang-item" data-lang="ja"    data-label="JA">🇯🇵 日本語</button>
+          <button class="ln-lang-item" data-lang="ko"    data-label="KO">🇰🇷 한국어</button>
+          <button class="ln-lang-item" data-lang="id"    data-label="ID">🇮🇩 Bahasa Indonesia</button>
+          <button class="ln-lang-item" data-lang="vi"    data-label="VI">🇻🇳 Tiếng Việt</button>
+          <button class="ln-lang-item" data-lang="th"    data-label="TH">🇹🇭 ภาษาไทย</button>
+          <button class="ln-lang-item" data-lang="he"    data-label="HE">🇮🇱 עברית</button>
+        </div>
+      </div>
+    </div>
     <a href="#" class="btn-login" onclick="event.preventDefault();openZpPopup('loginPopup')">Login</a>
     <a href="#" class="btn-register" onclick="event.preventDefault();openZpPopup('signupPopup')">Get Started Free</a>
   </div>
@@ -1110,6 +1175,47 @@ if (io) {
   } else {
     window.addEventListener('load', maybeHide);
     setTimeout(hideLoader, 8000);
+  }
+})();
+</script>
+
+<!-- Google Translate -->
+<div id="google_translate_element" style="display:none;position:absolute;top:-9999px;left:-9999px;"></div>
+<script>function googleTranslateElementInit(){new google.translate.TranslateElement({pageLanguage:'en',autoDisplay:false},'google_translate_element');}</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script>
+(function(){
+  var drop=document.getElementById('lnLangDrop');
+  var btn=document.getElementById('lnLangBtn');
+  var cur=document.getElementById('lnLangCur');
+  if(!drop) return;
+  var _map={'en':'EN','es':'ES','fr':'FR','de':'DE','nl':'NL','pt':'PT','ar':'AR','hi':'HI','zh-CN':'ZH','zh-TW':'ZH','ja':'JA','ko':'KO','id':'ID','vi':'VI','th':'TH','he':'HE'};
+  var saved=localStorage.getItem('zdx-lang')||'en';
+  cur.textContent=_map[saved]||'EN';
+  drop.querySelectorAll('.ln-lang-item').forEach(function(el){ el.classList.toggle('active',el.dataset.lang===saved); });
+  btn.addEventListener('click',function(e){ e.stopPropagation(); drop.classList.toggle('open'); });
+  drop.querySelectorAll('.ln-lang-item').forEach(function(item){
+    item.addEventListener('click',function(){
+      var lang=item.dataset.lang, label=item.dataset.label;
+      cur.textContent=label;
+      drop.querySelectorAll('.ln-lang-item').forEach(function(i){ i.classList.remove('active'); });
+      item.classList.add('active');
+      drop.classList.remove('open');
+      localStorage.setItem('zdx-lang',lang);
+      if(lang==='en'){
+        document.cookie='googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie='googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.'+location.hostname+'; path=/;';
+        location.reload();
+      } else {
+        var t=0,iv=setInterval(function(){ var s=document.querySelector('.goog-te-combo'); if(s){clearInterval(iv);s.value=lang;s.dispatchEvent(new Event('change'));}else if(++t>40){clearInterval(iv);} },150);
+      }
+    });
+  });
+  document.addEventListener('click',function(e){ if(!e.target.closest('#lnLangDrop')) drop.classList.remove('open'); });
+  if(saved&&saved!=='en'){
+    window.addEventListener('load',function(){
+      var t=0,iv=setInterval(function(){ var s=document.querySelector('.goog-te-combo'); if(s){clearInterval(iv);if(s.value!==saved){s.value=saved;s.dispatchEvent(new Event('change'));}}else if(++t>60){clearInterval(iv);} },150);
+    });
   }
 })();
 </script>
