@@ -326,7 +326,6 @@ const cpFileName  = document.getElementById('cpFileName');
 const cpFileSize  = document.getElementById('cpFileSize');
 const cpSubmit    = document.getElementById('cpSubmit');
 const cpResultPage= document.getElementById('cpResultPage');
-const cpInfoStrip = document.getElementById('cpInfoStrip');
 const toolForm    = document.getElementById('toolForm');
 let currentFile   = null;
 let compressed    = false;
@@ -339,7 +338,6 @@ function fmtBytes(b) {
 
 function showWorkspace() {
   toolForm.style.display = '';
-  cpInfoStrip.style.display = '';
   cpResultPage.classList.remove('show');
 }
 
@@ -405,7 +403,6 @@ document.getElementById('cpRemoveFile').addEventListener('click', () => {
 document.getElementById('cpBackBtn').addEventListener('click', () => {
   cpResultPage.classList.remove('show');
   toolForm.style.display = '';
-  cpInfoStrip.style.display = '';
   currentFile = null;
   compressed = false;
   cpDrop.style.display = '';
@@ -471,8 +468,7 @@ async function doCompress() {
       dlBtn.download = data.filename;
       /* Hide workspace, show result as new page */
       toolForm.style.display = 'none';
-      cpInfoStrip.style.display = 'none';
-      cpResultPage.classList.add('show');
+          cpResultPage.classList.add('show');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       compressed = true;
     }
