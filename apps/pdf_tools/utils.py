@@ -189,11 +189,16 @@ def ip_ratelimit(limit=20, window=_RL_WINDOW):
     """
     Decorator: allow at most `limit` requests per `window` seconds per IP.
     Returns HTTP 429 when exceeded. Thread-safe, no external cache needed.
+    Superusers and staff are always exempt.
     """
     def decorator(view_func):
         @functools.wraps(view_func)
         def wrapped(request, *args, **kwargs):
             from django.http import JsonResponse
+            # Admins bypass IP rate limiting entirely
+            if getattr(request, 'user', None) and getattr(request.user, 'is_authenticated', False):
+                if getattr(request.user, 'is_superuser', False) or getattr(request.user, 'is_staff', False):
+                    return view_func(request, *args, **kwargs)
             ip = (request.META.get('HTTP_X_FORWARDED_FOR') or
                   request.META.get('REMOTE_ADDR', '0.0.0.0')).split(',')[0].strip()
             now = _rl_time.monotonic()

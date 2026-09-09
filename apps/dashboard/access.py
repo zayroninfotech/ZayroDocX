@@ -23,6 +23,9 @@ def check_access(request, slug):
             return 'login_required', 'Create a free account to use this tool.'
         return 'upgrade_required', 'Upgrade your plan to access this tool.'
     if request.user.is_authenticated:
+        # Superusers and staff always get unlimited access — no daily cap
+        if getattr(request.user, 'is_superuser', False) or getattr(request.user, 'is_staff', False):
+            return 'ok', ''
         limits = PLAN_LIMITS.get(plan, {}).get(slug, {})
         daily = limits.get('daily')
         if daily is not None and _today_count(request.user.id, slug) >= daily:
