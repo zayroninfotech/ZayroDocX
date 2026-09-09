@@ -131,12 +131,29 @@
 
 .ais-page-area {
   padding: 18px 20px; display: flex; align-items: flex-start;
-  justify-content: center; background: #0f172a; min-height: 300px;
+  justify-content: center; background: #0f172a; min-height: 420px;
+  position: relative;
 }
 .ais-page-area img {
   max-width: 100%; border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0,0,0,.5);
   transition: opacity .22s; display: block;
+}
+.ais-page-skeleton {
+  position: absolute; inset: 18px 20px;
+  background: linear-gradient(90deg,#1e293b 25%,#2d3f55 50%,#1e293b 75%);
+  background-size: 200% 100%;
+  border-radius: 8px;
+  animation: ais-shimmer 1.4s ease-in-out infinite;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 12px;
+}
+.ais-page-skeleton i { font-size: 2.2rem; color: #334155; }
+.ais-page-skeleton span { font-size: .76rem; color: #475569; font-weight: 600; }
+.ais-page-skeleton.hidden { display: none; }
+@keyframes ais-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 .ais-thumb-strip {
   display: flex; gap: 6px; padding: 10px 16px;
@@ -327,7 +344,11 @@
       </div>
     </div>
     <div class="ais-page-area" id="pgArea">
-      <img id="pgImg" src="" alt="page" style="opacity:0">
+      <div class="ais-page-skeleton" id="pgSkeleton">
+        <i class="fa-solid fa-file-pdf"></i>
+        <span>Rendering pages…</span>
+      </div>
+      <img id="pgImg" src="" alt="page" style="opacity:0;display:none">
     </div>
     <div class="ais-thumb-strip" id="pgThumbStrip" style="display:none"></div>
   </div>
@@ -457,7 +478,9 @@ async function setFile(f) {
   document.getElementById('fileCardName').textContent = f.name;
   document.getElementById('fileCardMeta').textContent = kb + ' KB · Loading pages…';
   document.getElementById('viewerTitle').textContent  = 'Rendering pages…';
-  document.getElementById('pgImg').style.opacity = '0.2';
+  document.getElementById('pgImg').style.opacity = '0';
+  document.getElementById('pgImg').style.display = 'none';
+  document.getElementById('pgSkeleton').classList.remove('hidden');
 
   // Render pages via API
   try {
@@ -468,6 +491,8 @@ async function setFile(f) {
     const data = await res.json();
     if (data.error || !data.page_images) {
       document.getElementById('viewerTitle').textContent = 'Preview unavailable';
+      document.getElementById('pgSkeleton').classList.add('hidden');
+      document.getElementById('pgImg').style.display = 'block';
       document.getElementById('pgImg').style.opacity = '1';
       return;
     }
@@ -507,9 +532,14 @@ function pgGo(idx) {
   if (!pgPages.length) return;
   pgCur = Math.max(0, Math.min(idx, pgPages.length - 1));
   const img = document.getElementById('pgImg');
+  const skel = document.getElementById('pgSkeleton');
   img.style.opacity = '0';
   img.src = 'data:image/jpeg;base64,' + pgPages[pgCur];
-  img.onload = () => { img.style.opacity = '1'; };
+  img.onload = () => {
+    skel.classList.add('hidden');
+    img.style.display = 'block';
+    img.style.opacity = '1';
+  };
   document.getElementById('pgLabel').textContent = (pgCur + 1) + ' / ' + pgPages.length;
   document.getElementById('pgPrev').disabled = pgCur === 0;
   document.getElementById('pgNext').disabled = pgCur === pgPages.length - 1;
@@ -523,6 +553,9 @@ function resetUpload() {
   document.getElementById('resultPanel').style.display = 'none';
   document.getElementById('loadingCard').style.display = 'none';
   document.getElementById('metaRow').style.display = 'none';
+  document.getElementById('pgSkeleton').classList.remove('hidden');
+  const img = document.getElementById('pgImg');
+  img.src = ''; img.style.display = 'none'; img.style.opacity = '0';
 }
 
 // ── Step loader ────────────────────────────────────────────
