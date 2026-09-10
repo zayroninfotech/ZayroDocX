@@ -554,9 +554,8 @@ section{ padding:64px 0; }
   .hero-meta-item{ padding:10px 16px; }
   .hero-meta-item .num{ font-size:20px; }
   .hero-meta-item .lbl{ font-size:10.5px; }
-  /* Tool cards: 2 cols on tablet */
-  .tools-cat-grid{ grid-template-columns:repeat(2,1fr); }
-  .tools-cat{ padding:20px 18px 18px; }
+  .et-grid{ grid-template-columns:repeat(3,1fr); }
+  .et-header{ gap:12px; }
 }
 
 /* ── 600px: large phone ───────────────────────────────── */
@@ -595,17 +594,13 @@ section{ padding:64px 0; }
   .step{ padding:20px 18px; }
   .step h3{ font-size:16px; }
   .step p{ font-size:13px; }
-  /* Tool cards: 1 col on small phone */
-  .tools-cat-grid{ grid-template-columns:1fr; gap:8px; }
-  .tools-cat{ padding:16px 14px 14px; border-radius:12px; }
-  .tools-cat-head h2{ font-size:16px; }
-  .tools-cat-head p{ font-size:12px; }
+  .et-grid{ grid-template-columns:repeat(2,1fr); gap:8px; }
+  .et-header{ flex-direction:column; align-items:flex-start; }
+  .et-view-all{ display:none; }
   .tc{ padding:10px 12px; gap:10px; }
   .tc-icon{ width:32px; height:32px; border-radius:8px; font-size:14px; }
   .tc-text strong{ font-size:13px; }
   .tc-text span{ font-size:11px; }
-  /* Tools section gap */
-  .tools-cats{ gap:14px; }
 }
 
 /* ── 390px: iPhone 14 / standard small phone ─────────── */
@@ -729,19 +724,34 @@ section{ padding:64px 0; }
 
 <!-- ===================== TOOLS ===================== -->
 <style>
-.tools-cats{ display:flex; flex-direction:column; gap:20px; }
-.tools-cat{
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:16px; padding:28px 28px 24px;
+.et-header{
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:16px; margin-bottom:24px;
 }
-.tools-cat-head{ margin-bottom:20px; }
-.tools-cat-head h2{ font-size:18px; font-weight:700; color:var(--text); margin:0 0 4px; letter-spacing:-.02em; }
-.tools-cat-head p{ font-size:13px; color:var(--text-secondary); margin:0; }
-.tools-cat-grid{
+.et-title{ font-size:1.35rem; font-weight:800; color:var(--text); letter-spacing:-.03em; margin-bottom:3px; }
+.et-sub{ font-size:13px; color:var(--text-secondary); }
+.et-tabs{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.et-tab{
+  padding:6px 16px; border-radius:999px; font-size:13px; font-weight:600;
+  cursor:pointer; border:1.5px solid var(--border); background:var(--surface);
+  color:var(--text-secondary); transition:all .15s; font-family:inherit;
+}
+.et-tab:hover{ border-color:var(--accent); color:var(--accent); }
+.et-tab.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
+.et-view-all{
+  font-size:13px; font-weight:600; color:var(--text-secondary);
+  text-decoration:none; white-space:nowrap; display:flex; align-items:center; gap:4px;
+  transition:color .15s;
+}
+.et-view-all:hover{ color:var(--accent); }
+.et-grid{
   display:grid;
-  grid-template-columns:repeat(5,1fr);
+  grid-template-columns:repeat(6,1fr);
   gap:10px;
 }
+@media(max-width:1100px){ .et-grid{ grid-template-columns:repeat(4,1fr); } }
+@media(max-width:768px){ .et-grid{ grid-template-columns:repeat(3,1fr); } }
+@media(max-width:480px){ .et-grid{ grid-template-columns:repeat(2,1fr); } }
 .tc{
   display:flex; align-items:center; gap:12px;
   border:1px solid var(--border); border-radius:12px;
@@ -758,227 +768,93 @@ section{ padding:64px 0; }
 .tc-text{ min-width:0; }
 .tc-text strong{ display:block; font-size:13px; font-weight:600; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .tc-text span{ font-size:11.5px; color:var(--text-secondary); line-height:1.4; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-@media(max-width:1024px){ .tools-cat-grid{ grid-template-columns:repeat(3,1fr); } }
-@media(max-width:640px){ .tools-cat-grid{ grid-template-columns:repeat(2,1fr); } .tools-cat{ padding:20px 16px 18px; } }
-@media(max-width:400px){ .tools-cat-grid{ grid-template-columns:1fr; } }
 </style>
 
-<section id="tools">
+<section id="tools" style="padding:60px 0 48px;">
   <div class="wrap">
-    <div class="section-head reveal">
-      <span class="eyebrow">What You Can Do</span>
-      <h2>50+ Powerful Tools</h2>
-      <p>Everything you need to work with PDFs and images — with basic tools available without an account.</p>
+
+    <!-- Header row -->
+    <div class="et-header reveal">
+      <div>
+        <div class="et-title">Explore 50+ Professional Tools</div>
+        <div class="et-sub">Powerful PDF and image tools, all in one place.</div>
+      </div>
+      <div class="et-tabs" id="etTabs">
+        <button class="et-tab active" data-filter="all">All</button>
+        <button class="et-tab" data-filter="pdf">PDF</button>
+        <button class="et-tab" data-filter="convert">Convert</button>
+        <button class="et-tab" data-filter="ai">AI</button>
+        <button class="et-tab" data-filter="edit">Edit</button>
+        <button class="et-tab" data-filter="security">Security</button>
+        <button class="et-tab" data-filter="images">Images</button>
+      </div>
+      <a href="/tools/guest/" class="et-view-all">View All Tools &rarr;</a>
     </div>
 
-    <div class="tools-cats">
+    <!-- Tool grid -->
+    <div class="et-grid" id="etGrid">
 
-      <!-- Organize PDF -->
-      <div class="tools-cat reveal">
-        <div class="tools-cat-head">
-          <h2>Organize PDF</h2>
-          <p>Organize and modify PDF pages easily</p>
-        </div>
-        <div class="tools-cat-grid">
-          <a href="/tools/merge-pdf/" class="tc">
-            <div class="tc-icon" style="background:#fee2e2;color:#dc2626;"><i class="fa-solid fa-object-group"></i></div>
-            <div class="tc-text"><strong>Merge PDF</strong><span>Combine multiple PDFs</span></div>
-          </a>
-          <a href="/tools/split-pdf/" class="tc">
-            <div class="tc-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa-solid fa-scissors"></i></div>
-            <div class="tc-text"><strong>Split PDF</strong><span>Separate pages into files</span></div>
-          </a>
-          <a href="/tools/remove-pages/" class="tc">
-            <div class="tc-icon" style="background:#fee2e2;color:#dc2626;"><i class="fa-solid fa-file-circle-minus"></i></div>
-            <div class="tc-text"><strong>Remove Pages</strong><span>Delete specific pages</span></div>
-          </a>
-          <a href="/tools/extract-pages/" class="tc">
-            <div class="tc-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-file-export"></i></div>
-            <div class="tc-text"><strong>Extract Pages</strong><span>Pull pages into new PDF</span></div>
-          </a>
-          <a href="/tools/jpg-to-pdf/" class="tc">
-            <div class="tc-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-image"></i></div>
-            <div class="tc-text"><strong>Image to PDF</strong><span>JPG, PNG, BMP, TIFF, W...</span></div>
-          </a>
-        </div>
-      </div>
+      <a href="/tools/merge-pdf/"       class="tc reveal" data-cat="pdf">     <div class="tc-icon" style="background:#fee2e2;color:#dc2626;"><i class="fa-solid fa-object-group"></i></div>    <div class="tc-text"><strong>Merge PDF</strong><span>Combine multiple PDFs</span></div></a>
+      <a href="/tools/split-pdf/"       class="tc reveal" data-cat="pdf">     <div class="tc-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa-solid fa-scissors"></i></div>           <div class="tc-text"><strong>Split PDF</strong><span>Separate pages easily</span></div></a>
+      <a href="/tools/compress-pdf/"    class="tc reveal" data-cat="ai">      <div class="tc-icon" style="background:#fff8e6;color:#d97706;"><i class="fa-solid fa-compress"></i></div>           <div class="tc-text"><strong>Compress PDF</strong><span>Reduce file size</span></div></a>
+      <a href="/tools/word-to-pdf/"     class="tc reveal" data-cat="convert"> <div class="tc-icon" style="background:#e8edf7;color:#2b579a;"><i class="fa-solid fa-file-word"></i></div>          <div class="tc-text"><strong>Word to PDF</strong><span>Convert Word to PDF</span></div></a>
+      <a href="/tools/excel-to-pdf/"    class="tc reveal" data-cat="convert"> <div class="tc-icon" style="background:#e8f5e9;color:#1b7340;"><i class="fa-solid fa-file-excel"></i></div>         <div class="tc-text"><strong>Excel to PDF</strong><span>Convert Excel to PDF</span></div></a>
+      <a href="/tools/rotate-pdf/"      class="tc reveal" data-cat="edit">    <div class="tc-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-rotate-right"></i></div>       <div class="tc-text"><strong>Rotate PDF</strong><span>Rotate pages</span></div></a>
 
-      <!-- Convert PDF -->
-      <div class="tools-cat reveal">
-        <div class="tools-cat-head">
-          <h2>Convert PDF</h2>
-          <p>Convert PDFs to and from popular formats</p>
-        </div>
-        <div class="tools-cat-grid">
-          <a href="/tools/word-to-pdf/" class="tc">
-            <div class="tc-icon" style="background:#e8edf7;color:#2b579a;"><i class="fa-solid fa-file-word"></i></div>
-            <div class="tc-text"><strong>Word to PDF</strong><span>Convert Word document...</span></div>
-          </a>
-          <a href="/tools/pptx-to-pdf/" class="tc">
-            <div class="tc-icon" style="background:#fff0e6;color:#d04a00;"><i class="fa-solid fa-file-powerpoint"></i></div>
-            <div class="tc-text"><strong>PowerPoint to PDF</strong><span>Convert PowerPoint to P...</span></div>
-          </a>
-          <a href="/tools/excel-to-pdf/" class="tc">
-            <div class="tc-icon" style="background:#e8f5e9;color:#1b7340;"><i class="fa-solid fa-file-excel"></i></div>
-            <div class="tc-text"><strong>Excel to PDF</strong><span>Convert Excel to PDF</span></div>
-          </a>
-          <a href="/tools/html-to-pdf/" class="tc">
-            <div class="tc-icon" style="background:#fff3e0;color:#e65100;"><i class="fa-brands fa-html5"></i></div>
-            <div class="tc-text"><strong>HTML to PDF</strong><span>Convert web pages to PDF</span></div>
-          </a>
-          <a href="/tools/pdf-to-jpg/" class="tc">
-            <div class="tc-icon" style="background:#fce4ec;color:#c2185b;"><i class="fa-solid fa-file-image"></i></div>
-            <div class="tc-text"><strong>PDF to JPG</strong><span>Convert PDF pages to im...</span></div>
-          </a>
-          <a href="/tools/pdf-to-word/" class="tc">
-            <div class="tc-icon" style="background:#e8edf7;color:#2b579a;"><i class="fa-solid fa-file-word"></i></div>
-            <div class="tc-text"><strong>PDF to Word</strong><span>Convert PDF to Word do...</span></div>
-          </a>
-          <a href="/tools/pdf-to-pptx/" class="tc">
-            <div class="tc-icon" style="background:#fff0e6;color:#d04a00;"><i class="fa-solid fa-file-powerpoint"></i></div>
-            <div class="tc-text"><strong>PDF to PowerPoint</strong><span>Convert PDF to PowerPoi...</span></div>
-          </a>
-          <a href="/tools/pdf-to-excel/" class="tc">
-            <div class="tc-icon" style="background:#e8f5e9;color:#1b7340;"><i class="fa-solid fa-file-excel"></i></div>
-            <div class="tc-text"><strong>PDF to Excel</strong><span>Convert PDF to Excel spr...</span></div>
-          </a>
-        </div>
-      </div>
+      <a href="/tools/remove-background/" class="tc reveal" data-cat="images"><div class="tc-icon" style="background:#ede9fe;color:#9333ea;"><i class="fa-solid fa-wand-magic-sparkles"></i></div> <div class="tc-text"><strong>Remove Background</strong><span>AI background removal</span></div></a>
+      <a href="/tools/ocr-pdf/"         class="tc reveal" data-cat="ai">      <div class="tc-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-eye"></i></div>               <div class="tc-text"><strong>OCR PDF</strong><span>Make scans searchable</span></div></a>
+      <a href="/tools/watermark-pdf/"   class="tc reveal" data-cat="edit">    <div class="tc-icon" style="background:#cffafe;color:#0891b2;"><i class="fa-solid fa-droplet"></i></div>            <div class="tc-text"><strong>Add Watermark</strong><span>Stamp text or image</span></div></a>
+      <a href="/tools/protect-pdf/"     class="tc reveal" data-cat="security"><div class="tc-icon" style="background:#fee2e2;color:#dc2626;"><i class="fa-solid fa-lock"></i></div>                <div class="tc-text"><strong>Protect PDF</strong><span>Add password protection</span></div></a>
+      <a href="/tools/jpg-to-pdf/"      class="tc reveal" data-cat="images">  <div class="tc-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-image"></i></div>              <div class="tc-text"><strong>Image to PDF</strong><span>Convert JPG, PNG, etc.</span></div></a>
+      <a href="/tools/remove-pages/"    class="tc reveal" data-cat="pdf">     <div class="tc-icon" style="background:#fee2e2;color:#dc2626;"><i class="fa-solid fa-file-circle-minus"></i></div>  <div class="tc-text"><strong>Remove Pages</strong><span>Delete specific pages</span></div></a>
 
-      <!-- Optimize & AI -->
-      <div class="tools-cat reveal">
-        <div class="tools-cat-head">
-          <h2>Optimize &amp; AI</h2>
-          <p>Compress, extract, summarise and translate with AI</p>
-        </div>
-        <div class="tools-cat-grid">
-          <a href="/tools/compress-pdf/" class="tc">
-            <div class="tc-icon" style="background:#fff8e6;color:#d97706;"><i class="fa-solid fa-compress"></i></div>
-            <div class="tc-text"><strong>Compress PDF</strong><span>Reduce file size</span></div>
-          </a>
-          <a href="/tools/ocr-pdf/" class="tc">
-            <div class="tc-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-eye"></i></div>
-            <div class="tc-text"><strong>OCR PDF</strong><span>Make scans searchable <span style="font-size:.62rem;font-weight:700;background:#ede9fe;color:#7c3aed;padding:1px 5px;border-radius:4px;">AI✧</span></span></div>
-          </a>
-          <a href="/tools/invoice-extractor/" class="tc">
-            <div class="tc-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-            <div class="tc-text"><strong>Invoice Extractor</strong><span>Extract invoice data <span style="font-size:.62rem;font-weight:700;background:#ede9fe;color:#7c3aed;padding:1px 5px;border-radius:4px;">AI✧</span></span></div>
-          </a>
-          <a href="/tools/ai-summarizer/" class="tc">
-            <div class="tc-icon" style="background:#ede9fe;color:#9333ea;"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-            <div class="tc-text"><strong>AI Summarizer</strong><span>Summarize with AI <span style="font-size:.62rem;font-weight:700;background:#ede9fe;color:#7c3aed;padding:1px 5px;border-radius:4px;">AI✧</span></span></div>
-          </a>
-          <a href="/tools/translate-pdf/" class="tc">
-            <div class="tc-icon" style="background:#ccfbf1;color:#0d9488;"><i class="fa-solid fa-language"></i></div>
-            <div class="tc-text"><strong>Translate PDF</strong><span>20+ languages <span style="font-size:.62rem;font-weight:700;background:#ede9fe;color:#7c3aed;padding:1px 5px;border-radius:4px;">AI✧</span></span></div>
-          </a>
-        </div>
-      </div>
+      <a href="/tools/extract-pages/"   class="tc reveal" data-cat="pdf">     <div class="tc-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-file-export"></i></div>        <div class="tc-text"><strong>Extract Pages</strong><span>Pull pages into new PDF</span></div></a>
+      <a href="/tools/pptx-to-pdf/"     class="tc reveal" data-cat="convert"> <div class="tc-icon" style="background:#fff0e6;color:#d04a00;"><i class="fa-solid fa-file-powerpoint"></i></div>    <div class="tc-text"><strong>PowerPoint to PDF</strong><span>Convert PPT to PDF</span></div></a>
+      <a href="/tools/pdf-to-jpg/"      class="tc reveal" data-cat="convert"> <div class="tc-icon" style="background:#fce4ec;color:#c2185b;"><i class="fa-solid fa-file-image"></i></div>          <div class="tc-text"><strong>PDF to JPG</strong><span>Convert pages to images</span></div></a>
+      <a href="/tools/pdf-to-word/"     class="tc reveal" data-cat="convert"> <div class="tc-icon" style="background:#e8edf7;color:#2b579a;"><i class="fa-solid fa-file-word"></i></div>           <div class="tc-text"><strong>PDF to Word</strong><span>Convert PDF to Word</span></div></a>
+      <a href="/tools/sign-pdf/"        class="tc reveal" data-cat="edit">    <div class="tc-icon" style="background:#fff8e6;color:#d97706;"><i class="fa-solid fa-signature"></i></div>           <div class="tc-text"><strong>Sign PDF</strong><span>Add your signature</span></div></a>
+      <a href="/tools/add-page-numbers/" class="tc reveal" data-cat="edit">   <div class="tc-icon" style="background:#ede9fe;color:#9333ea;"><i class="fa-solid fa-list-ol"></i></div>            <div class="tc-text"><strong>Add Page Numbers</strong><span>Number your pages</span></div></a>
 
-      <!-- Edit PDF -->
-      <div class="tools-cat reveal">
-        <div class="tools-cat-head">
-          <h2>Edit PDF</h2>
-          <p>Rotate, watermark, sign and crop your PDFs</p>
-        </div>
-        <div class="tools-cat-grid">
-          <a href="/tools/rotate-pdf/" class="tc">
-            <div class="tc-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa-solid fa-rotate-right"></i></div>
-            <div class="tc-text"><strong>Rotate PDF</strong><span>Rotate pages</span></div>
-          </a>
-          <a href="/tools/add-page-numbers/" class="tc">
-            <div class="tc-icon" style="background:#ede9fe;color:#9333ea;"><i class="fa-solid fa-list-ol"></i></div>
-            <div class="tc-text"><strong>Add Page Numbers</strong><span>Number your pages</span></div>
-          </a>
-          <a href="/tools/watermark-pdf/" class="tc">
-            <div class="tc-icon" style="background:#cffafe;color:#0891b2;"><i class="fa-solid fa-droplet"></i></div>
-            <div class="tc-text"><strong>Add Watermark</strong><span>Stamp text or image</span></div>
-          </a>
-          <a href="/tools/sign-pdf/" class="tc">
-            <div class="tc-icon" style="background:#fff8e6;color:#d97706;"><i class="fa-solid fa-signature"></i></div>
-            <div class="tc-text"><strong>Sign PDF</strong><span>Add your signature</span></div>
-          </a>
-          <a href="/tools/crop-pdf/" class="tc">
-            <div class="tc-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-crop-simple"></i></div>
-            <div class="tc-text"><strong>Crop PDF</strong><span>Trim page margins</span></div>
-          </a>
-        </div>
-      </div>
+      <a href="/tools/ai-summarizer/"   class="tc reveal" data-cat="ai">      <div class="tc-icon" style="background:#ede9fe;color:#9333ea;"><i class="fa-solid fa-brain"></i></div>             <div class="tc-text"><strong>AI Summarizer</strong><span>Summarize with AI</span></div></a>
+      <a href="/tools/unlock-pdf/"      class="tc reveal" data-cat="security"><div class="tc-icon" style="background:#fff8e6;color:#d97706;"><i class="fa-solid fa-lock-open"></i></div>            <div class="tc-text"><strong>Unlock PDF</strong><span>Remove password</span></div></a>
+      <a href="/tools/compress-image/"  class="tc reveal" data-cat="images">  <div class="tc-icon" style="background:#fff8e6;color:#d97706;"><i class="fa-solid fa-compress-arrows-alt"></i></div> <div class="tc-text"><strong>Compress Image</strong><span>Reduce image size</span></div></a>
+      <a href="/tools/html-to-pdf/"     class="tc reveal" data-cat="convert"> <div class="tc-icon" style="background:#fff3e0;color:#e65100;"><i class="fa-brands fa-html5"></i></div>             <div class="tc-text"><strong>HTML to PDF</strong><span>Convert web pages</span></div></a>
+      <a href="/tools/pdf-to-pptx/"     class="tc reveal" data-cat="convert"> <div class="tc-icon" style="background:#fff0e6;color:#d04a00;"><i class="fa-solid fa-file-powerpoint"></i></div>    <div class="tc-text"><strong>PDF to PowerPoint</strong><span>Convert PDF to PPT</span></div></a>
+      <a href="/tools/pdf-to-excel/"    class="tc reveal" data-cat="convert"> <div class="tc-icon" style="background:#e8f5e9;color:#1b7340;"><i class="fa-solid fa-file-excel"></i></div>          <div class="tc-text"><strong>PDF to Excel</strong><span>Convert PDF to Excel</span></div></a>
 
-      <!-- PDF Security -->
-      <div class="tools-cat reveal">
-        <div class="tools-cat-head">
-          <h2>PDF Security</h2>
-          <p>Protect, unlock and redact sensitive content</p>
-        </div>
-        <div class="tools-cat-grid">
-          <a href="/tools/protect-pdf/" class="tc">
-            <div class="tc-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-lock"></i></div>
-            <div class="tc-text"><strong>Protect PDF</strong><span>Password protect</span></div>
-          </a>
-          <a href="/tools/unlock-pdf/" class="tc">
-            <div class="tc-icon" style="background:#fff8e6;color:#d97706;"><i class="fa-solid fa-lock-open"></i></div>
-            <div class="tc-text"><strong>Unlock PDF</strong><span>Remove password</span></div>
-          </a>
-          <a href="/tools/redact-pdf/" class="tc">
-            <div class="tc-icon" style="background:#f1f5f9;color:#475569;"><i class="fa-solid fa-eraser"></i></div>
-            <div class="tc-text"><strong>Redact PDF</strong><span>Hide sensitive text</span></div>
-          </a>
-        </div>
-      </div>
+      <a href="/tools/invoice-extractor/" class="tc reveal" data-cat="ai">    <div class="tc-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-file-invoice-dollar"></i></div><div class="tc-text"><strong>Invoice Extractor</strong><span>Extract invoice data</span></div></a>
+      <a href="/tools/translate-pdf/"   class="tc reveal" data-cat="ai">      <div class="tc-icon" style="background:#ccfbf1;color:#0d9488;"><i class="fa-solid fa-language"></i></div>          <div class="tc-text"><strong>Translate PDF</strong><span>20+ languages</span></div></a>
+      <a href="/tools/crop-pdf/"        class="tc reveal" data-cat="edit">    <div class="tc-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-crop-simple"></i></div>          <div class="tc-text"><strong>Crop PDF</strong><span>Trim page margins</span></div></a>
+      <a href="/tools/redact-pdf/"      class="tc reveal" data-cat="security"><div class="tc-icon" style="background:#f1f5f9;color:#475569;"><i class="fa-solid fa-eraser"></i></div>               <div class="tc-text"><strong>Redact PDF</strong><span>Hide sensitive text</span></div></a>
+      <a href="/tools/rotate-image/"    class="tc reveal" data-cat="images">  <div class="tc-icon" style="background:#ede9fe;color:#4f46e5;"><i class="fa-solid fa-rotate-right"></i></div>        <div class="tc-text"><strong>Rotate Image</strong><span>Turn any image</span></div></a>
+      <a href="/tools/resize-image/"    class="tc reveal" data-cat="images">  <div class="tc-icon" style="background:#ccfbf1;color:#0d9488;"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></div><div class="tc-text"><strong>Resize Image</strong><span>Change dimensions</span></div></a>
 
-      <!-- Image Tools -->
-      <div class="tools-cat reveal">
-        <div class="tools-cat-head">
-          <h2>Image Tools</h2>
-          <p>Edit, convert and enhance your images</p>
-        </div>
-        <div class="tools-cat-grid">
-          <a href="/tools/compress-image/" class="tc">
-            <div class="tc-icon" style="background:#fff8e6;color:#d97706;"><i class="fa-solid fa-compress-arrows-alt"></i></div>
-            <div class="tc-text"><strong>Compress Image</strong><span>Reduce image size</span></div>
-          </a>
-          <a href="/tools/rotate-image/" class="tc">
-            <div class="tc-icon" style="background:#ede9fe;color:#4f46e5;"><i class="fa-solid fa-rotate-right"></i></div>
-            <div class="tc-text"><strong>Rotate Image</strong><span>Turn any image</span></div>
-          </a>
-          <a href="/tools/resize-image/" class="tc">
-            <div class="tc-icon" style="background:#ccfbf1;color:#0d9488;"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></div>
-            <div class="tc-text"><strong>Resize Image</strong><span>Change dimensions</span></div>
-          </a>
-          <a href="/tools/crop-image/" class="tc">
-            <div class="tc-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-crop-simple"></i></div>
-            <div class="tc-text"><strong>Crop Image</strong><span>Trim to size</span></div>
-          </a>
-          <a href="/tools/convert-to-jpg/" class="tc">
-            <div class="tc-icon" style="background:#fff3e0;color:#ea580c;"><i class="fa-solid fa-file-image"></i></div>
-            <div class="tc-text"><strong>Convert to JPG</strong><span>PNG, WEBP → JPG</span></div>
-          </a>
-          <a href="/tools/convert-from-jpg/" class="tc">
-            <div class="tc-icon" style="background:#cffafe;color:#0891b2;"><i class="fa-solid fa-images"></i></div>
-            <div class="tc-text"><strong>Convert from JPG</strong><span>JPG → PNG, WEBP</span></div>
-          </a>
-          <a href="/tools/blur-face/" class="tc">
-            <div class="tc-icon" style="background:#f1f5f9;color:#475569;"><i class="fa-solid fa-user-secret"></i></div>
-            <div class="tc-text"><strong>Blur Face</strong><span>Auto face blur</span></div>
-          </a>
-          <a href="/tools/remove-background/" class="tc">
-            <div class="tc-icon" style="background:#ede9fe;color:#9333ea;"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-            <div class="tc-text"><strong>Remove Background</strong><span>AI background removal <span style="font-size:.62rem;font-weight:700;background:#ede9fe;color:#7c3aed;padding:1px 5px;border-radius:4px;">AI✧</span></span></div>
-          </a>
-          <a href="/tools/watermark-image/" class="tc">
-            <div class="tc-icon" style="background:#fef3c7;color:#92400e;"><i class="fa-solid fa-stamp"></i></div>
-            <div class="tc-text"><strong>Watermark Image</strong><span>Add text or logo</span></div>
-          </a>
-          <a href="/tools/image-to-text/" class="tc">
-            <div class="tc-icon" style="background:#fefce8;color:#ca8a04;"><i class="fa-solid fa-font"></i></div>
-            <div class="tc-text"><strong>Image to Text</strong><span>Extract text from image <span style="font-size:.62rem;font-weight:700;background:#ede9fe;color:#7c3aed;padding:1px 5px;border-radius:4px;">AI✧</span></span></div>
-          </a>
-        </div>
-      </div>
+      <a href="/tools/crop-image/"      class="tc reveal" data-cat="images">  <div class="tc-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa-solid fa-crop-simple"></i></div>         <div class="tc-text"><strong>Crop Image</strong><span>Trim to size</span></div></a>
+      <a href="/tools/convert-to-jpg/"  class="tc reveal" data-cat="images">  <div class="tc-icon" style="background:#fff3e0;color:#ea580c;"><i class="fa-solid fa-file-image"></i></div>           <div class="tc-text"><strong>Convert to JPG</strong><span>PNG, WEBP → JPG</span></div></a>
+      <a href="/tools/convert-from-jpg/" class="tc reveal" data-cat="images"> <div class="tc-icon" style="background:#cffafe;color:#0891b2;"><i class="fa-solid fa-images"></i></div>              <div class="tc-text"><strong>Convert from JPG</strong><span>JPG → PNG, WEBP</span></div></a>
+      <a href="/tools/blur-face/"       class="tc reveal" data-cat="images">  <div class="tc-icon" style="background:#f1f5f9;color:#475569;"><i class="fa-solid fa-user-secret"></i></div>          <div class="tc-text"><strong>Blur Face</strong><span>Auto face blur</span></div></a>
+      <a href="/tools/watermark-image/" class="tc reveal" data-cat="images">  <div class="tc-icon" style="background:#fef3c7;color:#92400e;"><i class="fa-solid fa-stamp"></i></div>               <div class="tc-text"><strong>Watermark Image</strong><span>Add text or logo</span></div></a>
+      <a href="/tools/image-to-text/"   class="tc reveal" data-cat="ai">      <div class="tc-icon" style="background:#fefce8;color:#ca8a04;"><i class="fa-solid fa-font"></i></div>               <div class="tc-text"><strong>Image to Text</strong><span>Extract text from image</span></div></a>
 
     </div>
   </div>
+
+  <script>
+  (function(){
+    var tabs = document.querySelectorAll('#etTabs .et-tab');
+    var cards = document.querySelectorAll('#etGrid .tc');
+    tabs.forEach(function(tab){
+      tab.addEventListener('click', function(){
+        tabs.forEach(function(t){ t.classList.remove('active'); });
+        tab.classList.add('active');
+        var f = tab.dataset.filter;
+        cards.forEach(function(c){
+          c.hidden = (f !== 'all' && c.dataset.cat !== f);
+        });
+      });
+    });
+  })();
+  </script>
 </section>
 
 <!-- ===================== SHOWCASE ===================== -->
