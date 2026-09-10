@@ -103,6 +103,17 @@
 [data-theme="dark"] .ab-success-note {
   background: var(--ab-success-s); border-color: #166534; color: #4ade80;
 }
+/* "AFTER" output card — stays readable in dark mode */
+[data-theme="dark"] .ab-ba-panel.after {
+  background: var(--ab-surface);
+  border-color: var(--ab-border-s);
+}
+[data-theme="dark"] .ab-out-row .v {
+  color: var(--ab-brand);
+}
+[data-theme="dark"] .ab-out-table .tr span:not(:first-child) {
+  color: var(--ab-brand);
+}
 
 /* ═══ Layout ═══ */
 .ab-page { background: var(--ab-bg); color: var(--ab-text-1); }
