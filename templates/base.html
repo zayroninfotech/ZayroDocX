@@ -390,7 +390,6 @@
             </div>
             {% if request.user.is_superuser %}
             <a href="/zayro-admin/" class="mh-user-item"><i class="fa-solid fa-shield-halved"></i> Admin Panel</a>
-            <a href="/zayro-admin/?tab=users" class="mh-user-item"><i class="fa-solid fa-users"></i> Manage Users</a>
             <div class="mh-user-divider"></div>
             {% endif %}
             <a href="{% url 'about' %}" class="mh-user-item"><i class="fa-solid fa-circle-info"></i> About</a>
