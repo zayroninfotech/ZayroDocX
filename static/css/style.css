@@ -204,7 +204,7 @@ body { padding-top: var(--mh-h); }
 }
 
 /* Nav */
-.mh-nav { display: flex; align-items: center; gap: 0; flex: 1; }
+.mh-nav { display: flex; align-items: center; gap: 0; flex: 1; justify-content: center; }
 .mh-item { position: relative; display: flex; align-items: center; }
 
 .mh-nav-icon { font-size: .78rem; opacity: .75; }
