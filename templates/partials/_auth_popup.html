@@ -376,12 +376,14 @@
   /* ── Guest mode buttons — attach ALWAYS (before any early return) ── */
   var SK_DISMISSED = 'zayrox_popup_dismissed';
 
-  /* Shared helper: show loader then go to guest page (landing page) or just close (other pages) */
+  /* Shared helper: show loader then go to guest page, or just close (dashboard/other pages) */
   function skipAndNavigate(popupId) {
     sessionStorage.setItem(SK_DISMISSED, '1');
-    if(window.location.pathname === '/'){
+    var path = window.location.pathname;
+    var onLanding = (path === '/');
+    var onToolPage = path.indexOf('/tools/') === 0 && path !== '/tools/guest/';
+    if(onLanding || onToolPage){
       closePopup(popupId);
-      /* Show landing page ink-fill loader immediately, navigate after 500ms */
       var gl = document.getElementById('globalLoader');
       if(gl){
         gl.style.transition = 'none';
