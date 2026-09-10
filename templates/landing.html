@@ -849,7 +849,7 @@ section{ padding:64px 0; }
         tab.classList.add('active');
         var f = tab.dataset.filter;
         cards.forEach(function(c){
-          c.hidden = (f !== 'all' && c.dataset.cat !== f);
+          c.style.display = (f !== 'all' && c.dataset.cat !== f) ? 'none' : '';
         });
       });
     });
