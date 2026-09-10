@@ -128,10 +128,11 @@ body { padding-top: var(--mh-h); }
 /* ═══════════════════════════════════════════════════════════
    TOOL PAGE UPLOAD ZONES — dark mode (all 37 tools)
    div[class$="-drop"] catches every per-tool *-drop class.
-   Excluded: .mh-drop (nav dropdown, already handled above).
+   Excluded: .mh-drop (nav dropdown), .has-drop (nav items),
+             .mh-user-drop (user button container).
    Higher specificity (0-2-0) beats per-page (0-1-0) CSS.
 ═══════════════════════════════════════════════════════════ */
-[data-theme="dark"] div[class$="-drop"]:not(.mh-drop),
+[data-theme="dark"] div[class$="-drop"]:not(.mh-drop):not(.has-drop):not(.mh-user-drop),
 [data-theme="dark"] .drop-zone,
 [data-theme="dark"] .upload-zone,
 [data-theme="dark"] .ais-wrap,
@@ -143,37 +144,37 @@ body { padding-top: var(--mh-h); }
   color: var(--text) !important;
 }
 /* All heading text inside upload zones */
-[data-theme="dark"] div[class$="-drop"]:not(.mh-drop) h1,
-[data-theme="dark"] div[class$="-drop"]:not(.mh-drop) h2,
-[data-theme="dark"] div[class$="-drop"]:not(.mh-drop) h3,
+[data-theme="dark"] div[class$="-drop"]:not(.mh-drop):not(.has-drop):not(.mh-user-drop) h1,
+[data-theme="dark"] div[class$="-drop"]:not(.mh-drop):not(.has-drop):not(.mh-user-drop) h2,
+[data-theme="dark"] div[class$="-drop"]:not(.mh-drop):not(.has-drop):not(.mh-user-drop) h3,
 [data-theme="dark"] .drop-zone h1,
 [data-theme="dark"] .drop-zone h2,
 [data-theme="dark"] .upload-zone h1,
 [data-theme="dark"] .upload-zone h2,
 [data-theme="dark"] .drop-zone-title { color: var(--text) !important; }
 /* Subtitle / hint text */
-[data-theme="dark"] div[class$="-drop"]:not(.mh-drop) p,
+[data-theme="dark"] div[class$="-drop"]:not(.mh-drop):not(.has-drop):not(.mh-user-drop) p,
 [data-theme="dark"] .drop-zone p,
 [data-theme="dark"] .upload-zone p,
 [data-theme="dark"] .drop-zone-sub,
 [data-theme="dark"] .drop-zone-drop-hint { color: var(--text-muted) !important; }
 /* Icon wrapper pastel circles → dark bg, image stays crisp */
 [data-theme="dark"] #uploadZone div[style*="border-radius:20px"],
-[data-theme="dark"] div[class$="-drop"] div[style*="border-radius:20px"],
-[data-theme="dark"] div[class$="-drop"] div[style*="border-radius:18px"],
-[data-theme="dark"] div[class$="-drop"] div[style*="border-radius:16px"] {
+[data-theme="dark"] div[class$="-drop"]:not(.mh-drop):not(.has-drop):not(.mh-user-drop) div[style*="border-radius:20px"],
+[data-theme="dark"] div[class$="-drop"]:not(.mh-drop):not(.has-drop):not(.mh-user-drop) div[style*="border-radius:18px"],
+[data-theme="dark"] div[class$="-drop"]:not(.mh-drop):not(.has-drop):not(.mh-user-drop) div[style*="border-radius:16px"] {
   background: #242424 !important;
   box-shadow: 0 2px 16px rgba(0,0,0,.4) !important;
 }
 /* Outer margin wrapper — transparent */
 [data-theme="dark"] #uploadZone > div[style*="margin"],
-[data-theme="dark"] div[class$="-drop"] > div[style*="margin"] {
+[data-theme="dark"] div[class$="-drop"]:not(.mh-drop):not(.has-drop):not(.mh-user-drop) > div[style*="margin"] {
   background: transparent !important;
 }
 /* Compact card padding in dark mode */
 [data-theme="dark"] .drop-zone,
 [data-theme="dark"] .upload-zone,
-[data-theme="dark"] div[class$="-drop"]:not(.mh-drop) { padding: 1.8rem 2rem !important; }
+[data-theme="dark"] div[class$="-drop"]:not(.mh-drop):not(.has-drop):not(.mh-user-drop) { padding: 1.8rem 2rem !important; }
 /* Inner result/file-info cards that each tool renders post-upload */
 [data-theme="dark"] .result-card,
 [data-theme="dark"] .result-area,
