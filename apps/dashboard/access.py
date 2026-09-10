@@ -16,27 +16,36 @@ def _today_count(user_id, slug):
 
 
 def check_access(request, slug):
-    # Admin can lock any tool via the DB toggle — check that first
+    from .mongo_models import get_tool_priv
+    priv = get_tool_priv(slug)
+
     if not request.user.is_authenticated:
-        from .mongo_models import get_tool_priv
-        priv = get_tool_priv(slug)
+        # Admin toggle is the single source of truth for guest access.
+        # Red (requires_login=True)  → popup required.
+        # Green (requires_login=False) → allow guest through, no popup.
         if priv and priv.get('requires_login'):
             return 'login_required', 'Sign in to use this tool.'
+        if priv and not priv.get('requires_login'):
+            return 'ok', ''
+        # Tool not in DB — fall back to plan-based gate.
+        plan = get_user_plan(request)
+        allowed = PLAN_TOOLS.get(plan, set())
+        if slug not in allowed:
+            return 'login_required', 'Create a free account to use this tool.'
+        return 'ok', ''
 
+    # Authenticated users: check plan tier.
     plan = get_user_plan(request)
     allowed = PLAN_TOOLS.get(plan, set())
     if slug not in allowed:
-        if plan == 'guest':
-            return 'login_required', 'Create a free account to use this tool.'
         return 'upgrade_required', 'Upgrade your plan to access this tool.'
-    if request.user.is_authenticated:
-        # Superusers and staff always get unlimited access — no daily cap
-        if getattr(request.user, 'is_superuser', False) or getattr(request.user, 'is_staff', False):
-            return 'ok', ''
-        limits = PLAN_LIMITS.get(plan, {}).get(slug, {})
-        daily = limits.get('daily')
-        if daily is not None and _today_count(request.user.id, slug) >= daily:
-            return 'limit_reached', f'Daily limit of {daily} uses reached. Upgrade for more.'
+    # Superusers and staff always get unlimited access — no daily cap.
+    if getattr(request.user, 'is_superuser', False) or getattr(request.user, 'is_staff', False):
+        return 'ok', ''
+    limits = PLAN_LIMITS.get(plan, {}).get(slug, {})
+    daily = limits.get('daily')
+    if daily is not None and _today_count(request.user.id, slug) >= daily:
+        return 'limit_reached', f'Daily limit of {daily} uses reached. Upgrade for more.'
     return 'ok', ''
 
 
