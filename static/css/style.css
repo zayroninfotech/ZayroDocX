@@ -152,12 +152,19 @@ body { padding-top: var(--mh-h); }
 [data-theme="dark"] #uploadZone p {
   color: var(--text-muted) !important;
 }
-/* Icon wrapper pastel circles — replace light pastel bg with neutral dark tint */
-[data-theme="dark"] #uploadZone > div > div[style],
+/* Icon wrapper: only the INNER inline-flex div gets the dark bg, outer margin div stays transparent */
 [data-theme="dark"] #uploadZone > div[style] {
-  background: rgba(255,255,255,.08) !important;
+  background: transparent !important;
+}
+[data-theme="dark"] #uploadZone > div > div[style*="inline-flex"],
+[data-theme="dark"] #uploadZone > div > div[style*="inline_flex"] {
+  background: #1a1a1a !important;
+  border-radius: 22px !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,.5) !important;
   filter: none !important;
 }
+/* "PDF" keyword in tool titles → red accent */
+[data-theme="dark"] .drop-zone-title { color: var(--text) !important; }
 /* Result / error cards shared across tools */
 [data-theme="dark"] .result-card,
 [data-theme="dark"] .result-area,
