@@ -96,6 +96,10 @@ body { padding-top: var(--mh-h); }
 .mh-item { position: relative; display: flex; align-items: center; }
 
 .mh-nav-icon { font-size: .78rem; opacity: .75; }
+.mh-nav-png { width: 18px; height: 18px; object-fit: contain; opacity: .85; }
+.mh-direct-link { text-decoration: none; }
+.mh-direct-link .mh-link { border-bottom: 2px solid transparent; margin-bottom: -2px; }
+.mh-direct-link:hover .mh-link, .mh-direct-link.active .mh-link { color: var(--brand); border-bottom-color: var(--brand); }
 .mh-link {
   display: inline-flex; align-items: center; gap: .35rem;
   padding: 0 .85rem; height: var(--mh-h); line-height: var(--mh-h);

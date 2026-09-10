@@ -35,40 +35,22 @@
       {% if request.user.is_authenticated %}
       <nav class="mh-nav" id="mhNav">
 
-        <!-- Organize PDF -->
-        <div class="mh-item has-drop">
-          <span class="mh-link"><i class="fa-solid fa-layer-group mh-nav-icon"></i> Organize PDF <i
-              class="fa-solid fa-chevron-down mh-caret"></i></span>
-          <div class="mh-drop">
-            <a href="{% url 'merge_pdf_page' %}" class="mh-drop-item {% block active_merge %}{% endblock %}">
-              <span class="mhd-icon"><img src="{% static 'img/merge-pdf-icon.png' %}" alt="Merge PDF"
-                  style="width:24px;height:24px;object-fit:contain;"></span>
-              <span class="mhd-text"><strong>Merge PDF</strong><em>Combine multiple PDFs</em></span>
-            </a>
-            <a href="{% url 'split_pdf_page' %}" class="mh-drop-item {% block active_split %}{% endblock %}">
-              <span class="mhd-icon" style="background:transparent;box-shadow:none;"><img
-                  src="{% static 'img/split-pdf-icon.png' %}" alt="Split PDF"
-                  style="width:28px;height:28px;object-fit:contain;"></span>
-              <span class="mhd-text"><strong>Split PDF</strong><em>Separate pages into files</em></span>
-            </a>
-            <a href="{% url 'remove_pages_page' %}" class="mh-drop-item {% block active_remove %}{% endblock %}">
-              <span class="mhd-icon"><i class="fa-solid fa-trash-can"></i></span>
-              <span class="mhd-text"><strong>Remove Pages</strong><em>Delete specific pages</em></span>
-            </a>
-            <a href="{% url 'extract_pages_page' %}" class="mh-drop-item {% block active_extract %}{% endblock %}">
-              <span class="mhd-icon" style="background:transparent;box-shadow:none;"><img
-                  src="{% static 'img/extract-pages-icon.png' %}"
-                  style="width:28px;height:28px;object-fit:contain;display:block;"></span>
-              <span class="mhd-text"><strong>Extract Pages</strong><em>Pull pages into new PDF</em></span>
-            </a>
-            <a href="{% url 'scan_pdf_page' %}" class="mh-drop-item {% block active_scan %}{% endblock %}">
-              <span class="mhd-icon" style="background:transparent;box-shadow:none;"><img
-                  src="{% static 'img/image-to-pdf-icon.png' %}"
-                  style="width:28px;height:28px;object-fit:contain;display:block;"></span>
-              <span class="mhd-text"><strong>Image to PDF</strong><em>JPG, PNG, BMP, TIFF, WEBP, GIF → PDF</em></span>
-            </a>
-          </div>
-        </div>
+        <!-- Organize PDF tools — direct links -->
+        <a href="{% url 'merge_pdf_page' %}" class="mh-item mh-direct-link {% block active_merge %}{% endblock %}">
+          <span class="mh-link"><img src="{% static 'img/merge-pdf-icon.png' %}" alt="" class="mh-nav-png"> Merge PDF</span>
+        </a>
+        <a href="{% url 'split_pdf_page' %}" class="mh-item mh-direct-link {% block active_split %}{% endblock %}">
+          <span class="mh-link"><img src="{% static 'img/split-pdf-icon.png' %}" alt="" class="mh-nav-png"> Split PDF</span>
+        </a>
+        <a href="{% url 'remove_pages_page' %}" class="mh-item mh-direct-link {% block active_remove %}{% endblock %}">
+          <span class="mh-link"><i class="fa-solid fa-trash-can mh-nav-icon"></i> Remove Pages</span>
+        </a>
+        <a href="{% url 'extract_pages_page' %}" class="mh-item mh-direct-link {% block active_extract %}{% endblock %}">
+          <span class="mh-link"><img src="{% static 'img/extract-pages-icon.png' %}" alt="" class="mh-nav-png"> Extract Pages</span>
+        </a>
+        <a href="{% url 'scan_pdf_page' %}" class="mh-item mh-direct-link {% block active_scan %}{% endblock %}">
+          <span class="mh-link"><img src="{% static 'img/image-to-pdf-icon.png' %}" alt="" class="mh-nav-png"> Image to PDF</span>
+        </a>
 
         <!-- Convert PDF -->
 
