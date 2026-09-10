@@ -227,6 +227,23 @@ def media_delete_file(request):
     return JsonResponse({'ok': True})
 
 
+@_superadmin_required
+@require_POST
+def media_delete_all(request):
+    from django.conf import settings
+    import shutil
+    media_root = str(settings.MEDIA_ROOT)
+    deleted = 0
+    for root, dirs, files in os.walk(media_root):
+        for fname in files:
+            try:
+                os.remove(os.path.join(root, fname))
+                deleted += 1
+            except Exception:
+                pass
+    return JsonResponse({'ok': True, 'deleted': deleted})
+
+
 def support(request):
     return render(request, 'support.html')
 

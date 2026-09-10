@@ -419,10 +419,13 @@
 
   <!-- Media Browser -->
   <div class="ap-section" id="tab-media">
-    <div id="media-toolbar" style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+    <div id="media-toolbar" style="display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap;">
       <div id="media-summary" style="font-size:.82rem;color:#6b7280;">Loading…</div>
-      <button onclick="loadMedia()" style="margin-left:auto;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:.35rem .8rem;font-size:.78rem;font-weight:600;cursor:pointer;color:#374151;">
+      <button onclick="loadMedia(true)" style="margin-left:auto;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:.35rem .8rem;font-size:.78rem;font-weight:600;cursor:pointer;color:#374151;">
         <i class="fa-solid fa-rotate-right"></i> Refresh
+      </button>
+      <button onclick="mediaDeleteAll()" style="background:#dc2626;color:#fff;border:none;border-radius:6px;padding:.35rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;">
+        <i class="fa-solid fa-trash"></i> Delete All Files
       </button>
     </div>
     <div id="media-tree" style="background:#fff;border:1px solid #ebebeb;border-radius:14px;padding:1rem 1.2rem;min-height:120px;">
@@ -684,6 +687,26 @@ function escH(s) {
 }
 function escJs(s) {
   return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+}
+
+function mediaDeleteAll() {
+  if (!confirm('Delete ALL files in media folder? (uploads + outputs)\nThis cannot be undone.')) return;
+  const btn = document.querySelector('[onclick="mediaDeleteAll()"]');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Deleting…'; }
+  const fd = new FormData();
+  fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+  fetch('/zayro-admin/media/delete-all/', { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) {
+        _mediaLoaded = false;
+        loadMedia(true);
+      }
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-trash"></i> Delete All Files'; }
+    })
+    .catch(() => {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-trash"></i> Delete All Files'; }
+    });
 }
 
 function mediaDelete(path, btn) {
