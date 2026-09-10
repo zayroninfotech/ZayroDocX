@@ -50,7 +50,7 @@ _TOOLS_SEED = [
     ('watermark-image',  'Watermark Image',    'Image Tools',   True,  'fa-stamp'),
     ('remove-background','Remove Background',  'Image Tools',   True,  'fa-wand-magic-sparkles'),
     ('blur-face',        'Blur Face',          'Image Tools',   True,  'fa-user-secret'),
-    ('image-to-text',    'Image to Text',      'Image Tools',   True,  'fa-font'),
+    ('image-to-text',    'Image to Text',      'Optimize & AI', True,  'fa-font'),
 ]
 
 _seeded = False
