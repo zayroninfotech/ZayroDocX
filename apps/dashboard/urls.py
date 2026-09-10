@@ -18,4 +18,6 @@ urlpatterns = [
     path('zayro-admin/suggestions/<int:pk>/update/', views.update_suggestion, name='update_suggestion'),
     path('zayro-admin/sessions/<str:session_key>/delete/', views.delete_session, name='delete_session'),
     path('zayro-admin/sessions/delete-all/', views.delete_all_sessions, name='delete_all_sessions'),
+    path('zayro-admin/media/',              views.media_browser,        name='admin_media'),
+    path('zayro-admin/media/delete/',       views.media_delete_file,    name='admin_media_delete'),
 ]

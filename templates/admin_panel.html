@@ -71,6 +71,9 @@
 .ap-sg-row { cursor:pointer; transition:background .1s; }
 .ap-sg-row:hover td { background:#fef2f2; }
 
+/* Media file row hover */
+.media-file-row:hover { background:#fef2f2 !important; border-color:#fee2e2 !important; }
+
 /* Suggestion detail modal */
 .ap-modal-overlay {
   display:none; position:fixed; inset:0; background:rgba(0,0,0,.45);
@@ -163,6 +166,7 @@
     <div class="ap-tab" onclick="showTab('tickets',this)"><i class="fa-solid fa-headset"></i> Support Tickets ({{ tickets|length }})</div>
     <div class="ap-tab" onclick="showTab('suggestions',this)"><i class="fa-solid fa-lightbulb"></i> Suggestions ({{ suggestions|length }})</div>
     <div class="ap-tab" onclick="showTab('visitors',this)"><i class="fa-solid fa-eye"></i> Visitor Sessions ({{ visitor_stats.total }})</div>
+    <div class="ap-tab" onclick="showTab('media',this);loadMedia()"><i class="fa-solid fa-folder-open"></i> Media</div>
   </div>
 
   <!-- Tool Privileges -->
@@ -413,6 +417,22 @@
   }
   </script>
 
+  <!-- Media Browser -->
+  <div class="ap-section" id="tab-media">
+    <div id="media-toolbar" style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+      <div id="media-summary" style="font-size:.82rem;color:#6b7280;">Loading…</div>
+      <button onclick="loadMedia()" style="margin-left:auto;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:.35rem .8rem;font-size:.78rem;font-weight:600;cursor:pointer;color:#374151;">
+        <i class="fa-solid fa-rotate-right"></i> Refresh
+      </button>
+    </div>
+    <div id="media-tree" style="background:#fff;border:1px solid #ebebeb;border-radius:14px;padding:1rem 1.2rem;min-height:120px;">
+      <div style="text-align:center;padding:2rem;color:#9ca3af;font-size:.85rem;">
+        <i class="fa-solid fa-folder-open" style="font-size:1.5rem;display:block;margin-bottom:.5rem;opacity:.4;"></i>
+        Click the Media tab to load files.
+      </div>
+    </div>
+  </div>
+
   <!-- Users -->
   <div class="ap-section" id="tab-users">
     <table class="ap-users-table">
@@ -564,5 +584,127 @@ function saveSuggestion() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeSgModal();
 });
+
+// ── Media Browser ─────────────────────────────────────────────────────────────
+let _mediaLoaded = false;
+
+function loadMedia(force) {
+  if (_mediaLoaded && !force) return;
+  _mediaLoaded = true;
+  document.getElementById('media-summary').textContent = 'Loading…';
+  document.getElementById('media-tree').innerHTML =
+    '<div style="text-align:center;padding:2rem;color:#9ca3af;"><i class="fa-solid fa-spinner fa-spin"></i> Scanning files…</div>';
+
+  fetch('/zayro-admin/media/')
+    .then(r => r.json())
+    .then(d => {
+      document.getElementById('media-summary').innerHTML =
+        `<i class="fa-solid fa-hard-drive"></i> <strong>${d.total_files}</strong> files &nbsp;·&nbsp; <strong>${d.total_size}</strong> total`;
+      document.getElementById('media-tree').innerHTML = renderTree(d.tree, '');
+    })
+    .catch(() => {
+      document.getElementById('media-summary').textContent = 'Error loading media.';
+    });
+}
+
+function renderTree(node, indent) {
+  let html = '';
+  // folders first
+  (node.folders || []).forEach(f => {
+    const id = 'mf-' + f.path.replace(/[^a-z0-9]/gi, '_');
+    html += `
+<div style="margin-bottom:.3rem;">
+  <div onclick="toggleFolder('${id}')"
+    style="display:flex;align-items:center;gap:.55rem;padding:.4rem .5rem;border-radius:8px;cursor:pointer;user-select:none;background:#f9fafb;border:1px solid #f3f4f6;">
+    <i class="fa-solid fa-folder" style="color:#f59e0b;font-size:.9rem;"></i>
+    <span style="font-weight:600;font-size:.85rem;flex:1;">${escH(f.name)}</span>
+    <span style="font-size:.72rem;color:#9ca3af;">${f.file_count} file${f.file_count===1?'':'s'} · ${f.total}</span>
+    <i class="fa-solid fa-chevron-down" id="chev-${id}" style="font-size:.65rem;color:#9ca3af;transition:.2s;"></i>
+  </div>
+  <div id="${id}" style="display:none;padding-left:1.2rem;border-left:2px solid #f3f4f6;margin:.2rem 0 .2rem 1rem;">
+    ${renderTree(f.children, indent + '  ')}
+  </div>
+</div>`;
+  });
+
+  // files
+  if ((node.files || []).length === 0 && (node.folders || []).length === 0) {
+    html += `<div style="padding:.5rem .3rem;font-size:.78rem;color:#9ca3af;font-style:italic;">Empty folder</div>`;
+  }
+  (node.files || []).forEach(f => {
+    const icon = fileIcon(f.ext);
+    const isImg = ['jpg','jpeg','png','gif','webp','bmp'].includes(f.ext);
+    const previewUrl = isImg ? '/media/' + f.path : '';
+    html += `
+<div class="media-file-row" id="mfile-${f.path.replace(/[^a-z0-9]/gi,'_')}"
+  style="display:flex;align-items:center;gap:.6rem;padding:.38rem .4rem;border-radius:7px;border:1px solid transparent;">
+  ${isImg
+    ? `<img src="${previewUrl}" style="width:28px;height:28px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.outerHTML='<i class=\\"${icon}\\" style=\\"font-size:.9rem;color:#dc2626;flex-shrink:0;width:28px;text-align:center\\"></i>'">`
+    : `<i class="${icon}" style="font-size:.9rem;color:#6b7280;flex-shrink:0;width:28px;text-align:center;"></i>`}
+  <span style="flex:1;font-size:.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escH(f.path)}">${escH(f.name)}</span>
+  <span style="font-size:.72rem;color:#9ca3af;white-space:nowrap;flex-shrink:0;">${f.size}</span>
+  <span style="font-size:.7rem;color:#9ca3af;white-space:nowrap;flex-shrink:0;min-width:110px;text-align:right;">${f.modified}</span>
+  <a href="/media/${f.path}" target="_blank" title="Download"
+    style="color:#2563eb;font-size:.78rem;flex-shrink:0;text-decoration:none;padding:2px 5px;">
+    <i class="fa-solid fa-arrow-down-to-line"></i>
+  </a>
+  <button onclick="mediaDelete('${escJs(f.path)}', this)" title="Delete"
+    style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:.8rem;padding:2px 5px;flex-shrink:0;">
+    <i class="fa-solid fa-trash"></i>
+  </button>
+</div>`;
+  });
+  return html;
+}
+
+function toggleFolder(id) {
+  const el = document.getElementById(id);
+  const chev = document.getElementById('chev-' + id);
+  const open = el.style.display === 'block';
+  el.style.display = open ? 'none' : 'block';
+  if (chev) chev.style.transform = open ? '' : 'rotate(180deg)';
+}
+
+function fileIcon(ext) {
+  const map = {
+    pdf:'fa-solid fa-file-pdf', doc:'fa-solid fa-file-word', docx:'fa-solid fa-file-word',
+    xls:'fa-solid fa-file-excel', xlsx:'fa-solid fa-file-excel',
+    ppt:'fa-solid fa-file-powerpoint', pptx:'fa-solid fa-file-powerpoint',
+    jpg:'fa-solid fa-image', jpeg:'fa-solid fa-image', png:'fa-solid fa-image',
+    gif:'fa-solid fa-image', webp:'fa-solid fa-image', bmp:'fa-solid fa-image',
+    txt:'fa-solid fa-file-lines', csv:'fa-solid fa-file-csv',
+    zip:'fa-solid fa-file-zipper', rar:'fa-solid fa-file-zipper',
+    mp4:'fa-solid fa-file-video', mp3:'fa-solid fa-file-audio',
+  };
+  return map[ext] || 'fa-solid fa-file';
+}
+
+function escH(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escJs(s) {
+  return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+}
+
+function mediaDelete(path, btn) {
+  if (!confirm('Delete this file?\n' + path)) return;
+  btn.disabled = true;
+  const fd = new FormData();
+  fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+  fd.append('path', path);
+  fetch('/zayro-admin/media/delete/', { method:'POST', body:fd })
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) {
+        const row = btn.closest('.media-file-row');
+        if (row) row.remove();
+        _mediaLoaded = false;
+        loadMedia(true);
+      } else {
+        alert('Delete failed: ' + (d.error || 'unknown error'));
+        btn.disabled = false;
+      }
+    });
+}
 </script>
 {% endblock %}

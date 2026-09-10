@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+import os
 
 from apps.dashboard.mongo_auth import (
     create_user, user_exists, authenticate,
@@ -149,6 +150,80 @@ def delete_session(request, session_key):
 @require_POST
 def delete_all_sessions(request):
     delete_all_visitor_sessions()
+    return JsonResponse({'ok': True})
+
+
+@_superadmin_required
+def media_browser(request):
+    from django.conf import settings
+    media_root = str(settings.MEDIA_ROOT)
+
+    def _fmt(size):
+        for unit in ('B', 'KB', 'MB', 'GB'):
+            if size < 1024:
+                return f'{size:.1f} {unit}'
+            size /= 1024
+        return f'{size:.1f} TB'
+
+    def _walk(path, rel=''):
+        entries = {'folders': [], 'files': []}
+        try:
+            items = sorted(os.listdir(path))
+        except PermissionError:
+            return entries
+        for name in items:
+            full = os.path.join(path, name)
+            rel_path = os.path.join(rel, name).replace('\\', '/')
+            if os.path.isdir(full):
+                sub = _walk(full, rel_path)
+                total = sum(f['size_raw'] for f in sub['files']) + \
+                        sum(f['total_raw'] for f in sub['folders'])
+                entries['folders'].append({
+                    'name': name,
+                    'path': rel_path,
+                    'total_raw': total,
+                    'total': _fmt(total),
+                    'file_count': len(sub['files']) + sum(f['file_count'] for f in sub['folders']),
+                    'children': sub,
+                })
+            else:
+                size = os.path.getsize(full)
+                mtime = os.path.getmtime(full)
+                import datetime
+                entries['files'].append({
+                    'name': name,
+                    'path': rel_path,
+                    'size_raw': size,
+                    'size': _fmt(size),
+                    'modified': datetime.datetime.fromtimestamp(mtime).strftime('%d %b %Y %H:%M'),
+                    'ext': os.path.splitext(name)[1].lower().lstrip('.') or 'file',
+                })
+        return entries
+
+    tree = _walk(media_root)
+    total_raw = sum(f['size_raw'] for f in tree['files']) + \
+                sum(f['total_raw'] for f in tree['folders'])
+    total_files = len(tree['files']) + sum(f['file_count'] for f in tree['folders'])
+
+    return JsonResponse({
+        'ok': True,
+        'tree': tree,
+        'total_size': _fmt(total_raw),
+        'total_files': total_files,
+    })
+
+
+@_superadmin_required
+@require_POST
+def media_delete_file(request):
+    from django.conf import settings
+    rel_path = request.POST.get('path', '')
+    if not rel_path or '..' in rel_path:
+        return JsonResponse({'ok': False, 'error': 'Invalid path'}, status=400)
+    full_path = os.path.join(str(settings.MEDIA_ROOT), rel_path.lstrip('/'))
+    if not os.path.isfile(full_path):
+        return JsonResponse({'ok': False, 'error': 'File not found'}, status=404)
+    os.remove(full_path)
     return JsonResponse({'ok': True})
 
 
