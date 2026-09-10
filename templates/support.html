@@ -39,6 +39,87 @@
   --sp-pad: clamp(20px, 2.5vw, 32px);
 }
 
+/* ═══ Dark mode ═══ */
+[data-theme="dark"] {
+  --sp-bg:        #0f1117;
+  --sp-bg-tint:   #131620;
+  --sp-bg-subtle: #1a1d27;
+  --sp-surface:   #1e2235;
+  --sp-border:    #2a2e42;
+  --sp-border-s:  #363b52;
+  --sp-text-1:    #f1f5f9;
+  --sp-text-2:    #94a3b8;
+  --sp-text-3:    #64748b;
+  --sp-brand:     #dc2626;
+  --sp-brand-s:   #3b1212;
+  --sp-brand-ss:  #5b1a1a;
+  --sp-brand-dk:  #b91c1c;
+  --sp-ink:       #0a0d14;
+  --sp-success:   #22c55e;
+  --sp-success-s: #052e16;
+  --sp-purple:    #a78bfa;
+  --sp-purple-s:  #2e1a5e;
+  --sp-blue:      #60a5fa;
+  --sp-blue-s:    #1e3a5f;
+  --sp-orange:    #fbbf24;
+  --sp-orange-s:  #2d1b00;
+  --sp-shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  --sp-shadow:    0 4px 14px -6px rgba(0,0,0,.4);
+  --sp-shadow-md: 0 16px 40px -18px rgba(0,0,0,.5);
+  --sp-shadow-lg: 0 28px 60px -24px rgba(0,0,0,.6);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sp-bg:        #0f1117;
+    --sp-bg-tint:   #131620;
+    --sp-bg-subtle: #1a1d27;
+    --sp-surface:   #1e2235;
+    --sp-border:    #2a2e42;
+    --sp-border-s:  #363b52;
+    --sp-text-1:    #f1f5f9;
+    --sp-text-2:    #94a3b8;
+    --sp-text-3:    #64748b;
+    --sp-brand:     #dc2626;
+    --sp-brand-s:   #3b1212;
+    --sp-brand-ss:  #5b1a1a;
+    --sp-brand-dk:  #b91c1c;
+    --sp-ink:       #0a0d14;
+    --sp-success:   #22c55e;
+    --sp-success-s: #052e16;
+    --sp-purple:    #a78bfa;
+    --sp-purple-s:  #2e1a5e;
+    --sp-blue:      #60a5fa;
+    --sp-blue-s:    #1e3a5f;
+    --sp-orange:    #fbbf24;
+    --sp-orange-s:  #2d1b00;
+    --sp-shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+    --sp-shadow:    0 4px 14px -6px rgba(0,0,0,.4);
+    --sp-shadow-md: 0 16px 40px -18px rgba(0,0,0,.5);
+    --sp-shadow-lg: 0 28px 60px -24px rgba(0,0,0,.6);
+  }
+}
+/* hardcoded-color overrides */
+[data-theme="dark"] .sp-suggest-success {
+  background: #052e16; border-color: #166534;
+}
+[data-theme="dark"] .sp-suggest-success p { color: #4ade80; }
+[data-theme="dark"] .sp-field input,
+[data-theme="dark"] .sp-field select,
+[data-theme="dark"] .sp-field textarea,
+[data-theme="dark"] .sp-suggest-field input,
+[data-theme="dark"] .sp-suggest-field select,
+[data-theme="dark"] .sp-suggest-field textarea {
+  background: #1a1d27; color: var(--sp-text-1);
+  border-color: var(--sp-border-s);
+}
+[data-theme="dark"] #spSuccess > div:first-child {
+  background: #052e16 !important; color: #4ade80 !important;
+}
+[data-theme="dark"] #spFormError,
+[data-theme="dark"] #sgFormError {
+  background: #2d1212 !important; border-color: #7f1d1d !important; color: #fca5a5 !important;
+}
+
 /* ═══ Layout ═══ */
 .sp-page { background: var(--sp-bg); color: var(--sp-text-1); }
 .sp-container { max-width: 1100px; margin: 0 auto; padding-inline: clamp(18px, 3.5vw, 40px); }
