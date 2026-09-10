@@ -44,7 +44,7 @@
     <p class="zp-switch">Already have an account? <button type="button" class="zp-switch-btn" data-open="loginPopup" data-close="signupPopup">Sign in</button></p>
 
     <div style="text-align:center;margin-top:8px;">
-      <button type="button" id="zpSignupSkip" style="background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;text-decoration:underline;">Skip for now</button>
+      <button type="button" id="zpSignupSkip" style="background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;text-decoration:underline;">Guest mode</button>
     </div>
   </div>
 </div>
@@ -85,7 +85,7 @@
     <p class="zp-switch">Don't have an account? <button type="button" class="zp-switch-btn" data-open="signupPopup" data-close="loginPopup">Create one</button></p>
 
     <div style="text-align:center;margin-top:8px;">
-      <button type="button" id="zpLoginSkip" style="background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;text-decoration:underline;">Skip for now</button>
+      <button type="button" id="zpLoginSkip" style="background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;text-decoration:underline;">Guest mode</button>
     </div>
   </div>
 </div>
@@ -373,7 +373,7 @@
     if(e.key === 'Enter') loginBtn && loginBtn.click();
   });
 
-  /* ── Skip for now buttons — attach ALWAYS (before any early return) ── */
+  /* ── Guest mode buttons — attach ALWAYS (before any early return) ── */
   var SK_DISMISSED = 'zayrox_popup_dismissed';
 
   /* Shared helper: show loader then go to guest page (landing page) or just close (other pages) */
