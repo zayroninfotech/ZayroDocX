@@ -2,92 +2,307 @@
 {% block title %}Admin Panel — ZayroDocX{% endblock %}
 {% block content %}
 <style>
-.ap-wrap { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
-.ap-header { display:flex; align-items:center; gap:1rem; margin-bottom:2rem; }
-.ap-title { font-size:1.6rem; font-weight:800; color:#111; }
-.ap-badge { background:#dc2626; color:#fff; font-size:.7rem; font-weight:700;
-  padding:3px 10px; border-radius:20px; }
+/* ── layout override ── */
+.ap-layout {
+  display:flex; min-height:calc(100vh - 60px);
+  background:#f4f6fb;
+}
 
-/* Stats */
-.ap-stats { display:grid; grid-template-columns:repeat(5,1fr); gap:1rem; margin-bottom:2rem; }
-.ap-stat { background:#fff; border:1px solid #ebebeb; border-radius:14px;
-  padding:1.2rem 1.5rem; }
-.ap-stat-num { font-size:2rem; font-weight:800; color:#dc2626; }
-.ap-stat-lbl { font-size:.8rem; color:#6b7280; margin-top:.2rem; }
+/* ══════════════════════════ SIDEBAR ══════════════════════════ */
+.ap-sidebar {
+  width:220px; flex-shrink:0;
+  background:#fff;
+  border-right:1px solid #e8ecf4;
+  display:flex; flex-direction:column;
+  position:sticky; top:60px; height:calc(100vh - 60px);
+  overflow-y:auto;
+}
+.ap-sb-logo {
+  padding:1.2rem 1.2rem .8rem;
+  font-size:1.1rem; font-weight:800;
+  border-bottom:1px solid #f3f4f6;
+}
+.ap-sb-logo-zayro { color:#dc2626; }
+.ap-sb-logo-docx  { color:#111; }
 
-/* Tabs */
-.ap-tabs { display:flex; gap:.5rem; margin-bottom:1.5rem; border-bottom:2px solid #f3f4f6; }
-.ap-tab { padding:.6rem 1.2rem; font-size:.85rem; font-weight:600; color:#6b7280;
-  cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; }
+.ap-sb-section-label {
+  font-size:.6rem; font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; color:#9ca3af;
+  padding:.9rem 1.1rem .3rem;
+}
+.ap-sb-nav { flex:1; padding:.4rem 0; }
+.ap-sb-item {
+  display:flex; align-items:center; gap:.65rem;
+  padding:.52rem 1.1rem; font-size:.82rem; font-weight:500;
+  color:#4b5563; cursor:pointer; border-radius:0;
+  transition:background .12s, color .12s;
+  border-left:3px solid transparent;
+}
+.ap-sb-item:hover { background:#fef2f2; color:#dc2626; }
+.ap-sb-item.active {
+  background:#fef2f2; color:#dc2626; font-weight:700;
+  border-left-color:#dc2626;
+}
+.ap-sb-item i { width:16px; text-align:center; font-size:.78rem; }
+
+.ap-sb-plus {
+  margin:.8rem; background:linear-gradient(135deg,#fef9c3 0%,#fef3c7 100%);
+  border:1px solid #fde68a; border-radius:12px;
+  padding:1rem; text-align:center;
+}
+.ap-sb-plus-icon { font-size:1.4rem; margin-bottom:.3rem; }
+.ap-sb-plus-title { font-weight:800; font-size:.85rem; color:#92400e; }
+.ap-sb-plus-desc { font-size:.7rem; color:#a16207; margin:.25rem 0 .6rem; line-height:1.4; }
+.ap-sb-plus-btn {
+  background:#dc2626; color:#fff; border:none; border-radius:7px;
+  padding:.38rem .85rem; font-size:.75rem; font-weight:700; cursor:pointer; width:100%;
+}
+.ap-sb-plus-btn:hover { background:#b91c1c; }
+.ap-sb-ver {
+  padding:.6rem 1rem; font-size:.65rem; color:#9ca3af;
+  border-top:1px solid #f3f4f6; line-height:1.6;
+}
+
+/* ══════════════════════════ MAIN ══════════════════════════ */
+.ap-main { flex:1; min-width:0; padding:1.5rem 1.8rem 3rem; }
+
+.ap-breadcrumb {
+  font-size:.75rem; color:#9ca3af; margin-bottom:1rem;
+}
+.ap-breadcrumb span { color:#dc2626; font-weight:600; }
+
+.ap-page-head {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  margin-bottom:1.4rem; gap:1rem;
+}
+.ap-page-title {
+  font-size:1.45rem; font-weight:800; color:#111;
+  display:flex; align-items:center; gap:.5rem;
+}
+.ap-badge {
+  background:#dc2626; color:#fff; font-size:.65rem; font-weight:800;
+  padding:3px 10px; border-radius:20px; letter-spacing:.04em;
+}
+.ap-page-sub { font-size:.8rem; color:#6b7280; margin-top:.2rem; }
+.ap-head-icon {
+  width:52px; height:52px; background:#fef2f2; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  color:#dc2626; font-size:1.3rem; flex-shrink:0;
+}
+
+/* ── stats ── */
+.ap-stats {
+  display:grid; grid-template-columns:repeat(5,1fr);
+  gap:.75rem; margin-bottom:1.5rem;
+}
+@media(max-width:900px){ .ap-stats{ grid-template-columns:repeat(3,1fr); } }
+.ap-stat {
+  background:#fff; border:1px solid #e8ecf4; border-radius:12px;
+  padding:1rem 1.1rem; display:flex; align-items:center; gap:.75rem;
+}
+.ap-stat-icon {
+  width:38px; height:38px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.95rem; flex-shrink:0;
+}
+.ap-stat-icon.red    { background:#fee2e2; color:#dc2626; }
+.ap-stat-icon.blue   { background:#dbeafe; color:#2563eb; }
+.ap-stat-icon.green  { background:#dcfce7; color:#16a34a; }
+.ap-stat-icon.orange { background:#ffedd5; color:#ea580c; }
+.ap-stat-icon.purple { background:#ede9fe; color:#7c3aed; }
+.ap-stat-num { font-size:1.4rem; font-weight:800; color:#111; line-height:1; }
+.ap-stat-lbl { font-size:.7rem; color:#6b7280; margin-top:.15rem; }
+.ap-stat-trend { font-size:.65rem; font-weight:700; }
+.ap-stat-trend.up   { color:#16a34a; }
+.ap-stat-trend.flat { color:#9ca3af; }
+
+/* ── tabs ── */
+.ap-tabs-wrap {
+  display:flex; align-items:center; gap:.25rem;
+  border-bottom:2px solid #e8ecf4; margin-bottom:1.4rem;
+  flex-wrap:wrap;
+}
+.ap-tab {
+  padding:.55rem 1rem; font-size:.8rem; font-weight:600; color:#6b7280;
+  cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px;
+  white-space:nowrap; display:flex; align-items:center; gap:.35rem;
+}
+.ap-tab:hover { color:#dc2626; }
 .ap-tab.active { color:#dc2626; border-bottom-color:#dc2626; }
+.ap-tab .tab-count {
+  background:#f3f4f6; color:#6b7280; font-size:.62rem; font-weight:700;
+  padding:1px 6px; border-radius:10px;
+}
+.ap-tab.active .tab-count { background:#fee2e2; color:#dc2626; }
 
-/* Tool privileges table */
+.ap-search-wrap {
+  margin-left:auto; position:relative;
+}
+.ap-search-wrap i {
+  position:absolute; left:.6rem; top:50%; transform:translateY(-50%);
+  color:#9ca3af; font-size:.75rem;
+}
+#toolSearch {
+  padding:.38rem .7rem .38rem 1.8rem;
+  border:1.5px solid #e5e7eb; border-radius:8px;
+  font-size:.78rem; width:180px; outline:none;
+}
+#toolSearch:focus { border-color:#dc2626; }
+
+/* ── sections ── */
 .ap-section { display:none; }
 .ap-section.active { display:block; }
-.ap-cat { margin-bottom:1.5rem; }
-.ap-cat-head { font-size:.75rem; font-weight:700; color:#6b7280; letter-spacing:.06em;
-  text-transform:uppercase; padding:.5rem 0; border-bottom:1px solid #f3f4f6; margin-bottom:.75rem; }
-.ap-tool-row { display:flex; align-items:center; gap:1rem; padding:.65rem .8rem;
-  background:#fff; border:1px solid #ebebeb; border-radius:10px; margin-bottom:.4rem; }
-.ap-tool-icon { width:32px; height:32px; background:#fee2e2; border-radius:8px;
-  display:flex; align-items:center; justify-content:center; color:#dc2626; font-size:.8rem; flex-shrink:0; }
-.ap-tool-name { flex:1; font-size:.85rem; font-weight:600; color:#111; }
-.ap-tool-status { font-size:.72rem; color:#6b7280; }
-/* Toggle switch */
-.ap-toggle { position:relative; width:44px; height:24px; flex-shrink:0; }
+
+/* ── category section (tool privileges) ── */
+.ap-cat-section {
+  background:#fff; border:1px solid #e8ecf4; border-radius:14px;
+  margin-bottom:1rem; overflow:hidden;
+}
+.ap-cat-head {
+  display:flex; align-items:center; gap:.75rem;
+  padding:.85rem 1.1rem;
+  background:#f9fafb; border-bottom:1px solid #e8ecf4;
+  flex-wrap:wrap;
+}
+.ap-cat-icon {
+  width:32px; height:32px; border-radius:8px;
+  background:#fee2e2; color:#dc2626;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.85rem; flex-shrink:0;
+}
+.ap-cat-name { font-weight:700; font-size:.88rem; color:#111; flex:1; }
+.ap-cat-sub  { font-size:.72rem; color:#9ca3af; width:100%; margin-top:-.3rem; padding-left:44px; }
+.ap-cat-btns { display:flex; gap:.4rem; }
+.ap-cat-btn {
+  font-size:.72rem; font-weight:700; padding:.3rem .75rem;
+  border-radius:7px; border:none; cursor:pointer; display:flex; align-items:center; gap:.3rem;
+}
+.ap-cat-btn.enable  { background:#dcfce7; color:#16a34a; }
+.ap-cat-btn.enable:hover { background:#bbf7d0; }
+.ap-cat-btn.disable { background:#fee2e2; color:#dc2626; }
+.ap-cat-btn.disable:hover { background:#fecaca; }
+.ap-cat-toggle-wrap {
+  display:flex; align-items:center;
+  padding:.5rem; cursor:pointer; border-left:1px solid #e8ecf4;
+}
+.ap-cat-toggle-wrap i { font-size:.7rem; color:#9ca3af; transition:.2s; }
+.ap-cat-toggle-wrap.collapsed i { transform:rotate(-90deg); }
+
+/* ── tool grid ── */
+.ap-tools-grid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:0; border-top:none;
+}
+@media(max-width:860px){ .ap-tools-grid{ grid-template-columns:repeat(2,1fr); } }
+@media(max-width:560px){ .ap-tools-grid{ grid-template-columns:1fr; } }
+
+.ap-tool-card {
+  display:flex; align-items:center; gap:.7rem;
+  padding:.7rem 1rem;
+  border-right:1px solid #f3f4f6;
+  border-bottom:1px solid #f3f4f6;
+  transition:background .1s;
+}
+.ap-tool-card:hover { background:#fef9f9; }
+/* remove right border on last in each row */
+.ap-tool-card:nth-child(3n) { border-right:none; }
+.ap-tools-grid.col2 .ap-tool-card:nth-child(3n) { border-right:1px solid #f3f4f6; }
+.ap-tools-grid.col2 .ap-tool-card:nth-child(2n) { border-right:none; }
+
+.ap-tc-icon {
+  width:34px; height:34px; border-radius:9px;
+  background:#fee2e2; color:#dc2626;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.85rem; flex-shrink:0;
+}
+.ap-tc-body { flex:1; min-width:0; }
+.ap-tc-name { font-size:.82rem; font-weight:700; color:#111; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ap-tc-desc { font-size:.68rem; color:#9ca3af; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ap-tc-right { display:flex; align-items:center; gap:.5rem; flex-shrink:0; }
+
+.ap-tc-badge {
+  font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:8px;
+  display:flex; align-items:center; gap:.25rem; white-space:nowrap;
+}
+.ap-tc-badge.free { background:#dcfce7; color:#16a34a; }
+.ap-tc-badge.lock { background:#fee2e2; color:#dc2626; }
+
+/* ── toggle switch ── */
+.ap-toggle { position:relative; width:38px; height:21px; flex-shrink:0; }
 .ap-toggle input { opacity:0; width:0; height:0; }
 .ap-toggle-slider {
-  position:absolute; cursor:pointer; inset:0; background:#dc2626;
-  border-radius:24px; transition:.2s;
+  position:absolute; cursor:pointer; inset:0;
+  background:#dc2626; border-radius:21px; transition:.2s;
 }
 .ap-toggle-slider::before {
-  content:''; position:absolute; width:18px; height:18px; left:3px; bottom:3px;
+  content:''; position:absolute;
+  width:15px; height:15px; left:3px; bottom:3px;
   background:#fff; border-radius:50%; transition:.2s;
 }
 .ap-toggle input:checked + .ap-toggle-slider { background:#16a34a; }
-.ap-toggle input:checked + .ap-toggle-slider::before { transform:translateX(20px); }
-.ap-toggle-lbl { font-size:.72rem; font-weight:600; min-width:38px; text-align:center; }
-.free-lbl { color:#16a34a; }
-.lock-lbl { color:#dc2626; }
+.ap-toggle input:checked + .ap-toggle-slider::before { transform:translateX(17px); }
 
-/* Support tickets table */
-.ap-ticket-status { display:inline-block; font-size:.68rem; font-weight:700;
-  padding:2px 8px; border-radius:10px; }
-.ap-ticket-status.open        { background:#fef9c3; color:#92400e; }
-.ap-ticket-status.in_progress { background:#dbeafe; color:#1d4ed8; }
-.ap-ticket-status.resolved    { background:#dcfce7; color:#15803d; }
-.ap-ticket-status.closed      { background:#f3f4f6; color:#6b7280; }
-.ap-ticket-guest { font-style:italic; color:#9ca3af; font-size:.78rem; }
+/* ── table ── */
+.ap-table-wrap { overflow-x:auto; }
+.ap-table {
+  width:100%; border-collapse:collapse; background:#fff;
+  border:1px solid #e8ecf4; border-radius:14px; overflow:hidden;
+}
+.ap-table th {
+  background:#f9fafb; padding:.65rem 1rem; text-align:left;
+  font-size:.7rem; font-weight:700; color:#6b7280;
+  text-transform:uppercase; letter-spacing:.04em;
+  border-bottom:1px solid #e8ecf4;
+}
+.ap-table td { padding:.7rem 1rem; font-size:.82rem; border-top:1px solid #f3f4f6; }
+.ap-table tbody tr:hover td { background:#fef9f9; }
 
-/* Suggestion status badges */
-.ap-sg-status { display:inline-block; font-size:.68rem; font-weight:700; padding:2px 8px; border-radius:10px; }
-.ap-sg-status.new       { background:#dbeafe; color:#1d4ed8; }
-.ap-sg-status.reviewing { background:#fef9c3; color:#92400e; }
-.ap-sg-status.planned   { background:#ede9fe; color:#6d28d9; }
-.ap-sg-status.completed { background:#dcfce7; color:#15803d; }
-.ap-sg-status.declined  { background:#f3f4f6; color:#6b7280; }
+/* ── badges ── */
+.badge {
+  display:inline-block; font-size:.65rem; font-weight:700;
+  padding:2px 8px; border-radius:10px;
+}
+.badge-green  { background:#dcfce7; color:#15803d; }
+.badge-blue   { background:#dbeafe; color:#1d4ed8; }
+.badge-yellow { background:#fef9c3; color:#92400e; }
+.badge-red    { background:#fee2e2; color:#dc2626; }
+.badge-grey   { background:#f3f4f6; color:#6b7280; }
+.badge-purple { background:#ede9fe; color:#6d28d9; }
 
-/* Suggestion table row clickable */
-.ap-sg-row { cursor:pointer; transition:background .1s; }
-.ap-sg-row:hover td { background:#fef2f2; }
+.ap-avatar {
+  width:30px; height:30px; border-radius:50%;
+  background:#fee2e2; color:#dc2626;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:.75rem; margin-right:.4rem;
+}
 
-/* Media file row hover */
+/* ── visitor stats ── */
+.ap-vis-stats {
+  display:grid; grid-template-columns:repeat(5,1fr);
+  gap:.6rem; margin-bottom:1rem;
+}
+@media(max-width:800px){ .ap-vis-stats{ grid-template-columns:repeat(3,1fr); } }
+.ap-vs { background:#fff; border:1px solid #e8ecf4; border-radius:10px; padding:.8rem 1rem; }
+.ap-vs-num { font-size:1.3rem; font-weight:800; color:#111; }
+.ap-vs-lbl { font-size:.68rem; color:#6b7280; margin-top:.1rem; }
+
+/* ── media ── */
 .media-file-row:hover { background:#fef2f2 !important; border-color:#fee2e2 !important; }
 
-/* Suggestion detail modal */
+/* ── suggestion modal ── */
 .ap-modal-overlay {
   display:none; position:fixed; inset:0; background:rgba(0,0,0,.45);
   z-index:1000; align-items:center; justify-content:center; padding:1rem;
 }
 .ap-modal-overlay.open { display:flex; }
 .ap-modal {
-  background:#fff; border-radius:16px; width:100%; max-width:580px;
+  background:#fff; border-radius:16px; width:100%; max-width:560px;
   max-height:90vh; overflow-y:auto; padding:1.5rem;
-  box-shadow:0 20px 60px rgba(0,0,0,.2);
+  box-shadow:0 20px 60px rgba(0,0,0,.18);
 }
 .ap-modal-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
 .ap-modal-title { font-size:1rem; font-weight:700; color:#111; line-height:1.3; }
-.ap-modal-close { background:none; border:none; font-size:1.2rem; color:#6b7280; cursor:pointer; flex-shrink:0; }
+.ap-modal-close { background:none; border:none; font-size:1.2rem; color:#6b7280; cursor:pointer; }
 .ap-modal-meta  { font-size:.75rem; color:#6b7280; margin-bottom:1rem; display:flex; gap:1rem; flex-wrap:wrap; }
 .ap-modal-desc  { font-size:.85rem; color:#374151; line-height:1.6; white-space:pre-wrap;
   background:#f9fafb; border-radius:8px; padding:.75rem; margin-bottom:1rem; }
@@ -102,428 +317,546 @@
 .ap-modal-save:hover { background:#b91c1c; }
 .ap-modal-saved { font-size:.75rem; color:#16a34a; margin-left:.75rem; display:none; }
 
-/* Users table */
-.ap-users-table { width:100%; border-collapse:collapse; background:#fff;
-  border:1px solid #ebebeb; border-radius:14px; overflow:hidden; }
-.ap-users-table th { background:#f9fafb; padding:.75rem 1rem; text-align:left;
-  font-size:.75rem; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:.04em; }
-.ap-users-table td { padding:.75rem 1rem; font-size:.83rem; border-top:1px solid #f3f4f6; }
-.ap-user-avatar { width:32px; height:32px; border-radius:50%; background:#fee2e2;
-  display:inline-flex; align-items:center; justify-content:center;
-  color:#dc2626; font-weight:700; font-size:.8rem; margin-right:.5rem; }
-.ap-role-super { background:#fef9c3; color:#92400e; font-size:.68rem; font-weight:700;
-  padding:2px 8px; border-radius:10px; }
-.ap-role-user { background:#f3f4f6; color:#6b7280; font-size:.68rem; font-weight:700;
-  padding:2px 8px; border-radius:10px; }
-.ap-active-dot { width:8px; height:8px; border-radius:50%; background:#16a34a; display:inline-block; margin-right:4px; }
+/* empty state */
+.ap-empty {
+  text-align:center; padding:3rem 1rem; color:#9ca3af; font-size:.85rem;
+}
+.ap-empty i { font-size:2rem; display:block; margin-bottom:.75rem; opacity:.35; }
 </style>
 
-<div class="ap-wrap">
-  <div class="ap-header">
-    <div>
-      <div class="ap-title"><i class="fa-solid fa-shield-halved" style="color:#dc2626"></i> Admin Panel</div>
-      <div style="font-size:.82rem;color:#6b7280;margin-top:.2rem">ZayroDocX — Superadmin Controls</div>
-    </div>
-    <span class="ap-badge">SUPERADMIN</span>
-  </div>
+<div class="ap-layout">
 
-  <!-- Stats -->
-  <div class="ap-stats">
-    <div class="ap-stat">
-      <div class="ap-stat-num">{{ total_users }}</div>
-      <div class="ap-stat-lbl"><i class="fa-solid fa-users"></i> Total Users</div>
+  <!-- ══════ SIDEBAR ══════ -->
+  <aside class="ap-sidebar">
+    <div class="ap-sb-logo">
+      <span class="ap-sb-logo-zayro">Zayro</span><span class="ap-sb-logo-docx">DocX</span>
     </div>
-    <div class="ap-stat">
-      <div class="ap-stat-num">{{ tools_by_category.values|length }}</div>
-      <div class="ap-stat-lbl"><i class="fa-solid fa-layer-group"></i> Tool Categories</div>
-    </div>
-    <div class="ap-stat">
-      <div class="ap-stat-num" id="freeCount">—</div>
-      <div class="ap-stat-lbl"><i class="fa-solid fa-unlock"></i> Free Tools</div>
-    </div>
-    <div class="ap-stat">
-      <div class="ap-stat-num">{{ open_ticket_count }}</div>
-      <div class="ap-stat-lbl"><i class="fa-solid fa-headset"></i> Open Tickets</div>
-    </div>
-    <div class="ap-stat">
-      <div class="ap-stat-num">{{ new_suggestion_count }}</div>
-      <div class="ap-stat-lbl"><i class="fa-solid fa-lightbulb"></i> New Suggestions</div>
-    </div>
-    <div class="ap-stat">
-      <div class="ap-stat-num">{{ visitor_stats.active_now }}</div>
-      <div class="ap-stat-lbl"><i class="fa-solid fa-circle" style="color:#22c55e;font-size:.6rem"></i> Active Now</div>
-    </div>
-    <div class="ap-stat">
-      <div class="ap-stat-num">{{ visitor_stats.today }}</div>
-      <div class="ap-stat-lbl"><i class="fa-solid fa-eye"></i> Visitors Today</div>
-    </div>
-  </div>
 
-  <!-- Tabs -->
-  <div class="ap-tabs">
-    <div class="ap-tab active" onclick="showTab('tools',this)"><i class="fa-solid fa-sliders"></i> Tool Privileges</div>
-    <div class="ap-tab" onclick="showTab('users',this)"><i class="fa-solid fa-users"></i> Users ({{ total_users }})</div>
-    <div class="ap-tab" onclick="showTab('tickets',this)"><i class="fa-solid fa-headset"></i> Support Tickets ({{ tickets|length }})</div>
-    <div class="ap-tab" onclick="showTab('suggestions',this)"><i class="fa-solid fa-lightbulb"></i> Suggestions ({{ suggestions|length }})</div>
-    <div class="ap-tab" onclick="showTab('visitors',this)"><i class="fa-solid fa-eye"></i> Visitor Sessions ({{ visitor_stats.total }})</div>
-    <div class="ap-tab" onclick="showTab('media',this);loadMedia()"><i class="fa-solid fa-folder-open"></i> Media</div>
-  </div>
-
-  <!-- Tool Privileges -->
-  <div class="ap-section active" id="tab-tools">
-    {% for category, tools in tools_by_category.items %}
-    <div class="ap-cat">
-      <div class="ap-cat-head"><i class="fa-solid fa-folder"></i> {{ category }}</div>
-      {% for tool in tools %}
-      <div class="ap-tool-row" id="row-{{ tool.slug }}">
-        <div class="ap-tool-icon"><i class="fa-solid {{ tool.icon }}"></i></div>
-        <div class="ap-tool-name">{{ tool.name }}</div>
-        <span class="ap-tool-status {% if not tool.requires_login %}free-lbl{% else %}lock-lbl{% endif %}" id="lbl-{{ tool.slug }}">
-          {% if tool.requires_login %}<i class="fa-solid fa-lock"></i> Login Required{% else %}<i class="fa-solid fa-unlock"></i> Free{% endif %}
-        </span>
-        <label class="ap-toggle" title="Toggle free/login">
-          <input type="checkbox" {% if not tool.requires_login %}checked{% endif %}
-            onchange="toggleTool('{{ tool.slug }}', this)">
-          <span class="ap-toggle-slider"></span>
-        </label>
-        <span class="ap-toggle-lbl {% if not tool.requires_login %}free-lbl{% else %}lock-lbl{% endif %}" id="tlbl-{{ tool.slug }}">
-          {% if tool.requires_login %}Lock{% else %}Free{% endif %}
-        </span>
+    <nav class="ap-sb-nav">
+      <div class="ap-sb-section-label">Admin</div>
+      <div class="ap-sb-item active" id="sbitem-tools" onclick="showTab('tools',this,'sbitem-tools')">
+        <i class="fa-solid fa-shield-halved"></i> Admin Panel
       </div>
+      <div class="ap-sb-item" id="sbitem-tools2" onclick="showTab('tools',this,'sbitem-tools2')">
+        <i class="fa-solid fa-sliders"></i> Tool Management
+      </div>
+      <div class="ap-sb-item" id="sbitem-users" onclick="showTab('users',this,'sbitem-users')">
+        <i class="fa-solid fa-users"></i> User Management
+      </div>
+
+      <div class="ap-sb-section-label">Support</div>
+      <div class="ap-sb-item" id="sbitem-tickets" onclick="showTab('tickets',this,'sbitem-tickets')">
+        <i class="fa-solid fa-headset"></i> Support Tickets
+        {% if open_ticket_count %}<span style="margin-left:auto;background:#fee2e2;color:#dc2626;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:8px;">{{ open_ticket_count }}</span>{% endif %}
+      </div>
+      <div class="ap-sb-item" id="sbitem-suggestions" onclick="showTab('suggestions',this,'sbitem-suggestions')">
+        <i class="fa-solid fa-lightbulb"></i> Suggestions
+        {% if new_suggestion_count %}<span style="margin-left:auto;background:#ede9fe;color:#7c3aed;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:8px;">{{ new_suggestion_count }}</span>{% endif %}
+      </div>
+
+      <div class="ap-sb-section-label">Data</div>
+      <div class="ap-sb-item" id="sbitem-visitors" onclick="showTab('visitors',this,'sbitem-visitors')">
+        <i class="fa-solid fa-eye"></i> Visitor Sessions
+      </div>
+      <div class="ap-sb-item" id="sbitem-media" onclick="showTab('media',this,'sbitem-media');loadMedia()">
+        <i class="fa-solid fa-folder-open"></i> Media
+      </div>
+    </nav>
+
+    <div class="ap-sb-plus">
+      <div class="ap-sb-plus-icon">⭐</div>
+      <div class="ap-sb-plus-title">ZayroDocX Plus</div>
+      <div class="ap-sb-plus-desc">Unlock more tools and advanced features</div>
+      <button class="ap-sb-plus-btn">Upgrade Now →</button>
+    </div>
+
+    <div class="ap-sb-ver">
+      ZayroDocX v1.0.0<br>© 2026 Zayron Infotech Pvt. Ltd.
+    </div>
+  </aside>
+
+  <!-- ══════ MAIN ══════ -->
+  <main class="ap-main">
+
+    <!-- breadcrumb -->
+    <div class="ap-breadcrumb">Dashboard &rsaquo; <span>Admin Panel</span></div>
+
+    <!-- page title -->
+    <div class="ap-page-head">
+      <div>
+        <div class="ap-page-title">
+          <i class="fa-solid fa-shield-halved" style="color:#dc2626"></i>
+          Admin Panel
+          <span class="ap-badge">SUPER ADMIN</span>
+        </div>
+        <div class="ap-page-sub">Manage tools, users, support and more — keep ZayroDocX running smoothly.</div>
+      </div>
+      <div class="ap-head-icon"><i class="fa-solid fa-gear"></i></div>
+    </div>
+
+    <!-- stats -->
+    <div class="ap-stats">
+      <div class="ap-stat">
+        <div class="ap-stat-icon red"><i class="fa-solid fa-users"></i></div>
+        <div>
+          <div class="ap-stat-num">{{ total_users }}</div>
+          <div class="ap-stat-lbl">Total Users</div>
+          <div class="ap-stat-trend up"><i class="fa-solid fa-arrow-up"></i> 0%</div>
+        </div>
+      </div>
+      <div class="ap-stat">
+        <div class="ap-stat-icon blue"><i class="fa-solid fa-layer-group"></i></div>
+        <div>
+          <div class="ap-stat-num">{{ tools_by_category.values|length }}</div>
+          <div class="ap-stat-lbl">Tool Categories</div>
+          <div class="ap-stat-trend up"><i class="fa-solid fa-arrow-up"></i> 0%</div>
+        </div>
+      </div>
+      <div class="ap-stat">
+        <div class="ap-stat-icon green"><i class="fa-solid fa-unlock"></i></div>
+        <div>
+          <div class="ap-stat-num" id="freeCount">—</div>
+          <div class="ap-stat-lbl">Free Tools</div>
+          <div class="ap-stat-trend up"><i class="fa-solid fa-arrow-up"></i> 0%</div>
+        </div>
+      </div>
+      <div class="ap-stat">
+        <div class="ap-stat-icon orange"><i class="fa-solid fa-headset"></i></div>
+        <div>
+          <div class="ap-stat-num">{{ open_ticket_count }}</div>
+          <div class="ap-stat-lbl">Open Tickets</div>
+          <div class="ap-stat-trend flat">—</div>
+        </div>
+      </div>
+      <div class="ap-stat">
+        <div class="ap-stat-icon purple"><i class="fa-solid fa-lightbulb"></i></div>
+        <div>
+          <div class="ap-stat-num">{{ new_suggestion_count }}</div>
+          <div class="ap-stat-lbl">New Suggestions</div>
+          <div class="ap-stat-trend flat">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- tab bar -->
+    <div class="ap-tabs-wrap">
+      <div class="ap-tab active" id="tab-btn-tools" onclick="showTab('tools',this,'sbitem-tools')">
+        <i class="fa-solid fa-sliders"></i> Tool Privileges
+      </div>
+      <div class="ap-tab" id="tab-btn-users" onclick="showTab('users',this,'sbitem-users')">
+        <i class="fa-solid fa-users"></i> Users <span class="tab-count">{{ total_users }}</span>
+      </div>
+      <div class="ap-tab" id="tab-btn-tickets" onclick="showTab('tickets',this,'sbitem-tickets')">
+        <i class="fa-solid fa-headset"></i> Support Tickets <span class="tab-count">{{ tickets|length }}</span>
+      </div>
+      <div class="ap-tab" id="tab-btn-suggestions" onclick="showTab('suggestions',this,'sbitem-suggestions')">
+        <i class="fa-solid fa-lightbulb"></i> Suggestions <span class="tab-count">{{ suggestions|length }}</span>
+      </div>
+      <div class="ap-tab" id="tab-btn-visitors" onclick="showTab('visitors',this,'sbitem-visitors')">
+        <i class="fa-solid fa-eye"></i> Visitor Sessions <span class="tab-count">{{ visitor_stats.total }}</span>
+      </div>
+      <div class="ap-tab" id="tab-btn-media" onclick="showTab('media',this,'sbitem-media');loadMedia()">
+        <i class="fa-solid fa-folder-open"></i> Media
+      </div>
+      <div class="ap-search-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="toolSearch" placeholder="Search tools…" oninput="filterTools(this.value)">
+      </div>
+    </div>
+
+    <!-- ─── Tool Privileges ─── -->
+    <div class="ap-section active" id="tab-tools">
+      {% for category, tools in tools_by_category.items %}
+      {% with cat_id=category|lower|cut:" "|cut:"&" %}
+      <div class="ap-cat-section" id="catblock-{{ forloop.counter }}">
+        <div class="ap-cat-head">
+          <div class="ap-cat-icon"><i class="fa-solid fa-folder"></i></div>
+          <div class="ap-cat-name">{{ category }}</div>
+          <div class="ap-cat-btns">
+            <button class="ap-cat-btn enable"  onclick="catSetAll({{ forloop.counter }}, true)">
+              <i class="fa-solid fa-bolt"></i> Enable All
+            </button>
+            <button class="ap-cat-btn disable" onclick="catSetAll({{ forloop.counter }}, false)">
+              <i class="fa-solid fa-ban"></i> Disable All
+            </button>
+          </div>
+          <div class="ap-cat-toggle-wrap" onclick="toggleCat({{ forloop.counter }}, this)">
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="ap-cat-sub">Enable or disable {{ category }} tools for users.</div>
+        </div>
+        <div class="ap-tools-grid" id="catgrid-{{ forloop.counter }}">
+          {% for tool in tools %}
+          <div class="ap-tool-card" data-tool="{{ tool.name|lower }}" data-slug="{{ tool.slug }}">
+            <div class="ap-tc-icon"><i class="fa-solid {{ tool.icon }}"></i></div>
+            <div class="ap-tc-body">
+              <div class="ap-tc-name">{{ tool.name }}</div>
+              <div class="ap-tc-desc" id="desc-{{ tool.slug }}">Loading…</div>
+            </div>
+            <div class="ap-tc-right">
+              <span class="ap-tc-badge {% if not tool.requires_login %}free{% else %}lock{% endif %}" id="badge-{{ tool.slug }}">
+                <i class="fa-solid {% if not tool.requires_login %}fa-unlock{% else %}fa-lock{% endif %}"></i>
+                {% if tool.requires_login %}Lock{% else %}Free{% endif %}
+              </span>
+              <label class="ap-toggle">
+                <input type="checkbox" {% if not tool.requires_login %}checked{% endif %}
+                  data-slug="{{ tool.slug }}"
+                  onchange="toggleTool('{{ tool.slug }}', this)">
+                <span class="ap-toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endwith %}
       {% endfor %}
     </div>
-    {% endfor %}
-  </div>
 
-  <!-- Support Tickets -->
-  <div class="ap-section" id="tab-tickets">
-    {% if tickets %}
-    <table class="ap-users-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Name / Email</th>
-          <th>Issue</th>
-          <th>Tool</th>
-          <th>User</th>
-          <th>Status</th>
-          <th>Submitted</th>
-          <th>Attachment</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for t in tickets %}
-        <tr>
-          <td style="color:#9ca3af;font-size:.78rem;">{{ t.pk }}</td>
-          <td>
-            <strong>{{ t.name }}</strong><br>
-            <span style="font-size:.78rem;color:#6b7280;">{{ t.email }}</span>
-          </td>
-          <td>{{ t.issue_type }}</td>
-          <td>{{ t.related_tool|default:"—" }}</td>
-          <td>
-            {% if t.user %}
-              <span class="ap-user-avatar">{{ t.user.username|slice:":1"|upper }}</span>{{ t.user.username }}
-            {% else %}
-              <span class="ap-ticket-guest">Guest</span>
-            {% endif %}
-          </td>
-          <td><span class="ap-ticket-status {{ t.status }}">{{ t.get_status_display }}</span></td>
-          <td style="font-size:.78rem;white-space:nowrap;">{{ t.created_at|date:"d M Y, H:i" }}</td>
-          <td>
-            {% if t.attachment %}
-              <a href="{{ t.attachment.url }}" target="_blank" style="font-size:.78rem;color:#2563eb;">View</a>
-            {% else %}—{% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <div style="text-align:center;padding:3rem 1rem;color:#9ca3af;font-size:.88rem;">
-      <i class="fa-solid fa-inbox" style="font-size:2rem;display:block;margin-bottom:.75rem;"></i>
-      No support tickets yet.
+    <!-- ─── Users ─── -->
+    <div class="ap-section" id="tab-users">
+      <div class="ap-table-wrap">
+        <table class="ap-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Joined</th>
+              <th>Last Login</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <td>
+                <span class="ap-avatar">{{ user.username|slice:":1"|upper }}</span>
+                <strong>{{ user.username }}</strong>
+              </td>
+              <td>{{ user.email|default:"—" }}</td>
+              <td>
+                {% if user.is_superuser %}
+                  <span class="badge badge-yellow">Superadmin</span>
+                {% else %}
+                  <span class="badge badge-grey">User</span>
+                {% endif %}
+              </td>
+              <td style="font-size:.78rem;color:#6b7280;">{{ user.date_joined|date:"d M Y" }}</td>
+              <td style="font-size:.78rem;color:#6b7280;">
+                {% if user.last_login %}<i class="fa-solid fa-circle" style="color:#22c55e;font-size:.5rem;vertical-align:middle;"></i> {{ user.last_login|date:"d M Y, H:i" }}{% else %}—{% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5"><div class="ap-empty"><i class="fa-solid fa-users"></i>No users yet.</div></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-    {% endif %}
-  </div>
 
-  <!-- Suggestions -->
-  <div class="ap-section" id="tab-suggestions">
-    {% if suggestions %}
-    <table class="ap-users-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Title</th>
-          <th>Category</th>
-          <th>Submitted by</th>
-          <th>Date</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for s in suggestions %}
-        <tr class="ap-sg-row" onclick="openSuggestion({{ s.pk }}, '{{ s.title|escapejs }}', '{{ s.get_category_display|escapejs }}', '{{ s.description|escapejs }}', '{{ s.status }}', '{{ s.admin_notes|escapejs }}', '{% if s.user %}{{ s.user.username|escapejs }}{% else %}Guest{% endif %}', '{{ s.created_at|date:"d M Y, H:i" }}')">
-          <td style="color:#9ca3af;font-size:.78rem;">{{ s.pk }}</td>
-          <td><strong>{{ s.title }}</strong></td>
-          <td style="font-size:.78rem;color:#6b7280;">{{ s.get_category_display }}</td>
-          <td>
-            {% if s.user %}
-              <span class="ap-user-avatar">{{ s.user.username|slice:":1"|upper }}</span>{{ s.user.username }}
-            {% else %}
-              <span class="ap-ticket-guest">Guest</span>
-            {% endif %}
-          </td>
-          <td style="font-size:.78rem;white-space:nowrap;">{{ s.created_at|date:"d M Y" }}</td>
-          <td><span class="ap-sg-status {{ s.status }}" id="sg-status-badge-{{ s.pk }}">{{ s.get_status_display }}</span></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <div style="text-align:center;padding:3rem 1rem;color:#9ca3af;font-size:.88rem;">
-      <i class="fa-solid fa-lightbulb" style="font-size:2rem;display:block;margin-bottom:.75rem;opacity:.4;"></i>
-      No suggestions yet.
+    <!-- ─── Support Tickets ─── -->
+    <div class="ap-section" id="tab-tickets">
+      {% if tickets %}
+      <div class="ap-table-wrap">
+        <table class="ap-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Name / Email</th><th>Issue Type</th>
+              <th>Related Tool</th><th>Status</th><th>Submitted</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in tickets %}
+            <tr>
+              <td style="color:#9ca3af;font-size:.72rem;">{{ forloop.counter }}</td>
+              <td>
+                <strong>{{ t.name }}</strong><br>
+                <span style="font-size:.75rem;color:#6b7280;">{{ t.email }}</span>
+              </td>
+              <td>{{ t.issue_type }}</td>
+              <td>{{ t.related_tool|default:"—" }}</td>
+              <td>
+                {% if t.status == 'open' %}<span class="badge badge-yellow">Open</span>
+                {% elif t.status == 'in_progress' %}<span class="badge badge-blue">In Progress</span>
+                {% elif t.status == 'resolved' %}<span class="badge badge-green">Resolved</span>
+                {% else %}<span class="badge badge-grey">{{ t.status }}</span>{% endif %}
+              </td>
+              <td style="font-size:.75rem;color:#6b7280;white-space:nowrap;">{{ t.created_at|date:"d M Y, H:i" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="ap-empty"><i class="fa-solid fa-inbox"></i>No support tickets yet.</div>
+      {% endif %}
     </div>
-    {% endif %}
-  </div>
 
-  <!-- Suggestion detail modal -->
-  <div class="ap-modal-overlay" id="sgModal" onclick="if(event.target===this)closeSgModal()">
-    <div class="ap-modal">
-      <div class="ap-modal-head">
-        <div class="ap-modal-title" id="sgModalTitle"></div>
-        <button class="ap-modal-close" onclick="closeSgModal()"><i class="fa-solid fa-xmark"></i></button>
+    <!-- ─── Suggestions ─── -->
+    <div class="ap-section" id="tab-suggestions">
+      {% if suggestions %}
+      <div class="ap-table-wrap">
+        <table class="ap-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Title</th><th>Category</th>
+              <th>By</th><th>Date</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in suggestions %}
+            <tr style="cursor:pointer;" onclick="openSuggestion('{{ s.pk }}','{{ s.title|escapejs }}','{{ s.category_display|escapejs }}','{{ s.description|escapejs }}','{{ s.status }}','{{ s.admin_notes|escapejs }}','{{ s.submitter|escapejs }}','{{ s.created_at|date:"d M Y, H:i" }}')">
+              <td style="color:#9ca3af;font-size:.72rem;">{{ forloop.counter }}</td>
+              <td><strong>{{ s.title }}</strong></td>
+              <td style="font-size:.75rem;color:#6b7280;">{{ s.category_display }}</td>
+              <td style="font-size:.75rem;color:#6b7280;">{{ s.submitter }}</td>
+              <td style="font-size:.75rem;color:#6b7280;white-space:nowrap;">{{ s.created_at|date:"d M Y" }}</td>
+              <td>
+                <span class="badge {% if s.status == 'new' %}badge-blue{% elif s.status == 'planned' %}badge-purple{% elif s.status == 'completed' %}badge-green{% elif s.status == 'reviewing' %}badge-yellow{% else %}badge-grey{% endif %}"
+                  id="sg-status-badge-{{ s.pk }}">{{ s.status_display }}</span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
-      <div class="ap-modal-meta" id="sgModalMeta"></div>
-      <div class="ap-modal-label">Description</div>
-      <div class="ap-modal-desc" id="sgModalDesc"></div>
-      <div class="ap-modal-label">Status</div>
-      <select class="ap-modal-select" id="sgModalStatus">
-        <option value="new">New</option>
-        <option value="reviewing">Reviewing</option>
-        <option value="planned">Planned</option>
-        <option value="completed">Completed</option>
-        <option value="declined">Declined</option>
-      </select>
-      <div class="ap-modal-label">Internal notes <span style="font-weight:400;text-transform:none;letter-spacing:0;">(never shown to users)</span></div>
-      <textarea class="ap-modal-textarea" id="sgModalNotes" placeholder="Add internal notes…"></textarea>
-      <div style="display:flex;align-items:center;">
-        <button class="ap-modal-save" id="sgModalSaveBtn" onclick="saveSuggestion()">Save changes</button>
-        <span class="ap-modal-saved" id="sgModalSaved"><i class="fa-solid fa-check"></i> Saved</span>
-      </div>
+      {% else %}
+      <div class="ap-empty"><i class="fa-solid fa-lightbulb"></i>No suggestions yet.</div>
+      {% endif %}
     </div>
-  </div>
 
-  <!-- Visitor Sessions -->
-  <div class="ap-section" id="tab-visitors">
-    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1rem;">
-      <div class="ap-stat" style="flex:1;min-width:120px;">
-        <div class="ap-stat-num">{{ visitor_stats.total }}</div>
-        <div class="ap-stat-lbl"><i class="fa-solid fa-globe"></i> Total Sessions</div>
+    <!-- ─── Visitor Sessions ─── -->
+    <div class="ap-section" id="tab-visitors">
+      <div class="ap-vis-stats">
+        <div class="ap-vs"><div class="ap-vs-num">{{ visitor_stats.total }}</div><div class="ap-vs-lbl"><i class="fa-solid fa-globe"></i> Total Sessions</div></div>
+        <div class="ap-vs"><div class="ap-vs-num">{{ visitor_stats.today }}</div><div class="ap-vs-lbl"><i class="fa-solid fa-calendar-day"></i> Today</div></div>
+        <div class="ap-vs"><div class="ap-vs-num" style="color:#22c55e;">{{ visitor_stats.active_now }}</div><div class="ap-vs-lbl"><i class="fa-solid fa-circle" style="color:#22c55e;font-size:.55rem;"></i> Active Now</div></div>
+        <div class="ap-vs"><div class="ap-vs-num">{{ visitor_stats.guests }}</div><div class="ap-vs-lbl"><i class="fa-solid fa-user-slash"></i> Guests</div></div>
+        <div class="ap-vs"><div class="ap-vs-num">{{ visitor_stats.logged_in }}</div><div class="ap-vs-lbl"><i class="fa-solid fa-user-check"></i> Logged In</div></div>
       </div>
-      <div class="ap-stat" style="flex:1;min-width:120px;">
-        <div class="ap-stat-num">{{ visitor_stats.today }}</div>
-        <div class="ap-stat-lbl"><i class="fa-solid fa-calendar-day"></i> Today</div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:.75rem;">
+        <button onclick="deleteAllSessions()" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:.4rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.4rem;">
+          <i class="fa-solid fa-trash"></i> Delete All Sessions
+        </button>
       </div>
-      <div class="ap-stat" style="flex:1;min-width:120px;">
-        <div class="ap-stat-num" style="color:#22c55e;">{{ visitor_stats.active_now }}</div>
-        <div class="ap-stat-lbl"><i class="fa-solid fa-circle" style="color:#22c55e;font-size:.6rem"></i> Active (last 15 min)</div>
-      </div>
-      <div class="ap-stat" style="flex:1;min-width:120px;">
-        <div class="ap-stat-num">{{ visitor_stats.guests }}</div>
-        <div class="ap-stat-lbl"><i class="fa-solid fa-user-slash"></i> Guest Sessions</div>
-      </div>
-      <div class="ap-stat" style="flex:1;min-width:120px;">
-        <div class="ap-stat-num">{{ visitor_stats.logged_in }}</div>
-        <div class="ap-stat-lbl"><i class="fa-solid fa-user-check"></i> Logged-In Sessions</div>
+      <div class="ap-table-wrap">
+        <table class="ap-table">
+          <thead>
+            <tr>
+              <th>IP Address</th><th>User</th><th>Pages</th><th>Last Page</th>
+              <th>Started</th><th>Last Seen</th><th>User Agent</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="sessions-tbody">
+            {% for s in recent_sessions %}
+            <tr id="sess-{{ forloop.counter }}">
+              <td><code style="font-size:.75rem;">{{ s.ip }}</code></td>
+              <td>
+                {% if s.username %}<span style="color:#dc2626;font-weight:600;">{{ s.username }}</span>
+                {% else %}<span style="color:#9ca3af;">Guest</span>{% endif %}
+              </td>
+              <td style="text-align:center;font-weight:700;">{{ s.page_views }}</td>
+              <td>{% if s.pages_visited %}<code style="font-size:.72rem;color:#6b7280;">{{ s.pages_visited|last }}</code>{% endif %}</td>
+              <td style="font-size:.75rem;color:#6b7280;white-space:nowrap;">{{ s.started_at|date:"d M Y H:i" }}</td>
+              <td style="font-size:.75rem;color:#6b7280;white-space:nowrap;">{{ s.last_seen|date:"d M Y H:i" }}</td>
+              <td style="font-size:.7rem;color:#9ca3af;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ s.user_agent }}">{{ s.user_agent|truncatechars:55 }}</td>
+              <td>
+                <button onclick="deleteSession('{{ s.session_key }}','sess-{{ forloop.counter }}')"
+                  style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:.82rem;padding:2px 6px;">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            {% empty %}
+            <tr id="no-sessions"><td colspan="8"><div class="ap-empty"><i class="fa-solid fa-eye-slash"></i>No visitor sessions yet.</div></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
-    <div style="display:flex;justify-content:flex-end;margin-bottom:.75rem;">
-      <button onclick="deleteAllSessions()" style="background:#dc2626;color:#fff;border:none;border-radius:6px;padding:.4rem .9rem;font-size:.8rem;font-weight:600;cursor:pointer;">
-        <i class="fa-solid fa-trash"></i> Delete All Sessions
-      </button>
-    </div>
-    <div style="overflow-x:auto;">
-      <table class="ap-users-table">
-        <thead>
-          <tr>
-            <th>IP Address</th>
-            <th>User</th>
-            <th>Pages Viewed</th>
-            <th>Last Page</th>
-            <th>Started At</th>
-            <th>Last Seen</th>
-            <th>User Agent</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="sessions-tbody">
-          {% for s in recent_sessions %}
-          <tr id="sess-{{ forloop.counter }}">
-            <td><code style="font-size:.78rem;">{{ s.ip }}</code></td>
-            <td>
-              {% if s.username %}
-                <span style="color:#dc2626;font-weight:600;">{{ s.username }}</span>
-              {% else %}
-                <span style="color:#9ca3af;">Guest</span>
-              {% endif %}
-            </td>
-            <td style="text-align:center;font-weight:700;">{{ s.page_views }}</td>
-            <td>
-              {% if s.pages_visited %}
-                <code style="font-size:.75rem;color:#6b7280;">{{ s.pages_visited|last }}</code>
-              {% endif %}
-            </td>
-            <td style="font-size:.78rem;color:#6b7280;white-space:nowrap;">{{ s.started_at|date:"d M Y H:i" }}</td>
-            <td style="font-size:.78rem;color:#6b7280;white-space:nowrap;">{{ s.last_seen|date:"d M Y H:i" }}</td>
-            <td style="font-size:.72rem;color:#9ca3af;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ s.user_agent }}">{{ s.user_agent|truncatechars:60 }}</td>
-            <td>
-              <button onclick="deleteSession('{{ s.session_key }}','sess-{{ forloop.counter }}')"
-                style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:.85rem;padding:2px 6px;" title="Delete">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </td>
-          </tr>
-          {% empty %}
-          <tr id="no-sessions"><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;">No visitor sessions recorded yet.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
 
-  <script>
-  function deleteSession(sessionKey, rowId) {
-    if (!confirm('Delete this session?')) return;
-    fetch('/zayro-admin/sessions/' + encodeURIComponent(sessionKey) + '/delete/', {
-      method: 'POST',
-      headers: {'X-CSRFToken': '{{ csrf_token }}'}
-    }).then(r => r.json()).then(d => {
-      if (d.ok) { var row = document.getElementById(rowId); if (row) row.remove(); }
-    });
-  }
-  function deleteAllSessions() {
-    if (!confirm('Delete ALL visitor sessions? This cannot be undone.')) return;
-    fetch('/zayro-admin/sessions/delete-all/', {
-      method: 'POST',
-      headers: {'X-CSRFToken': '{{ csrf_token }}'}
-    }).then(r => r.json()).then(d => {
-      if (d.ok) {
-        var tbody = document.getElementById('sessions-tbody');
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;">No visitor sessions recorded yet.</td></tr>';
-      }
-    });
-  }
-  </script>
-
-  <!-- Media Browser -->
-  <div class="ap-section" id="tab-media">
-    <div id="media-toolbar" style="display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap;">
-      <div id="media-summary" style="font-size:.82rem;color:#6b7280;">Loading…</div>
-      <button onclick="loadMedia(true)" style="margin-left:auto;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:.35rem .8rem;font-size:.78rem;font-weight:600;cursor:pointer;color:#374151;">
-        <i class="fa-solid fa-rotate-right"></i> Refresh
-      </button>
-      <button onclick="mediaDeleteAll()" style="background:#dc2626;color:#fff;border:none;border-radius:6px;padding:.35rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;">
-        <i class="fa-solid fa-trash"></i> Delete All Files
-      </button>
-    </div>
-    <div id="media-tree" style="background:#fff;border:1px solid #ebebeb;border-radius:14px;padding:1rem 1.2rem;min-height:120px;">
-      <div style="text-align:center;padding:2rem;color:#9ca3af;font-size:.85rem;">
-        <i class="fa-solid fa-folder-open" style="font-size:1.5rem;display:block;margin-bottom:.5rem;opacity:.4;"></i>
-        Click the Media tab to load files.
+    <!-- ─── Media ─── -->
+    <div class="ap-section" id="tab-media">
+      <div id="media-toolbar" style="display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap;">
+        <div id="media-summary" style="font-size:.82rem;color:#6b7280;">Loading…</div>
+        <button onclick="loadMedia(true)" style="margin-left:auto;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:7px;padding:.38rem .85rem;font-size:.78rem;font-weight:600;cursor:pointer;color:#374151;">
+          <i class="fa-solid fa-rotate-right"></i> Refresh
+        </button>
+        <button onclick="mediaDeleteAll()" style="background:#dc2626;color:#fff;border:none;border-radius:7px;padding:.38rem .9rem;font-size:.78rem;font-weight:700;cursor:pointer;">
+          <i class="fa-solid fa-trash"></i> Delete All Files
+        </button>
+      </div>
+      <div id="media-tree" style="background:#fff;border:1px solid #e8ecf4;border-radius:14px;padding:1rem 1.2rem;min-height:120px;">
+        <div class="ap-empty"><i class="fa-solid fa-folder-open"></i>Click the Media tab to load files.</div>
       </div>
     </div>
-  </div>
 
-  <!-- Users -->
-  <div class="ap-section" id="tab-users">
-    <table class="ap-users-table">
-      <thead>
-        <tr>
-          <th>User</th>
-          <th>Email</th>
-          <th>Role</th>
-          <th>Joined</th>
-          <th>Last Login</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for user in users %}
-        <tr>
-          <td>
-            <span class="ap-user-avatar">{{ user.username|slice:":1"|upper }}</span>
-            <strong>{{ user.username }}</strong>
-          </td>
-          <td>{{ user.email|default:"—" }}</td>
-          <td>
-            {% if user.is_superuser %}
-              <span class="ap-role-super">Superadmin</span>
-            {% else %}
-              <span class="ap-role-user">User</span>
-            {% endif %}
-          </td>
-          <td>{{ user.date_joined|date:"d M Y" }}</td>
-          <td>
-            {% if user.last_login %}
-              <span class="ap-active-dot"></span>{{ user.last_login|date:"d M Y, H:i" }}
-            {% else %}—{% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  </main>
+</div>
+
+<!-- Suggestion modal -->
+<div class="ap-modal-overlay" id="sgModal" onclick="if(event.target===this)closeSgModal()">
+  <div class="ap-modal">
+    <div class="ap-modal-head">
+      <div class="ap-modal-title" id="sgModalTitle"></div>
+      <button class="ap-modal-close" onclick="closeSgModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ap-modal-meta" id="sgModalMeta"></div>
+    <div class="ap-modal-label">Description</div>
+    <div class="ap-modal-desc" id="sgModalDesc"></div>
+    <div class="ap-modal-label">Status</div>
+    <select class="ap-modal-select" id="sgModalStatus">
+      <option value="new">New</option>
+      <option value="reviewing">Reviewing</option>
+      <option value="planned">Planned</option>
+      <option value="completed">Completed</option>
+      <option value="declined">Declined</option>
+    </select>
+    <div class="ap-modal-label">Internal notes</div>
+    <textarea class="ap-modal-textarea" id="sgModalNotes" placeholder="Add internal notes…"></textarea>
+    <div style="display:flex;align-items:center;">
+      <button class="ap-modal-save" id="sgModalSaveBtn" onclick="saveSuggestion()">Save changes</button>
+      <span class="ap-modal-saved" id="sgModalSaved"><i class="fa-solid fa-check"></i> Saved</span>
+    </div>
   </div>
 </div>
 
 <script>
-function showTab(name, el) {
+// ── Tool descriptions ─────────────────────────────────────────────────────────
+const TOOL_DESC = {
+  'merge-pdf':         'Combine multiple PDFs into one',
+  'split-pdf':         'Split PDF into multiple files',
+  'remove-pages':      'Delete unwanted pages',
+  'extract-pages':     'Extract specific pages',
+  'scan-to-pdf':       'Convert scans to PDF',
+  'compress-pdf':      'Reduce PDF file size',
+  'ocr-pdf':           'Make scanned PDFs searchable',
+  'invoice-extractor': 'Extract invoice data',
+  'ai-summarizer':     'Summarize documents',
+  'translate-pdf':     'Translate to multiple languages',
+  'word-to-pdf':       'Convert Word to PDF',
+  'pptx-to-pdf':       'Convert PPT to PDF',
+  'excel-to-pdf':      'Convert Excel to PDF',
+  'html-to-pdf':       'Convert HTML to PDF',
+  'jpg-to-pdf':        'Convert images to PDF',
+  'pdf-to-jpg':        'Convert PDF to images',
+  'pdf-to-word':       'Convert PDF to Word',
+  'pdf-to-pptx':       'Convert PDF to PowerPoint',
+  'pdf-to-excel':      'Convert PDF to Excel',
+  'rotate-pdf':        'Rotate PDF pages',
+  'add-page-numbers':  'Insert page numbers',
+  'watermark-pdf':     'Add text or image watermark',
+  'sign-pdf':          'Add signature to PDF',
+  'crop-pdf':          'Crop PDF pages',
+  'protect-pdf':       'Add password protection',
+  'unlock-pdf':        'Remove PDF password',
+  'redact-pdf':        'Remove sensitive content',
+  'compress-image':    'Reduce image file size',
+  'resize-image':      'Resize image dimensions',
+  'crop-image':        'Crop image',
+  'rotate-image':      'Rotate images',
+  'convert-to-jpg':    'Convert images to JPG',
+  'convert-from-jpg':  'Convert JPG to other formats',
+  'watermark-image':   'Add watermark to images',
+  'remove-background': 'Remove image background',
+  'blur-face':         'Blur faces in images',
+  'image-to-text':     'Extract text from images',
+};
+
+// Fill descriptions
+document.querySelectorAll('[id^="desc-"]').forEach(el => {
+  const slug = el.id.replace('desc-', '');
+  el.textContent = TOOL_DESC[slug] || '';
+});
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function showTab(name, el, sbId) {
   document.querySelectorAll('.ap-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.ap-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ap-sb-item').forEach(i => i.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  el.classList.add('active');
+  if (el) el.classList.add('active');
+  if (sbId) { const sb = document.getElementById(sbId); if (sb) sb.classList.add('active'); }
+  // sync tab button highlight
+  const tabBtn = document.getElementById('tab-btn-' + name);
+  if (tabBtn) tabBtn.classList.add('active');
 }
 
+// ── Category collapse ─────────────────────────────────────────────────────────
+function toggleCat(n, btn) {
+  const grid = document.getElementById('catgrid-' + n);
+  const icon = btn.querySelector('i');
+  const open = grid.style.display !== 'none';
+  grid.style.display = open ? 'none' : '';
+  btn.classList.toggle('collapsed', open);
+}
+
+// ── Category enable / disable all ────────────────────────────────────────────
+function catSetAll(n, enable) {
+  const grid = document.getElementById('catgrid-' + n);
+  const checkboxes = grid.querySelectorAll('.ap-toggle input[type=checkbox]');
+  checkboxes.forEach(cb => {
+    if (cb.checked !== enable) toggleTool(cb.dataset.slug, cb);
+  });
+}
+
+// ── Tool toggle ───────────────────────────────────────────────────────────────
 function toggleTool(slug, checkbox) {
   fetch(`/zayro-admin/toggle/${slug}/`, {
     method: 'POST',
-    headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'},
+    headers: {'X-CSRFToken': getCookie('csrftoken')},
   })
   .then(r => r.json())
   .then(d => {
     if (!d.ok) { checkbox.checked = !checkbox.checked; return; }
     const isFree = !d.requires_login;
-    const lbl = document.getElementById('lbl-' + slug);
-    const tlbl = document.getElementById('tlbl-' + slug);
-    lbl.className = 'ap-tool-status ' + (isFree ? 'free-lbl' : 'lock-lbl');
-    lbl.innerHTML = isFree
-      ? '<i class="fa-solid fa-unlock"></i> Free'
-      : '<i class="fa-solid fa-lock"></i> Login Required';
-    tlbl.className = 'ap-toggle-lbl ' + (isFree ? 'free-lbl' : 'lock-lbl');
-    tlbl.textContent = isFree ? 'Free' : 'Lock';
+    checkbox.checked = isFree;
+    const badge = document.getElementById('badge-' + slug);
+    if (badge) {
+      badge.className = 'ap-tc-badge ' + (isFree ? 'free' : 'lock');
+      badge.innerHTML = `<i class="fa-solid ${isFree ? 'fa-unlock' : 'fa-lock'}"></i> ${isFree ? 'Free' : 'Lock'}`;
+    }
     updateFreeCount();
   });
 }
 
-function updateFreeCount() {
-  const freeCount = document.querySelectorAll('.ap-toggle input:checked').length;
-  document.getElementById('freeCount').textContent = freeCount;
-}
-
-function getCookie(name) {
-  let v = null;
-  document.cookie.split(';').forEach(c => {
-    const [k, val] = c.trim().split('=');
-    if (k === name) v = decodeURIComponent(val);
+// ── Tool search ───────────────────────────────────────────────────────────────
+function filterTools(q) {
+  const lq = q.toLowerCase();
+  document.querySelectorAll('.ap-tool-card').forEach(card => {
+    const name = card.dataset.tool || '';
+    card.style.display = (!lq || name.includes(lq)) ? '' : 'none';
   });
-  return v;
 }
 
-updateFreeCount();
+function updateFreeCount() {
+  const n = document.querySelectorAll('.ap-toggle input:checked').length;
+  document.getElementById('freeCount').textContent = n;
+}
 
-// ── Suggestion modal ─────────────────────────────────────────────────────────
+// ── Session delete ────────────────────────────────────────────────────────────
+function deleteSession(sessionKey, rowId) {
+  if (!confirm('Delete this session?')) return;
+  fetch('/zayro-admin/sessions/' + encodeURIComponent(sessionKey) + '/delete/', {
+    method:'POST', headers:{'X-CSRFToken':'{{ csrf_token }}'}
+  }).then(r => r.json()).then(d => {
+    if (d.ok) { const row = document.getElementById(rowId); if (row) row.remove(); }
+  });
+}
+function deleteAllSessions() {
+  if (!confirm('Delete ALL visitor sessions? This cannot be undone.')) return;
+  fetch('/zayro-admin/sessions/delete-all/', {
+    method:'POST', headers:{'X-CSRFToken':'{{ csrf_token }}'}
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      document.getElementById('sessions-tbody').innerHTML =
+        '<tr><td colspan="8"><div class="ap-empty"><i class="fa-solid fa-eye-slash"></i>No visitor sessions yet.</div></td></tr>';
+    }
+  });
+}
+
+// ── Suggestion modal ──────────────────────────────────────────────────────────
 let _sgCurrentPk = null;
-
 function openSuggestion(pk, title, category, description, status, notes, submittedBy, date) {
   _sgCurrentPk = pk;
   document.getElementById('sgModalTitle').textContent = title;
@@ -538,66 +871,47 @@ function openSuggestion(pk, title, category, description, status, notes, submitt
   document.getElementById('sgModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
-
 function closeSgModal() {
   document.getElementById('sgModal').classList.remove('open');
   document.body.style.overflow = '';
   _sgCurrentPk = null;
 }
-
 function saveSuggestion() {
   if (!_sgCurrentPk) return;
-  const btn   = document.getElementById('sgModalSaveBtn');
+  const btn = document.getElementById('sgModalSaveBtn');
   const saved = document.getElementById('sgModalSaved');
-  btn.disabled = true;
-  btn.textContent = 'Saving…';
-
+  btn.disabled = true; btn.textContent = 'Saving…';
   const fd = new FormData();
   fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
   fd.append('status',      document.getElementById('sgModalStatus').value);
   fd.append('admin_notes', document.getElementById('sgModalNotes').value);
-
-  fetch(`/zayro-admin/suggestions/${_sgCurrentPk}/update/`, {
-    method: 'POST',
-    body: fd,
-    headers: { 'X-CSRFToken': getCookie('csrftoken') },
-  })
-  .then(r => r.json())
-  .then(data => {
-    btn.disabled = false;
-    btn.textContent = 'Save changes';
-    if (data.ok) {
-      saved.style.display = 'inline';
-      setTimeout(() => { saved.style.display = 'none'; }, 2500);
-      // Update the badge in the table row without a page reload
-      const badge = document.getElementById(`sg-status-badge-${_sgCurrentPk}`);
-      if (badge) {
-        badge.textContent = data.status_display;
-        badge.className = `ap-sg-status ${data.status}`;
+  fetch(`/zayro-admin/suggestions/${_sgCurrentPk}/update/`, {method:'POST', body:fd})
+    .then(r => r.json())
+    .then(data => {
+      btn.disabled = false; btn.textContent = 'Save changes';
+      if (data.ok) {
+        saved.style.display = 'inline';
+        setTimeout(() => saved.style.display = 'none', 2500);
+        const badge = document.getElementById(`sg-status-badge-${_sgCurrentPk}`);
+        if (badge) {
+          badge.textContent = data.status_display;
+          const cls = {new:'badge-blue',reviewing:'badge-yellow',planned:'badge-purple',completed:'badge-green',declined:'badge-grey'};
+          badge.className = 'badge ' + (cls[data.status] || 'badge-grey');
+        }
       }
-    }
-  })
-  .catch(() => {
-    btn.disabled = false;
-    btn.textContent = 'Save changes';
-  });
+    })
+    .catch(() => { btn.disabled = false; btn.textContent = 'Save changes'; });
 }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSgModal(); });
 
-// Close modal on Escape key
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeSgModal();
-});
-
-// ── Media Browser ─────────────────────────────────────────────────────────────
+// ── Media browser ─────────────────────────────────────────────────────────────
 let _mediaLoaded = false;
-
 function loadMedia(force) {
   if (_mediaLoaded && !force) return;
   _mediaLoaded = true;
   document.getElementById('media-summary').textContent = 'Loading…';
   document.getElementById('media-tree').innerHTML =
-    '<div style="text-align:center;padding:2rem;color:#9ca3af;"><i class="fa-solid fa-spinner fa-spin"></i> Scanning files…</div>';
-
+    '<div class="ap-empty"><i class="fa-solid fa-spinner fa-spin"></i> Scanning files…</div>';
   fetch('/zayro-admin/media/')
     .then(r => r.json())
     .then(d => {
@@ -605,61 +919,38 @@ function loadMedia(force) {
         `<i class="fa-solid fa-hard-drive"></i> <strong>${d.total_files}</strong> files &nbsp;·&nbsp; <strong>${d.total_size}</strong> total`;
       document.getElementById('media-tree').innerHTML = renderTree(d.tree, '');
     })
-    .catch(() => {
-      document.getElementById('media-summary').textContent = 'Error loading media.';
-    });
+    .catch(() => { document.getElementById('media-summary').textContent = 'Error loading media.'; });
 }
-
 function renderTree(node, indent) {
   let html = '';
-  // folders first
   (node.folders || []).forEach(f => {
-    const id = 'mf-' + f.path.replace(/[^a-z0-9]/gi, '_');
-    html += `
-<div style="margin-bottom:.3rem;">
-  <div onclick="toggleFolder('${id}')"
-    style="display:flex;align-items:center;gap:.55rem;padding:.4rem .5rem;border-radius:8px;cursor:pointer;user-select:none;background:#f9fafb;border:1px solid #f3f4f6;">
-    <i class="fa-solid fa-folder" style="color:#f59e0b;font-size:.9rem;"></i>
-    <span style="font-weight:600;font-size:.85rem;flex:1;">${escH(f.name)}</span>
-    <span style="font-size:.72rem;color:#9ca3af;">${f.file_count} file${f.file_count===1?'':'s'} · ${f.total}</span>
-    <i class="fa-solid fa-chevron-down" id="chev-${id}" style="font-size:.65rem;color:#9ca3af;transition:.2s;"></i>
-  </div>
-  <div id="${id}" style="display:none;padding-left:1.2rem;border-left:2px solid #f3f4f6;margin:.2rem 0 .2rem 1rem;">
-    ${renderTree(f.children, indent + '  ')}
-  </div>
-</div>`;
+    const id = 'mf-' + f.path.replace(/[^a-z0-9]/gi,'_');
+    html += `<div style="margin-bottom:.3rem;">
+      <div onclick="toggleFolder('${id}')" style="display:flex;align-items:center;gap:.55rem;padding:.4rem .5rem;border-radius:8px;cursor:pointer;user-select:none;background:#f9fafb;border:1px solid #f3f4f6;">
+        <i class="fa-solid fa-folder" style="color:#f59e0b;font-size:.9rem;"></i>
+        <span style="font-weight:600;font-size:.85rem;flex:1;">${escH(f.name)}</span>
+        <span style="font-size:.72rem;color:#9ca3af;">${f.file_count} file${f.file_count===1?'':'s'} · ${f.total}</span>
+        <i class="fa-solid fa-chevron-down" id="chev-${id}" style="font-size:.65rem;color:#9ca3af;transition:.2s;"></i>
+      </div>
+      <div id="${id}" style="display:none;padding-left:1.2rem;border-left:2px solid #f3f4f6;margin:.2rem 0 .2rem 1rem;">${renderTree(f.children,'')}</div>
+    </div>`;
   });
-
-  // files
-  if ((node.files || []).length === 0 && (node.folders || []).length === 0) {
+  if ((node.files||[]).length===0 && (node.folders||[]).length===0)
     html += `<div style="padding:.5rem .3rem;font-size:.78rem;color:#9ca3af;font-style:italic;">Empty folder</div>`;
-  }
-  (node.files || []).forEach(f => {
+  (node.files||[]).forEach(f => {
     const icon = fileIcon(f.ext);
     const isImg = ['jpg','jpeg','png','gif','webp','bmp'].includes(f.ext);
-    const previewUrl = isImg ? '/media/' + f.path : '';
-    html += `
-<div class="media-file-row" id="mfile-${f.path.replace(/[^a-z0-9]/gi,'_')}"
-  style="display:flex;align-items:center;gap:.6rem;padding:.38rem .4rem;border-radius:7px;border:1px solid transparent;">
-  ${isImg
-    ? `<img src="${previewUrl}" style="width:28px;height:28px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.outerHTML='<i class=\\"${icon}\\" style=\\"font-size:.9rem;color:#dc2626;flex-shrink:0;width:28px;text-align:center\\"></i>'">`
-    : `<i class="${icon}" style="font-size:.9rem;color:#6b7280;flex-shrink:0;width:28px;text-align:center;"></i>`}
-  <span style="flex:1;font-size:.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escH(f.path)}">${escH(f.name)}</span>
-  <span style="font-size:.72rem;color:#9ca3af;white-space:nowrap;flex-shrink:0;">${f.size}</span>
-  <span style="font-size:.7rem;color:#9ca3af;white-space:nowrap;flex-shrink:0;min-width:110px;text-align:right;">${f.modified}</span>
-  <a href="/media/${f.path}" target="_blank" title="Download"
-    style="color:#2563eb;font-size:.78rem;flex-shrink:0;text-decoration:none;padding:2px 5px;">
-    <i class="fa-solid fa-arrow-down-to-line"></i>
-  </a>
-  <button onclick="mediaDelete('${escJs(f.path)}', this)" title="Delete"
-    style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:.8rem;padding:2px 5px;flex-shrink:0;">
-    <i class="fa-solid fa-trash"></i>
-  </button>
-</div>`;
+    html += `<div class="media-file-row" style="display:flex;align-items:center;gap:.6rem;padding:.38rem .4rem;border-radius:7px;border:1px solid transparent;">
+      ${isImg ? `<img src="/media/${f.path}" style="width:28px;height:28px;object-fit:cover;border-radius:4px;flex-shrink:0;">` : `<i class="${icon}" style="font-size:.9rem;color:#6b7280;flex-shrink:0;width:28px;text-align:center;"></i>`}
+      <span style="flex:1;font-size:.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escH(f.path)}">${escH(f.name)}</span>
+      <span style="font-size:.72rem;color:#9ca3af;white-space:nowrap;">${f.size}</span>
+      <span style="font-size:.7rem;color:#9ca3af;white-space:nowrap;min-width:110px;text-align:right;">${f.modified}</span>
+      <a href="/media/${f.path}" target="_blank" style="color:#2563eb;font-size:.78rem;text-decoration:none;padding:2px 5px;"><i class="fa-solid fa-arrow-down-to-line"></i></a>
+      <button onclick="mediaDelete('${escJs(f.path)}',this)" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:.8rem;padding:2px 5px;"><i class="fa-solid fa-trash"></i></button>
+    </div>`;
   });
   return html;
 }
-
 function toggleFolder(id) {
   const el = document.getElementById(id);
   const chev = document.getElementById('chev-' + id);
@@ -667,67 +958,47 @@ function toggleFolder(id) {
   el.style.display = open ? 'none' : 'block';
   if (chev) chev.style.transform = open ? '' : 'rotate(180deg)';
 }
-
 function fileIcon(ext) {
-  const map = {
-    pdf:'fa-solid fa-file-pdf', doc:'fa-solid fa-file-word', docx:'fa-solid fa-file-word',
-    xls:'fa-solid fa-file-excel', xlsx:'fa-solid fa-file-excel',
-    ppt:'fa-solid fa-file-powerpoint', pptx:'fa-solid fa-file-powerpoint',
-    jpg:'fa-solid fa-image', jpeg:'fa-solid fa-image', png:'fa-solid fa-image',
-    gif:'fa-solid fa-image', webp:'fa-solid fa-image', bmp:'fa-solid fa-image',
-    txt:'fa-solid fa-file-lines', csv:'fa-solid fa-file-csv',
-    zip:'fa-solid fa-file-zipper', rar:'fa-solid fa-file-zipper',
-    mp4:'fa-solid fa-file-video', mp3:'fa-solid fa-file-audio',
-  };
-  return map[ext] || 'fa-solid fa-file';
+  const m = {pdf:'fa-solid fa-file-pdf',doc:'fa-solid fa-file-word',docx:'fa-solid fa-file-word',xls:'fa-solid fa-file-excel',xlsx:'fa-solid fa-file-excel',ppt:'fa-solid fa-file-powerpoint',pptx:'fa-solid fa-file-powerpoint',jpg:'fa-solid fa-image',jpeg:'fa-solid fa-image',png:'fa-solid fa-image',gif:'fa-solid fa-image',webp:'fa-solid fa-image',txt:'fa-solid fa-file-lines',csv:'fa-solid fa-file-csv',zip:'fa-solid fa-file-zipper'};
+  return m[ext] || 'fa-solid fa-file';
 }
-
-function escH(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function escJs(s) {
-  return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-}
-
+function escH(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escJs(s){ return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 function mediaDeleteAll() {
-  if (!confirm('Delete ALL files in media folder? (uploads + outputs)\nThis cannot be undone.')) return;
+  if (!confirm('Delete ALL files in media folder?\nThis cannot be undone.')) return;
   const btn = document.querySelector('[onclick="mediaDeleteAll()"]');
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Deleting…'; }
+  if (btn) { btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Deleting…'; }
   const fd = new FormData();
   fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
-  fetch('/zayro-admin/media/delete-all/', { method: 'POST', body: fd })
-    .then(r => r.json())
-    .then(d => {
-      if (d.ok) {
-        _mediaLoaded = false;
-        loadMedia(true);
-      }
-      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-trash"></i> Delete All Files'; }
-    })
-    .catch(() => {
-      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-trash"></i> Delete All Files'; }
-    });
+  fetch('/zayro-admin/media/delete-all/', {method:'POST',body:fd})
+    .then(r=>r.json()).then(d=>{
+      if (d.ok) { _mediaLoaded=false; loadMedia(true); }
+      if (btn) { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-trash"></i> Delete All Files'; }
+    }).catch(()=>{ if (btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-trash"></i> Delete All Files';} });
 }
-
 function mediaDelete(path, btn) {
   if (!confirm('Delete this file?\n' + path)) return;
   btn.disabled = true;
   const fd = new FormData();
   fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
   fd.append('path', path);
-  fetch('/zayro-admin/media/delete/', { method:'POST', body:fd })
-    .then(r => r.json())
-    .then(d => {
-      if (d.ok) {
-        const row = btn.closest('.media-file-row');
-        if (row) row.remove();
-        _mediaLoaded = false;
-        loadMedia(true);
-      } else {
-        alert('Delete failed: ' + (d.error || 'unknown error'));
-        btn.disabled = false;
-      }
+  fetch('/zayro-admin/media/delete/', {method:'POST',body:fd})
+    .then(r=>r.json()).then(d=>{
+      if (d.ok) { const row=btn.closest('.media-file-row'); if(row)row.remove(); _mediaLoaded=false; loadMedia(true); }
+      else { alert('Delete failed: '+(d.error||'unknown')); btn.disabled=false; }
     });
 }
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+function getCookie(name) {
+  let v = null;
+  document.cookie.split(';').forEach(c => {
+    const [k, val] = c.trim().split('=');
+    if (k === name) v = decodeURIComponent(val);
+  });
+  return v;
+}
+
+updateFreeCount();
 </script>
 {% endblock %}

@@ -10,7 +10,7 @@ from apps.dashboard.mongo_auth import (
 )
 from apps.dashboard.mongo_models import (
     get_tool_privs_map, get_all_tool_privs, toggle_tool_priv,
-    create_ticket, create_suggestion, get_all_suggestions, update_suggestion_status,
+    create_ticket, get_all_tickets, create_suggestion, get_all_suggestions, update_suggestion_status,
     get_visitor_sessions, get_visitor_stats,
     delete_visitor_session, delete_all_visitor_sessions,
 )
@@ -121,12 +121,45 @@ def admin_panel(request):
     categories = {}
     for t in tools:
         categories.setdefault(t['category'], []).append(t)
+
+    raw_tickets     = get_all_tickets()
+    raw_suggestions = get_all_suggestions()
+
+    _CATEGORY_LABELS = {
+        'general': 'General', 'feature': 'Feature', 'bug': 'Bug',
+        'ui': 'UI/UX', 'performance': 'Performance', 'other': 'Other',
+    }
+    _STATUS_LABELS = {
+        'new': 'New', 'reviewing': 'Reviewing', 'planned': 'Planned',
+        'completed': 'Completed', 'declined': 'Declined',
+    }
+
+    tickets = []
+    for t in raw_tickets:
+        t['pk'] = str(t['_id'])
+        tickets.append(t)
+
+    suggestions = []
+    for s in raw_suggestions:
+        s['pk']               = str(s['_id'])
+        s['category_display'] = _CATEGORY_LABELS.get(s.get('category', ''), s.get('category', ''))
+        s['status_display']   = _STATUS_LABELS.get(s.get('status', ''), s.get('status', ''))
+        s['submitter']        = s.get('user_email') or 'Guest'
+        suggestions.append(s)
+
+    open_ticket_count   = sum(1 for t in tickets if t.get('status') == 'open')
+    new_suggestion_count = sum(1 for s in suggestions if s.get('status') == 'new')
+
     return render(request, 'admin_panel.html', {
-        'tools_by_category': categories,
-        'users': users,
-        'total_users': len(users),
-        'visitor_stats': get_visitor_stats(),
-        'recent_sessions': get_visitor_sessions(limit=50),
+        'tools_by_category':    categories,
+        'users':                users,
+        'total_users':          len(users),
+        'visitor_stats':        get_visitor_stats(),
+        'recent_sessions':      get_visitor_sessions(limit=50),
+        'tickets':              tickets,
+        'suggestions':          suggestions,
+        'open_ticket_count':    open_ticket_count,
+        'new_suggestion_count': new_suggestion_count,
     })
 
 
@@ -282,8 +315,12 @@ def update_suggestion(request, pk):
     admin_notes = request.POST.get('admin_notes', '').strip()
     if not status:
         return JsonResponse({'ok': False, 'error': 'Status is required.'}, status=400)
+    _STATUS_LABELS = {
+        'new': 'New', 'reviewing': 'Reviewing', 'planned': 'Planned',
+        'completed': 'Completed', 'declined': 'Declined',
+    }
     try:
         update_suggestion_status(pk, status, admin_notes)
-        return JsonResponse({'ok': True})
+        return JsonResponse({'ok': True, 'status': status, 'status_display': _STATUS_LABELS.get(status, status)})
     except Exception:
         return JsonResponse({'ok': False, 'error': 'Update failed.'}, status=500)
