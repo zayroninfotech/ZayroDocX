@@ -335,6 +335,11 @@
         <div class="ap-stat-lbl"><i class="fa-solid fa-user-check"></i> Logged-In Sessions</div>
       </div>
     </div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:.75rem;">
+      <button onclick="deleteAllSessions()" style="background:#dc2626;color:#fff;border:none;border-radius:6px;padding:.4rem .9rem;font-size:.8rem;font-weight:600;cursor:pointer;">
+        <i class="fa-solid fa-trash"></i> Delete All Sessions
+      </button>
+    </div>
     <div style="overflow-x:auto;">
       <table class="ap-users-table">
         <thead>
@@ -346,11 +351,12 @@
             <th>Started At</th>
             <th>Last Seen</th>
             <th>User Agent</th>
+            <th></th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="sessions-tbody">
           {% for s in recent_sessions %}
-          <tr>
+          <tr id="sess-{{ forloop.counter }}">
             <td><code style="font-size:.78rem;">{{ s.ip }}</code></td>
             <td>
               {% if s.username %}
@@ -368,14 +374,44 @@
             <td style="font-size:.78rem;color:#6b7280;white-space:nowrap;">{{ s.started_at|date:"d M Y H:i" }}</td>
             <td style="font-size:.78rem;color:#6b7280;white-space:nowrap;">{{ s.last_seen|date:"d M Y H:i" }}</td>
             <td style="font-size:.72rem;color:#9ca3af;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ s.user_agent }}">{{ s.user_agent|truncatechars:60 }}</td>
+            <td>
+              <button onclick="deleteSession('{{ s.session_key }}','sess-{{ forloop.counter }}')"
+                style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:.85rem;padding:2px 6px;" title="Delete">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </td>
           </tr>
           {% empty %}
-          <tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:2rem;">No visitor sessions recorded yet.</td></tr>
+          <tr id="no-sessions"><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;">No visitor sessions recorded yet.</td></tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
+
+  <script>
+  function deleteSession(sessionKey, rowId) {
+    if (!confirm('Delete this session?')) return;
+    fetch('/zayro-admin/sessions/' + encodeURIComponent(sessionKey) + '/delete/', {
+      method: 'POST',
+      headers: {'X-CSRFToken': '{{ csrf_token }}'}
+    }).then(r => r.json()).then(d => {
+      if (d.ok) { var row = document.getElementById(rowId); if (row) row.remove(); }
+    });
+  }
+  function deleteAllSessions() {
+    if (!confirm('Delete ALL visitor sessions? This cannot be undone.')) return;
+    fetch('/zayro-admin/sessions/delete-all/', {
+      method: 'POST',
+      headers: {'X-CSRFToken': '{{ csrf_token }}'}
+    }).then(r => r.json()).then(d => {
+      if (d.ok) {
+        var tbody = document.getElementById('sessions-tbody');
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;">No visitor sessions recorded yet.</td></tr>';
+      }
+    });
+  }
+  </script>
 
   <!-- Users -->
   <div class="ap-section" id="tab-users">

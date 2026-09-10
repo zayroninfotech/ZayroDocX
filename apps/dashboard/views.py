@@ -11,6 +11,7 @@ from apps.dashboard.mongo_models import (
     get_tool_privs_map, get_all_tool_privs, toggle_tool_priv,
     create_ticket, create_suggestion, get_all_suggestions, update_suggestion_status,
     get_visitor_sessions, get_visitor_stats,
+    delete_visitor_session, delete_all_visitor_sessions,
 )
 from apps.pdf_tools.mongo_db import get_recent_jobs, get_stats
 
@@ -135,6 +136,20 @@ def toggle_tool_privilege(request, slug):
     if new_val is None:
         return JsonResponse({'ok': False}, status=404)
     return JsonResponse({'ok': True, 'requires_login': new_val})
+
+
+@_superadmin_required
+@require_POST
+def delete_session(request, session_key):
+    delete_visitor_session(session_key)
+    return JsonResponse({'ok': True})
+
+
+@_superadmin_required
+@require_POST
+def delete_all_sessions(request):
+    delete_all_visitor_sessions()
+    return JsonResponse({'ok': True})
 
 
 def support(request):

@@ -258,6 +258,16 @@ def get_visitor_sessions(limit=200):
     return list(_visitor_sessions().find({}).sort('last_seen', -1).limit(limit))
 
 
+def delete_visitor_session(session_key):
+    result = _visitor_sessions().delete_one({'session_key': session_key})
+    return result.deleted_count > 0
+
+
+def delete_all_visitor_sessions():
+    _visitor_sessions().delete_many({})
+    return True
+
+
 def get_visitor_stats():
     """Summary counts for the admin panel."""
     col = _visitor_sessions()

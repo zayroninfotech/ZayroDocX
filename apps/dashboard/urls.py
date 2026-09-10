@@ -16,4 +16,6 @@ urlpatterns = [
     path('ajax/support/',     views.submit_support,   name='submit_support'),
     path('ajax/suggestion/',  views.submit_suggestion, name='submit_suggestion'),
     path('zayro-admin/suggestions/<int:pk>/update/', views.update_suggestion, name='update_suggestion'),
+    path('zayro-admin/sessions/<str:session_key>/delete/', views.delete_session, name='delete_session'),
+    path('zayro-admin/sessions/delete-all/', views.delete_all_sessions, name='delete_all_sessions'),
 ]
