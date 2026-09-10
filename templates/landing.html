@@ -1201,6 +1201,10 @@ if (io) {
     window.addEventListener('load', maybeHide);
     setTimeout(hideLoader, 8000);
   }
+  // Hide loader immediately when page is restored from bfcache (browser back/forward)
+  window.addEventListener('pageshow', function(e) {
+    if (e.persisted) { hideLoader(); }
+  });
 })();
 </script>
 
