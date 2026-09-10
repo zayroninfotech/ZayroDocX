@@ -91,6 +91,22 @@ body { padding-top: var(--mh-h); }
 .mh-name span { color: var(--brand); }
 .mh-brand:hover { text-decoration: none; }
 
+/* ── User dropdown dark mode ── */
+[data-theme="dark"] .mh-user-name { color: var(--text); }
+[data-theme="dark"] .mh-user-name:hover { background: rgba(255,255,255,.07); }
+[data-theme="dark"] .mh-user-menu {
+  background: #1C1C1C; border-color: #2A2A2A;
+  box-shadow: 0 8px 28px rgba(0,0,0,.55);
+}
+[data-theme="dark"] .mh-user-info { border-bottom-color: #2A2A2A; }
+[data-theme="dark"] .mh-user-uname { color: var(--text); }
+[data-theme="dark"] .mh-user-role  { color: var(--text-muted); }
+[data-theme="dark"] .mh-user-item  { color: #c0c4ce; }
+[data-theme="dark"] .mh-user-item:hover { background: rgba(255,255,255,.06); color: var(--text); }
+[data-theme="dark"] .mh-user-item i { color: #6b7280; }
+[data-theme="dark"] .mh-user-divider { background: #2A2A2A; }
+[data-theme="dark"] .mh-user-logout:hover { background: rgba(220,38,38,.14) !important; }
+
 /* Nav */
 .mh-nav { display: flex; align-items: center; gap: 0; flex: 1; }
 .mh-item { position: relative; display: flex; align-items: center; }
