@@ -444,57 +444,88 @@
 .ab-trust-pill i { font-size: .72rem; color: var(--ab-success); flex: none; }
 
 /* ═══════════════════════════════════════
-   8. COMPANY — dark premium
+   8. COMPANY — light 3-column card
 ═══════════════════════════════════════ */
 .ab-company-wrap { padding-block: var(--ab-pad); }
 .ab-company {
-  background: linear-gradient(140deg, var(--ab-ink) 0%, #1c1f28 60%, #16181f 100%);
+  background: #fff;
   border-radius: var(--ab-r-xl);
-  padding: clamp(32px, 4vw, 56px) clamp(28px, 3.5vw, 52px);
-  position: relative; overflow: hidden; box-shadow: var(--ab-shadow-lg);
+  padding: clamp(28px, 3.5vw, 48px) clamp(24px, 3vw, 44px);
+  position: relative; overflow: hidden;
+  box-shadow: 0 4px 32px rgba(0,0,0,.08), 0 1px 4px rgba(0,0,0,.04);
+  border: 1px solid #f0f2f6;
 }
 .ab-company::before {
-  content: ""; position: absolute; top: -140px; right: -100px; width: 440px; height: 440px;
-  border-radius: 50%; background: radial-gradient(circle, rgba(220,38,38,.17), transparent 66%); pointer-events: none;
-}
-.ab-company::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background-image: linear-gradient(rgba(255,255,255,.024) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255,255,255,.024) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(70% 80% at 20% 30%, #000, transparent 76%);
+  content: ""; position: absolute; top: -80px; right: -60px; width: 280px; height: 280px;
+  border-radius: 50%; background: radial-gradient(circle, rgba(220,38,38,.07), transparent 66%); pointer-events: none;
 }
 .ab-company-inner {
-  position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr);
-  gap: clamp(20px, 3vw, 36px); align-items: start;
+  position: relative; display: grid;
+  grid-template-columns: 180px minmax(0,1fr) 200px;
+  gap: clamp(24px, 3vw, 44px); align-items: center;
+}
+/* Left — logo + brand */
+.ab-company-brand {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  border-right: 1px solid #f0f2f6; padding-right: clamp(20px, 2.5vw, 36px);
 }
 .ab-company-mark {
-  width: 90px; height: 90px; flex: none;
-  background: transparent;
+  width: 100px; height: 100px; flex: none; background: transparent;
   display: flex; align-items: center; justify-content: center;
   transition: transform 300ms var(--ab-ease);
 }
 .ab-company-mark img { width: 100%; height: 100%; object-fit: contain; }
 .ab-company:hover .ab-company-mark { transform: rotate(-5deg) scale(1.06); }
-.ab-company .eyebrow { font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #f87171; }
-.ab-company .name { color: #fff; font-size: clamp(1rem, 1.8vw, 1.4rem); font-weight: 700; letter-spacing: -.025em; margin: 10px 0 14px; line-height: 1.18; }
-.ab-company .desc { color: #a9adb8; font-size: .875rem; line-height: 1.65; max-width: 620px; text-wrap: pretty; }
-.ab-company-meta { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-.ab-company-chip {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: .75rem; font-weight: 600; color: #c9ccd4;
-  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.11);
-  padding: 7px 14px; border-radius: var(--ab-r-full);
+.ab-company-brand-name {
+  font-size: 1.15rem; font-weight: 800; letter-spacing: -.02em; margin-top: 10px; line-height: 1;
+  color: #111;
 }
-.ab-company-chip i { color: #f87171; font-size: .68rem; }
+.ab-company-brand-name span { color: var(--ab-brand); }
+.ab-company-tagline {
+  font-size: .58rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: #9ca3af; margin-top: 6px; line-height: 1.5;
+}
+.ab-company-tagline-line {
+  width: 32px; height: 2px; background: var(--ab-brand); border-radius: 2px;
+  margin: 8px auto 0;
+}
+/* Center — company info */
+.ab-company .eyebrow { font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ab-brand); }
+.ab-company .name { color: #111; font-size: clamp(.95rem, 1.6vw, 1.25rem); font-weight: 800; letter-spacing: -.02em; margin: 8px 0 12px; line-height: 1.25; }
+.ab-company .name span { color: var(--ab-brand); }
+.ab-company .desc { color: #4b5563; font-size: .84rem; line-height: 1.65; text-wrap: pretty; }
+.ab-company-meta { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ab-company-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: .72rem; font-weight: 600; color: #374151;
+  background: #f9fafb; border: 1px solid #e5e7eb;
+  padding: 6px 12px; border-radius: var(--ab-r-full);
+}
+.ab-company-chip i { color: var(--ab-brand); font-size: .65rem; }
 .ab-company-mail {
   display: inline-flex; align-items: center; gap: 8px;
   color: #fff; background: var(--ab-brand);
-  font-size: .82rem; font-weight: 600; padding: 9px 18px; border-radius: var(--ab-r-full);
-  text-decoration: none; box-shadow: 0 8px 22px -8px rgba(220,38,38,.56);
+  font-size: .78rem; font-weight: 700; padding: 8px 16px; border-radius: var(--ab-r-full);
+  text-decoration: none; box-shadow: 0 6px 18px -6px rgba(220,38,38,.5);
   transition: background var(--ab-t) var(--ab-ease), transform var(--ab-t) var(--ab-ease);
 }
 .ab-company-mail:hover { background: var(--ab-brand-dk); transform: translateY(-1px); }
+/* Right — feature list */
+.ab-company-feats {
+  display: flex; flex-direction: column; gap: 16px;
+  border-left: 1px solid #f0f2f6; padding-left: clamp(20px, 2.5vw, 36px);
+}
+.ab-company-feat {
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.ab-company-feat-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: #fef2f2; color: var(--ab-brand);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .8rem; flex-shrink: 0;
+}
+.ab-company-feat-title { font-size: .82rem; font-weight: 700; color: #111; }
+.ab-company-feat-sub   { font-size: .72rem; color: #6b7280; margin-top: 2px; }
 
 /* ═══ Responsive ═══ */
 @media (max-width: 1040px){
@@ -509,6 +540,9 @@
   .ab-ba-arrow { flex-direction: row; }
   .ab-ba-arrow .ring { animation: none; transform: rotate(90deg); }
   .ab-company-inner { grid-template-columns: 1fr; }
+  .ab-company-brand { border-right: none; border-bottom: 1px solid #f0f2f6; padding-right: 0; padding-bottom: 20px; flex-direction: row; text-align: left; align-items: center; gap: 14px; }
+  .ab-company-tagline-line { margin: 6px 0 0; }
+  .ab-company-feats { border-left: none; border-top: 1px solid #f0f2f6; padding-left: 0; padding-top: 20px; }
 }
 @media (max-width: 600px){
   .ab-capbox-grid { grid-template-columns: 1fr; }
@@ -797,20 +831,51 @@
   <section class="ab-company-wrap ab-container">
     <div class="ab-company">
       <div class="ab-company-inner">
-        <div class="ab-company-mark">
-          <img src="{% static 'img/logo1_cropped.png' %}" alt="Zayron Infotech">
+        <!-- Left: logo + brand -->
+        <div class="ab-company-brand">
+          <div class="ab-company-mark">
+            <img src="{% static 'img/logo1_cropped.png' %}" alt="Zayron Infotech">
+          </div>
+          <div class="ab-company-brand-name"><span>Zayro</span>DocX</div>
+          <div class="ab-company-tagline">Smarter Documents<br>Brighter Tomorrow</div>
+          <div class="ab-company-tagline-line"></div>
         </div>
+        <!-- Center: info -->
         <div>
           <div class="eyebrow">The company</div>
-          <div class="name">Operated by Zayron Infotech Pvt. Ltd.</div>
+          <div class="name">Operated by <span>Zayron Infotech</span> Pvt. Ltd.</div>
           <p class="desc">We started ZayroDocX in 2024 after spending too many hours watching professionals manually retype numbers from scanned invoices — because every OCR tool they tried returned unstructured text. We built the extraction engine first, then wrapped it in a full document platform. Today ZayroDocX handles OCR, conversion, signing, redaction and more — all from a single place, with no files stored beyond the session.</p>
           <div class="ab-company-meta">
             <span class="ab-company-chip"><i class="fa-solid fa-location-dot"></i> Registered in India</span>
             <span class="ab-company-chip"><i class="fa-solid fa-calendar"></i> Founded 2024</span>
             <span class="ab-company-chip"><i class="fa-solid fa-headset"></i> Support within 1 business day</span>
             <a href="mailto:zayroninfotech@gmail.com" class="ab-company-mail">
-              <i class="fa-solid fa-envelope"></i> zayroninfotech@gmail.com
+              <i class="fa-solid fa-envelope"></i> zayroninfotech@gmail.com &rarr;
             </a>
+          </div>
+        </div>
+        <!-- Right: features -->
+        <div class="ab-company-feats">
+          <div class="ab-company-feat">
+            <div class="ab-company-feat-icon"><i class="fa-solid fa-users"></i></div>
+            <div>
+              <div class="ab-company-feat-title">Trusted by Users</div>
+              <div class="ab-company-feat-sub">Individuals &amp; Businesses</div>
+            </div>
+          </div>
+          <div class="ab-company-feat">
+            <div class="ab-company-feat-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <div>
+              <div class="ab-company-feat-title">Privacy First</div>
+              <div class="ab-company-feat-sub">Your files, your control</div>
+            </div>
+          </div>
+          <div class="ab-company-feat">
+            <div class="ab-company-feat-icon"><i class="fa-solid fa-bolt"></i></div>
+            <div>
+              <div class="ab-company-feat-title">Built for Productivity</div>
+              <div class="ab-company-feat-sub">Simple. Secure. Powerful.</div>
+            </div>
           </div>
         </div>
       </div>
