@@ -107,6 +107,24 @@ body { padding-top: var(--mh-h); }
 [data-theme="dark"] .mh-user-divider { background: #2A2A2A; }
 [data-theme="dark"] .mh-user-logout:hover { background: rgba(220,38,38,.14) !important; }
 
+/* ── Nav dropdowns dark mode ── */
+[data-theme="dark"] .mh-drop {
+  background: #1C1C1C;
+  border-left-color: #2A2A2A;
+  border-right-color: #2A2A2A;
+  border-bottom-color: #2A2A2A;
+  box-shadow: 0 8px 32px rgba(0,0,0,.55);
+}
+[data-theme="dark"] .mh-drop-item { color: #c0c4ce; }
+[data-theme="dark"] .mh-drop-item:hover { background: rgba(255,255,255,.07); color: #EDEDED; }
+[data-theme="dark"] .mh-drop-item.active { background: rgba(220,38,38,.15); }
+[data-theme="dark"] .mhd-text strong { color: #EDEDED; }
+[data-theme="dark"] .mhd-text em { color: #6b7280; }
+[data-theme="dark"] .mhd-divider { background: #2A2A2A; }
+[data-theme="dark"] .mhd-vert-divider { background: #2A2A2A; }
+[data-theme="dark"] .mhd-img-col:not(:last-child) { border-right-color: #2A2A2A; }
+[data-theme="dark"] .mh-nav.mobile-open .mh-drop { background: #141414; }
+
 /* Nav */
 .mh-nav { display: flex; align-items: center; gap: 0; flex: 1; }
 .mh-item { position: relative; display: flex; align-items: center; }
