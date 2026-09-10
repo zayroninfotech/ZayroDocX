@@ -125,6 +125,70 @@ body { padding-top: var(--mh-h); }
 [data-theme="dark"] .mhd-img-col:not(:last-child) { border-right-color: #2A2A2A; }
 [data-theme="dark"] .mh-nav.mobile-open .mh-drop { background: #141414; }
 
+/* ═══════════════════════════════════
+   TOOL PAGE UPLOAD ZONES — dark mode
+   Covers .drop-zone, .upload-zone, #uploadZone and their children.
+   Higher specificity (0-2-0) wins over per-page (0-1-0) inline styles.
+═══════════════════════════════════ */
+[data-theme="dark"] .drop-zone,
+[data-theme="dark"] .upload-zone,
+[data-theme="dark"] .ocr-drop,
+[data-theme="dark"] .ais-wrap,
+[data-theme="dark"] .inv-upload-zone {
+  background: var(--surface2) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+[data-theme="dark"] .drop-zone-title,
+[data-theme="dark"] .upload-zone h1,
+[data-theme="dark"] .upload-zone h2,
+[data-theme="dark"] #uploadZone h1,
+[data-theme="dark"] #uploadZone h2 {
+  color: var(--text) !important;
+}
+[data-theme="dark"] .drop-zone-sub,
+[data-theme="dark"] .drop-zone-drop-hint,
+[data-theme="dark"] .upload-zone p,
+[data-theme="dark"] #uploadZone p {
+  color: var(--text-muted) !important;
+}
+/* Icon wrapper pastel circles — darken the tint */
+[data-theme="dark"] #uploadZone > div > div[style],
+[data-theme="dark"] #uploadZone > div[style] {
+  filter: brightness(0.25) saturate(1.6) !important;
+}
+/* Result / error cards shared across tools */
+[data-theme="dark"] .result-card,
+[data-theme="dark"] .result-area,
+[data-theme="dark"] .result-wrap {
+  background: var(--surface2) !important;
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] .result-err-title,
+[data-theme="dark"] .continue-title {
+  color: var(--text) !important;
+}
+[data-theme="dark"] .result-err-msg,
+[data-theme="dark"] .continue-item {
+  color: var(--text-muted) !important;
+}
+[data-theme="dark"] .continue-item {
+  border-color: var(--border) !important;
+  background: var(--surface) !important;
+}
+[data-theme="dark"] .continue-item:hover {
+  background: rgba(220,38,38,.12) !important;
+  border-color: rgba(220,38,38,.4) !important;
+  color: #fca5a5 !important;
+}
+/* Dark toggle button itself */
+[data-theme="dark"] .mh-dark-toggle {
+  background: var(--surface2); border-color: var(--border); color: var(--text-muted);
+}
+[data-theme="dark"] .mh-hamburger {
+  background: var(--surface2); border-color: var(--border); color: var(--text-muted);
+}
+
 /* Nav */
 .mh-nav { display: flex; align-items: center; gap: 0; flex: 1; }
 .mh-item { position: relative; display: flex; align-items: center; }
