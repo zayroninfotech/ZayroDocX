@@ -469,14 +469,13 @@
   gap: clamp(20px, 3vw, 36px); align-items: start;
 }
 .ab-company-mark {
-  width: 60px; height: 60px; border-radius: 16px;
-  background: var(--ab-brand); color: #fff;
+  width: 90px; height: 90px; flex: none;
+  background: transparent;
   display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 1.6rem; flex: none; letter-spacing: -.02em;
-  box-shadow: 0 12px 28px -8px rgba(220,38,38,.58);
   transition: transform 300ms var(--ab-ease);
 }
-.ab-company:hover .ab-company-mark { transform: rotate(-7deg) scale(1.05); }
+.ab-company-mark img { width: 100%; height: 100%; object-fit: contain; }
+.ab-company:hover .ab-company-mark { transform: rotate(-5deg) scale(1.06); }
 .ab-company .eyebrow { font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #f87171; }
 .ab-company .name { color: #fff; font-size: clamp(1rem, 1.8vw, 1.4rem); font-weight: 700; letter-spacing: -.025em; margin: 10px 0 14px; line-height: 1.18; }
 .ab-company .desc { color: #a9adb8; font-size: .875rem; line-height: 1.65; max-width: 620px; text-wrap: pretty; }
@@ -798,7 +797,9 @@
   <section class="ab-company-wrap ab-container">
     <div class="ab-company">
       <div class="ab-company-inner">
-        <div class="ab-company-mark">Z</div>
+        <div class="ab-company-mark">
+          <img src="{% static 'img/logo1_cropped.png' %}" alt="Zayron Infotech">
+        </div>
         <div>
           <div class="eyebrow">The company</div>
           <div class="name">Operated by Zayron Infotech Pvt. Ltd.</div>
