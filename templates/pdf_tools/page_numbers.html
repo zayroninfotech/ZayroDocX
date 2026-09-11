@@ -151,11 +151,6 @@
       <i class="fa-solid fa-list-ol"></i> Add Page Numbers
     </button>
 
-    <div class="pn-loading-card" id="pnLoadingCard">
-      <i class="fa-solid fa-spinner pn-spin"></i>
-      <span class="pn-loading-text">Adding page numbers…</span>
-    </div>
-
     <div class="pn-error-card" id="pnErrorCard">
       <div class="pn-error-msg" id="pnErrorMsg"></div>
     </div>
@@ -182,7 +177,6 @@ const pnSplit       = document.getElementById('pnSplit');
 const pnPagesEl     = document.getElementById('pnPages');
 const pnViewerLoad  = document.getElementById('pnViewerLoading');
 const pnConvertBtn  = document.getElementById('pnConvertBtn');
-const pnLoadingCard = document.getElementById('pnLoadingCard');
 const pnResultFull  = document.getElementById('pnResultFull');
 const pnErrorCard   = document.getElementById('pnErrorCard');
 
@@ -304,9 +298,9 @@ function setFile(f) {
 async function doConvert() {
   if (!currentFile) return;
   pnConvertBtn.disabled = true;
-  pnLoadingCard.classList.add('show');
   pnResultFull.classList.remove('show');
   pnErrorCard.classList.remove('show');
+  if (typeof ZLoader !== 'undefined') ZLoader.show('Adding page numbers…');
 
   const fd  = new FormData();
   fd.append('file', currentFile);
@@ -333,13 +327,14 @@ async function doConvert() {
     const dlName = `ZayroDocX Add Page Numbers ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.pdf`;
     document.getElementById('pnDlBtn').href     = data.download_url;
     document.getElementById('pnDlBtn').download = dlName;
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
     pnSplit.classList.remove('show');
     pnResultFull.classList.add('show');
   } catch (e) {
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
     document.getElementById('pnErrorMsg').textContent = e.message || 'Failed to add page numbers.';
     pnErrorCard.classList.add('show');
   } finally {
-    pnLoadingCard.classList.remove('show');
     pnConvertBtn.disabled = false;
   }
 }
