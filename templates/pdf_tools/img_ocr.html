@@ -6,7 +6,7 @@
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Image to Text</span>{% endblock %}
 {% block extra_head %}
 <style>
-/* ── Drop Zone ───────────────────────────────────────────────────────── */
+/* ── Drop Zone ── */
 .ito-drop{border:2.5px dashed #cbd5e1;border-radius:20px;padding:3.5rem 2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:#fff}
 .ito-drop:hover,.ito-drop.drag-over{border-color:#dc2626;background:#fff8f8}
 .ito-drop h3{font-size:1.1rem;font-weight:700;color:#1e293b;margin:.5rem 0 .3rem}
@@ -14,10 +14,10 @@
 .ito-drop-icon{font-size:3rem;color:#dc2626;margin-bottom:.8rem}
 .ito-drop-btn{ display:inline-flex; align-items:center; gap:.55rem; background:#2563eb; color:#fff; border:none; border-radius:12px; padding:.9rem 2.5rem; font-size:1.1rem; font-weight:700; cursor:pointer; transition:background .15s,transform .1s; box-shadow:0 4px 18px rgba(37,99,235,.35); }
 .ito-drop-btn:hover{ background:#1d4ed8; transform:translateY(-1px); }
-/* ── Split Layout ────────────────────────────────────────────────────── */
+/* ── Split Layout ── */
 .ito-split{display:none;grid-template-columns:1fr 400px;gap:18px;align-items:start}
 .ito-split.show{display:grid}
-/* ── Left Viewer ─────────────────────────────────────────────────────── */
+/* ── Left Viewer ── */
 .ito-viewer-wrap{background:#0f172a;border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
 .ito-toolbar{display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;background:#1e293b;border-bottom:1px solid #334155;flex-wrap:wrap}
 .ito-tb-file{flex:1;min-width:0}
@@ -31,7 +31,7 @@
 .ito-img-stage{padding:1.2rem;min-height:400px;display:flex;align-items:flex-start;justify-content:center;overflow:auto;background:#0f172a}
 .ito-viewer-loading{color:#94a3b8;font-size:.9rem;display:flex;flex-direction:column;align-items:center;gap:.8rem;margin:auto}
 #itoPreviewImg{border-radius:8px;display:none;transform-origin:top center;transition:transform .2s}
-/* ── Right Panel ─────────────────────────────────────────────────────── */
+/* ── Right Panel ── */
 .ito-right{display:flex;flex-direction:column;gap:11px;position:sticky;top:16px}
 .ito-card{background:#fff;border:1.5px solid #e8e8e8;border-radius:14px;padding:.95rem 1.1rem}
 /* File card */
@@ -61,7 +61,6 @@
 .ito-eng-check{font-size:.72rem;color:#e8e8e8;transition:color .15s;flex-shrink:0}
 .ito-engine-btn.active .ito-eng-check{color:#dc2626}
 /* Options */
-.ito-opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-bottom:.7rem}
 .ito-field-label{font-size:.68rem;font-weight:700;color:#555;margin-bottom:.28rem}
 .ito-input{width:100%;box-sizing:border-box;border:1.5px solid #e8e8e8;border-radius:8px;padding:.4rem .65rem;font-size:.76rem;color:#111;outline:none;transition:border-color .15s;background:#fff}
 .ito-input:focus{border-color:#dc2626}
@@ -78,28 +77,6 @@
 .ito-extract-btn{width:100%;padding:.82rem;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:12px;font-size:.88rem;font-weight:700;cursor:pointer;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:.5rem}
 .ito-extract-btn:hover:not(:disabled){opacity:.88}
 .ito-extract-btn:disabled{opacity:.55;cursor:not-allowed}
-/* Loading */
-.ito-loading-card{display:none;background:#fff;border:1.5px solid #fecaca;border-radius:13px;padding:.9rem 1.1rem;align-items:center;gap:.75rem;color:#b91c1c;font-size:.84rem;font-weight:600}
-.ito-loading-card.show{display:flex}
-/* Action buttons */
-.ito-act-row{display:none;grid-template-columns:repeat(4,1fr);gap:.5rem}
-.ito-act-row.show{display:grid}
-.ito-act-btn{border:none;border-radius:12px;padding:.65rem .35rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.28rem;transition:opacity .15s;text-decoration:none}
-.ito-act-btn:hover{opacity:.82}
-.ito-act-btn i{font-size:.95rem}
-.ito-act-btn span{font-size:.68rem;font-weight:700;color:inherit}
-.ito-act-btn small{font-size:.58rem;opacity:.6;text-align:center;line-height:1.2}
-.ito-act-copy{background:#eff6ff;color:#2563eb}
-.ito-act-download{background:#f0fdf4;color:#16a34a}
-.ito-act-preview{background:#f0f9ff;color:#0284c7}
-.ito-act-clear{background:#fff5f5;color:#dc2626}
-/* Result */
-.ito-result-card{display:none;background:#fff;border:1.5px solid #bbf7d0;border-radius:13px;padding:.9rem 1.1rem}
-.ito-result-card.show{display:block}
-.ito-result-title{font-size:.83rem;font-weight:700;color:#15803d;margin-bottom:.65rem;display:flex;align-items:center;gap:.4rem}
-.ito-result-box{width:100%;box-sizing:border-box;border:1.5px solid #e8e8e8;border-radius:9px;padding:.6rem .8rem;font-size:.78rem;color:#111;min-height:120px;resize:vertical;outline:none;font-family:inherit;line-height:1.5}
-.ito-result-box:focus{border-color:#dc2626}
-.ito-char-count{font-size:.65rem;color:#aaa;text-align:right;margin-top:.3rem}
 /* Error */
 .ito-error-card{display:none;background:#fff;border:1.5px solid #fecaca;border-radius:13px;padding:.9rem 1.1rem}
 .ito-error-card.show{display:block}
@@ -114,6 +91,21 @@
 .ito-sel-hint{display:none;align-items:center;gap:.4rem;background:rgba(220,38,38,.12);border:1px solid rgba(220,38,38,.3);border-radius:7px;padding:.28rem .65rem;font-size:.68rem;font-weight:700;color:#dc2626;white-space:nowrap}
 .ito-sel-active .ito-sel-hint{display:flex}
 .ito-sel-clear{background:none;border:none;color:#dc2626;font-size:.68rem;font-weight:700;cursor:pointer;padding:0;margin-left:.3rem;text-decoration:underline}
+/* Result textarea */
+.ito-result-box{width:100%;box-sizing:border-box;border:1.5px solid #e8e8e8;border-radius:9px;padding:.6rem .8rem;font-size:.78rem;color:#111;min-height:120px;resize:vertical;outline:none;font-family:inherit;line-height:1.5}
+.ito-result-box:focus{border-color:#dc2626}
+.ito-char-count{font-size:.65rem;color:#aaa;text-align:right;margin-top:.3rem}
+/* Full-width result */
+.ito-result-full{display:none;max-width:720px;margin:0 auto;padding:2rem 1rem;text-align:center;}
+.ito-result-full.show{display:block;}
+.ito-result-full .ito-result-box{text-align:left;min-height:200px;margin-top:1rem;}
+.ito-rf-btns{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.75rem;margin-top:1.2rem;}
+.ito-rf-copy-btn{display:inline-flex;align-items:center;gap:.6rem;background:#2563eb;color:#fff;border:none;border-radius:12px;padding:.9rem 2rem;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(37,99,235,.35);transition:background .15s;}
+.ito-rf-copy-btn:hover{background:#1d4ed8;}
+.ito-dl-full-btn{display:inline-flex;align-items:center;gap:.6rem;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:.9rem 2rem;font-size:1rem;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(22,163,74,.35);transition:background .15s;}
+.ito-dl-full-btn:hover{background:#15803d;}
+.ito-new-file-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;background:#fff;border:1.5px solid #e8e8e8;border-radius:10px;padding:.65rem 1.5rem;font-size:.9rem;font-weight:600;color:#555;cursor:pointer;transition:border-color .15s;}
+.ito-new-file-btn:hover{border-color:#dc2626;color:#dc2626;}
 /* Spin */
 .ito-spin{animation:itoSpin 1s linear infinite}
 @keyframes itoSpin{to{transform:rotate(360deg)}}
@@ -121,19 +113,15 @@
 @media(max-width:1050px){
   .ito-split{grid-template-columns:1fr}
   .ito-right{position:static;max-height:none}
-  .ito-opts-grid{grid-template-columns:1fr 1fr}
-  .ito-act-row{grid-template-columns:repeat(4,1fr)}
 }
 @media(max-width:600px){
-  .ito-opts-grid{grid-template-columns:1fr}
-  .ito-act-row{grid-template-columns:repeat(2,1fr)}
+  .ito-rf-btns{flex-direction:column;align-items:stretch;}
 }
 </style>
 {% endblock %}
 {% block content %}
 <input type="file" id="fileInput" accept="image/*" style="display:none">
 
-<!-- Drop Zone -->
 <div class="ito-drop" id="itoDrop" onclick="document.getElementById('fileInput').click()">
   <div class="ito-drop-icon"><i class="fa-solid fa-file-lines"></i></div>
   <h3>Drop your image here</h3>
@@ -143,10 +131,7 @@
   </button>
 </div>
 
-<!-- Split View -->
 <div class="ito-split" id="itoSplit">
-
-  <!-- Left: Image Viewer -->
   <div class="ito-viewer-wrap">
     <div class="ito-toolbar" id="itoToolbar">
       <div class="ito-tb-file">
@@ -185,13 +170,12 @@
     </div>
   </div>
 
-  <!-- Right: Controls -->
   <div class="ito-right">
+    <h2 style="font-size:1.25rem;font-weight:800;color:#dc2626;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;"><i class="fa-solid fa-file-lines"></i> Image to Text</h2>
 
-    <!-- File info card -->
     <div class="ito-card">
       <div class="ito-fcard-top">
-        <div class="ito-fcard-icon"><i class="fa-solid fa-image"></i></div>
+        <div class="ito-fcard-icon"><i class="fa-solid fa-file-lines"></i></div>
         <div class="ito-fcard-info">
           <div class="ito-fcard-name" id="itoFileName">—</div>
           <div class="ito-fcard-size" id="itoFileSize">—</div>
@@ -208,7 +192,6 @@
       </button>
     </div>
 
-    <!-- OCR Engine card -->
     <div class="ito-card">
       <div class="ito-sec-title">OCR Engine</div>
       <div class="ito-sec-sub">Choose the engine for best accuracy</div>
@@ -232,7 +215,6 @@
       </div>
     </div>
 
-    <!-- Options card -->
     <div class="ito-card">
       <div class="ito-sec-title">Options</div>
       <div>
@@ -242,7 +224,6 @@
           <option value="markdown">Markdown</option>
         </select>
       </div>
-      <!-- hidden lang fixed to auto for backend compatibility -->
       <input type="hidden" id="langSelect" value="auto">
       <div class="ito-toggle-row">
         <div>
@@ -256,381 +237,294 @@
       </div>
     </div>
 
-    <!-- Extract button -->
     <button type="button" class="ito-extract-btn" id="itoExtractBtn" onclick="doConvert()">
       <i class="fa-solid fa-file-lines"></i> Extract Text
     </button>
 
-    <!-- Loading -->
-    <div class="ito-loading-card" id="itoLoadingCard">
-      <i class="fa-solid fa-spinner ito-spin"></i>
-      <span id="itoLoadingMsg">Extracting text…</span>
-    </div>
-
-    <!-- 4 Action buttons (shown after extraction) -->
-    <div class="ito-act-row" id="itoActRow">
-      <button class="ito-act-btn ito-act-copy" onclick="copyText()">
-        <i class="fa-solid fa-copy"></i>
-        <span>Copy Text</span>
-        <small>Copy to clipboard</small>
-      </button>
-      <a class="ito-act-btn ito-act-download" id="itoDownloadBtn" href="#" download>
-        <i class="fa-solid fa-download"></i>
-        <span>Download</span>
-        <small>Save as .txt</small>
-      </a>
-      <button class="ito-act-btn ito-act-preview" onclick="togglePreview()">
-        <i class="fa-solid fa-eye"></i>
-        <span>Preview</span>
-        <small>View extracted text</small>
-      </button>
-      <button class="ito-act-btn ito-act-clear" onclick="resetTool()">
-        <i class="fa-solid fa-xmark"></i>
-        <span>Clear</span>
-        <small>Reset everything</small>
-      </button>
-    </div>
-
-    <!-- Result preview (toggled by Preview button) -->
-    <div class="ito-result-card" id="itoResultCard">
-      <div class="ito-result-title"><i class="fa-solid fa-circle-check"></i> Text extracted!</div>
-      <textarea class="ito-result-box" id="ocrText" readonly></textarea>
-      <div class="ito-char-count" id="itoCharCount"></div>
-    </div>
-
-    <!-- Error -->
     <div class="ito-error-card" id="itoErrorCard">
       <div class="ito-error-msg" id="itoErrorMsg"></div>
     </div>
 
-    <!-- Tip -->
     <div class="ito-tip" id="itoTip">
       <i class="fa-solid fa-circle-info"></i>
       <span>For best results, use a clear and high-resolution image.</span>
       <button class="ito-tip-close" onclick="this.parentElement.style.display='none'">×</button>
     </div>
+  </div>
+</div>
 
-  </div><!-- .ito-right -->
-</div><!-- .ito-split -->
+<div class="ito-result-full" id="itoResultFull">
+  <div style="font-size:3.5rem;color:#16a34a;margin-bottom:1rem"><i class="fa-solid fa-circle-check"></i></div>
+  <p style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0 0 .4rem">Text Extracted!</p>
+  <p style="color:#64748b;margin:0 0 .5rem;font-size:.95rem" id="itoResultSub">Your text is ready to copy or download.</p>
+  <textarea class="ito-result-box" id="ocrText" readonly placeholder="Extracted text will appear here…"></textarea>
+  <div class="ito-char-count" id="itoCharCount"></div>
+  <div class="ito-rf-btns">
+    <button class="ito-rf-copy-btn" id="itoCopyBtn" onclick="copyText()"><i class="fa-solid fa-copy"></i> Copy Text</button>
+    <a class="ito-dl-full-btn" id="itoDownloadBtn" href="#" download><i class="fa-solid fa-download"></i> Download .txt</a>
+    <button class="ito-new-file-btn" onclick="resetTool()"><i class="fa-solid fa-plus"></i> Extract from Another Image</button>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}<script>
-const ZOOM_STEPS = [50,75,100,125,150,200];
-let currentFile = null, currentMode = 'tesseract', currentZoom = 75, currentRotation = 0;
-let selMode = false, selDrawing = false;
-let selStart = null, selRects = []; // array of {x,y,w,h} in image natural pixels
-const fileInput = document.getElementById('fileInput');
-const selCanvas = document.getElementById('itoSelCanvas');
-const selCtx = selCanvas.getContext('2d');
+const ZOOM_STEPS=[50,75,100,125,150,200];
+let currentFile=null, currentMode='tesseract', currentZoom=75, currentRotation=0;
+let selMode=false, selDrawing=false;
+let selStart=null, selRects=[];
+const fileInput=document.getElementById('fileInput');
+const selCanvas=document.getElementById('itoSelCanvas');
+const selCtx=selCanvas.getContext('2d');
+const itoSplit=document.getElementById('itoSplit');
+const itoResultFull=document.getElementById('itoResultFull');
 
-/* ── Engine ── */
-function setMode(m) {
-  currentMode = m;
-  document.getElementById('engTesseract').classList.toggle('active', m === 'tesseract');
-  document.getElementById('engMistral').classList.toggle('active', m === 'mistral');
+function setMode(m){
+  currentMode=m;
+  document.getElementById('engTesseract').classList.toggle('active',m==='tesseract');
+  document.getElementById('engMistral').classList.toggle('active',m==='mistral');
 }
 
-/* ── Zoom ── */
-function applyZoom(z) {
-  currentZoom = z;
-  const img = document.getElementById('itoPreviewImg');
-  img.style.width = z + '%';
-  img.style.maxWidth = 'none';
-  const sel = document.getElementById('itoZoomSel');
-  if (sel) sel.value = z;
+function applyZoom(z){
+  currentZoom=z;
+  const img=document.getElementById('itoPreviewImg');
+  img.style.width=z+'%'; img.style.maxWidth='none';
+  const sel=document.getElementById('itoZoomSel');
+  if(sel)sel.value=z;
   syncCanvas();
-  if (selRects.length) redrawAllSelections();
+  if(selRects.length)redrawAllSelections();
 }
-function changeZoom(dir) {
-  let idx = ZOOM_STEPS.indexOf(currentZoom);
-  if (idx === -1) idx = 1;
-  idx = Math.max(0, Math.min(ZOOM_STEPS.length - 1, idx + dir));
+function changeZoom(dir){
+  let idx=ZOOM_STEPS.indexOf(currentZoom);
+  if(idx===-1)idx=1;
+  idx=Math.max(0,Math.min(ZOOM_STEPS.length-1,idx+dir));
   applyZoom(ZOOM_STEPS[idx]);
 }
 
-/* ── Rotate ── */
-function rotateImg() {
-  currentRotation = (currentRotation + 90) % 360;
-  document.getElementById('itoPreviewImg').style.transform = 'rotate(' + currentRotation + 'deg)';
+function rotateImg(){
+  currentRotation=(currentRotation+90)%360;
+  document.getElementById('itoPreviewImg').style.transform='rotate('+currentRotation+'deg)';
 }
 
-/* ── Output format change → toggle selection mode ── */
-function onFmtChange(val) {
-  if (val === 'markdown') {
-    enableSelMode();
-  } else {
-    disableSelMode();
-  }
+function onFmtChange(val){
+  if(val==='markdown'){enableSelMode();}else{disableSelMode();}
 }
 
-/* ── Selection mode ── */
-function enableSelMode() {
-  if (!currentFile) return;
-  selMode = true;
-  selCanvas.style.display = 'block';
+function enableSelMode(){
+  if(!currentFile)return;
+  selMode=true; selCanvas.style.display='block';
   document.getElementById('itoToolbar').classList.add('ito-sel-active');
   syncCanvas();
 }
-function disableSelMode() {
-  selMode = false;
-  selCanvas.style.display = 'none';
+function disableSelMode(){
+  selMode=false; selCanvas.style.display='none';
   document.getElementById('itoToolbar').classList.remove('ito-sel-active');
   clearSelection();
 }
-function syncCanvas() {
-  const img = document.getElementById('itoPreviewImg');
-  if (!img.naturalWidth) return;
-  selCanvas.width  = img.offsetWidth;
-  selCanvas.height = img.offsetHeight;
-  selCanvas.style.width  = img.offsetWidth + 'px';
-  selCanvas.style.height = img.offsetHeight + 'px';
+function syncCanvas(){
+  const img=document.getElementById('itoPreviewImg');
+  if(!img.naturalWidth)return;
+  selCanvas.width=img.offsetWidth; selCanvas.height=img.offsetHeight;
+  selCanvas.style.width=img.offsetWidth+'px'; selCanvas.style.height=img.offsetHeight+'px';
 }
-function clearSelection() {
-  selRects = [];
-  selCtx.clearRect(0, 0, selCanvas.width, selCanvas.height);
+function clearSelection(){
+  selRects=[];
+  selCtx.clearRect(0,0,selCanvas.width,selCanvas.height);
   updateSelHint();
 }
-function updateSelHint() {
-  const el = document.getElementById('itoSelCount');
-  if (!el) return;
-  el.textContent = selRects.length > 0
-    ? selRects.length + ' region' + (selRects.length > 1 ? 's' : '') + ' selected'
-    : 'Drag to select regions';
+function updateSelHint(){
+  const el=document.getElementById('itoSelCount');
+  if(!el)return;
+  el.textContent=selRects.length>0?selRects.length+' region'+(selRects.length>1?'s':'')+' selected':'Drag to select regions';
 }
 
-/* canvas pixel → image natural pixel */
-function toImgCoords(cx, cy) {
-  const img = document.getElementById('itoPreviewImg');
-  return {
-    x: Math.round(cx * img.naturalWidth  / img.offsetWidth),
-    y: Math.round(cy * img.naturalHeight / img.offsetHeight)
-  };
+function toImgCoords(cx,cy){
+  const img=document.getElementById('itoPreviewImg');
+  return{x:Math.round(cx*img.naturalWidth/img.offsetWidth),y:Math.round(cy*img.naturalHeight/img.offsetHeight)};
 }
 
-/* Draw one rect (preview while dragging — keeps existing rects painted under) */
-function drawDragRect(x1, y1, x2, y2) {
-  redrawAllSelections();  // repaint committed rects first
-  const rx = Math.min(x1,x2), ry = Math.min(y1,y2);
-  const rw = Math.abs(x2-x1), rh = Math.abs(y2-y1);
-  selCtx.fillStyle = 'rgba(220,38,38,0.08)';
-  selCtx.fillRect(rx, ry, rw, rh);
-  selCtx.strokeStyle = '#dc2626';
-  selCtx.lineWidth = 2;
-  selCtx.setLineDash([6,3]);
-  selCtx.strokeRect(rx+1, ry+1, rw-2, rh-2);
-  selCtx.setLineDash([]);
+function drawDragRect(x1,y1,x2,y2){
+  redrawAllSelections();
+  const rx=Math.min(x1,x2),ry=Math.min(y1,y2);
+  const rw=Math.abs(x2-x1),rh=Math.abs(y2-y1);
+  selCtx.fillStyle='rgba(220,38,38,0.08)'; selCtx.fillRect(rx,ry,rw,rh);
+  selCtx.strokeStyle='#dc2626'; selCtx.lineWidth=2; selCtx.setLineDash([6,3]);
+  selCtx.strokeRect(rx+1,ry+1,rw-2,rh-2); selCtx.setLineDash([]);
 }
 
-/* Repaint all committed selections */
-function redrawAllSelections() {
-  selCtx.clearRect(0, 0, selCanvas.width, selCanvas.height);
-  const img = document.getElementById('itoPreviewImg');
-  selRects.forEach((r, i) => {
-    const sx = r.x * img.offsetWidth  / img.naturalWidth;
-    const sy = r.y * img.offsetHeight / img.naturalHeight;
-    const sw = r.w * img.offsetWidth  / img.naturalWidth;
-    const sh = r.h * img.offsetHeight / img.naturalHeight;
-    selCtx.fillStyle = 'rgba(220,38,38,0.10)';
-    selCtx.fillRect(sx, sy, sw, sh);
-    selCtx.strokeStyle = '#dc2626';
-    selCtx.lineWidth = 2;
-    selCtx.setLineDash([6,3]);
-    selCtx.strokeRect(sx+1, sy+1, sw-2, sh-2);
-    selCtx.setLineDash([]);
-    // Number badge
-    selCtx.fillStyle = '#dc2626';
-    selCtx.font = 'bold 11px sans-serif';
-    selCtx.fillRect(sx+2, sy+2, 18, 18);
-    selCtx.fillStyle = '#fff';
-    selCtx.textAlign = 'center';
-    selCtx.textBaseline = 'middle';
-    selCtx.fillText(i+1, sx+11, sy+11);
-    selCtx.textAlign = 'left';
-    selCtx.textBaseline = 'alphabetic';
+function redrawAllSelections(){
+  selCtx.clearRect(0,0,selCanvas.width,selCanvas.height);
+  const img=document.getElementById('itoPreviewImg');
+  selRects.forEach((r,i)=>{
+    const sx=r.x*img.offsetWidth/img.naturalWidth, sy=r.y*img.offsetHeight/img.naturalHeight;
+    const sw=r.w*img.offsetWidth/img.naturalWidth, sh=r.h*img.offsetHeight/img.naturalHeight;
+    selCtx.fillStyle='rgba(220,38,38,0.10)'; selCtx.fillRect(sx,sy,sw,sh);
+    selCtx.strokeStyle='#dc2626'; selCtx.lineWidth=2; selCtx.setLineDash([6,3]);
+    selCtx.strokeRect(sx+1,sy+1,sw-2,sh-2); selCtx.setLineDash([]);
+    selCtx.fillStyle='#dc2626'; selCtx.font='bold 11px sans-serif';
+    selCtx.fillRect(sx+2,sy+2,18,18); selCtx.fillStyle='#fff';
+    selCtx.textAlign='center'; selCtx.textBaseline='middle';
+    selCtx.fillText(i+1,sx+11,sy+11);
+    selCtx.textAlign='left'; selCtx.textBaseline='alphabetic';
   });
 }
 
-/* Canvas mouse events */
-selCanvas.addEventListener('mousedown', e => {
-  if (!selMode) return;
-  selDrawing = true;
-  const r = selCanvas.getBoundingClientRect();
-  selStart = {x: e.clientX - r.left, y: e.clientY - r.top};
+selCanvas.addEventListener('mousedown',e=>{
+  if(!selMode)return; selDrawing=true;
+  const r=selCanvas.getBoundingClientRect();
+  selStart={x:e.clientX-r.left,y:e.clientY-r.top};
 });
-selCanvas.addEventListener('mousemove', e => {
-  if (!selMode || !selDrawing) return;
-  const r = selCanvas.getBoundingClientRect();
-  drawDragRect(selStart.x, selStart.y, e.clientX - r.left, e.clientY - r.top);
+selCanvas.addEventListener('mousemove',e=>{
+  if(!selMode||!selDrawing)return;
+  const r=selCanvas.getBoundingClientRect();
+  drawDragRect(selStart.x,selStart.y,e.clientX-r.left,e.clientY-r.top);
 });
-selCanvas.addEventListener('mouseup', e => {
-  if (!selMode || !selDrawing) return;
-  selDrawing = false;
-  const r = selCanvas.getBoundingClientRect();
-  const ex = e.clientX - r.left, ey = e.clientY - r.top;
-  const p1 = toImgCoords(Math.min(selStart.x,ex), Math.min(selStart.y,ey));
-  const p2 = toImgCoords(Math.max(selStart.x,ex), Math.max(selStart.y,ey));
-  if (p2.x - p1.x > 5 && p2.y - p1.y > 5) {
-    selRects.push({x:p1.x, y:p1.y, w:p2.x-p1.x, h:p2.y-p1.y});
-    updateSelHint();
-  }
+selCanvas.addEventListener('mouseup',e=>{
+  if(!selMode||!selDrawing)return; selDrawing=false;
+  const r=selCanvas.getBoundingClientRect();
+  const ex=e.clientX-r.left, ey=e.clientY-r.top;
+  const p1=toImgCoords(Math.min(selStart.x,ex),Math.min(selStart.y,ey));
+  const p2=toImgCoords(Math.max(selStart.x,ex),Math.max(selStart.y,ey));
+  if(p2.x-p1.x>5&&p2.y-p1.y>5){selRects.push({x:p1.x,y:p1.y,w:p2.x-p1.x,h:p2.y-p1.y});updateSelHint();}
   redrawAllSelections();
 });
-/* Touch support */
-function touchPos(e) {
-  const r = selCanvas.getBoundingClientRect();
-  return {x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top};
-}
-selCanvas.addEventListener('touchstart', e => { if (!selMode) return; e.preventDefault(); selDrawing=true; selStart=touchPos(e); });
-selCanvas.addEventListener('touchmove',  e => { if (!selMode||!selDrawing) return; e.preventDefault(); const p=touchPos(e); drawDragRect(selStart.x,selStart.y,p.x,p.y); });
-selCanvas.addEventListener('touchend', e => {
-  if (!selMode||!selDrawing) return; e.preventDefault(); selDrawing=false;
-  const last=e.changedTouches[0]; const r=selCanvas.getBoundingClientRect();
-  const ex=last.clientX-r.left, ey=last.clientY-r.top;
+function touchPos(e){const r=selCanvas.getBoundingClientRect();return{x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top};}
+selCanvas.addEventListener('touchstart',e=>{if(!selMode)return;e.preventDefault();selDrawing=true;selStart=touchPos(e);});
+selCanvas.addEventListener('touchmove',e=>{if(!selMode||!selDrawing)return;e.preventDefault();const p=touchPos(e);drawDragRect(selStart.x,selStart.y,p.x,p.y);});
+selCanvas.addEventListener('touchend',e=>{
+  if(!selMode||!selDrawing)return;e.preventDefault();selDrawing=false;
+  const last=e.changedTouches[0];const r=selCanvas.getBoundingClientRect();
+  const ex=last.clientX-r.left,ey=last.clientY-r.top;
   const p1=toImgCoords(Math.min(selStart.x,ex),Math.min(selStart.y,ey));
   const p2=toImgCoords(Math.max(selStart.x,ex),Math.max(selStart.y,ey));
   if(p2.x-p1.x>5&&p2.y-p1.y>5){selRects.push({x:p1.x,y:p1.y,w:p2.x-p1.x,h:p2.y-p1.y});updateSelHint();}
   redrawAllSelections();
 });
 
-/* ── Reset / Set file ── */
-function resetTool() {
-  fileInput.value = ''; currentFile = null; currentRotation = 0; currentZoom = 75;
-  document.getElementById('itoDrop').style.display = '';
-  document.getElementById('itoSplit').classList.remove('show');
-  ['itoLoadingCard','itoResultCard','itoErrorCard','itoActRow'].forEach(id =>
-    document.getElementById(id).classList.remove('show'));
-  document.getElementById('itoExtractBtn').disabled = false;
-  const img = document.getElementById('itoPreviewImg');
-  img.style.display = 'none'; img.style.transform = '';
-  document.getElementById('itoViewerLoad').style.display = '';
-  clearSelection();
-  disableSelMode();
-  document.getElementById('fmtSelect').value = 'plain';
+function resetTool(){
+  fileInput.value='';currentFile=null;currentRotation=0;currentZoom=75;
+  document.getElementById('itoDrop').style.display='';
+  itoSplit.classList.remove('show');
+  itoResultFull.classList.remove('show');
+  document.getElementById('itoErrorCard').classList.remove('show');
+  document.getElementById('itoExtractBtn').disabled=false;
+  const img=document.getElementById('itoPreviewImg');
+  img.style.display='none';img.style.transform='';
+  document.getElementById('itoViewerLoad').style.display='';
+  clearSelection();disableSelMode();
+  document.getElementById('fmtSelect').value='plain';
 }
 
-function setFile(f) {
-  if (!f) return;
-  currentFile = f; currentRotation = 0;
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-  const ext = (f.name.split('.').pop()||'IMG').toUpperCase();
-  const sizeKB = (f.size/1024).toFixed(1) + ' KB';
-  document.getElementById('itoFileName').textContent = f.name;
-  document.getElementById('itoFileSize').textContent = sizeKB;
-  document.getElementById('itoTbFname').textContent  = f.name;
-  document.getElementById('itoFext').textContent  = ext;
-  document.getElementById('itoFdate').textContent = dateStr;
-  document.getElementById('itoDrop').style.display = 'none';
-  ['itoResultCard','itoErrorCard','itoActRow'].forEach(id =>
-    document.getElementById(id).classList.remove('show'));
-  document.getElementById('itoSplit').classList.add('show');
-  const img = document.getElementById('itoPreviewImg');
-  img.onload = function() {
-    const dims = img.naturalWidth + ' × ' + img.naturalHeight + ' px';
-    document.getElementById('itoFdims').textContent   = dims;
-    document.getElementById('itoTbFmeta').textContent = sizeKB + ' | ' + dims;
-    img.style.width = currentZoom + '%'; img.style.maxWidth = 'none';
-    img.style.display = 'block';
-    document.getElementById('itoViewerLoad').style.display = 'none';
+function setFile(f){
+  if(!f)return;
+  currentFile=f;currentRotation=0;
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  const ext=(f.name.split('.').pop()||'IMG').toUpperCase();
+  const sizeKB=(f.size/1024).toFixed(1)+' KB';
+  document.getElementById('itoFileName').textContent=f.name;
+  document.getElementById('itoFileSize').textContent=sizeKB;
+  document.getElementById('itoTbFname').textContent=f.name;
+  document.getElementById('itoFext').textContent=ext;
+  document.getElementById('itoFdate').textContent=dateStr;
+  document.getElementById('itoDrop').style.display='none';
+  document.getElementById('itoErrorCard').classList.remove('show');
+  itoResultFull.classList.remove('show');
+  itoSplit.classList.add('show');
+  const img=document.getElementById('itoPreviewImg');
+  img.onload=function(){
+    const dims=img.naturalWidth+' × '+img.naturalHeight+' px';
+    document.getElementById('itoFdims').textContent=dims;
+    document.getElementById('itoTbFmeta').textContent=sizeKB+' | '+dims;
+    img.style.width=currentZoom+'%';img.style.maxWidth='none';
+    img.style.display='block';
+    document.getElementById('itoViewerLoad').style.display='none';
     syncCanvas();
-    if (selMode) selCanvas.style.display = 'block';
+    if(selMode)selCanvas.style.display='block';
   };
-  img.src = URL.createObjectURL(f);
+  img.src=URL.createObjectURL(f);
 }
 
-/* ── Crop helper — stitch multiple regions vertically ── */
-async function getCroppedFile() {
-  if (selRects.length === 0) return currentFile;
-  const img = document.getElementById('itoPreviewImg');
-  const valid = selRects.filter(r => r.w >= 5 && r.h >= 5);
-  if (valid.length === 0) return currentFile;
-  if (valid.length === 1) {
-    const r = valid[0];
-    const c = document.createElement('canvas');
-    c.width = r.w; c.height = r.h;
-    c.getContext('2d').drawImage(img, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
-    return new Promise(resolve => c.toBlob(b =>
-      resolve(new File([b], 'region.jpg', {type:'image/jpeg'})), 'image/jpeg', 0.92));
+async function getCroppedFile(){
+  if(selRects.length===0)return currentFile;
+  const img=document.getElementById('itoPreviewImg');
+  const valid=selRects.filter(r=>r.w>=5&&r.h>=5);
+  if(valid.length===0)return currentFile;
+  if(valid.length===1){
+    const r=valid[0];
+    const c=document.createElement('canvas');
+    c.width=r.w;c.height=r.h;
+    c.getContext('2d').drawImage(img,r.x,r.y,r.w,r.h,0,0,r.w,r.h);
+    return new Promise(resolve=>c.toBlob(b=>resolve(new File([b],'region.jpg',{type:'image/jpeg'})),'image/jpeg',0.92));
   }
-  const gap = 10;
-  const totalH = valid.reduce((s, r) => s + r.h, 0) + gap * (valid.length - 1);
-  const maxW = Math.max(...valid.map(r => r.w));
-  const combined = document.createElement('canvas');
-  combined.width = maxW; combined.height = totalH;
-  const ctx = combined.getContext('2d');
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, maxW, totalH);
-  let y = 0;
-  for (const r of valid) {
-    ctx.drawImage(img, r.x, r.y, r.w, r.h, 0, y, r.w, r.h);
-    y += r.h + gap;
-  }
-  return new Promise(resolve => combined.toBlob(b =>
-    resolve(new File([b], 'regions.jpg', {type:'image/jpeg'})), 'image/jpeg', 0.92));
+  const gap=10;
+  const totalH=valid.reduce((s,r)=>s+r.h,0)+gap*(valid.length-1);
+  const maxW=Math.max(...valid.map(r=>r.w));
+  const combined=document.createElement('canvas');
+  combined.width=maxW;combined.height=totalH;
+  const ctx=combined.getContext('2d');
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,maxW,totalH);
+  let y=0;
+  for(const r of valid){ctx.drawImage(img,r.x,r.y,r.w,r.h,0,y,r.w,r.h);y+=r.h+gap;}
+  return new Promise(resolve=>combined.toBlob(b=>resolve(new File([b],'regions.jpg',{type:'image/jpeg'})),'image/jpeg',0.92));
 }
 
-/* ── Extract ── */
-async function doConvert() {
-  if (!currentFile) return;
-  document.getElementById('itoExtractBtn').disabled = true;
-  document.getElementById('itoLoadingMsg').textContent =
-    currentMode === 'mistral' ? 'Running OpenAI…' : 'Extracting text…';
-  document.getElementById('itoLoadingCard').classList.add('show');
-  ['itoResultCard','itoErrorCard','itoActRow'].forEach(id =>
-    document.getElementById(id).classList.remove('show'));
-  const fileToSend = await getCroppedFile();
-  const fd = new FormData();
-  fd.append('file', fileToSend);
-  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-  fd.append('mode', currentMode);
-  fd.append('lang', document.getElementById('langSelect').value);
-  fd.append('format', document.getElementById('fmtSelect').value);
-  fd.append('preserve_layout', document.getElementById('preserveLayout').checked ? '1' : '0');
-  try {
-    const res = await fetch('/tools/api/img/ocr/', {method:'POST', body:fd});
-    const d = await res.json();
-    if (d.error) throw new Error(d.error);
-    const txt = d.text || '';
-    document.getElementById('ocrText').value = txt;
-    document.getElementById('itoCharCount').textContent =
-      txt.length.toLocaleString() + ' characters · ' + (d.word_count||0) + ' words';
-    if (d.download_url) {
-      document.getElementById('itoDownloadBtn').href = d.download_url;
-      document.getElementById('itoDownloadBtn').setAttribute('download', d.filename||'extracted.txt');
+async function doConvert(){
+  if(!currentFile)return;
+  document.getElementById('itoExtractBtn').disabled=true;
+  document.getElementById('itoErrorCard').classList.remove('show');
+  itoResultFull.classList.remove('show');
+  if(typeof ZLoader!=='undefined')ZLoader.show(currentMode==='mistral'?'Running OpenAI…':'Extracting text…');
+  const fileToSend=await getCroppedFile();
+  const fd=new FormData();
+  fd.append('file',fileToSend);
+  fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
+  fd.append('mode',currentMode);
+  fd.append('lang',document.getElementById('langSelect').value);
+  fd.append('format',document.getElementById('fmtSelect').value);
+  fd.append('preserve_layout',document.getElementById('preserveLayout').checked?'1':'0');
+  try{
+    const res=await fetch('/tools/api/img/ocr/',{method:'POST',body:fd});
+    const d=await res.json();
+    if(d.error)throw new Error(d.error);
+    if(typeof ZLoader!=='undefined')ZLoader.hide();
+    const txt=d.text||'';
+    document.getElementById('ocrText').value=txt;
+    const wc=d.word_count||0;
+    document.getElementById('itoCharCount').textContent=txt.length.toLocaleString()+' characters · '+wc+' words';
+    document.getElementById('itoResultSub').textContent=txt.length.toLocaleString()+' characters · '+wc+' words extracted.';
+    if(d.download_url){
+      const _d=new Date(),_mo=_d.toLocaleString('en-US',{month:'short'}),_dy=_d.getDate();
+      const _hh=_d.getHours()%12||12,_mm=String(_d.getMinutes()).padStart(2,'0'),_ss=String(_d.getSeconds()).padStart(2,'0'),_ap=_d.getHours()>=12?'PM':'AM';
+      document.getElementById('itoDownloadBtn').href=d.download_url;
+      document.getElementById('itoDownloadBtn').download=`ZayroDocX Image to Text ${_mo} ${_dy}, ${_hh}_${_mm}_${_ss} ${_ap}.txt`;
     }
-    document.getElementById('itoActRow').classList.add('show');
-  } catch (e) {
-    document.getElementById('itoErrorMsg').textContent = e.message || 'Extraction failed.';
+    itoSplit.classList.remove('show');
+    itoResultFull.classList.add('show');
+  }catch(e){
+    if(typeof ZLoader!=='undefined')ZLoader.hide();
+    document.getElementById('itoErrorMsg').textContent=e.message||'Extraction failed.';
     document.getElementById('itoErrorCard').classList.add('show');
-  } finally {
-    document.getElementById('itoLoadingCard').classList.remove('show');
-    document.getElementById('itoExtractBtn').disabled = false;
+  }finally{
+    document.getElementById('itoExtractBtn').disabled=false;
   }
 }
 
-/* ── Preview / Copy ── */
-function togglePreview() {
-  const card = document.getElementById('itoResultCard');
-  card.classList.toggle('show');
-  if (card.classList.contains('show')) card.scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-function copyText() {
-  const val = document.getElementById('ocrText').value;
-  const btn = document.querySelector('.ito-act-copy');
-  const orig = btn.innerHTML;
-  const done = () => {
-    btn.innerHTML = '<i class="fa-solid fa-check"></i><span>Copied!</span><small>Done</small>';
-    setTimeout(() => { btn.innerHTML = orig; }, 2000);
+function copyText(){
+  const val=document.getElementById('ocrText').value;
+  const btn=document.getElementById('itoCopyBtn');
+  const orig=btn.innerHTML;
+  const done=()=>{
+    btn.innerHTML='<i class="fa-solid fa-check"></i> Copied!';
+    setTimeout(()=>{btn.innerHTML=orig;},2000);
   };
-  navigator.clipboard ? navigator.clipboard.writeText(val).then(done).catch(() => {
-    document.getElementById('ocrText').select(); document.execCommand('copy'); done();
-  }) : (document.getElementById('ocrText').select(), document.execCommand('copy'), done());
+  navigator.clipboard?navigator.clipboard.writeText(val).then(done).catch(()=>{
+    document.getElementById('ocrText').select();document.execCommand('copy');done();
+  }):(document.getElementById('ocrText').select(),document.execCommand('copy'),done());
 }
 
-/* ── File input / drag-drop ── */
-fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
-const drop = document.getElementById('itoDrop');
-drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));
+const drop=document.getElementById('itoDrop');
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
 </script>{% endblock %}
