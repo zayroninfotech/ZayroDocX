@@ -119,6 +119,7 @@
   </div>
 
   <div class="x2p-right">
+    <div style="font-size:1.25rem;font-weight:800;color:var(--text,#1e293b);letter-spacing:-.02em;padding-bottom:.25rem;">Excel to PDF</div>
     <div class="x2p-card">
       <div class="x2p-file-row">
         <div class="x2p-file-icon"><i class="fa-solid fa-file-excel"></i></div>
@@ -133,7 +134,7 @@
     </div>
 
     <button type="button" class="x2p-convert-btn" id="x2pConvertBtn" onclick="doConvert()">
-      <i class="fa-solid fa-file-pdf"></i> Convert Excel to PDF
+      <i class="fa-solid fa-file-excel"></i> Convert Excel to PDF
     </button>
 
     <div class="x2p-error-card" id="x2pErrorCard">
@@ -254,20 +255,25 @@ async function doConvert() {
     x2pDrop.style.display = 'none';
     x2pSplit.classList.remove('show');
     x2pResultFull.className = 'x2p-result-full show';
+    const now = new Date();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const month = months[now.getMonth()];
+    const day = now.getDate();
+    const hh = now.getHours();
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const ss = String(now.getSeconds()).padStart(2,'0');
+    const ampm = hh >= 12 ? 'PM' : 'AM';
+    const dlName = `ZayroDocX Excel to PDF ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.pdf`;
     x2pResultFull.innerHTML = `
       <div class="result-success-wrap">
         <h2 class="result-success-title">Excel converted to PDF!</h2>
         <div class="result-download-row">
-          <a href="${data.download_url}" class="btn-download-big" download="${data.filename || 'converted.pdf'}">
+          <a href="${data.download_url}" class="btn-download-big" download="${dlName}">
             <i class="fa-solid fa-download"></i> Download PDF
           </a>
           <button class="btn-again" onclick="resetTool()">
             <i class="fa-solid fa-rotate-left"></i> Convert Again
           </button>
-        </div>
-        <div class="continue-section">
-          <div class="continue-title">Continue to…</div>
-          <div class="continue-grid">${buildContinueGrid()}</div>
         </div>
       </div>`;
     window.scrollTo({top:0, behavior:'smooth'});
