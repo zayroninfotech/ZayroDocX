@@ -400,6 +400,13 @@ body { padding-top: var(--mh-h); }
   color: var(--brand); padding: .3rem .65rem .1rem;
 }
 
+/* Convert PDF two-column layout */
+.mh-drop-convert { min-width: 460px; }
+.mhd-convert-cols { display: flex; align-items: stretch; }
+.mhd-convert-col { flex: 1; padding: 0 .25rem; }
+.mhd-vert-divider { width: 1px; background: #e8e8e8; margin: .3rem 0; flex-shrink: 0; }
+.mh-drop-convert .mhd-icon { width: 36px; height: 36px; border-radius: 9px; font-size: .95rem; }
+
 /* ConnectSpace nav link */
 .mh-connectspace {
   display: inline-flex; align-items: center; gap: .35rem;

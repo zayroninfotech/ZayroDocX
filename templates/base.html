@@ -68,50 +68,48 @@
         <div class="mh-item has-drop">
           <span class="mh-link"><i class="fa-solid fa-right-left mh-nav-icon"></i> Convert PDF <i
               class="fa-solid fa-chevron-down mh-caret"></i></span>
-          <div class="mh-drop mh-drop-wide">
-            <div class="mhd-group-label">To PDF</div>
-            <a href="{% url 'word_to_pdf_page' %}" class="mh-drop-item {% block active_word2pdf %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(43,87,154,0.14); color:#2b579a;"><i
-                  class="fa-solid fa-file-word"></i></span>
-              <span class="mhd-text"><strong>Word to PDF</strong></span>
-            </a>
-            <a href="{% url 'pptx_to_pdf_page' %}" class="mh-drop-item {% block active_pptx2pdf %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(240,180,0,0.16); color:#d99e00;"><i
-                  class="fa-solid fa-file-powerpoint"></i></span>
-              <span class="mhd-text"><strong>PowerPoint to PDF</strong></span>
-            </a>
-            <a href="{% url 'excel_to_pdf_page' %}" class="mh-drop-item {% block active_excel2pdf %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(33,115,70,0.14); color:#217346;"><i
-                  class="fa-solid fa-file-excel"></i></span>
-              <span class="mhd-text"><strong>Excel to PDF</strong></span>
-            </a>
-            <a href="{% url 'html_to_pdf_page' %}" class="mh-drop-item {% block active_html2pdf %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(227,76,38,0.14); color:#e34c26;"><i
-                  class="fa-brands fa-html5"></i></span>
-              <span class="mhd-text"><strong>HTML to PDF</strong></span>
-            </a>
-            <div class="mhd-divider"></div>
-            <div class="mhd-group-label">From PDF</div>
-            <a href="{% url 'pdf_to_jpg_page' %}" class="mh-drop-item {% block active_pdf2jpg %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(147,51,234,0.14); color:#9333ea;"><i
-                  class="fa-solid fa-images"></i></span>
-              <span class="mhd-text"><strong>PDF to JPG</strong></span>
-            </a>
-            <a href="{% url 'pdf_to_word_page' %}" class="mh-drop-item {% block active_pdf2word %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(43,87,154,0.14); color:#2b579a;"><i
-                  class="fa-solid fa-file-word"></i></span>
-              <span class="mhd-text"><strong>PDF to Word</strong></span>
-            </a>
-            <a href="{% url 'pdf_to_pptx_page' %}" class="mh-drop-item {% block active_pdf2pptx %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(240,180,0,0.16); color:#d99e00;"><i
-                  class="fa-solid fa-file-powerpoint"></i></span>
-              <span class="mhd-text"><strong>PDF to PowerPoint</strong></span>
-            </a>
-            <a href="{% url 'pdf_to_excel_page' %}" class="mh-drop-item {% block active_pdf2excel %}{% endblock %}">
-              <span class="mhd-icon" style="background:rgba(33,115,70,0.14); color:#217346;"><i
-                  class="fa-solid fa-file-excel"></i></span>
-              <span class="mhd-text"><strong>PDF to Excel</strong></span>
-            </a>
+          <div class="mh-drop mh-drop-convert">
+            <div class="mhd-convert-cols">
+              <div class="mhd-convert-col">
+                <div class="mhd-group-label">Convert to PDF</div>
+                <a href="{% url 'word_to_pdf_page' %}" class="mh-drop-item {% block active_word2pdf %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(43,87,154,0.22); color:#2b579a;"><i class="fa-solid fa-file-word"></i></span>
+                  <span class="mhd-text"><strong>Word to PDF</strong></span>
+                </a>
+                <a href="{% url 'pptx_to_pdf_page' %}" class="mh-drop-item {% block active_pptx2pdf %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(240,180,0,0.24); color:#d99e00;"><i class="fa-solid fa-file-powerpoint"></i></span>
+                  <span class="mhd-text"><strong>PowerPoint to PDF</strong></span>
+                </a>
+                <a href="{% url 'excel_to_pdf_page' %}" class="mh-drop-item {% block active_excel2pdf %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(33,115,70,0.22); color:#217346;"><i class="fa-solid fa-file-excel"></i></span>
+                  <span class="mhd-text"><strong>Excel to PDF</strong></span>
+                </a>
+                <a href="{% url 'html_to_pdf_page' %}" class="mh-drop-item {% block active_html2pdf %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(227,76,38,0.22); color:#e34c26;"><i class="fa-brands fa-html5"></i></span>
+                  <span class="mhd-text"><strong>HTML to PDF</strong></span>
+                </a>
+              </div>
+              <div class="mhd-vert-divider"></div>
+              <div class="mhd-convert-col">
+                <div class="mhd-group-label">Convert from PDF</div>
+                <a href="{% url 'pdf_to_jpg_page' %}" class="mh-drop-item {% block active_pdf2jpg %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(147,51,234,0.22); color:#9333ea;"><i class="fa-solid fa-images"></i></span>
+                  <span class="mhd-text"><strong>PDF to JPG</strong></span>
+                </a>
+                <a href="{% url 'pdf_to_word_page' %}" class="mh-drop-item {% block active_pdf2word %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(43,87,154,0.22); color:#2b579a;"><i class="fa-solid fa-file-word"></i></span>
+                  <span class="mhd-text"><strong>PDF to Word</strong></span>
+                </a>
+                <a href="{% url 'pdf_to_pptx_page' %}" class="mh-drop-item {% block active_pdf2pptx %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(240,180,0,0.24); color:#d99e00;"><i class="fa-solid fa-file-powerpoint"></i></span>
+                  <span class="mhd-text"><strong>PDF to PowerPoint</strong></span>
+                </a>
+                <a href="{% url 'pdf_to_excel_page' %}" class="mh-drop-item {% block active_pdf2excel %}{% endblock %}">
+                  <span class="mhd-icon" style="background:rgba(33,115,70,0.22); color:#217346;"><i class="fa-solid fa-file-excel"></i></span>
+                  <span class="mhd-text"><strong>PDF to Excel</strong></span>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
