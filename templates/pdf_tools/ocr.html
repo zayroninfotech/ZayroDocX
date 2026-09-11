@@ -385,12 +385,12 @@
             <div class="toggle-item" id="ocrToggleItem" onclick="toggleMode('ocr')">
               <span class="toggle-badge badge-ocr">OCR</span>
               <div class="toggle-track" id="ocrTrack"><div class="toggle-knob"></div></div>
-              <span class="toggle-item-label">Tesseract</span>
+              <span class="toggle-item-label">ZayroEngine</span>
             </div>
             <div class="toggle-item" id="aiToggleItem" onclick="toggleMode('ai')">
               <span class="toggle-badge badge-ai">AI</span>
               <div class="toggle-track" id="aiTrack"><div class="toggle-knob"></div></div>
-              <span class="toggle-item-label">GPT-4o</span>
+              <span class="toggle-item-label">ZayroAI</span>
             </div>
           </div>
         </div>
@@ -419,13 +419,13 @@
 
           <div class="extract-empty" id="extractEmpty">
             <i class="fa-solid fa-hand-pointer"></i>
-            <p>Click a page on the left, then enable<br><strong>Tesseract</strong> or <strong>AI</strong> to extract.</p>
+            <p>Click a page on the left, then enable<br><strong>ZayroEngine</strong> or <strong>ZayroAI</strong> to extract.</p>
           </div>
 
           <!-- OCR block -->
           <div class="result-block" id="ocrBlock" style="display:none">
             <div class="result-block-head">
-              <div class="result-block-title ocr-color"><i class="fa-solid fa-font"></i> Tesseract OCR</div>
+              <div class="result-block-title ocr-color"><i class="fa-solid fa-font"></i> ZayroEngine OCR</div>
               <div class="result-actions">
                 <button class="result-copy-btn" onclick="copyArea('ocrTextarea',this)">
                   <i class="fa-solid fa-copy"></i> Copy
@@ -450,7 +450,7 @@
             <div class="result-block-head">
               <div class="result-block-title ai-color">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> AI Extract
-                <span id="aiProviderLabel" style="font-weight:400;text-transform:none;font-size:.72rem;color:var(--text-muted)">· GPT-4o</span>
+                <span id="aiProviderLabel" style="font-weight:400;text-transform:none;font-size:.72rem;color:var(--text-muted)">· ZayroAI</span>
               </div>
               <div class="result-actions">
                 <button class="result-copy-btn" id="aiCopyBtn" onclick="copyAi(this)">
@@ -602,7 +602,7 @@ function renderBody(){
   if(_aiOn&&!noPage){
     document.getElementById('aiBlock').style.display='';
     var prov='gpt';
-    var plbl={gpt:'GPT-4o'};
+    var plbl={gpt:'ZayroAI'};
     document.getElementById('aiProviderLabel').textContent='· '+(plbl[prov]||prov);
     if(_aiCache[_activeIdx]){
       renderAi(_activeIdx);
@@ -623,7 +623,7 @@ function renderOcr(idx){
   var ta=document.getElementById('ocrTextarea');
   var dlRow=document.getElementById('ocrDlRow');
   if(!cached){
-    ta.value='';ta.placeholder='Extracting with Tesseract…';ta.disabled=true;
+    ta.value='';ta.placeholder='Extracting with ZayroEngine…';ta.disabled=true;
     dlRow.style.display='none';return;
   }
   ta.disabled=false;
