@@ -174,16 +174,16 @@
       <!-- Model toggle -->
       <div class="ra-model-row" onclick="event.stopPropagation()">
         <button class="ra-model-btn active" id="tabGpt" onclick="setMode('pro')">
-          <i class="fa-solid fa-star"></i> GPT-4o mini
+          <i class="fa-solid fa-star"></i> ZayroAI
         </button>
         <button class="ra-model-btn" id="tabMistral" onclick="setMode('mistral')">
-          <i class="fa-solid fa-bolt"></i> Mistral
+          <i class="fa-solid fa-bolt"></i> ZayroLLM
         </button>
       </div>
       <button type="button" class="ra-select-btn" onclick="event.stopPropagation();document.getElementById('raFile').click()">
         <i class="fa-solid fa-upload"></i> Select Resume
       </button>
-      <div class="ra-drop-footer">Your files are never stored &middot; Powered by GPT-4o mini &amp; Mistral</div>
+      <div class="ra-drop-footer">Your files are never stored &middot; Powered by ZayroAI &amp; ZayroLLM</div>
     </div>
   </div>
 
@@ -392,7 +392,7 @@ async function startAnalysis(){
   hideHero();
   document.getElementById('raResults').classList.remove('show');
   document.getElementById('raError').classList.remove('show');
-  document.getElementById('raLoadMsg').textContent=currentMode==='pro'?'Running GPT-4o mini analysis…':'Running Mistral analysis…';
+  document.getElementById('raLoadMsg').textContent=currentMode==='pro'?'Running ZayroAI analysis…':'Running ZayroLLM analysis…';
   document.getElementById('raLoading').classList.add('show');
 
   const fd=new FormData();
