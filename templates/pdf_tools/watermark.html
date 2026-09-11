@@ -150,13 +150,6 @@
     </div>
   </div>
 </div>
-
-<div class="cv-info-strip" id="wmInfoStrip">
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-font"></i></div><div><div class="cv-info-title">Text & Image</div><div class="cv-info-desc">Two watermark types</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-palette"></i></div><div><div class="cv-info-title">Custom Style</div><div class="cv-info-desc">Colour, opacity, angle</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
-</div>
 {% endblock %}
 
 {% block extra_js %}<script>
@@ -169,7 +162,6 @@ const wmConvertBtn  = document.getElementById('wmConvertBtn');
 const wmLoadingCard = document.getElementById('wmLoadingCard');
 const wmResultCard  = document.getElementById('wmResultCard');
 const wmErrorCard   = document.getElementById('wmErrorCard');
-const wmInfoStrip   = document.getElementById('wmInfoStrip');
 let currentFile = null;
 
 // ── live canvas watermark preview ──────────────────────────────────────────
@@ -223,7 +215,7 @@ function resetTool() {
   wmPagesEl.innerHTML = ''; wmPagesEl.style.display = 'none';
   wmViewerLoad.style.display = 'flex'; wmConvertBtn.disabled = false;
   wmLoadingCard.classList.remove('show'); wmResultCard.classList.remove('show');
-  wmErrorCard.classList.remove('show'); wmInfoStrip.style.display = '';
+  wmErrorCard.classList.remove('show');
 }
 
 async function loadPreview(file) {
@@ -260,7 +252,7 @@ function setFile(f) {
   document.getElementById('wmFileName').textContent = f.name;
   document.getElementById('wmFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
-  wmDrop.style.display = 'none'; wmInfoStrip.style.display = 'none';
+  wmDrop.style.display = 'none';
   wmResultCard.classList.remove('show'); wmErrorCard.classList.remove('show');
   wmSplit.classList.add('show');
   loadPreview(f);
