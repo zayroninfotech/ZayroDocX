@@ -1,6 +1,17 @@
 import json, os
+from urllib.parse import quote_plus
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+
+
+def _buy_links(name, brand):
+    q = quote_plus(f"{name} {brand}")
+    bq = quote_plus(brand)
+    return {
+        'amazon':   f"https://www.amazon.in/s?k={q}",
+        'flipkart': f"https://www.flipkart.com/search?q={q}",
+        'brand_url': f"https://www.amazon.in/s?k={bq}",
+    }
 
 
 @csrf_exempt
@@ -9,10 +20,10 @@ def recommend_products(request):
         return JsonResponse({'error': 'POST required'}, status=405)
 
     data = json.loads(request.body)
-    query      = data.get('query', '').strip()
-    category   = data.get('category', 'any')
-    budget     = data.get('budget', '')
-    engine     = data.get('engine', 'openai')
+    query    = data.get('query', '').strip()
+    category = data.get('category', 'any')
+    budget   = data.get('budget', '')
+    engine   = data.get('engine', 'openai')
 
     if not query:
         return JsonResponse({'error': 'Describe what you are looking for.'}, status=400)
@@ -85,5 +96,12 @@ def recommend_products(request):
 
     if result is None:
         return JsonResponse({'error': 'AI service unavailable. ' + ' | '.join(errors)}, status=503)
+
+    # Inject buy links for each product
+    for p in result.get('recommendations', []):
+        links = _buy_links(p.get('name', ''), p.get('brand', ''))
+        p['amazon']    = links['amazon']
+        p['flipkart']  = links['flipkart']
+        p['brand_url'] = links['brand_url']
 
     return JsonResponse(result)

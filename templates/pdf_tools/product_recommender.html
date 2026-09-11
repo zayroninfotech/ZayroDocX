@@ -90,9 +90,17 @@
 .pr-rating-text { font-size:.72rem; color:#64748b; }
 .pr-price { font-size:1.3rem; font-weight:900; color:#dc2626; margin:.4rem 0 .5rem; }
 .pr-why-box { font-size:.78rem; color:#475569; line-height:1.5; margin-bottom:.7rem; padding:.5rem .7rem; background:#fff5f5; border-radius:8px; border-left:3px solid #dc2626; }
-.pr-pros { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.25rem; }
+.pr-pros { list-style:none; padding:0; margin:0 0 .9rem; display:flex; flex-direction:column; gap:.25rem; }
 .pr-pros li { font-size:.75rem; color:#475569; display:flex; align-items:center; gap:.4rem; }
 .pr-pros li::before { content:'✓'; color:#16a34a; font-weight:900; font-size:.7rem; }
+/* Buy buttons */
+.pr-buy-row { display:flex; gap:.5rem; margin-top:.75rem; flex-wrap:wrap; }
+.pr-buy-btn { flex:1; min-width:100px; display:inline-flex; align-items:center; justify-content:center; gap:.35rem; padding:.45rem .7rem; border-radius:8px; font-size:.72rem; font-weight:800; text-decoration:none; transition:opacity .15s,transform .1s; }
+.pr-buy-btn:hover { opacity:.85; transform:translateY(-1px); text-decoration:none; }
+.pr-buy-amazon { background:#ff9900; color:#111; }
+.pr-buy-flipkart { background:#2874f0; color:#fff; }
+.pr-brand-link { font-size:.75rem; color:#94a3b8; text-decoration:none; transition:color .15s; }
+.pr-brand-link:hover { color:#dc2626; text-decoration:underline; }
 .pr-back-btn { display:inline-flex; align-items:center; gap:.4rem; padding:.55rem 1.1rem; border:1.5px solid #e8e8e8; border-radius:10px; background:#fff; font-size:.82rem; font-weight:700; color:#64748b; cursor:pointer; margin-bottom:1rem; transition:border-color .15s; }
 .pr-back-btn:hover { border-color:#dc2626; color:#dc2626; }
 
@@ -267,14 +275,26 @@ function renderResults(d){
   const grid=document.getElementById('prGrid');grid.innerHTML='';
   (d.recommendations||[]).forEach(p=>{
     const pros=(p.pros||[]).map(x=>`<li>${x}</li>`).join('');
+    const brandHtml=p.brand_url
+      ?`<a class="pr-brand-link" href="${p.brand_url}" target="_blank" rel="noopener">${p.brand||''} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.6rem"></i></a>`
+      :`<span class="pr-product-brand">${p.brand||''}</span>`;
+    const buyRow=`<div class="pr-buy-row">
+      <a class="pr-buy-btn pr-buy-amazon" href="${p.amazon||'#'}" target="_blank" rel="noopener">
+        <i class="fa-brands fa-amazon"></i> Buy on Amazon
+      </a>
+      <a class="pr-buy-btn pr-buy-flipkart" href="${p.flipkart||'#'}" target="_blank" rel="noopener">
+        <i class="fa-solid fa-bag-shopping"></i> Flipkart
+      </a>
+    </div>`;
     grid.innerHTML+=`<div class="pr-product-card">
       <span class="pr-badge">${p.badge||'Recommended'}</span>
       <div class="pr-product-name">${p.name}</div>
-      <div class="pr-product-brand">${p.brand||''}</div>
+      <div style="margin-bottom:.5rem">${brandHtml}</div>
       <div class="pr-stars">${stars(p.rating||4)}<span class="pr-rating-text">${p.rating||''} · ${(p.reviews||0).toLocaleString()} reviews</span></div>
       <div class="pr-price">${p.price||''}</div>
       <div class="pr-why-box">${p.why||''}</div>
       <ul class="pr-pros">${pros}</ul>
+      ${buyRow}
     </div>`;
   });
   document.getElementById('prResults').classList.add('show');
