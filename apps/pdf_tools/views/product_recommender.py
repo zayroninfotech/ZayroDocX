@@ -12,7 +12,7 @@ def recommend_products(request):
     query      = data.get('query', '').strip()
     category   = data.get('category', 'any')
     budget     = data.get('budget', '')
-    engine     = data.get('engine', 'mistral')
+    engine     = data.get('engine', 'openai')
 
     if not query:
         return JsonResponse({'error': 'Describe what you are looking for.'}, status=400)
