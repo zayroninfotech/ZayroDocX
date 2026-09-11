@@ -67,7 +67,7 @@
 <input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
 
 <div class="wm-drop" id="wmDrop" onclick="document.getElementById('fileInput').click()">
-  <div class="wm-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+  <div class="wm-drop-icon"><i class="fa-solid fa-droplet" style="color:#0891b2;"></i></div>
   <h3>Drop your PDF here</h3>
   <p>Choose watermark options in the panel then add</p>
   <button type="button" class="wm-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
@@ -85,9 +85,10 @@
   </div>
 
   <div class="wm-right">
+    <h2 style="font-size:1.25rem;font-weight:800;color:#0891b2;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;"><i class="fa-solid fa-droplet"></i> Add Watermark</h2>
     <div class="wm-card">
       <div class="wm-file-row">
-        <div class="wm-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+        <div class="wm-file-icon" style="background:rgba(6,182,212,0.12);"><i class="fa-solid fa-droplet" style="color:#0891b2;"></i></div>
         <div>
           <div class="wm-file-name" id="wmFileName">—</div>
           <div class="wm-file-size" id="wmFileSize">—</div>
