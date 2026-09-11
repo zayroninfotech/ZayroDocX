@@ -120,12 +120,8 @@ def render_pdf_pages(request):
         page_dims = []
         for page in doc:
             page_dims.append({'w': page.rect.width, 'h': page.rect.height})
-            pix = page.get_pixmap(dpi=150)
-            img = Image.open(BytesIO(pix.tobytes('png'))).convert('RGB')
-            img = ImageEnhance.Sharpness(img).enhance(1.3)
-            buf = BytesIO()
-            img.save(buf, 'JPEG', quality=80, optimize=True)
-            page_images.append(base64.b64encode(buf.getvalue()).decode())
+            pix = page.get_pixmap(dpi=96)
+            page_images.append(base64.b64encode(pix.tobytes('jpeg', jpg_quality=75)).decode())
         doc.close()
         return JsonResponse({'page_images': page_images, 'page_count': len(page_images), 'page_dims': page_dims})
     except ValueError as e:
