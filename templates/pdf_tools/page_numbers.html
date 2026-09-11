@@ -68,7 +68,7 @@
 <input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
 
 <div class="pn-drop" id="pnDrop" onclick="document.getElementById('fileInput').click()">
-  <div class="pn-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+  <div class="pn-drop-icon"><i class="fa-solid fa-list-ol" style="color:#9333ea;"></i></div>
   <h3>Drop your PDF here</h3>
   <p>Page numbers will be added to every page</p>
   <button type="button" class="pn-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
@@ -86,10 +86,11 @@
   </div>
 
   <div class="pn-right">
+    <div style="font-size:1.25rem;font-weight:800;color:var(--text,#1e293b);letter-spacing:-.02em;padding-bottom:.25rem;">Add Page Numbers</div>
     <!-- File info -->
     <div class="pn-card">
       <div class="pn-file-row">
-        <div class="pn-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+        <div class="pn-file-icon" style="background:rgba(147,51,234,0.12);"><i class="fa-solid fa-list-ol" style="color:#9333ea;"></i></div>
         <div>
           <div class="pn-file-name" id="pnFileName">—</div>
           <div class="pn-file-size" id="pnFileSize">—</div>
@@ -157,13 +158,6 @@
     </div>
   </div>
 </div>
-
-<div class="cv-info-strip" id="pnInfoStrip">
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-crosshairs"></i></div><div><div class="cv-info-title">4 Positions</div><div class="cv-info-desc">Top & bottom options</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-font"></i></div><div><div class="cv-info-title">Custom Font</div><div class="cv-info-desc">Size & start number</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
-</div>
 {% endblock %}
 
 {% block extra_js %}<script>
@@ -176,7 +170,6 @@ const pnConvertBtn  = document.getElementById('pnConvertBtn');
 const pnLoadingCard = document.getElementById('pnLoadingCard');
 const pnResultCard  = document.getElementById('pnResultCard');
 const pnErrorCard   = document.getElementById('pnErrorCard');
-const pnInfoStrip   = document.getElementById('pnInfoStrip');
 
 let currentFile = null;
 let totalPages   = 0;
@@ -249,7 +242,7 @@ function resetTool() {
   pnPagesEl.innerHTML = ''; pnPagesEl.style.display = 'none';
   pnViewerLoad.style.display = 'flex'; pnConvertBtn.disabled = false;
   pnLoadingCard.classList.remove('show'); pnResultCard.classList.remove('show');
-  pnErrorCard.classList.remove('show'); pnInfoStrip.style.display = '';
+  pnErrorCard.classList.remove('show');
 }
 
 async function loadPreview(file) {
@@ -287,7 +280,7 @@ function setFile(f) {
   document.getElementById('pnFileName').textContent = f.name;
   document.getElementById('pnFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
-  pnDrop.style.display = 'none'; pnInfoStrip.style.display = 'none';
+  pnDrop.style.display = 'none';
   pnResultCard.classList.remove('show'); pnErrorCard.classList.remove('show');
   pnSplit.classList.add('show');
   loadPreview(f);
@@ -314,8 +307,17 @@ async function doConvert() {
     const res  = await fetch('{% url "api_page_numbers" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
+    const now = new Date();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const month = months[now.getMonth()];
+    const day = now.getDate();
+    const hh = now.getHours();
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const ss = String(now.getSeconds()).padStart(2,'0');
+    const ampm = hh >= 12 ? 'PM' : 'AM';
+    const dlName = `ZayroDocX Add Page Numbers ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.pdf`;
     document.getElementById('pnDlBtn').href     = data.download_url;
-    document.getElementById('pnDlBtn').download = data.filename || 'numbered.pdf';
+    document.getElementById('pnDlBtn').download = dlName;
     pnResultCard.classList.add('show');
   } catch (e) {
     document.getElementById('pnErrorMsg').textContent = e.message || 'Failed to add page numbers.';
