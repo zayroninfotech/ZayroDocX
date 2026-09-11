@@ -71,7 +71,7 @@
 <input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
 
 <div class="rot-drop" id="rotDrop" onclick="document.getElementById('fileInput').click()">
-  <div class="rot-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+  <div class="rot-drop-icon"><i class="fa-solid fa-rotate-right" style="color:#2563eb;"></i></div>
   <h3>Drop your PDF here</h3>
   <p>Select the rotation angle and pages in the panel</p>
   <button type="button" class="rot-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
@@ -89,10 +89,11 @@
   </div>
 
   <div class="rot-right">
+    <div style="font-size:1.25rem;font-weight:800;color:var(--text,#1e293b);letter-spacing:-.02em;padding-bottom:.25rem;">Rotate PDF</div>
     <!-- File info -->
     <div class="rot-card">
       <div class="rot-file-row">
-        <div class="rot-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+        <div class="rot-file-icon" style="background:rgba(37,99,235,0.12);"><i class="fa-solid fa-rotate-right" style="color:#2563eb;"></i></div>
         <div>
           <div class="rot-file-name" id="rotFileName">—</div>
           <div class="rot-file-size" id="rotFileSize">—</div>
@@ -220,8 +221,17 @@ async function doConvert() {
     const res = await fetch('{% url "api_rotate_pdf" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
+    const now = new Date();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const month = months[now.getMonth()];
+    const day = now.getDate();
+    const hh = now.getHours();
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const ss = String(now.getSeconds()).padStart(2,'0');
+    const ampm = hh >= 12 ? 'PM' : 'AM';
+    const dlName = `ZayroDocX Rotate PDF ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.pdf`;
     document.getElementById('rotDlBtn').href = data.download_url;
-    document.getElementById('rotDlBtn').download = data.filename || 'rotated.pdf';
+    document.getElementById('rotDlBtn').download = dlName;
     rotResultCard.classList.add('show');
   } catch (e) {
     document.getElementById('rotErrorMsg').textContent = e.message || 'Rotation failed.';
