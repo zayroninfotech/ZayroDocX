@@ -105,15 +105,11 @@
       <i class="fa-solid fa-rotate-left"></i> Convert Again
     </button>
   </div>
-  <div class="continue-section">
-    <h4>Continue to…</h4>
-    <div class="continue-grid" id="p2pContinueGrid"></div>
-  </div>
 </div>
 
 <!-- Drop zone -->
 <div class="p2p-drop" id="p2pDrop" onclick="document.getElementById('fileInput').click()">
-  <div class="p2p-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+  <div class="p2p-drop-icon" style="color:#d99e00;"><i class="fa-solid fa-file-powerpoint"></i></div>
   <h3>Drop your PDF here</h3>
   <p>Each PDF page will become an editable PowerPoint slide</p>
   <button type="button" class="p2p-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
@@ -132,6 +128,7 @@
   </div>
 
   <div class="p2p-right">
+    <div style="font-size:1.25rem;font-weight:800;color:var(--text,#1e293b);letter-spacing:-.02em;padding-bottom:.25rem;">PDF to PowerPoint</div>
     <div class="p2p-card">
       <div class="p2p-file-row">
         <div class="p2p-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
@@ -243,9 +240,17 @@ async function doConvert() {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     if (typeof ZLoader !== 'undefined') ZLoader.hide();
+    const now = new Date();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const month = months[now.getMonth()];
+    const day = now.getDate();
+    const hh = now.getHours();
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const ss = String(now.getSeconds()).padStart(2,'0');
+    const ampm = hh >= 12 ? 'PM' : 'AM';
+    const dlName = `ZayroDocX PDF to PowerPoint ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.pptx`;
     document.getElementById('p2pDlBtn').href = data.download_url;
-    document.getElementById('p2pDlBtn').download = data.filename || 'converted.pptx';
-    buildContinueGrid();
+    document.getElementById('p2pDlBtn').download = dlName;
     p2pSplit.classList.remove('show');
     p2pResultFull.classList.add('show');
   } catch (e) {
