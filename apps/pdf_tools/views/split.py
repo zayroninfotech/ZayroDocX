@@ -56,11 +56,12 @@ def split_pdf(request):
 
         doc.close()
 
-        # Zip all parts
+        # Zip all parts with friendly names
         zip_path, zip_name = get_output_path('.zip', 'split_pages')
         with zipfile.ZipFile(zip_path, 'w') as zf:
-            for pp, pn in part_paths:
-                zf.write(pp, pn)
+            for idx, (pp, pn) in enumerate(part_paths):
+                label = 'Page' if split_mode == 'all' else 'Part'
+                zf.write(pp, f'{label}_{idx + 1}.pdf')
 
         save_job('split_pdf', [f.name], parts)
         now = datetime.now()
