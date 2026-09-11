@@ -61,6 +61,16 @@
 .pn-error-card.show { display: block; }
 .pn-error-msg { font-size: .85rem; color: #dc2626; }
 
+.pn-result-full { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 1rem; gap: 1.1rem; text-align: center; }
+.pn-result-full.show { display: flex; }
+.pn-result-full-icon { font-size: 3.2rem; color: #16a34a; }
+.pn-result-full-title { font-size: 1.5rem; font-weight: 800; color: #1e293b; margin: 0; }
+.pn-result-full-sub { color: #64748b; font-size: .95rem; margin: 0; }
+.pn-dl-full-btn { display: inline-flex; align-items: center; gap: .6rem; background: #16a34a; color: #fff; border: none; border-radius: 14px; padding: .95rem 2.8rem; font-size: 1.05rem; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: 0 4px 18px rgba(22,163,74,.28); transition: background .15s, transform .1s; }
+.pn-dl-full-btn:hover { background: #15803d; transform: translateY(-1px); }
+.pn-new-file-btn { background: #fff; border: 1.5px solid #e8e8e8; border-radius: 12px; padding: .7rem 2rem; font-size: .9rem; font-weight: 600; color: #64748b; cursor: pointer; transition: border-color .15s, color .15s; }
+.pn-new-file-btn:hover { border-color: #9333ea; color: #9333ea; }
+
 @media (max-width: 1000px) { .pn-split { grid-template-columns: 1fr; } .pn-right { position: static; max-height: none; } }
 </style>{% endblock %}
 
@@ -146,17 +156,22 @@
       <span class="pn-loading-text">Adding page numbers…</span>
     </div>
 
-    <div class="pn-result-card" id="pnResultCard">
-      <div class="pn-result-title"><i class="fa-solid fa-circle-check"></i> PDF ready!</div>
-      <a class="pn-dl-btn" id="pnDlBtn" href="#" download>
-        <i class="fa-solid fa-download"></i> Download PDF
-      </a>
-    </div>
-
     <div class="pn-error-card" id="pnErrorCard">
       <div class="pn-error-msg" id="pnErrorMsg"></div>
     </div>
   </div>
+</div>
+
+<div class="pn-result-full" id="pnResultFull">
+  <div class="pn-result-full-icon"><i class="fa-solid fa-circle-check"></i></div>
+  <p class="pn-result-full-title">Page Numbers Added!</p>
+  <p class="pn-result-full-sub">Your PDF is ready to download.</p>
+  <a class="pn-dl-full-btn" id="pnDlBtn" href="#" download>
+    <i class="fa-solid fa-download"></i> Download PDF
+  </a>
+  <button class="pn-new-file-btn" onclick="resetTool()">
+    <i class="fa-solid fa-plus"></i> Add Numbers to Another File
+  </button>
 </div>
 {% endblock %}
 
@@ -168,7 +183,7 @@ const pnPagesEl     = document.getElementById('pnPages');
 const pnViewerLoad  = document.getElementById('pnViewerLoading');
 const pnConvertBtn  = document.getElementById('pnConvertBtn');
 const pnLoadingCard = document.getElementById('pnLoadingCard');
-const pnResultCard  = document.getElementById('pnResultCard');
+const pnResultFull  = document.getElementById('pnResultFull');
 const pnErrorCard   = document.getElementById('pnErrorCard');
 
 let currentFile = null;
@@ -241,7 +256,7 @@ function resetTool() {
   pnDrop.style.display = ''; pnSplit.classList.remove('show');
   pnPagesEl.innerHTML = ''; pnPagesEl.style.display = 'none';
   pnViewerLoad.style.display = 'flex'; pnConvertBtn.disabled = false;
-  pnLoadingCard.classList.remove('show'); pnResultCard.classList.remove('show');
+  pnLoadingCard.classList.remove('show'); pnResultFull.classList.remove('show');
   pnErrorCard.classList.remove('show');
 }
 
@@ -281,7 +296,7 @@ function setFile(f) {
   document.getElementById('pnFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
   pnDrop.style.display = 'none';
-  pnResultCard.classList.remove('show'); pnErrorCard.classList.remove('show');
+  pnResultFull.classList.remove('show'); pnErrorCard.classList.remove('show');
   pnSplit.classList.add('show');
   loadPreview(f);
 }
@@ -290,7 +305,7 @@ async function doConvert() {
   if (!currentFile) return;
   pnConvertBtn.disabled = true;
   pnLoadingCard.classList.add('show');
-  pnResultCard.classList.remove('show');
+  pnResultFull.classList.remove('show');
   pnErrorCard.classList.remove('show');
 
   const fd  = new FormData();
@@ -318,7 +333,8 @@ async function doConvert() {
     const dlName = `ZayroDocX Add Page Numbers ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.pdf`;
     document.getElementById('pnDlBtn').href     = data.download_url;
     document.getElementById('pnDlBtn').download = dlName;
-    pnResultCard.classList.add('show');
+    pnSplit.classList.remove('show');
+    pnResultFull.classList.add('show');
   } catch (e) {
     document.getElementById('pnErrorMsg').textContent = e.message || 'Failed to add page numbers.';
     pnErrorCard.classList.add('show');
