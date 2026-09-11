@@ -100,16 +100,6 @@
   </button>
   <div class="ra-formats">Supports PDF and DOCX · Files are never stored · Powered by Mistral & GPT-4o</div>
 </div>
-<div class="ra-mode-row" id="raModeRow">
-  <button class="ra-mode-tab active" id="tabStd" onclick="setMode('standard')">
-    <span><i class="fa-solid fa-bolt"></i> Zayron LLM</span>
-    <span class="ra-mode-sub">Powered by Mistral</span>
-  </button>
-  <button class="ra-mode-tab" id="tabPro" onclick="setMode('pro')">
-    <span><i class="fa-solid fa-star"></i> Zayron LLM PRO</span>
-    <span class="ra-mode-sub">Powered by GPT-4o mini</span>
-  </button>
-</div>
 
 <!-- Loading -->
 <div class="ra-loading" id="raLoading">
@@ -199,7 +189,6 @@ function setMode(m){
 function resetTool(){
   document.getElementById('raFile').value='';
   document.getElementById('raDrop').style.display='';
-  document.getElementById('raModeRow').style.display='';
   document.getElementById('raLoading').classList.remove('show');
   document.getElementById('raResults').classList.remove('show');
   document.getElementById('raError').classList.remove('show');
@@ -209,7 +198,6 @@ async function startAnalysis(){
   const f=document.getElementById('raFile').files[0];
   if(!f)return;
   document.getElementById('raDrop').style.display='none';
-  document.getElementById('raModeRow').style.display='none';
   document.getElementById('raResults').classList.remove('show');
   document.getElementById('raError').classList.remove('show');
   document.getElementById('raLoadMsg').textContent=currentMode==='pro'?'Running GPT-4o mini analysis…':'Running Mistral analysis…';
@@ -230,8 +218,7 @@ async function startAnalysis(){
     el.textContent='⚠ '+( e.message||'Analysis failed.');
     el.classList.add('show');
     document.getElementById('raDrop').style.display='';
-    document.getElementById('raModeRow').style.display='';
-  }finally{
+    }finally{
     document.getElementById('raLoading').classList.remove('show');
   }
 }
