@@ -237,6 +237,9 @@
 [data-theme="dark"] .rp-preset:hover { background: rgba(220,38,38,.12); border-color: #dc2626; color: #dc2626; }
 [data-theme="dark"] .btn-clear { background: var(--surface2); color: var(--text-muted); }
 [data-theme="dark"] .btn-clear:hover { background: rgba(220,38,38,.1); color: #dc2626; }
+[data-theme="dark"] #rpSidebarProgress { color: var(--text); }
+[data-theme="dark"] #rpSidebarBar { background: linear-gradient(90deg,#991b1b,#dc2626,#f87171); }
+[data-theme="dark"] #rpSidebarProgress > div:last-child { background: var(--border) !important; }
 [data-theme="dark"] .progress-wrap { background: var(--surface); border-color: var(--border); }
 [data-theme="dark"] .progress-label { color: var(--text); }
 [data-theme="dark"] .progress-track { background: var(--border); }
@@ -323,6 +326,17 @@
       <button type="button" class="btn-clear" id="clearBtn">
         <i class="fa-solid fa-rotate-left"></i> Clear
       </button>
+
+      <!-- Inline progress (shown while processing) -->
+      <div id="rpSidebarProgress" style="display:none;margin-top:.25rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.45rem;font-size:.8rem;font-weight:700;color:#dc2626;">
+          <span><i class="fa-solid fa-spinner fa-spin" style="margin-right:.4rem;"></i>Removing pages…</span>
+          <span id="rpSidebarPct">0%</span>
+        </div>
+        <div style="height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;">
+          <div id="rpSidebarBar" style="height:100%;width:0%;background:linear-gradient(90deg,#991b1b,#dc2626,#f87171);border-radius:4px;transition:width .25s ease;"></div>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -508,30 +522,48 @@ document.getElementById('removeBtn').addEventListener('click', async () => {
   const pages = document.getElementById('pagesInput').value.trim();
   if (!pages) { alert('Please select or enter page numbers to remove.'); return; }
 
-  resultCard.className='result-card';
-  progressWrap.classList.add('show');
-  progressFill.style.width='0%'; progressPct.textContent='0%';
+  resultCard.className = 'result-card';
 
-  async function animateTo(target,ms) {
-    const cur=parseFloat(progressFill.style.width)||0, steps=20, delay=ms/steps, inc=(target-cur)/steps; let v=cur;
-    for(let i=0;i<steps;i++){v+=inc;progressFill.style.width=Math.min(v,target)+'%';progressPct.textContent=Math.round(v)+'%';await sleep(delay);}
-  }
-  animateTo(60,600);
+  /* Show inline sidebar progress, hide buttons */
+  const removeBtn = document.getElementById('removeBtn');
+  const clearBtn  = document.getElementById('clearBtn');
+  const sidebarProg = document.getElementById('rpSidebarProgress');
+  const sidebarBar  = document.getElementById('rpSidebarBar');
+  const sidebarPct  = document.getElementById('rpSidebarPct');
+  removeBtn.style.display = 'none';
+  clearBtn.style.display  = 'none';
+  sidebarProg.style.display = 'block';
+  sidebarBar.style.width = '0%'; sidebarPct.textContent = '0%';
+
+  let pct = 0;
+  const ticker = setInterval(() => {
+    pct = Math.min(pct + (pct < 60 ? 3 : pct < 80 ? 1 : 0.3), 88);
+    sidebarBar.style.width = pct + '%';
+    sidebarPct.textContent = Math.round(pct) + '%';
+  }, 180);
 
   const fd = new FormData();
   fd.append('csrfmiddlewaretoken', getCsrf());
   fd.append('file', f);
   fd.append('pages', pages);
 
+  function hideSidebarProgress() {
+    clearInterval(ticker);
+    sidebarProg.style.display = 'none';
+    removeBtn.style.display = '';
+    clearBtn.style.display  = '';
+  }
+
   try {
     const resp = await fetch('{% url "api_remove_pages" %}', {method:'POST',body:fd});
     const data = await resp.json();
-    progressFill.style.width='100%'; progressPct.textContent='100%';
+    clearInterval(ticker);
+    sidebarBar.style.width = '100%'; sidebarPct.textContent = '100%';
     await sleep(300);
-    progressWrap.classList.remove('show');
-    if (data.error) { showError(data.error); } else { showSuccess(data); }
+    sidebarProg.style.display = 'none';
+    if (data.error) { hideSidebarProgress(); showError(data.error); } else { showSuccess(data); }
   } catch(err) {
-    progressWrap.classList.remove('show'); showError(err.message);
+    hideSidebarProgress(); showError(err.message);
   }
 });
 
