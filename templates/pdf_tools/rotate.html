@@ -17,7 +17,7 @@
 
 .rot-viewer { background: #0f172a; border-radius: 16px; padding: 16px; min-height: 400px; display: flex; align-items: flex-start; justify-content: center; overflow: auto; scroll-behavior: smooth; }
 .rot-viewer-pages { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
-.rot-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; }
+.rot-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; transition: transform .4s cubic-bezier(.4,0,.2,1); transform-origin: center center; }
 .rot-viewer-loading { color: #94a3b8; font-size: .9rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
 .rot-viewer-loading i { font-size: 2rem; }
 
@@ -156,6 +156,7 @@ function resetTool() {
   fileInput.value = ''; currentFile = null;
   rotDrop.style.display = ''; rotSplit.classList.remove('show');
   rotPagesEl.innerHTML = ''; rotPagesEl.style.display = 'none';
+  document.getElementById('a90').checked = true;
   rotViewerLoad.style.display = 'flex'; rotConvertBtn.disabled = false;
   rotLoadingCard.classList.remove('show'); rotResultCard.classList.remove('show');
   rotErrorCard.classList.remove('show');
@@ -178,6 +179,7 @@ async function loadPreview(file) {
     });
     rotViewerLoad.style.display = 'none';
     rotPagesEl.style.display = 'flex';
+    applyPreviewRotation();
   } catch (e) {
     rotViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>';
   }
@@ -232,6 +234,16 @@ async function doConvert() {
     rotConvertBtn.disabled = false;
   }
 }
+
+function applyPreviewRotation() {
+  const angle = document.querySelector('input[name="angle"]:checked');
+  const deg = angle ? angle.value : '0';
+  rotPagesEl.querySelectorAll('img').forEach(img => {
+    img.style.transform = `rotate(${deg}deg)`;
+  });
+}
+
+document.querySelectorAll('input[name="angle"]').forEach(r => r.addEventListener('change', applyPreviewRotation));
 
 fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
 rotDrop.addEventListener('dragover',  e => { e.preventDefault(); rotDrop.classList.add('drag-over'); });
