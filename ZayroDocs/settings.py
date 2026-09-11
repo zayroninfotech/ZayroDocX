@@ -106,6 +106,7 @@ SESSION_COOKIE_AGE = 3600            # Session expires after 1 hour of inactivit
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_HTTPONLY = False          # Must be False — JS needs to read CSRF token
+CSRF_TRUSTED_ORIGINS = ['https://zayrodocx.com', 'https://www.zayrodocx.com']
 
 # ── Layer 4 — Transport / TLS (production only) ──
 if not DEBUG:
