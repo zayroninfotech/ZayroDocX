@@ -3,71 +3,146 @@
 {% block title %}AI Product Recommender — ZayroDocX{% endblock %}
 {% block active_product_recommender %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">AI Product Recommender</span>{% endblock %}
-{% block extra_head %}<style>
-.pr-wrap{max-width:900px;margin:0 auto;padding:2rem 1rem}
-.pr-hero{text-align:center;padding:1.8rem 1rem 1.4rem}
-.pr-hero-icon{font-size:2.8rem;margin-bottom:.6rem}
-.pr-hero h1{font-size:1.75rem;font-weight:900;color:#1e293b;margin:0 0 .4rem}
-.pr-hero p{font-size:.88rem;color:#64748b;margin:0}
+{% block extra_head %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
+<style>
+/* ── Page ── */
+.pr-page { max-width:1240px; margin:0 auto; }
 
-.pr-form-card{background:#fff;border:1.5px solid #e8e8e8;border-radius:20px;padding:1.8rem;margin-bottom:1.6rem}
-.pr-form-title{font-size:.95rem;font-weight:800;color:#1e293b;margin:0 0 1.2rem;display:flex;align-items:center;gap:.5rem}
-.pr-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
-.pr-field{display:flex;flex-direction:column;gap:.35rem}
-.pr-label{font-size:.75rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.04em}
-.pr-input,.pr-select{border:1.5px solid #e8e8e8;border-radius:10px;padding:.55rem .85rem;font-size:.88rem;color:#1e293b;outline:none;transition:border-color .15s;font-family:inherit}
-.pr-input:focus,.pr-select:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.1)}
-.pr-textarea{border:1.5px solid #e8e8e8;border-radius:12px;padding:.7rem 1rem;font-size:.9rem;color:#1e293b;outline:none;resize:none;width:100%;box-sizing:border-box;font-family:inherit;line-height:1.5;transition:border-color .15s}
-.pr-textarea:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.1)}
-.pr-engine-row{display:flex;gap:.6rem;margin-top:.3rem}
-.pr-engine-btn{flex:1;padding:.5rem;border:1.5px solid #e8e8e8;border-radius:10px;font-size:.8rem;font-weight:700;cursor:pointer;background:#fff;color:#475569;transition:all .15s;text-align:center}
-.pr-engine-btn.active{border-color:#7c3aed;background:rgba(124,58,237,.07);color:#7c3aed}
-.pr-submit{width:100%;padding:.75rem;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:12px;font-size:.95rem;font-weight:800;cursor:pointer;margin-top:1rem;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:.5rem}
-.pr-submit:hover{opacity:.88}
-.pr-submit:disabled{opacity:.45;cursor:not-allowed}
+/* ── Hero ── */
+.pr-hero { text-align:center; padding:1.8rem 1rem 1.4rem; position:relative; }
+.pr-ai-badge { display:inline-flex; align-items:center; gap:.4rem; background:#fff5f5; border:1px solid #fecaca; border-radius:99px; padding:.25rem .85rem; font-size:.68rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#dc2626; margin-bottom:.9rem; }
+.pr-hero h1 { font-size:2.1rem; font-weight:900; color:#1e293b; margin:0 0 .45rem; letter-spacing:-.025em; }
+.pr-hero h1 span { color:#dc2626; }
+.pr-hero-sub { font-size:.88rem; color:#64748b; margin:0 0 1.1rem; }
+.pr-feat-pills { display:flex; justify-content:center; gap:.8rem; flex-wrap:wrap; }
+.pr-feat-pill { display:inline-flex; align-items:center; gap:.35rem; font-size:.75rem; font-weight:700; color:#475569; }
+.pr-feat-pill i { font-size:.68rem; }
+.pr-feat-pill i.red { color:#dc2626; }
+.pr-feat-pill i.purple { color:#7c3aed; }
+.pr-cursive { font-family:'Dancing Script', cursive; font-size:1.1rem; color:#dc2626; position:absolute; top:1rem; right:1.5rem; text-align:right; line-height:1.5; transform:rotate(3deg); }
 
-/* results */
-.pr-results{display:none}
-.pr-results.show{display:block}
-.pr-summary-bar{background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(109,40,217,.04));border:1.5px solid rgba(124,58,237,.2);border-radius:16px;padding:1rem 1.4rem;margin-bottom:1.4rem}
-.pr-summary-text{font-size:.9rem;color:#1e293b;font-weight:600;margin:0 0 .4rem}
-.pr-tip{font-size:.8rem;color:#7c3aed;font-weight:600;display:flex;align-items:center;gap:.4rem}
-.pr-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.pr-product-card{background:#fff;border:1.5px solid #e8e8e8;border-radius:18px;padding:1.3rem;transition:border-color .2s,box-shadow .2s;position:relative}
-.pr-product-card:hover{border-color:#7c3aed;box-shadow:0 4px 24px rgba(124,58,237,.1)}
-.pr-badge{position:absolute;top:.9rem;right:.9rem;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;font-size:.65rem;font-weight:800;padding:.2rem .55rem;border-radius:20px}
-.pr-product-name{font-size:.95rem;font-weight:800;color:#1e293b;margin:0 0 .15rem;padding-right:4rem}
-.pr-product-brand{font-size:.75rem;color:#94a3b8;margin:0 0 .6rem}
-.pr-stars{display:flex;align-items:center;gap:.3rem;margin-bottom:.5rem}
-.pr-star{color:#f59e0b;font-size:.75rem}
-.pr-rating-text{font-size:.72rem;color:#64748b}
-.pr-price{font-size:1.3rem;font-weight:900;color:#7c3aed;margin:.4rem 0 .5rem}
-.pr-why{font-size:.78rem;color:#475569;line-height:1.5;margin-bottom:.7rem;padding:.5rem .7rem;background:#f8fafc;border-radius:8px;border-left:3px solid #7c3aed}
-.pr-pros{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.25rem}
-.pr-pros li{font-size:.75rem;color:#475569;display:flex;align-items:center;gap:.4rem}
-.pr-pros li::before{content:'✓';color:#16a34a;font-weight:900;font-size:.7rem}
-.pr-loading{text-align:center;padding:3rem;display:none}
-.pr-loading.show{display:block}
-.pr-loading-icon{font-size:2.5rem;animation:prSpin 1s linear infinite;color:#7c3aed;margin-bottom:.8rem}
-@keyframes prSpin{to{transform:rotate(360deg)}}
-.pr-err{background:#fee2e2;border:1.5px solid #fca5a5;border-radius:12px;padding:1rem 1.2rem;color:#dc2626;font-size:.85rem;font-weight:600;display:none;margin-bottom:1rem}
-.pr-err.show{display:block}
-@media(max-width:640px){.pr-row,.pr-grid{grid-template-columns:1fr}}
-</style>{% endblock %}
+/* ── Body grid ── */
+.pr-body { display:grid; grid-template-columns:1fr 320px; gap:1.6rem; align-items:start; margin-top:.5rem; }
+
+/* ── Form card ── */
+.pr-form-card { background:#fff; border:1.5px solid #e8e8e8; border-radius:20px; padding:1.8rem; }
+.pr-form-title { font-size:.95rem; font-weight:800; color:#1e293b; margin:0 0 1.3rem; display:flex; align-items:center; gap:.5rem; }
+.pr-field { display:flex; flex-direction:column; gap:.35rem; margin-bottom:1rem; }
+.pr-label { font-size:.7rem; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:.05em; }
+.pr-input,.pr-select { border:1.5px solid #e8e8e8; border-radius:10px; padding:.55rem .85rem; font-size:.88rem; color:#1e293b; outline:none; transition:border-color .15s; font-family:inherit; width:100%; box-sizing:border-box; }
+.pr-input:focus,.pr-select:focus { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.08); }
+.pr-textarea { border:1.5px solid #e8e8e8; border-radius:12px; padding:.7rem 1rem; font-size:.88rem; color:#1e293b; outline:none; resize:none; width:100%; box-sizing:border-box; font-family:inherit; line-height:1.55; transition:border-color .15s; }
+.pr-textarea:focus { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.08); }
+.pr-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem; }
+
+/* AI Engine cards */
+.pr-engine-grid { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-top:.3rem; }
+.pr-eng-card { border:1.5px solid #e8e8e8; border-radius:14px; padding:.85rem 1rem; cursor:pointer; transition:all .18s; background:#fff; display:flex; align-items:center; gap:.75rem; position:relative; }
+.pr-eng-card:hover { border-color:#dc2626; }
+.pr-eng-card.active { border-color:#dc2626; background:#fff5f5; }
+.pr-eng-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:.95rem; flex-shrink:0; }
+.pr-eng-name { font-size:.82rem; font-weight:800; color:#1e293b; }
+.pr-eng-desc { font-size:.67rem; color:#64748b; margin-top:.1rem; }
+.pr-eng-radio { width:18px; height:18px; border-radius:99px; border:2px solid #d1d5db; margin-left:auto; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+.pr-eng-card.active .pr-eng-radio { border-color:#dc2626; background:#dc2626; }
+.pr-eng-card.active .pr-eng-radio::after { content:''; width:7px; height:7px; border-radius:99px; background:#fff; display:block; }
+
+.pr-submit { width:100%; padding:.78rem; background:#dc2626; color:#fff; border:none; border-radius:12px; font-size:.95rem; font-weight:800; cursor:pointer; margin-top:1.1rem; transition:opacity .15s; display:flex; align-items:center; justify-content:center; gap:.5rem; }
+.pr-submit:hover { opacity:.88; }
+.pr-submit:disabled { opacity:.45; cursor:not-allowed; }
+
+/* ── Right column ── */
+.pr-right { display:flex; flex-direction:column; gap:1rem; }
+
+/* Robot illustration */
+.pr-illus { background:linear-gradient(135deg,#fff5f5,#fdf2f8); border:1.5px solid #fecaca; border-radius:20px; padding:1.5rem 1rem 1rem; text-align:center; position:relative; overflow:hidden; }
+.pr-illus-bg { position:absolute; inset:0; background:radial-gradient(circle at 50% 60%, rgba(220,38,38,.06), transparent 70%); }
+.pr-float-items { display:flex; justify-content:center; gap:.6rem; flex-wrap:wrap; margin-bottom:1rem; position:relative; }
+.pr-float-icon { width:44px; height:44px; border-radius:12px; background:#fff; border:1.5px solid #e8e8e8; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow:0 2px 8px rgba(0,0,0,.06); animation:prFloat 3s ease-in-out infinite; }
+.pr-float-icon:nth-child(2) { animation-delay:.5s; }
+.pr-float-icon:nth-child(3) { animation-delay:1s; }
+.pr-float-icon:nth-child(4) { animation-delay:1.5s; }
+.pr-float-icon:nth-child(5) { animation-delay:2s; }
+@keyframes prFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+
+/* Robot face */
+.pr-robot { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#dc2626,#ef4444); display:flex; align-items:center; justify-content:center; margin:0 auto .6rem; font-size:2.2rem; box-shadow:0 4px 20px rgba(220,38,38,.3); position:relative; }
+.pr-robot::before { content:''; position:absolute; inset:-4px; border-radius:50%; border:2px dashed rgba(220,38,38,.25); }
+.pr-illus-title { font-size:.82rem; font-weight:700; color:#1e293b; }
+.pr-illus-sub { font-size:.7rem; color:#64748b; margin-top:.2rem; }
+
+/* Why use */
+.pr-why-card { background:#fff; border:1.5px solid #e8e8e8; border-radius:16px; padding:1.1rem 1.2rem; }
+.pr-why-title { font-size:.78rem; font-weight:800; color:#1e293b; margin-bottom:.8rem; display:flex; align-items:center; gap:.4rem; }
+.pr-why-list { display:flex; flex-direction:column; gap:.55rem; }
+.pr-why-item { display:flex; align-items:flex-start; gap:.45rem; font-size:.75rem; color:#374151; }
+.pr-why-item i { color:#dc2626; font-size:.65rem; margin-top:.18rem; flex-shrink:0; }
+
+/* ── Loading ── */
+.pr-loading { text-align:center; padding:3rem; display:none; }
+.pr-loading.show { display:block; }
+.pr-loading-icon { font-size:2.5rem; animation:prSpin 1s linear infinite; color:#dc2626; margin-bottom:.8rem; }
+@keyframes prSpin { to { transform:rotate(360deg) } }
+
+/* ── Error ── */
+.pr-err { background:#fee2e2; border:1.5px solid #fca5a5; border-radius:12px; padding:1rem 1.2rem; color:#dc2626; font-size:.85rem; font-weight:600; display:none; margin-top:.8rem; }
+.pr-err.show { display:block; }
+
+/* ── Results ── */
+.pr-results { display:none; }
+.pr-results.show { display:block; }
+.pr-summary-bar { background:linear-gradient(135deg,rgba(220,38,38,.06),rgba(124,58,237,.04)); border:1.5px solid rgba(220,38,38,.15); border-radius:16px; padding:1rem 1.4rem; margin-bottom:1.4rem; }
+.pr-summary-text { font-size:.9rem; color:#1e293b; font-weight:600; margin:0 0 .4rem; }
+.pr-tip { font-size:.8rem; color:#dc2626; font-weight:600; display:flex; align-items:center; gap:.4rem; }
+.pr-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.pr-product-card { background:#fff; border:1.5px solid #e8e8e8; border-radius:18px; padding:1.3rem; transition:border-color .2s,box-shadow .2s; position:relative; }
+.pr-product-card:hover { border-color:#dc2626; box-shadow:0 4px 24px rgba(220,38,38,.08); }
+.pr-badge { position:absolute; top:.9rem; right:.9rem; background:linear-gradient(135deg,#dc2626,#ef4444); color:#fff; font-size:.65rem; font-weight:800; padding:.2rem .55rem; border-radius:20px; }
+.pr-product-name { font-size:.95rem; font-weight:800; color:#1e293b; margin:0 0 .15rem; padding-right:4rem; }
+.pr-product-brand { font-size:.75rem; color:#94a3b8; margin:0 0 .6rem; }
+.pr-stars { display:flex; align-items:center; gap:.3rem; margin-bottom:.5rem; }
+.pr-star { color:#f59e0b; font-size:.75rem; }
+.pr-rating-text { font-size:.72rem; color:#64748b; }
+.pr-price { font-size:1.3rem; font-weight:900; color:#dc2626; margin:.4rem 0 .5rem; }
+.pr-why-box { font-size:.78rem; color:#475569; line-height:1.5; margin-bottom:.7rem; padding:.5rem .7rem; background:#fff5f5; border-radius:8px; border-left:3px solid #dc2626; }
+.pr-pros { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.25rem; }
+.pr-pros li { font-size:.75rem; color:#475569; display:flex; align-items:center; gap:.4rem; }
+.pr-pros li::before { content:'✓'; color:#16a34a; font-weight:900; font-size:.7rem; }
+.pr-back-btn { display:inline-flex; align-items:center; gap:.4rem; padding:.55rem 1.1rem; border:1.5px solid #e8e8e8; border-radius:10px; background:#fff; font-size:.82rem; font-weight:700; color:#64748b; cursor:pointer; margin-bottom:1rem; transition:border-color .15s; }
+.pr-back-btn:hover { border-color:#dc2626; color:#dc2626; }
+
+@media(max-width:1000px){.pr-body{grid-template-columns:1fr}.pr-right{flex-direction:row;flex-wrap:wrap}.pr-illus,.pr-why-card{flex:1;min-width:240px}.pr-cursive{display:none}}
+@media(max-width:640px){.pr-row,.pr-grid,.pr-engine-grid{grid-template-columns:1fr}}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="pr-wrap">
-  <div class="pr-hero">
-    <div class="pr-hero-icon">🛍️</div>
-    <h1>AI Product Recommender</h1>
-    <p>Describe what you need — get personalized product recommendations with ratings, prices &amp; buying tips.</p>
-  </div>
+<div class="pr-page">
 
+<!-- ── Hero ── -->
+<div class="pr-hero">
+  <div class="pr-cursive">Find The Right<br>Product For You!</div>
+  <div class="pr-ai-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Powered</div>
+  <h1>AI Product <span>Recommender</span></h1>
+  <p class="pr-hero-sub">Describe what you need — get personalized product recommendations with ratings, prices &amp; buying tips.</p>
+  <div class="pr-feat-pills">
+    <span class="pr-feat-pill"><i class="fa-solid fa-bolt red"></i> Smart Suggestions</span>
+    <span class="pr-feat-pill"><i class="fa-solid fa-bullseye red"></i> Compare &amp; Choose</span>
+    <span class="pr-feat-pill"><i class="fa-solid fa-shield-halved purple"></i> Unbiased Recommendations</span>
+  </div>
+</div>
+
+<!-- ── Body ── -->
+<div class="pr-body" id="prBody">
+
+  <!-- Form -->
   <div class="pr-form-card">
-    <div class="pr-form-title"><i class="fa-solid fa-wand-magic-sparkles" style="color:#7c3aed"></i> What are you looking for?</div>
-    <div class="pr-field" style="margin-bottom:1rem">
+    <div class="pr-form-title"><i class="fa-solid fa-magnifying-glass" style="color:#dc2626"></i> What are you looking for?<span style="font-size:.72rem;font-weight:500;color:#94a3b8;margin-left:.3rem">Tell us your needs and let AI find the best products for you.</span></div>
+    <div class="pr-field">
       <label class="pr-label">Describe your need</label>
-      <textarea class="pr-textarea" id="prQuery" rows="3" placeholder="e.g. Wireless headphones with noise cancellation for office work under ₹5000, gaming laptop with RTX 4060 for video editing…"></textarea>
+      <textarea class="pr-textarea" id="prQuery" rows="3" placeholder="e.g. Wireless headphones with noise cancellation for office work under ₹5000, gaming laptop with RTX 4060 for video editing…" maxlength="500"></textarea>
+      <div style="text-align:right;font-size:.68rem;color:#94a3b8" id="prCharCount">0/500</div>
     </div>
     <div class="pr-row">
       <div class="pr-field">
@@ -75,53 +150,100 @@
         <select class="pr-select" id="prCategory">
           <option value="any">Any Category</option>
           <option value="Electronics">Electronics</option>
-          <option value="Mobile & Accessories">Mobile & Accessories</option>
-          <option value="Laptop & Computers">Laptop & Computers</option>
-          <option value="Audio & Headphones">Audio & Headphones</option>
-          <option value="Camera & Photography">Camera & Photography</option>
+          <option value="Mobile & Accessories">Mobile &amp; Accessories</option>
+          <option value="Laptop & Computers">Laptop &amp; Computers</option>
+          <option value="Audio & Headphones">Audio &amp; Headphones</option>
+          <option value="Camera & Photography">Camera &amp; Photography</option>
           <option value="Home Appliances">Home Appliances</option>
-          <option value="Fashion & Clothing">Fashion & Clothing</option>
-          <option value="Books & Education">Books & Education</option>
-          <option value="Sports & Fitness">Sports & Fitness</option>
-          <option value="Kitchen & Cooking">Kitchen & Cooking</option>
+          <option value="Fashion & Clothing">Fashion &amp; Clothing</option>
+          <option value="Books & Education">Books &amp; Education</option>
+          <option value="Sports & Fitness">Sports &amp; Fitness</option>
+          <option value="Kitchen & Cooking">Kitchen &amp; Cooking</option>
           <option value="Gaming">Gaming</option>
-          <option value="Beauty & Personal Care">Beauty & Personal Care</option>
+          <option value="Beauty & Personal Care">Beauty &amp; Personal Care</option>
         </select>
       </div>
       <div class="pr-field">
-        <label class="pr-label">Budget (optional)</label>
+        <label class="pr-label">Budget (Optional)</label>
         <input class="pr-input" id="prBudget" type="text" placeholder="e.g. ₹5000, under $200">
       </div>
     </div>
     <div class="pr-field">
       <label class="pr-label">AI Engine</label>
-      <div class="pr-engine-row">
-        <button class="pr-engine-btn active" id="engMistral" onclick="setEngine('mistral')">⚡ Zayron LLM</button>
-        <button class="pr-engine-btn" id="engOpenai" onclick="setEngine('openai')">✦ Zayron LLM PRO</button>
+      <div class="pr-engine-grid">
+        <div class="pr-eng-card active" id="engMistral" onclick="setEngine('mistral')">
+          <div class="pr-eng-icon" style="background:#fff5f5;color:#dc2626"><i class="fa-solid fa-bolt"></i></div>
+          <div>
+            <div class="pr-eng-name">ZayroLLM</div>
+            <div class="pr-eng-desc">Fast &amp; balanced results</div>
+          </div>
+          <div class="pr-eng-radio"></div>
+        </div>
+        <div class="pr-eng-card" id="engOpenai" onclick="setEngine('openai')">
+          <div class="pr-eng-icon" style="background:#faf5ff;color:#7c3aed"><i class="fa-solid fa-star"></i></div>
+          <div>
+            <div class="pr-eng-name">ZayroAI</div>
+            <div class="pr-eng-desc">More detailed &amp; advanced insights</div>
+          </div>
+          <div class="pr-eng-radio"></div>
+        </div>
       </div>
     </div>
     <div class="pr-err" id="prErr"></div>
     <button class="pr-submit" id="prSubmit" onclick="getRecommendations()">
-      <i class="fa-solid fa-magnifying-glass-dollar"></i> Get Recommendations
+      <i class="fa-solid fa-magnifying-glass"></i> Get Recommendations &rarr;
     </button>
   </div>
 
-  <div class="pr-loading" id="prLoading">
-    <div class="pr-loading-icon"><i class="fa-solid fa-robot"></i></div>
-    <div style="font-weight:700;color:#1e293b;margin-bottom:.3rem">AI is finding the best products…</div>
-    <div style="font-size:.8rem;color:#94a3b8">Analyzing requirements, comparing options, ranking by value</div>
-  </div>
-
-  <div class="pr-results" id="prResults">
-    <div class="pr-summary-bar">
-      <div class="pr-summary-text" id="prSummary"></div>
-      <div class="pr-tip"><i class="fa-solid fa-lightbulb"></i> <span id="prTip"></span></div>
+  <!-- Right column -->
+  <div class="pr-right">
+    <!-- Illustration -->
+    <div class="pr-illus">
+      <div class="pr-illus-bg"></div>
+      <div class="pr-float-items">
+        <div class="pr-float-icon">🎧</div>
+        <div class="pr-float-icon">💻</div>
+        <div class="pr-float-icon">📱</div>
+        <div class="pr-float-icon">⌚</div>
+        <div class="pr-float-icon">🎮</div>
+      </div>
+      <div class="pr-robot"><i class="fa-solid fa-robot" style="color:#fff;font-size:2rem"></i></div>
+      <div class="pr-illus-title">AI-powered shopping assistant</div>
+      <div class="pr-illus-sub">Finding the best products just for you</div>
     </div>
-    <div class="pr-grid" id="prGrid"></div>
+    <!-- Why use -->
+    <div class="pr-why-card">
+      <div class="pr-why-title"><i class="fa-solid fa-lightbulb" style="color:#dc2626"></i> Why Use AI Recommender?</div>
+      <div class="pr-why-list">
+        <div class="pr-why-item"><i class="fa-solid fa-circle-check"></i> Personalized product suggestions</div>
+        <div class="pr-why-item"><i class="fa-solid fa-circle-check"></i> Compare features, prices &amp; ratings</div>
+        <div class="pr-why-item"><i class="fa-solid fa-circle-check"></i> Save time with unbiased results</div>
+        <div class="pr-why-item"><i class="fa-solid fa-circle-check"></i> Get buying tips and alternatives</div>
+        <div class="pr-why-item"><i class="fa-solid fa-circle-check"></i> Works across multiple categories</div>
+      </div>
+    </div>
   </div>
 </div>
-{% endblock %}
 
+<!-- ── Loading ── -->
+<div class="pr-loading" id="prLoading">
+  <div class="pr-loading-icon"><i class="fa-solid fa-robot"></i></div>
+  <div style="font-weight:700;color:#1e293b;margin-bottom:.3rem">AI is finding the best products…</div>
+  <div style="font-size:.8rem;color:#94a3b8">Analyzing requirements, comparing options, ranking by value</div>
+</div>
+
+<!-- ── Results ── -->
+<div class="pr-results" id="prResults">
+  <button class="pr-back-btn" onclick="resetForm()"><i class="fa-solid fa-rotate-left"></i> Search Again</button>
+  <div class="pr-summary-bar">
+    <div class="pr-summary-text" id="prSummary"></div>
+    <div class="pr-tip"><i class="fa-solid fa-lightbulb"></i> <span id="prTip"></span></div>
+  </div>
+  <div class="pr-grid" id="prGrid"></div>
+</div>
+
+</div>
+{% endblock %}
 {% block extra_js %}<script>
 const CSRF='{{ csrf_token }}';
 let engine='mistral';
@@ -130,6 +252,16 @@ function setEngine(e){
   engine=e;
   document.getElementById('engMistral').classList.toggle('active',e==='mistral');
   document.getElementById('engOpenai').classList.toggle('active',e==='openai');
+}
+
+document.getElementById('prQuery').addEventListener('input',function(){
+  document.getElementById('prCharCount').textContent=this.value.length+'/500';
+});
+
+function resetForm(){
+  document.getElementById('prBody').style.display='';
+  document.getElementById('prResults').classList.remove('show');
+  document.getElementById('prErr').classList.remove('show');
 }
 
 function stars(r){
@@ -146,58 +278,49 @@ async function getRecommendations(){
   const query=document.getElementById('prQuery').value.trim();
   if(!query){showErr('Please describe what you are looking for.');return;}
   const btn=document.getElementById('prSubmit');
-  btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Analyzing…';
+  btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Analyzing…';
   document.getElementById('prErr').classList.remove('show');
   document.getElementById('prResults').classList.remove('show');
+  document.getElementById('prBody').style.display='none';
   document.getElementById('prLoading').classList.add('show');
-
   try{
     const res=await fetch('/tools/api/product-recommender/',{
       method:'POST',
       headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
-      body:JSON.stringify({
-        query,
-        category:document.getElementById('prCategory').value,
-        budget:document.getElementById('prBudget').value.trim(),
-        engine,
-      }),
+      body:JSON.stringify({query,category:document.getElementById('prCategory').value,budget:document.getElementById('prBudget').value.trim(),engine}),
     });
     const d=await res.json();
-    if(d.error){showErr(d.error);return;}
+    if(d.error){document.getElementById('prBody').style.display='';showErr(d.error);return;}
     renderResults(d);
   }catch(e){
+    document.getElementById('prBody').style.display='';
     showErr('Something went wrong: '+e.message);
   }finally{
     document.getElementById('prLoading').classList.remove('show');
-    btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-magnifying-glass-dollar"></i> Get Recommendations';
+    btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-magnifying-glass"></i> Get Recommendations &rarr;';
   }
 }
 
-function showErr(msg){
-  const e=document.getElementById('prErr');
-  e.textContent=msg; e.classList.add('show');
-}
+function showErr(msg){const e=document.getElementById('prErr');e.textContent=msg;e.classList.add('show');}
 
 function renderResults(d){
   document.getElementById('prSummary').textContent=d.summary||'';
   document.getElementById('prTip').textContent=d.tip||'';
-  const grid=document.getElementById('prGrid');
-  grid.innerHTML='';
+  const grid=document.getElementById('prGrid');grid.innerHTML='';
   (d.recommendations||[]).forEach(p=>{
     const pros=(p.pros||[]).map(x=>`<li>${x}</li>`).join('');
-    grid.innerHTML+=`
-    <div class="pr-product-card">
+    grid.innerHTML+=`<div class="pr-product-card">
       <span class="pr-badge">${p.badge||'Recommended'}</span>
       <div class="pr-product-name">${p.name}</div>
       <div class="pr-product-brand">${p.brand||''}</div>
-      <div class="pr-stars">${stars(p.rating||4)} <span class="pr-rating-text">${p.rating||''} · ${(p.reviews||0).toLocaleString()} reviews</span></div>
+      <div class="pr-stars">${stars(p.rating||4)}<span class="pr-rating-text">${p.rating||''} · ${(p.reviews||0).toLocaleString()} reviews</span></div>
       <div class="pr-price">${p.price||''}</div>
-      <div class="pr-why">${p.why||''}</div>
+      <div class="pr-why-box">${p.why||''}</div>
       <ul class="pr-pros">${pros}</ul>
     </div>`;
   });
   document.getElementById('prResults').classList.add('show');
 }
 
-document.getElementById('prQuery').addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter') getRecommendations();});
+document.getElementById('prQuery').addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter')getRecommendations();});
 </script>{% endblock %}
