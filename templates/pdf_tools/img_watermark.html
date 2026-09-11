@@ -5,7 +5,6 @@
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Watermark Image</span>{% endblock %}
 {% block extra_head %}<style>
 {% include "pdf_tools/_img_split_css.html" %}
-/* no scrollbar on right panel for this tool */
 .it-right{max-height:none;overflow-y:visible;}
 .wm-preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.8rem;}
 .wm-preset-card{border:2px solid #e8e8e8;border-radius:10px;cursor:pointer;overflow:hidden;transition:border-color .15s,box-shadow .15s;background:#f8fafc;}
@@ -16,6 +15,12 @@
 .wm-style-tabs{display:flex;gap:.4rem;margin-bottom:.6rem;}
 .wm-style-tab{flex:1;padding:.4rem;border:1.5px solid #e8e8e8;border-radius:8px;font-size:.75rem;font-weight:600;cursor:pointer;text-align:center;color:#555;background:#fff;transition:all .15s;}
 .wm-style-tab.active{border-color:#dc2626;background:#fff8f8;color:#dc2626;}
+.it-result-full{display:none;text-align:center;padding:3rem 2rem;}
+.it-result-full.show{display:block;}
+.it-dl-full-btn{display:inline-flex;align-items:center;gap:.6rem;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:.9rem 2.5rem;font-size:1.1rem;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(22,163,74,.35);transition:background .15s;}
+.it-dl-full-btn:hover{background:#15803d;}
+.it-new-file-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;margin:.9rem auto 0;background:#fff;border:1.5px solid #e8e8e8;border-radius:10px;padding:.65rem 1.5rem;font-size:.9rem;font-weight:600;color:#555;cursor:pointer;transition:border-color .15s;max-width:280px;}
+.it-new-file-btn:hover{border-color:#dc2626;color:#dc2626;}
 </style>{% endblock %}
 {% block content %}
 <input type="file" id="fileInput" accept="image/*,application/pdf,.pdf" style="display:none">
@@ -27,7 +32,8 @@
 <div class="it-split" id="itSplit">
   <div class="it-viewer"><div class="it-viewer-loading" id="itViewerLoad"><i class="fa-solid fa-spinner it-spin"></i><span>Loading…</span></div><div id="itPreviewWrap" style="display:none;position:relative;max-width:100%;max-height:100%;"><img id="itPreviewImg" style="max-width:100%;max-height:100%;border-radius:8px;object-fit:contain;display:block;" alt="preview"><canvas id="itWmCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;border-radius:8px;"></canvas></div></div>
   <div class="it-right">
-    <div class="it-card"><div class="it-file-row"><div class="it-file-icon"><i class="fa-solid fa-image"></i></div><div><div class="it-file-name" id="itFileName">—</div><div class="it-file-size" id="itFileSize">—</div></div><button type="button" class="it-change-btn" onclick="resetTool()"><i class="fa-solid fa-rotate-left"></i> Change</button></div></div>
+    <h2 style="font-size:1.25rem;font-weight:800;color:#dc2626;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;"><i class="fa-solid fa-stamp"></i> Watermark Image</h2>
+    <div class="it-card"><div class="it-file-row"><div class="it-file-icon"><i class="fa-solid fa-stamp"></i></div><div><div class="it-file-name" id="itFileName">—</div><div class="it-file-size" id="itFileSize">—</div></div><button type="button" class="it-change-btn" onclick="resetTool()"><i class="fa-solid fa-rotate-left"></i> Change</button></div></div>
 
     <div class="it-card">
       <div class="it-opts-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Quick Presets</div>
@@ -55,21 +61,23 @@
     </div>
 
     <button type="button" class="it-convert-btn" id="itConvertBtn" onclick="doConvert()"><i class="fa-solid fa-stamp"></i> Add Watermark</button>
-    <div class="it-loading-card" id="itLoadingCard"><i class="fa-solid fa-spinner it-spin"></i><span style="font-size:.88rem;font-weight:600;color:#b91c1c">Adding watermark…</span></div>
-    <div class="it-result-card" id="itResultCard">
-      <div class="it-result-title"><i class="fa-solid fa-circle-check"></i> Watermark added!</div>
-      <a class="it-dl-btn" id="itDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a>
-      <button type="button" onclick="resetTool()" style="width:100%;margin-top:.6rem;padding:.65rem;background:#fff;border:1.5px solid #e8e8e8;border-radius:10px;font-size:.82rem;font-weight:700;color:#555;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.4rem;">
-        <i class="fa-solid fa-plus"></i> Watermark Another File
-      </button>
-    </div>
     <div class="it-error-card" id="itErrorCard"><div class="it-error-msg" id="itErrorMsg"></div></div>
   </div>
+</div>
+
+<div class="it-result-full" id="itResultFull">
+  <div style="font-size:3.5rem;color:#16a34a;margin-bottom:1rem"><i class="fa-solid fa-circle-check"></i></div>
+  <p style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0 0 .4rem">Watermark Added!</p>
+  <p style="color:#64748b;margin:0 0 1.5rem;font-size:.95rem" id="itResultSub">Your watermarked file is ready to download.</p>
+  <a class="it-dl-full-btn" id="itDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download File</a>
+  <button class="it-new-file-btn" onclick="resetTool()"><i class="fa-solid fa-plus"></i> Watermark Another File</button>
 </div>
 {% endblock %}
 {% block extra_js %}<script>
 let currentFile=null, isPDF=false;
 const fileInput=document.getElementById('fileInput');
+const itSplit=document.getElementById('itSplit');
+const itResultFull=document.getElementById('itResultFull');
 
 const PRESETS=[
   {label:'CONFIDENTIAL 1',text:'CONFIDENTIAL',angle:45,opacity:30,position:'center'},
@@ -187,22 +195,24 @@ function drawWmPreview(){
 function resetTool(){
   fileInput.value='';currentFile=null;
   document.getElementById('itDrop').style.display='';
-  document.getElementById('itSplit').classList.remove('show');
+  itSplit.classList.remove('show');
+  itResultFull.classList.remove('show');
   document.getElementById('itPreviewWrap').style.display='none';
   document.getElementById('itViewerLoad').style.display='flex';
-  ['itLoadingCard','itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  document.getElementById('itErrorCard').classList.remove('show');
   document.getElementById('itConvertBtn').disabled=false;
 }
 
 async function setFile(f){
   if(!f)return;
-  isPDF = f.type==='application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+  isPDF=f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');
   currentFile=f;
   document.getElementById('itFileName').textContent=f.name;
   document.getElementById('itFileSize').textContent=(f.size/1024).toFixed(1)+' KB';
   document.getElementById('itDrop').style.display='none';
-  ['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
-  document.getElementById('itSplit').classList.add('show');
+  document.getElementById('itErrorCard').classList.remove('show');
+  itResultFull.classList.remove('show');
+  itSplit.classList.add('show');
   const img=document.getElementById('itPreviewImg');
   if(isPDF){
     document.getElementById('itViewerLoad').style.display='flex';
@@ -236,8 +246,9 @@ async function setFile(f){
 async function doConvert(){
   if(!currentFile)return;
   document.getElementById('itConvertBtn').disabled=true;
-  document.getElementById('itLoadingCard').classList.add('show');
-  ['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  document.getElementById('itErrorCard').classList.remove('show');
+  itResultFull.classList.remove('show');
+  if(typeof ZLoader!=='undefined')ZLoader.show('Adding watermark…');
   const fd=new FormData();
   fd.append('file',currentFile);
   fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
@@ -247,10 +258,10 @@ async function doConvert(){
   fd.append('opacity',opacityVal);
   let apiUrl='/tools/api/img/watermark/';
   if(isPDF){
-    fd.set('opacity',(opacityVal/100).toFixed(2));  // PDF API expects 0.0–1.0
+    fd.set('opacity',(opacityVal/100).toFixed(2));
     fd.append('type','text');
     fd.append('font_size','60');
-    fd.append('color','C8C8C8');  // light gray for PDF
+    fd.append('color','C8C8C8');
     apiUrl='{% url "api_watermark" %}';
   }else{
     fd.append('position',document.querySelector('[name=position]:checked').value);
@@ -259,16 +270,20 @@ async function doConvert(){
     const res=await fetch(apiUrl,{method:'POST',body:fd});
     const d=await res.json();
     if(d.error)throw new Error(d.error);
-    const dlBtn=document.getElementById('itDlBtn');
-    dlBtn.href=d.download_url;
-    dlBtn.download=d.filename||(isPDF?'watermarked.pdf':'watermarked');
-    document.getElementById('itResultCard').classList.add('show');
-    dlBtn.click(); // auto-download
+    if(typeof ZLoader!=='undefined')ZLoader.hide();
+    const _d=new Date(),_mo=_d.toLocaleString('en-US',{month:'short'}),_dy=_d.getDate();
+    const _hh=_d.getHours()%12||12,_mm=String(_d.getMinutes()).padStart(2,'0'),_ss=String(_d.getSeconds()).padStart(2,'0'),_ap=_d.getHours()>=12?'PM':'AM';
+    const ext=isPDF?'pdf':(currentFile.name.split('.').pop()||'jpg');
+    document.getElementById('itResultSub').textContent=isPDF?'Your watermarked PDF is ready to download.':'Your watermarked image is ready to download.';
+    document.getElementById('itDlBtn').href=d.download_url;
+    document.getElementById('itDlBtn').download=`ZayroDocX Watermark ${_mo} ${_dy}, ${_hh}_${_mm}_${_ss} ${_ap}.${ext}`;
+    itSplit.classList.remove('show');
+    itResultFull.classList.add('show');
   }catch(e){
+    if(typeof ZLoader!=='undefined')ZLoader.hide();
     document.getElementById('itErrorMsg').textContent=e.message||'Failed.';
     document.getElementById('itErrorCard').classList.add('show');
   }finally{
-    document.getElementById('itLoadingCard').classList.remove('show');
     document.getElementById('itConvertBtn').disabled=false;
   }
 }
