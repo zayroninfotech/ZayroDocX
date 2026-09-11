@@ -754,13 +754,22 @@ document.getElementById('splitBtn').addEventListener('click', async () => {
 });
 
 function showSuccess(data, f) {
+  const now = new Date();
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const month = months[now.getMonth()];
+  const day = now.getDate();
+  const hh = now.getHours();
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  const ampm = hh >= 12 ? 'PM' : 'AM';
+  const splitName = `ZayroDocX split pdf ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.zip`;
   uploadZone.style.display = 'none'; filePanel.style.display = 'none';
   resultCard.className = 'result-card show';
   resultCard.innerHTML = `
     <div class="result-success-wrap">
       <h2 class="result-success-title">PDF has been split!</h2>
       <div class="result-download-row">
-        <a href="${data.download_url}" class="btn-download-big" download="${data.download_name || data.filename}">
+        <a href="${data.download_url}" class="btn-download-big" download="${splitName}">
           <i class="fa-solid fa-download"></i> Download Split PDF
         </a>
         <button class="btn-again" onclick="resetSplit()">
