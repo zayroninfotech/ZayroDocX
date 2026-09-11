@@ -499,6 +499,10 @@ body { padding-top: var(--mh-h); }
 .mh-user-item:hover { background: #f9fafb; color: #111; }
 .mh-user-item i { width: 16px; text-align: center; color: #9ca3af; font-size: .8rem; }
 .mh-user-divider { height: 1px; background: #f3f4f6; margin: .3rem 0; }
+button.mh-user-item {
+  background: none; border: none; cursor: pointer;
+  font: inherit; width: 100%; text-align: left; box-shadow: none;
+}
 .mh-user-logout {
   color: #dc2626 !important; width: 100%; text-align: left;
   background: none !important; border: none !important;
