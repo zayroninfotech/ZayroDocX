@@ -105,15 +105,11 @@
       <i class="fa-solid fa-rotate-left"></i> Convert Again
     </button>
   </div>
-  <div class="continue-section">
-    <h4>Continue to…</h4>
-    <div class="continue-grid" id="p2eContinueGrid"></div>
-  </div>
 </div>
 
 <!-- Drop zone -->
 <div class="p2e-drop" id="p2eDrop" onclick="document.getElementById('fileInput').click()">
-  <div class="p2e-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+  <div class="p2e-drop-icon" style="color:#217346;"><i class="fa-solid fa-file-excel"></i></div>
   <h3>Drop your PDF here</h3>
   <p>Tables and data will be extracted into an Excel spreadsheet</p>
   <button type="button" class="p2e-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
@@ -132,9 +128,10 @@
   </div>
 
   <div class="p2e-right">
+    <div style="font-size:1.25rem;font-weight:800;color:var(--text,#1e293b);letter-spacing:-.02em;padding-bottom:.25rem;">PDF to Excel</div>
     <div class="p2e-card">
       <div class="p2e-file-row">
-        <div class="p2e-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+        <div class="p2e-file-icon" style="background:rgba(33,115,70,0.14);"><i class="fa-solid fa-file-excel" style="color:#217346;"></i></div>
         <div>
           <div class="p2e-file-name" id="p2eFileName">—</div>
           <div class="p2e-file-size" id="p2eFileSize">—</div>
@@ -243,9 +240,17 @@ async function doConvert() {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     if (typeof ZLoader !== 'undefined') ZLoader.hide();
+    const now = new Date();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const month = months[now.getMonth()];
+    const day = now.getDate();
+    const hh = now.getHours();
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const ss = String(now.getSeconds()).padStart(2,'0');
+    const ampm = hh >= 12 ? 'PM' : 'AM';
+    const dlName = `ZayroDocX PDF to Excel ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.xlsx`;
     document.getElementById('p2eDlBtn').href = data.download_url;
-    document.getElementById('p2eDlBtn').download = data.filename || 'converted.xlsx';
-    buildContinueGrid();
+    document.getElementById('p2eDlBtn').download = dlName;
     p2eSplit.classList.remove('show');
     p2eResultFull.classList.add('show');
   } catch (e) {
