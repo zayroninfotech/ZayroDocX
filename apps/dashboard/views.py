@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
 import os
 
 from apps.dashboard.mongo_auth import (
@@ -31,6 +32,7 @@ def _locked_slugs_json():
     return json.dumps(slugs)
 
 
+@ensure_csrf_cookie
 def landing(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
