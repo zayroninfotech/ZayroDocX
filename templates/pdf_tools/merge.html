@@ -565,10 +565,16 @@ function buildContinueGrid() {
 }
 
 function showMergeSuccess(data) {
-  /* Generate user-friendly filename: ZayroDocX_merged_HH-MM-SS.pdf */
+  /* Generate user-friendly filename: ZayroDocX merged PDF Sep 11, 15_40_00 PM.pdf */
   const now = new Date();
-  const ts = now.toTimeString().slice(0, 8).replace(/:/g, '-');
-  const displayName = 'ZayroDocX_merged_' + ts + '.pdf';
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const month = months[now.getMonth()];
+  const day = now.getDate();
+  const hh = now.getHours();
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  const ampm = hh >= 12 ? 'PM' : 'AM';
+  const displayName = `ZayroDocX merged PDF ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.pdf`;
 
   uploadZone.style.display = 'none';
   filePanel.style.display  = 'none';
