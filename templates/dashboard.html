@@ -997,7 +997,7 @@
 
   {# ── Compress PDF ── #}
   <a href="{% url 'compress_pdf_page' %}" class="qa-card{% if tool_privs.compress_pdf and not request.user.is_authenticated %} locked{% endif %}">
-    <div class="qa-icon" style="background:#f0fdf4;"><i class="fa-solid fa-file-zipper" style="font-size:1.8rem;color:#16a34a;"></i></div>
+    <div class="qa-icon" style="background:rgba(217,119,6,.12);"><i class="fa-solid fa-compress" style="font-size:1.8rem;color:#d97706;"></i></div>
     <div class="qa-lbl">Compress PDF</div>
     <div class="qa-desc">Reduce file size</div>
   </a>
@@ -1025,7 +1025,7 @@
 
   {# ── Word to PDF ── #}
   <a href="{% url 'word_to_pdf_page' %}" class="qa-card{% if tool_privs.word_to_pdf and not request.user.is_authenticated %} locked{% endif %}">
-    <div class="qa-icon" style="background:#fff7ed;"><i class="fa-solid fa-file-pdf" style="font-size:1.8rem;color:#dc2626;"></i></div>
+    <div class="qa-icon" style="background:rgba(43,87,154,.12);"><i class="fa-solid fa-file-word" style="font-size:1.8rem;color:#2b579a;"></i></div>
     <div class="qa-lbl">Word to PDF</div>
     <div class="qa-desc">Convert Word to PDF</div>
   </a>
@@ -1115,7 +1115,7 @@
   <div class="db-ai-img">
     <div style="display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;height:100%;padding:24px;">
       <div style="display:flex;gap:12px;">
-        <div style="width:64px;height:64px;border-radius:16px;background:rgba(217,119,6,.12);display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-file-zipper" style="font-size:1.6rem;color:#d97706;"></i></div>
+        <div style="width:64px;height:64px;border-radius:16px;background:rgba(217,119,6,.12);display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-compress" style="font-size:1.6rem;color:#d97706;"></i></div>
         <div style="width:64px;height:64px;border-radius:16px;background:rgba(37,99,235,.14);display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-eye" style="font-size:1.6rem;color:#2563eb;"></i></div>
       </div>
       <div style="display:flex;gap:12px;">
