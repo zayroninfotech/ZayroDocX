@@ -288,7 +288,7 @@ function setFile(f) {
   document.getElementById('wmFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
   wmDrop.style.display = 'none';
-  wmResultCard.classList.remove('show'); wmErrorCard.classList.remove('show');
+  wmResultFull.classList.remove('show'); wmErrorCard.classList.remove('show');
   wmSplit.classList.add('show');
   loadPreview(f);
 }
