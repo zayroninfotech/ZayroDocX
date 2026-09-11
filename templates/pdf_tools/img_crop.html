@@ -30,19 +30,18 @@
 .ci-sel-info b{color:#1e293b;}
 .ci-convert-btn{width:100%;padding:.85rem;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:opacity .15s;}
 .ci-convert-btn:disabled{opacity:.5;cursor:not-allowed;}
-.ci-result-card{display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:1.1rem 1.2rem;}
-.ci-result-card.show{display:block;}
-.ci-result-title{font-size:.82rem;font-weight:700;color:#166534;display:flex;align-items:center;gap:.4rem;margin-bottom:.7rem;}
-.ci-dl-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.62rem;background:#16a34a;color:#fff;border:none;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;text-decoration:none;}
-.ci-dl-btn:hover{background:#15803d;}
 .ci-error-card{display:none;background:#fff1f2;border:1.5px solid #fca5a5;border-radius:14px;padding:1rem 1.2rem;}
 .ci-error-card.show{display:block;}
 .ci-error-msg{font-size:.82rem;color:#dc2626;}
-.ci-hint{font-size:.75rem;color:#94a3b8;text-align:center;margin-top:.3rem;}
+.ci-result-full{display:none;text-align:center;padding:3rem 2rem;}
+.ci-result-full.show{display:block;}
+.ci-result-preview{max-width:480px;max-height:320px;border-radius:12px;margin:0 auto 1.5rem;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12);}
+.ci-dl-full-btn{display:inline-flex;align-items:center;gap:.6rem;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:.9rem 2.5rem;font-size:1.1rem;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(22,163,74,.35);transition:background .15s;}
+.ci-dl-full-btn:hover{background:#15803d;}
+.ci-new-file-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;margin:.9rem auto 0;background:#fff;border:1.5px solid #e8e8e8;border-radius:10px;padding:.65rem 1.5rem;font-size:.9rem;font-weight:600;color:#555;cursor:pointer;transition:border-color .15s;max-width:280px;}
+.ci-new-file-btn:hover{border-color:#dc2626;color:#dc2626;}
 @keyframes bffill{0%{width:5%}60%{width:85%}100%{width:95%}}
 @keyframes spin{to{transform:rotate(360deg)}}
-.ci-recrop-btn{width:100%;padding:.65rem;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;font-size:.85rem;font-weight:700;color:#475569;cursor:pointer;margin-top:-4px;}
-.ci-recrop-btn:hover{border-color:#fca5a5;color:#dc2626;}
 @media(max-width:1050px){.ci-split{grid-template-columns:1fr;}.ci-right{position:static;}}
 </style>{% endblock %}
 {% block content %}
@@ -65,15 +64,16 @@
       <div style="color:#fff;font-size:.95rem;font-weight:600;">Cropping image…</div>
       <div style="width:180px;height:6px;background:#334155;border-radius:3px;overflow:hidden;"><div style="height:100%;background:#dc2626;border-radius:3px;animation:bffill 2s ease-in-out infinite;"></div></div>
     </div>
-    <div id="ciResultCanvas" style="display:none;position:absolute;inset:0;border-radius:16px;background:#1e293b;align-items:center;justify-content:center;">
-      <img id="ciResultImg" style="max-width:100%;max-height:100%;border-radius:12px;object-fit:contain;" alt="cropped">
-    </div>
   </div>
 
   <div class="ci-right">
+    <h2 style="font-size:1.25rem;font-weight:800;color:#dc2626;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;">
+      <i class="fa-solid fa-crop-simple"></i> Crop Image
+    </h2>
+
     <div class="ci-card">
       <div class="ci-file-row">
-        <div class="ci-file-icon"><i class="fa-solid fa-image"></i></div>
+        <div class="ci-file-icon"><i class="fa-solid fa-crop-simple"></i></div>
         <div>
           <div class="ci-file-name" id="ciFileName">—</div>
           <div class="ci-file-size" id="ciFileSize">—</div>
@@ -101,18 +101,23 @@
       <i class="fa-solid fa-crop-simple"></i> Crop Image
     </button>
 
-    <div class="ci-result-card" id="ciResultCard">
-      <div class="ci-result-title"><i class="fa-solid fa-circle-check"></i> <span id="ciResultInfo">Image cropped!</span></div>
-      <a class="ci-dl-btn" id="ciDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a>
-    </div>
-    <button type="button" class="ci-recrop-btn" id="ciRecropBtn" style="display:none;" onclick="recrop()">
-      <i class="fa-solid fa-rotate-left"></i> Crop Again
-    </button>
-
     <div class="ci-error-card" id="ciErrorCard">
       <div class="ci-error-msg" id="ciErrorMsg"></div>
     </div>
   </div>
+</div>
+
+<div class="ci-result-full" id="ciResultFull">
+  <div style="font-size:3.5rem;color:#16a34a;margin-bottom:1rem"><i class="fa-solid fa-circle-check"></i></div>
+  <p style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0 0 .4rem">Image Cropped!</p>
+  <p style="color:#64748b;margin:0 0 1.5rem;font-size:.95rem" id="ciResultSub">Your cropped image is ready to download.</p>
+  <img class="ci-result-preview" id="ciResultPreview" src="" alt="Cropped preview" style="display:none;">
+  <a class="ci-dl-full-btn" id="ciDlBtn" href="#" download>
+    <i class="fa-solid fa-download"></i> Download Image
+  </a>
+  <button class="ci-new-file-btn" onclick="resetTool()">
+    <i class="fa-solid fa-plus"></i> Crop Another Image
+  </button>
 </div>
 {% endblock %}
 
@@ -123,6 +128,9 @@ let box={x:0,y:0,w:0,h:0}, hasCrop=false, ar=null, drag=null;
 const HS=9;
 const canvas=document.getElementById('ciCanvas'), ctx=canvas.getContext('2d');
 const fileInput=document.getElementById('fileInput');
+const ciSplit=document.getElementById('ciSplit');
+const ciResultFull=document.getElementById('ciResultFull');
+const ciErrorCard=document.getElementById('ciErrorCard');
 
 function setAspect(ratio, btn){
   ar=ratio;
@@ -193,34 +201,27 @@ function drawFrame(){
   if(!imgEl)return;
   ctx.drawImage(imgEl,iOX,iOY,imgNW*iScale,imgNH*iScale);
   if(!hasCrop||box.w<4||box.h<4)return;
-  // dim outside
   ctx.fillStyle='rgba(0,0,0,0.55)';
   ctx.fillRect(iOX,iOY,imgNW*iScale,imgNH*iScale);
-  // reveal crop
   const sx=(box.x-iOX)/iScale,sy=(box.y-iOY)/iScale,sw=box.w/iScale,sh=box.h/iScale;
   ctx.drawImage(imgEl,sx,sy,sw,sh,box.x,box.y,box.w,box.h);
-  // border
   ctx.strokeStyle='#fff';ctx.lineWidth=1.5;
   ctx.strokeRect(box.x+.5,box.y+.5,box.w-1,box.h-1);
-  // rule of thirds
   ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=.7;
   for(let i=1;i<3;i++){
     ctx.beginPath();ctx.moveTo(box.x+box.w*i/3,box.y);ctx.lineTo(box.x+box.w*i/3,box.y+box.h);ctx.stroke();
     ctx.beginPath();ctx.moveTo(box.x,box.y+box.h*i/3);ctx.lineTo(box.x+box.w,box.y+box.h*i/3);ctx.stroke();
   }
-  // corner brackets
   const blen=Math.min(18,box.w/4,box.h/4);
   ctx.strokeStyle='#fff';ctx.lineWidth=2.5;
   const corners=[[box.x,box.y,1,1],[box.x+box.w,box.y,-1,1],[box.x,box.y+box.h,1,-1],[box.x+box.w,box.y+box.h,-1,-1]];
   for(const [cx,cy,sx2,sy2] of corners){
     ctx.beginPath();ctx.moveTo(cx+sx2*blen,cy);ctx.lineTo(cx,cy);ctx.lineTo(cx,cy+sy2*blen);ctx.stroke();
   }
-  // handles
   for(const h of handles()){
     ctx.fillStyle='#fff';ctx.strokeStyle='#dc2626';ctx.lineWidth=1.5;
     ctx.beginPath();ctx.arc(h.px,h.py,HS,0,Math.PI*2);ctx.fill();ctx.stroke();
   }
-  // size badge
   const {w,h}=toImg();
   const label=`${w} × ${h}`;
   ctx.font='bold 11px system-ui,sans-serif';
@@ -323,8 +324,9 @@ function setFile(f){
   document.getElementById('ciFileName').textContent=f.name;
   document.getElementById('ciFileSize').textContent=(f.size/1024).toFixed(1)+' KB';
   document.getElementById('ciDrop').style.display='none';
-  ['ciResultCard','ciErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
-  document.getElementById('ciSplit').classList.add('show');
+  ciResultFull.classList.remove('show');
+  ciErrorCard.classList.remove('show');
+  ciSplit.classList.add('show');
   document.getElementById('ciConvertBtn').disabled=true;
   const img=new Image();
   img.onload=()=>{imgEl=img;imgNW=img.naturalWidth;imgNH=img.naturalHeight;sizeCanvas();drawFrame();};
@@ -334,28 +336,19 @@ function setFile(f){
 function resetTool(){
   currentFile=null;imgEl=null;hasCrop=false;drag=null;fileInput.value='';
   document.getElementById('ciDrop').style.display='';
-  document.getElementById('ciSplit').classList.remove('show');
-  ['ciResultCard','ciErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
-  document.getElementById('ciResultCanvas').style.display='none';
-  document.getElementById('ciRecropBtn').style.display='none';
-  document.getElementById('ciConvertBtn').style.display='';
+  ciSplit.classList.remove('show');
+  ciResultFull.classList.remove('show');
+  ciErrorCard.classList.remove('show');
   document.getElementById('ciConvertBtn').disabled=true;
   document.getElementById('ciSelInfo').textContent='Drag on the image to select a region';
-}
-
-function recrop(){
-  document.getElementById('ciResultCanvas').style.display='none';
-  document.getElementById('ciResultCard').classList.remove('show');
-  document.getElementById('ciRecropBtn').style.display='none';
-  document.getElementById('ciConvertBtn').style.display='';
-  drawFrame();
+  const prev=document.getElementById('ciResultPreview');
+  prev.src='';prev.style.display='none';
 }
 
 async function doConvert(){
   if(!currentFile||!hasCrop)return;
   document.getElementById('ciConvertBtn').disabled=true;
-  ['ciResultCard','ciErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
-  document.getElementById('ciRecropBtn').style.display='none';
+  ciErrorCard.classList.remove('show');
   document.getElementById('ciProcessing').style.display='flex';
   const {x,y,w,h}=toImg();
   const fd=new FormData();
@@ -365,22 +358,23 @@ async function doConvert(){
     const res=await fetch('/tools/api/img/crop/',{method:'POST',body:fd});
     const d=await res.json();
     if(d.error)throw new Error(d.error);
-    // show result on canvas area
-    const resultImg=document.getElementById('ciResultImg');
-    resultImg.src=d.download_url+'?t='+Date.now();
-    document.getElementById('ciResultCanvas').style.display='flex';
-    document.getElementById('ciDlBtn').href=d.download_url;
-    document.getElementById('ciDlBtn').download=d.filename||'cropped';
-    document.getElementById('ciResultInfo').textContent=`${w} × ${h} px cropped!`;
-    document.getElementById('ciResultCard').classList.add('show');
-    document.getElementById('ciRecropBtn').style.display='block';
-    document.getElementById('ciConvertBtn').style.display='none';
-  }catch(e){
-    document.getElementById('ciErrorMsg').textContent=e.message||'Failed.';
-    document.getElementById('ciErrorCard').classList.add('show');
-    document.getElementById('ciConvertBtn').disabled=false;
-  }finally{
     document.getElementById('ciProcessing').style.display='none';
+    const _dt=new Date(),_mo=_dt.toLocaleString('en-US',{month:'short'}),_dy=_dt.getDate();
+    const _hh=_dt.getHours()%12||12,_mm=String(_dt.getMinutes()).padStart(2,'0'),_ss=String(_dt.getSeconds()).padStart(2,'0'),_ap=_dt.getHours()>=12?'PM':'AM';
+    const ext=currentFile.name.split('.').pop()||'png';
+    document.getElementById('ciResultSub').textContent=`${w} × ${h} px — your cropped image is ready to download.`;
+    const prev=document.getElementById('ciResultPreview');
+    prev.src=d.download_url+'?t='+Date.now();
+    prev.style.display='block';
+    document.getElementById('ciDlBtn').href=d.download_url;
+    document.getElementById('ciDlBtn').download=`ZayroDocX Crop Image ${_mo} ${_dy}, ${_hh}_${_mm}_${_ss} ${_ap}.${ext}`;
+    ciSplit.classList.remove('show');
+    ciResultFull.classList.add('show');
+  }catch(e){
+    document.getElementById('ciProcessing').style.display='none';
+    document.getElementById('ciErrorMsg').textContent=e.message||'Failed.';
+    ciErrorCard.classList.add('show');
+    document.getElementById('ciConvertBtn').disabled=false;
   }
 }
 
