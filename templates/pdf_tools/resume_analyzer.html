@@ -16,8 +16,9 @@
 
 /* Mode toggle */
 .ra-mode-row{display:flex;justify-content:center;gap:.6rem;margin:1rem auto 0;max-width:640px}
-.ra-mode-tab{flex:1;max-width:200px;padding:.5rem;border:1.5px solid #e8e8e8;border-radius:10px;background:#fff;font-size:.8rem;font-weight:700;color:#666;cursor:pointer;text-align:center;transition:all .15s}
+.ra-mode-tab{flex:1;max-width:220px;padding:.55rem .8rem;border:1.5px solid #e8e8e8;border-radius:10px;background:#fff;font-size:.8rem;font-weight:700;color:#666;cursor:pointer;text-align:center;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.15rem}
 .ra-mode-tab.active{border-color:#7c3aed;background:#faf5ff;color:#7c3aed}
+.ra-mode-sub{font-size:.66rem;font-weight:500;opacity:.7;letter-spacing:.01em}
 
 /* Loading */
 .ra-loading{display:none;text-align:center;padding:3rem 1rem;color:#7c3aed}
@@ -97,11 +98,17 @@
   <button type="button" class="ra-drop-btn" onclick="event.stopPropagation();document.getElementById('raFile').click()">
     <i class="fa-solid fa-plus"></i> Select Resume
   </button>
-  <div class="ra-formats">Supports PDF and DOCX · Files are never stored · Powered by Zayron LLM</div>
+  <div class="ra-formats">Supports PDF and DOCX · Files are never stored · Powered by Mistral & GPT-4o</div>
 </div>
 <div class="ra-mode-row" id="raModeRow">
-  <button class="ra-mode-tab active" id="tabStd" onclick="setMode('standard')"><i class="fa-solid fa-bolt"></i> Zayron LLM</button>
-  <button class="ra-mode-tab" id="tabPro" onclick="setMode('pro')"><i class="fa-solid fa-star"></i> Zayron LLM PRO</button>
+  <button class="ra-mode-tab active" id="tabStd" onclick="setMode('standard')">
+    <span><i class="fa-solid fa-bolt"></i> Zayron LLM</span>
+    <span class="ra-mode-sub">Powered by Mistral</span>
+  </button>
+  <button class="ra-mode-tab" id="tabPro" onclick="setMode('pro')">
+    <span><i class="fa-solid fa-star"></i> Zayron LLM PRO</span>
+    <span class="ra-mode-sub">Powered by GPT-4o mini</span>
+  </button>
 </div>
 
 <!-- Loading -->
@@ -205,7 +212,7 @@ async function startAnalysis(){
   document.getElementById('raModeRow').style.display='none';
   document.getElementById('raResults').classList.remove('show');
   document.getElementById('raError').classList.remove('show');
-  document.getElementById('raLoadMsg').textContent=currentMode==='pro'?'Running Zayron LLM PRO analysis…':'Analyzing your resume…';
+  document.getElementById('raLoadMsg').textContent=currentMode==='pro'?'Running GPT-4o mini analysis…':'Running Mistral analysis…';
   document.getElementById('raLoading').classList.add('show');
 
   const fd=new FormData();
