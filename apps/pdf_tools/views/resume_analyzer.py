@@ -101,16 +101,12 @@ def analyze_resume(request):
         if len(text.strip()) < 80:
             return JsonResponse({'error': 'Could not extract text from the file. Make sure it is not a scanned image.'}, status=422)
 
-        mode = request.POST.get('mode', 'standard')
         try:
-            if mode == 'pro':
-                result = _call_openai(text)
-            else:
-                result = _call_mistral(text)
+            result = _call_openai(text)
         except Exception as e:
-            logger.warning('Primary model failed, trying fallback: %s', e)
+            logger.warning('OpenAI failed, trying Mistral fallback: %s', e)
             try:
-                result = _call_openai(text) if mode != 'pro' else _call_mistral(text)
+                result = _call_mistral(text)
             except Exception as e2:
                 return JsonResponse({'error': f'AI analysis failed: {e2}'}, status=500)
 

@@ -98,7 +98,7 @@
   <button type="button" class="ra-drop-btn" onclick="event.stopPropagation();document.getElementById('raFile').click()">
     <i class="fa-solid fa-plus"></i> Select Resume
   </button>
-  <div class="ra-formats">Supports PDF and DOCX · Files are never stored · Powered by Mistral & GPT-4o</div>
+  <div class="ra-formats">Supports PDF and DOCX · Files are never stored · Powered by GPT-4o mini</div>
 </div>
 
 <!-- Loading -->
@@ -200,7 +200,7 @@ async function startAnalysis(){
   document.getElementById('raDrop').style.display='none';
   document.getElementById('raResults').classList.remove('show');
   document.getElementById('raError').classList.remove('show');
-  document.getElementById('raLoadMsg').textContent=currentMode==='pro'?'Running GPT-4o mini analysis…':'Running Mistral analysis…';
+  document.getElementById('raLoadMsg').textContent='Running GPT-4o mini analysis…';
   document.getElementById('raLoading').classList.add('show');
 
   const fd=new FormData();
