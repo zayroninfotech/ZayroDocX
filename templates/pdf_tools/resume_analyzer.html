@@ -178,12 +178,6 @@
   </div>
 </div>
 
-<div class="cv-info-strip" id="raInfoStrip" style="margin-top:2rem">
-  <div class="cv-info-card"><div class="cv-info-icon" style="color:#7c3aed"><i class="fa-solid fa-robot"></i></div><div><div class="cv-info-title">AI-Powered</div><div class="cv-info-desc">LLM analysis</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon" style="color:#2563eb"><i class="fa-solid fa-chart-bar"></i></div><div><div class="cv-info-title">ATS Score</div><div class="cv-info-desc">0–100 rating</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon" style="color:#16a34a"><i class="fa-solid fa-key"></i></div><div><div class="cv-info-title">Keywords</div><div class="cv-info-desc">Matched & missing</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon" style="color:#dc2626"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Never stored</div></div></div>
-</div>
 {% endblock %}
 {% block extra_js %}<script>
 const CSRF='{{ csrf_token }}';
@@ -199,7 +193,6 @@ function resetTool(){
   document.getElementById('raFile').value='';
   document.getElementById('raDrop').style.display='';
   document.getElementById('raModeRow').style.display='';
-  document.getElementById('raInfoStrip').style.display='';
   document.getElementById('raLoading').classList.remove('show');
   document.getElementById('raResults').classList.remove('show');
   document.getElementById('raError').classList.remove('show');
@@ -210,7 +203,6 @@ async function startAnalysis(){
   if(!f)return;
   document.getElementById('raDrop').style.display='none';
   document.getElementById('raModeRow').style.display='none';
-  document.getElementById('raInfoStrip').style.display='none';
   document.getElementById('raResults').classList.remove('show');
   document.getElementById('raError').classList.remove('show');
   document.getElementById('raLoadMsg').textContent=currentMode==='pro'?'Running Zayron LLM PRO analysis…':'Analyzing your resume…';
@@ -232,7 +224,6 @@ async function startAnalysis(){
     el.classList.add('show');
     document.getElementById('raDrop').style.display='';
     document.getElementById('raModeRow').style.display='';
-    document.getElementById('raInfoStrip').style.display='';
   }finally{
     document.getElementById('raLoading').classList.remove('show');
   }
