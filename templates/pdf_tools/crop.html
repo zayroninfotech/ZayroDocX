@@ -51,18 +51,15 @@
 
 .cr-convert-btn { width: 100%; padding: .85rem; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: opacity .15s; }
 .cr-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
-.cr-loading-card { display: none; background: #fff8f8; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.1rem 1.2rem; align-items: center; gap: .9rem; }
-.cr-loading-card.show { display: flex; }
-.cr-spin { animation: spin 1s linear infinite; font-size: 1.3rem; color: #dc2626; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.cr-result-card { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 1.1rem 1.2rem; }
-.cr-result-card.show { display: block; }
-.cr-result-title { font-size: .82rem; font-weight: 700; color: #166534; display: flex; align-items: center; gap: .4rem; margin-bottom: .7rem; }
-.cr-dl-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .65rem; background: #16a34a; color: #fff; border: none; border-radius: 9px; font-size: .88rem; font-weight: 700; cursor: pointer; text-decoration: none; }
-.cr-dl-btn:hover { background: #15803d; }
 .cr-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1rem 1.2rem; }
 .cr-error-card.show { display: block; }
 .cr-error-msg { font-size: .82rem; color: #dc2626; }
+.cr-result-full { display:none; text-align:center; padding:3rem 2rem; }
+.cr-result-full.show { display:block; }
+.cr-dl-full-btn { display:inline-flex; align-items:center; gap:.6rem; background:#16a34a; color:#fff; border:none; border-radius:12px; padding:.9rem 2.5rem; font-size:1.1rem; font-weight:700; cursor:pointer; text-decoration:none; box-shadow:0 4px 18px rgba(22,163,74,.35); transition:background .15s; }
+.cr-dl-full-btn:hover { background:#15803d; }
+.cr-new-file-btn { display:flex; align-items:center; justify-content:center; gap:.5rem; margin:.9rem auto 0; background:#fff; border:1.5px solid #e8e8e8; border-radius:10px; padding:.65rem 1.5rem; font-size:.9rem; font-weight:600; color:#555; cursor:pointer; transition:border-color .15s; max-width:280px; }
+.cr-new-file-btn:hover { border-color:#dc2626; color:#dc2626; }
 
 @media (max-width: 1050px) { .cr-split { grid-template-columns: 1fr; } .cr-right { position: static; max-height: none; } }
 </style>{% endblock %}
@@ -89,9 +86,13 @@
   </div>
 
   <div class="cr-right">
+    <h2 style="font-size:1.25rem;font-weight:800;color:#dc2626;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;">
+      <i class="fa-solid fa-crop-simple"></i> Crop PDF
+    </h2>
+
     <div class="cr-card">
       <div class="cr-file-row">
-        <div class="cr-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+        <div class="cr-file-icon" style="background:rgba(220,38,38,0.12);"><i class="fa-solid fa-crop-simple" style="color:#dc2626;"></i></div>
         <div>
           <div class="cr-file-name" id="crFileName">—</div>
           <div class="cr-file-size" id="crFileSize">—</div>
@@ -123,27 +124,22 @@
       <i class="fa-solid fa-crop-simple"></i> Crop PDF
     </button>
 
-    <div class="cr-loading-card" id="crLoadingCard">
-      <i class="fa-solid fa-spinner cr-spin"></i>
-      <span style="font-size:.88rem;font-weight:600;color:#b91c1c">Cropping pages…</span>
-    </div>
-
-    <div class="cr-result-card" id="crResultCard">
-      <div class="cr-result-title"><i class="fa-solid fa-circle-check"></i> PDF ready!</div>
-      <a class="cr-dl-btn" id="crDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download PDF</a>
-    </div>
-
     <div class="cr-error-card" id="crErrorCard">
       <div class="cr-error-msg" id="crErrorMsg"></div>
     </div>
   </div>
 </div>
 
-<div class="cv-info-strip" id="crInfoStrip">
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-ruler"></i></div><div><div class="cv-info-title">mm Precision</div><div class="cv-info-desc">Millimetre accuracy</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-file-lines"></i></div><div><div class="cv-info-title">All Pages</div><div class="cv-info-desc">Every page cropped</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
+<div class="cr-result-full" id="crResultFull">
+  <div style="font-size:3.5rem;color:#16a34a;margin-bottom:1rem"><i class="fa-solid fa-circle-check"></i></div>
+  <p style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0 0 .4rem">PDF Cropped!</p>
+  <p style="color:#64748b;margin:0 0 1.5rem;font-size:.95rem">Your cropped PDF is ready to download.</p>
+  <a class="cr-dl-full-btn" id="crDlBtn" href="#" download>
+    <i class="fa-solid fa-download"></i> Download PDF
+  </a>
+  <button class="cr-new-file-btn" onclick="resetTool()">
+    <i class="fa-solid fa-plus"></i> Crop Another File
+  </button>
 </div>
 {% endblock %}
 
@@ -155,10 +151,8 @@ const crSplit       = document.getElementById('crSplit');
 const crPagesEl     = document.getElementById('crPages');
 const crViewerLoad  = document.getElementById('crViewerLoading');
 const crConvertBtn  = document.getElementById('crConvertBtn');
-const crLoadingCard = document.getElementById('crLoadingCard');
-const crResultCard  = document.getElementById('crResultCard');
+const crResultFull  = document.getElementById('crResultFull');
 const crErrorCard   = document.getElementById('crErrorCard');
-const crInfoStrip   = document.getElementById('crInfoStrip');
 
 let currentFile = null;
 let pageDims    = [];   // [{w,h} PDF points]
@@ -456,10 +450,10 @@ function resetMargins() {
 function resetTool() {
   fileInput.value = ''; currentFile = null; pageDims = []; iCanvas = null;
   crDrop.style.display = ''; crSplit.classList.remove('show');
+  crResultFull.classList.remove('show');
   crPagesEl.innerHTML = ''; crPagesEl.style.display = 'none';
   crViewerLoad.style.display = 'flex'; crConvertBtn.disabled = false;
-  crLoadingCard.classList.remove('show'); crResultCard.classList.remove('show');
-  crErrorCard.classList.remove('show'); crInfoStrip.style.display = '';
+  crErrorCard.classList.remove('show');
   resetMargins();
 }
 
@@ -507,8 +501,8 @@ function setFile(f) {
   document.getElementById('crFileName').textContent = f.name;
   document.getElementById('crFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
-  crDrop.style.display = 'none'; crInfoStrip.style.display = 'none';
-  crResultCard.classList.remove('show'); crErrorCard.classList.remove('show');
+  crDrop.style.display = 'none';
+  crResultFull.classList.remove('show'); crErrorCard.classList.remove('show');
   crSplit.classList.add('show');
   loadPreview(f);
 }
@@ -516,9 +510,9 @@ function setFile(f) {
 async function doCrop() {
   if (!currentFile) return;
   crConvertBtn.disabled = true;
-  crLoadingCard.classList.add('show');
-  crResultCard.classList.remove('show');
+  crResultFull.classList.remove('show');
   crErrorCard.classList.remove('show');
+  if (typeof ZLoader !== 'undefined') ZLoader.show('Cropping PDF…');
   const fd = new FormData();
   fd.append('file', currentFile);
   fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
@@ -530,14 +524,18 @@ async function doCrop() {
     const res  = await fetch('/tools/api/crop-pdf/', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
+    const _d=new Date(),_mo=_d.toLocaleString('en-US',{month:'short'}),_dy=_d.getDate();
+    const _hh=_d.getHours()%12||12,_mm=String(_d.getMinutes()).padStart(2,'0'),_ss=String(_d.getSeconds()).padStart(2,'0'),_ap=_d.getHours()>=12?'PM':'AM';
     document.getElementById('crDlBtn').href     = data.download_url;
-    document.getElementById('crDlBtn').download = data.filename || 'cropped.pdf';
-    crResultCard.classList.add('show');
+    document.getElementById('crDlBtn').download = `ZayroDocX Crop PDF ${_mo} ${_dy}, ${_hh}_${_mm}_${_ss} ${_ap}.pdf`;
+    crSplit.classList.remove('show');
+    crResultFull.classList.add('show');
   } catch (e) {
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
     document.getElementById('crErrorMsg').textContent = e.message || 'Crop failed.';
     crErrorCard.classList.add('show');
   } finally {
-    crLoadingCard.classList.remove('show');
     crConvertBtn.disabled = false;
   }
 }
