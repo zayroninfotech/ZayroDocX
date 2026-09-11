@@ -137,13 +137,6 @@
     </div>
   </div>
 </div>
-
-<div class="cv-info-strip" id="rotInfoStrip">
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-rotate-right"></i></div><div><div class="cv-info-title">Any Angle</div><div class="cv-info-desc">90°, 180°, 270°</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-file-lines"></i></div><div><div class="cv-info-title">Select Pages</div><div class="cv-info-desc">Specific or all pages</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
-</div>
 {% endblock %}
 
 {% block extra_js %}<script>
@@ -156,7 +149,6 @@ const rotConvertBtn  = document.getElementById('rotConvertBtn');
 const rotLoadingCard = document.getElementById('rotLoadingCard');
 const rotResultCard  = document.getElementById('rotResultCard');
 const rotErrorCard   = document.getElementById('rotErrorCard');
-const rotInfoStrip   = document.getElementById('rotInfoStrip');
 
 let currentFile = null;
 
@@ -166,7 +158,7 @@ function resetTool() {
   rotPagesEl.innerHTML = ''; rotPagesEl.style.display = 'none';
   rotViewerLoad.style.display = 'flex'; rotConvertBtn.disabled = false;
   rotLoadingCard.classList.remove('show'); rotResultCard.classList.remove('show');
-  rotErrorCard.classList.remove('show'); rotInfoStrip.style.display = '';
+  rotErrorCard.classList.remove('show');
 }
 
 async function loadPreview(file) {
@@ -197,12 +189,11 @@ function setFile(f) {
   document.getElementById('rotFileName').textContent = f.name;
   document.getElementById('rotFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
-  rotDrop.style.display = 'none'; rotInfoStrip.style.display = 'none';
+  rotDrop.style.display = 'none';
   rotResultCard.classList.remove('show'); rotErrorCard.classList.remove('show');
   rotSplit.classList.add('show');
   loadPreview(f);
 }
-
 async function doConvert() {
   if (!currentFile) return;
   rotConvertBtn.disabled = true;
