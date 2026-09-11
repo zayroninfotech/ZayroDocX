@@ -56,21 +56,9 @@
 .pr-right { display:flex; flex-direction:column; gap:1rem; }
 
 /* Robot illustration */
-.pr-illus { background:linear-gradient(135deg,#fff5f5,#fdf2f8); border:1.5px solid #fecaca; border-radius:20px; padding:1.5rem 1rem 1rem; text-align:center; position:relative; overflow:hidden; }
-.pr-illus-bg { position:absolute; inset:0; background:radial-gradient(circle at 50% 60%, rgba(220,38,38,.06), transparent 70%); }
-.pr-float-items { display:flex; justify-content:center; gap:.6rem; flex-wrap:wrap; margin-bottom:1rem; position:relative; }
-.pr-float-icon { width:44px; height:44px; border-radius:12px; background:#fff; border:1.5px solid #e8e8e8; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow:0 2px 8px rgba(0,0,0,.06); animation:prFloat 3s ease-in-out infinite; }
-.pr-float-icon:nth-child(2) { animation-delay:.5s; }
-.pr-float-icon:nth-child(3) { animation-delay:1s; }
-.pr-float-icon:nth-child(4) { animation-delay:1.5s; }
-.pr-float-icon:nth-child(5) { animation-delay:2s; }
-@keyframes prFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-
-/* Robot face */
-.pr-robot { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#dc2626,#ef4444); display:flex; align-items:center; justify-content:center; margin:0 auto .6rem; font-size:2.2rem; box-shadow:0 4px 20px rgba(220,38,38,.3); position:relative; }
-.pr-robot::before { content:''; position:absolute; inset:-4px; border-radius:50%; border:2px dashed rgba(220,38,38,.25); }
-.pr-illus-title { font-size:.82rem; font-weight:700; color:#1e293b; }
-.pr-illus-sub { font-size:.7rem; color:#64748b; margin-top:.2rem; }
+.pr-illus { background:linear-gradient(135deg,#fff5f5,#fdf2f8); border:1.5px solid #fecaca; border-radius:20px; padding:1rem; text-align:center; position:relative; overflow:hidden; }
+.pr-illus img { width:100%; max-width:320px; object-fit:contain; animation:prFloat 4s ease-in-out infinite; display:block; margin:0 auto; }
+@keyframes prFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 
 /* Why use */
 .pr-why-card { background:#fff; border:1.5px solid #e8e8e8; border-radius:16px; padding:1.1rem 1.2rem; }
@@ -199,17 +187,7 @@
   <div class="pr-right">
     <!-- Illustration -->
     <div class="pr-illus">
-      <div class="pr-illus-bg"></div>
-      <div class="pr-float-items">
-        <div class="pr-float-icon">🎧</div>
-        <div class="pr-float-icon">💻</div>
-        <div class="pr-float-icon">📱</div>
-        <div class="pr-float-icon">⌚</div>
-        <div class="pr-float-icon">🎮</div>
-      </div>
-      <div class="pr-robot"><i class="fa-solid fa-robot" style="color:#fff;font-size:2rem"></i></div>
-      <div class="pr-illus-title">AI-powered shopping assistant</div>
-      <div class="pr-illus-sub">Finding the best products just for you</div>
+      <img src="/static/img/product-recommender.png" alt="AI-powered shopping assistant">
     </div>
     <!-- Why use -->
     <div class="pr-why-card">
