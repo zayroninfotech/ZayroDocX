@@ -367,39 +367,22 @@ function addFiles(files) {
   newFiles.forEach(f => loadThumb(f));
 }
 
-/* ── render first-page thumbnail via PDF.js (client-side, no server round-trip) ── */
+/* ── render first-page thumbnail via server-side thumbnail API ── */
 async function loadThumb(f) {
   if (thumbCache.has(f)) return;
-  thumbCache.set(f, null); /* mark as loading */
+  thumbCache.set(f, null); /* mark as loading → shows spinner */
+  render(); /* re-render immediately so spinner appears */
   try {
-    const arrayBuffer = await f.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    const page = await pdf.getPage(1);
-    const viewport = page.getViewport({ scale: 1 });
-    const scale = 200 / viewport.width;
-    const scaled = page.getViewport({ scale });
-    const canvas = document.createElement('canvas');
-    canvas.width  = scaled.width;
-    canvas.height = scaled.height;
-    await page.render({ canvasContext: canvas.getContext('2d'), viewport: scaled }).promise;
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-    thumbCache.set(f, dataUrl);
-    /* Update card if still in list */
-    const idx = fileArray.indexOf(f);
-    if (idx !== -1) {
-      const card = document.querySelector(`.file-card[data-idx="${idx}"]`);
-      if (card) {
-        const thumb = card.querySelector('.file-card-thumb');
-        thumb.innerHTML = `
-          <div class="file-card-num">${idx + 1}</div>
-          <img class="pdf-thumb-img" src="${dataUrl}">
-          <button class="file-card-remove" title="Remove"><i class="fa-solid fa-xmark"></i></button>`;
-        card.querySelector('.file-card-remove').addEventListener('click', e => {
-          e.stopPropagation(); fileArray.splice(idx, 1); render();
-        });
-      }
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', getCsrf());
+    fd.append('file', f);
+    const resp = await fetch('{% url "api_pdf_thumbnails" %}', { method: 'POST', body: fd });
+    const data = await resp.json();
+    if (data.pages && data.pages.length > 0) {
+      thumbCache.set(f, data.pages[0]);
+      render(); /* re-render with actual thumbnail */
     }
-  } catch(e) { /* keep CSS icon on error */ }
+  } catch(e) { /* keep spinner/icon on error */ }
 }
 
 /* ── render ── */
@@ -610,13 +593,6 @@ function formatBytes(b) {
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function getCsrf() {
   return (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '';
-}
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script>
-if (window.pdfjsLib) {
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 </script>
 {% endblock %}
