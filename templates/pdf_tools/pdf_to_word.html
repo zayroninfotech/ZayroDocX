@@ -109,15 +109,11 @@
       <i class="fa-solid fa-rotate-left"></i> Convert Again
     </button>
   </div>
-  <div class="continue-section">
-    <h4>Continue to…</h4>
-    <div class="continue-grid" id="p2wContinueGrid"></div>
-  </div>
 </div>
 
 <!-- Step 1: Drop zone -->
 <div class="p2w-drop" id="p2wDrop" onclick="document.getElementById('fileInput').click()">
-  <div class="p2w-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+  <div class="p2w-drop-icon" style="color:#2b579a;"><i class="fa-solid fa-file-word"></i></div>
   <h3>Drop your PDF here</h3>
   <p>Text and structure will be extracted into an editable Word file</p>
   <button type="button" class="p2w-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
@@ -136,6 +132,7 @@
   </div>
 
   <div class="p2w-right">
+    <div style="font-size:1.25rem;font-weight:800;color:var(--text,#1e293b);letter-spacing:-.02em;padding-bottom:.25rem;">PDF to Word</div>
     <div class="p2w-card">
       <div class="p2w-file-row">
         <div class="p2w-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
@@ -251,9 +248,17 @@ async function doConvert() {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     if (typeof ZLoader !== 'undefined') ZLoader.hide();
+    const now = new Date();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const month = months[now.getMonth()];
+    const day = now.getDate();
+    const hh = now.getHours();
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const ss = String(now.getSeconds()).padStart(2,'0');
+    const ampm = hh >= 12 ? 'PM' : 'AM';
+    const dlName = `ZayroDocX PDF to Word ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.docx`;
     document.getElementById('p2wDlBtn').href = data.download_url;
-    document.getElementById('p2wDlBtn').download = data.filename || 'converted.docx';
-    buildContinueGrid();
+    document.getElementById('p2wDlBtn').download = dlName;
     p2wSplit.classList.remove('show');
     p2wResultFull.classList.add('show');
   } catch (e) {
