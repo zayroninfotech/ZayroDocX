@@ -6,7 +6,7 @@ import os
 from apps.dashboard.mongo_auth import (
     create_user, user_exists, authenticate,
     mongo_login, mongo_logout,
-    get_all_users,
+    get_all_users, change_password,
 )
 from apps.dashboard.mongo_models import (
     get_tool_privs_map, get_all_tool_privs, toggle_tool_priv,
@@ -100,6 +100,32 @@ def ajax_login(request):
     if user is None:
         return JsonResponse({'ok': False, 'error': 'Incorrect username or password.'}, status=401)
     mongo_login(request, user)
+    return JsonResponse({'ok': True})
+
+
+@require_POST
+def ajax_change_password(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'Not logged in.'}, status=401)
+    import json
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'ok': False, 'error': 'Invalid request.'}, status=400)
+    current  = data.get('current_password', '').strip()
+    new_pw   = data.get('new_password', '').strip()
+    confirm  = data.get('confirm_password', '').strip()
+    if not current or not new_pw or not confirm:
+        return JsonResponse({'ok': False, 'error': 'All fields are required.'})
+    if new_pw != confirm:
+        return JsonResponse({'ok': False, 'error': 'New passwords do not match.'})
+    if len(new_pw) < 8:
+        return JsonResponse({'ok': False, 'error': 'Password must be at least 8 characters.'})
+    result = change_password(request.user.id, current, new_pw)
+    if result == 'wrong_password':
+        return JsonResponse({'ok': False, 'error': 'Current password is incorrect.'})
+    if result != True:
+        return JsonResponse({'ok': False, 'error': 'Something went wrong. Please try again.'})
     return JsonResponse({'ok': True})
 
 

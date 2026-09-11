@@ -170,6 +170,23 @@ class MongoAuthMiddleware:
         return self.get_response(request)
 
 
+def change_password(user_id, current_password, new_password):
+    """Returns True on success, 'wrong_password' if current is wrong, 'not_found' if user missing."""
+    try:
+        doc = _users().find_one({'_id': ObjectId(user_id)})
+    except Exception:
+        return 'not_found'
+    if not doc:
+        return 'not_found'
+    if not _check_password(current_password, doc['password']):
+        return 'wrong_password'
+    _users().update_one(
+        {'_id': ObjectId(user_id)},
+        {'$set': {'password': _hash_password(new_password)}}
+    )
+    return True
+
+
 # ── login_required decorator ─────────────────────────────────────────────────
 
 def login_required(view_func):

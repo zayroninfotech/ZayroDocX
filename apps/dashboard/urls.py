@@ -13,6 +13,7 @@ urlpatterns = [
     # Popup inline auth (no page redirect, JSON only)
     path('ajax/register/', views.ajax_register,   name='ajax_register'),
     path('ajax/login/',    views.ajax_login,      name='ajax_login'),
+    path('ajax/change-password/', views.ajax_change_password, name='ajax_change_password'),
     path('ajax/support/',     views.submit_support,   name='submit_support'),
     path('ajax/suggestion/',  views.submit_suggestion, name='submit_suggestion'),
     path('zayro-admin/suggestions/<str:pk>/update/', views.update_suggestion, name='update_suggestion'),
