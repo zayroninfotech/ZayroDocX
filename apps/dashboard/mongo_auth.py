@@ -136,6 +136,14 @@ def count_users():
     return _users().count_documents({})
 
 
+def delete_user(user_id):
+    try:
+        result = _users().delete_one({'_id': ObjectId(user_id)})
+        return result.deleted_count == 1
+    except Exception:
+        return False
+
+
 # ── Session-based login/logout ────────────────────────────────────────────────
 
 _SESSION_KEY = '_mongo_user_id'

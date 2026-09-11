@@ -6,7 +6,8 @@ import os
 from apps.dashboard.mongo_auth import (
     create_user, user_exists, authenticate,
     mongo_login, mongo_logout,
-    get_all_users, change_password,
+    get_all_users, change_password, delete_user,
+    get_user_by_id,
 )
 from apps.dashboard.mongo_models import (
     get_tool_privs_map, get_all_tool_privs, toggle_tool_priv,
@@ -350,3 +351,15 @@ def update_suggestion(request, pk):
         return JsonResponse({'ok': True, 'status': status, 'status_display': _STATUS_LABELS.get(status, status)})
     except Exception:
         return JsonResponse({'ok': False, 'error': 'Update failed.'}, status=500)
+
+
+@_superadmin_required
+@require_POST
+def delete_user_view(request, user_id):
+    if str(request.user.id) == user_id:
+        return JsonResponse({'ok': False, 'error': 'Cannot delete your own account.'})
+    target = get_user_by_id(user_id)
+    if target and target.is_superuser:
+        return JsonResponse({'ok': False, 'error': 'Cannot delete a superadmin.'})
+    ok = delete_user(user_id)
+    return JsonResponse({'ok': ok})

@@ -269,6 +269,38 @@
 .badge-grey   { background:#f3f4f6; color:#6b7280; }
 .badge-purple { background:#ede9fe; color:#6d28d9; }
 
+.ap-del-user-btn {
+  border:none; background:rgba(220,38,38,.08); color:#dc2626;
+  border-radius:8px; width:30px; height:30px;
+  display:inline-flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:.8rem; transition:background .15s;
+}
+.ap-del-user-btn:hover { background:rgba(220,38,38,.18); }
+
+/* delete confirm modal */
+.ap-modal-overlay {
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,.45);
+  z-index:9000; align-items:center; justify-content:center;
+}
+.ap-modal-overlay.open { display:flex; }
+.ap-modal {
+  background:#fff; border-radius:16px; padding:2rem;
+  width:min(90%, 400px); box-shadow:0 20px 60px rgba(0,0,0,.18);
+  text-align:center;
+}
+.ap-modal h3 { margin:0 0 .5rem; font-size:1.1rem; color:#111; }
+.ap-modal p  { margin:0 0 1.5rem; color:#6b7280; font-size:.88rem; }
+.ap-modal-actions { display:flex; gap:.75rem; justify-content:center; }
+.ap-modal-cancel {
+  border:1px solid #e5e7eb; background:#fff; border-radius:8px;
+  padding:.55rem 1.3rem; font-size:.85rem; cursor:pointer;
+}
+.ap-modal-confirm {
+  border:none; background:#dc2626; color:#fff; border-radius:8px;
+  padding:.55rem 1.3rem; font-size:.85rem; cursor:pointer;
+}
+.ap-modal-confirm:disabled { opacity:.55; cursor:not-allowed; }
+
 .ap-avatar {
   width:30px; height:30px; border-radius:50%;
   background:#fee2e2; color:#dc2626;
@@ -517,6 +549,7 @@
               <th>Role</th>
               <th>Joined</th>
               <th>Last Login</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -538,9 +571,16 @@
               <td style="font-size:.78rem;color:#6b7280;">
                 {% if user.last_login %}<i class="fa-solid fa-circle" style="color:#22c55e;font-size:.5rem;vertical-align:middle;"></i> {{ user.last_login|date:"d M Y, H:i" }}{% else %}—{% endif %}
               </td>
+              <td style="text-align:right;">
+                {% if not user.is_superuser %}
+                <button class="ap-del-user-btn" onclick="confirmDeleteUser('{{ user._id }}','{{ user.username }}')" title="Delete user">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+                {% endif %}
+              </td>
             </tr>
             {% empty %}
-            <tr><td colspan="5"><div class="ap-empty"><i class="fa-solid fa-users"></i>No users yet.</div></td></tr>
+            <tr><td colspan="6"><div class="ap-empty"><i class="fa-solid fa-users"></i>No users yet.</div></td></tr>
             {% endfor %}
           </tbody>
         </table>
@@ -993,5 +1033,68 @@ function getCookie(name) {
 }
 
 updateFreeCount();
+
+// ── Delete user ───────────────────────────────────────────────────────────────
+let _deleteUserId = null;
+
+function confirmDeleteUser(userId, username) {
+  _deleteUserId = userId;
+  document.getElementById('del-modal-name').textContent = username;
+  document.getElementById('del-modal').classList.add('open');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('del-modal-cancel').addEventListener('click', function() {
+    document.getElementById('del-modal').classList.remove('open');
+    _deleteUserId = null;
+  });
+
+  document.getElementById('del-modal-confirm').addEventListener('click', function() {
+    if (!_deleteUserId) return;
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Deleting…';
+
+    fetch('/zayro-admin/users/' + _deleteUserId + '/delete/', {
+      method: 'POST',
+      headers: {'X-CSRFToken': getCookie('csrftoken'), 'Accept': 'application/json'},
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        document.getElementById('del-modal').classList.remove('open');
+        // Remove the row from the table
+        document.querySelectorAll('.ap-del-user-btn').forEach(function(b) {
+          if (b.getAttribute('onclick').includes(_deleteUserId)) {
+            b.closest('tr').remove();
+          }
+        });
+        _deleteUserId = null;
+      } else {
+        alert(data.error || 'Delete failed.');
+        btn.disabled = false;
+        btn.textContent = 'Delete';
+      }
+    })
+    .catch(function() {
+      alert('Network error. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Delete';
+    });
+  });
+});
 </script>
+
+<!-- Delete user confirmation modal -->
+<div class="ap-modal-overlay" id="del-modal">
+  <div class="ap-modal">
+    <h3>Delete user?</h3>
+    <p>This will permanently delete <strong id="del-modal-name"></strong>. This cannot be undone.</p>
+    <div class="ap-modal-actions">
+      <button class="ap-modal-cancel" id="del-modal-cancel">Cancel</button>
+      <button class="ap-modal-confirm" id="del-modal-confirm">Delete</button>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
