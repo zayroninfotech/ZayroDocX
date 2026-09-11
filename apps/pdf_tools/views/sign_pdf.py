@@ -26,6 +26,7 @@ def sign_pdf(request):
     opacity     = safe_float(request.POST.get('opacity', 100), default=100, min_val=1, max_val=100) / 100.0
     transparent = request.POST.get('transparent', '1') == '1'
     hi_quality  = request.POST.get('hi_quality',  '1') == '1'
+    rotation    = safe_int(request.POST.get('rotation', 0), default=0)
 
     if not f:
         return JsonResponse({'error': 'No PDF uploaded.'}, status=400)
@@ -71,6 +72,9 @@ def sign_pdf(request):
             r, g, b, a = sig_img.split()
             a = a.point(lambda p: int(p * opacity))
             sig_img = Image.merge('RGBA', (r, g, b, a))
+
+        if rotation:
+            sig_img = sig_img.rotate(-rotation, expand=True)
 
         clean_sig_path, _ = get_output_path('.png', 'sig_clean')
         sig_img.save(clean_sig_path, 'PNG', dpi=(dpi, dpi))

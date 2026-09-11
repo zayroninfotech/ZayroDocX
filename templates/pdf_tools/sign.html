@@ -3,79 +3,126 @@
 {% block active_sign %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Sign PDF</span>{% endblock %}
 
-{% block extra_head %}<style>
-.sg-drop { border: 2.5px dashed #cbd5e1; border-radius: 20px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: #f8fafc; }
-.sg-drop:hover, .sg-drop.drag-over { border-color: #dc2626; background: #fff8f8; }
-.sg-drop-icon { font-size: 3rem; color: #dc2626; margin-bottom: .8rem; }
-.sg-drop h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0 0 .4rem; }
-.sg-drop p  { color: #64748b; margin: 0 0 1.2rem; }
+{% block extra_head %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
+<style>
+.sg-drop { border:2.5px dashed #cbd5e1; border-radius:20px; padding:3rem 2rem; text-align:center; cursor:pointer; transition:border-color .2s,background .2s; background:#f8fafc; }
+.sg-drop:hover,.sg-drop.drag-over { border-color:#d97706; background:#fffbeb; }
+.sg-drop-icon { font-size:3rem; margin-bottom:.8rem; }
+.sg-drop h3 { font-size:1.3rem; font-weight:700; color:#1e293b; margin:0 0 .4rem; }
+.sg-drop p  { color:#64748b; margin:0 0 1.2rem; }
 .sg-drop-btn { display:inline-flex; align-items:center; gap:.55rem; background:#2563eb; color:#fff; border:none; border-radius:12px; padding:.9rem 2.5rem; font-size:1.1rem; font-weight:700; cursor:pointer; transition:background .15s,transform .1s; box-shadow:0 4px 18px rgba(37,99,235,.35); }
 .sg-drop-btn:hover { background:#1d4ed8; transform:translateY(-1px); }
 
-.sg-split { display: none; grid-template-columns: 1fr 440px; gap: 20px; align-items: start; }
-.sg-split.show { display: grid; }
+.sg-split { display:none; grid-template-columns:1fr 440px; gap:20px; align-items:start; }
+.sg-split.show { display:grid; }
 
-.sg-viewer { background: #0f172a; border-radius: 16px; padding: 16px; min-height: 400px; display: flex; align-items: flex-start; justify-content: center; overflow: auto; scroll-behavior: smooth; }
-.sg-viewer-pages { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
-.sg-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; }
-.sg-viewer-loading { color: #94a3b8; font-size: .9rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
-.sg-viewer-loading i { font-size: 2rem; }
+.sg-viewer { background:#0f172a; border-radius:16px; padding:16px; min-height:400px; display:flex; align-items:flex-start; justify-content:center; overflow:auto; scroll-behavior:smooth; }
+.sg-viewer-pages { display:flex; flex-direction:column; gap:12px; align-items:center; width:100%; }
+.sg-viewer-pages img { width:100%; max-width:680px; border-radius:6px; box-shadow:0 2px 12px rgba(0,0,0,.5); display:block; }
+.sg-viewer-loading { color:#94a3b8; font-size:.9rem; padding:2rem; display:flex; flex-direction:column; align-items:center; gap:.8rem; }
+.sg-viewer-loading i { font-size:2rem; }
 
-.sg-right { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
-.sg-card { background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 1.1rem 1.3rem; }
-.sg-file-row { display: flex; align-items: center; gap: .9rem; }
-.sg-file-icon { width: 44px; height: 44px; border-radius: 11px; background: #fff8f8; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #dc2626; flex-shrink: 0; }
-.sg-file-name { font-size: .88rem; font-weight: 700; color: #111; word-break: break-all; }
-.sg-file-size { font-size: .75rem; color: #aaa; margin-top: .1rem; }
-.sg-change-btn { margin-left: auto; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 8px; padding: .35rem .75rem; font-size: .75rem; font-weight: 600; color: #666; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
-.sg-change-btn:hover { border-color: #fca5a5; color: #dc2626; }
+.sg-right { display:flex; flex-direction:column; gap:14px; position:sticky; top:16px; max-height:calc(100vh - 100px); overflow-y:auto; padding-right:4px; scrollbar-width:thin; }
+.sg-card { background:#fff; border:1.5px solid #e8e8e8; border-radius:14px; padding:1.1rem 1.3rem; }
+.sg-file-row { display:flex; align-items:center; gap:.9rem; }
+.sg-file-icon { width:44px; height:44px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; }
+.sg-file-name { font-size:.88rem; font-weight:700; color:#111; word-break:break-all; }
+.sg-file-size { font-size:.75rem; color:#aaa; margin-top:.1rem; }
+.sg-change-btn { margin-left:auto; background:#fff; border:1.5px solid #e8e8e8; border-radius:8px; padding:.35rem .75rem; font-size:.75rem; font-weight:600; color:#666; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+.sg-change-btn:hover { border-color:#fca5a5; color:#dc2626; }
+.sg-opts-title { font-size:.72rem; font-weight:800; color:#b45309; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.65rem; }
+.sg-field-label { font-size:.73rem; font-weight:700; color:#555; margin:.7rem 0 .35rem; }
+.sg-input { width:100%; box-sizing:border-box; border:1.5px solid #e8e8e8; border-radius:9px; padding:.5rem .6rem; font-size:.78rem; color:#111; outline:none; transition:border-color .15s; text-align:center; }
+.sg-input:focus { border-color:#d97706; box-shadow:0 0 0 3px rgba(217,119,6,.1); }
 
-.sg-opts-title { font-size: .72rem; font-weight: 800; color: #b91c1c; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .65rem; }
-.sg-type-tabs { display: flex; gap: .4rem; margin-bottom: .8rem; }
-.sg-type-tab { display: inline-flex; align-items: center; gap: .35rem; padding: .42rem .85rem; border: 1.5px solid #e8e8e8; border-radius: 8px; font-size: .78rem; font-weight: 600; cursor: pointer; color: #555; background: #fff; transition: all .15s; }
-.sg-type-tab input { display: none; }
-.sg-type-tab:has(input:checked) { border-color: #dc2626; background: #fff8f8; color: #dc2626; }
-.sg-type-tab:hover { border-color: #fca5a5; color: #b91c1c; }
+.sg-rp-tabs { display:flex; gap:.3rem; margin-bottom:.9rem; border-bottom:1.5px solid #f1f5f9; padding-bottom:.7rem; }
+.sg-rptab { padding:.35rem .85rem; border:none; background:none; font-size:.8rem; font-weight:600; color:#94a3b8; cursor:pointer; border-radius:7px; transition:all .15s; }
+.sg-rptab.active { background:#fffbeb; color:#d97706; }
+.sg-rptab[disabled] { opacity:.4; cursor:not-allowed; }
 
-.sg-canvas-wrap { border: 1.5px solid #fca5a5; border-radius: 10px; overflow: hidden; background: #fff; touch-action: none; margin-bottom: .5rem; }
-.sg-canvas-wrap canvas { display: block; width: 100%; height: 150px; cursor: crosshair; }
-.sg-clear-btn { display: inline-flex; align-items: center; gap: .35rem; background: #fff; border: 1.5px solid #fca5a5; border-radius: 8px; padding: .35rem .8rem; font-size: .75rem; font-weight: 600; color: #dc2626; cursor: pointer; }
-.sg-clear-btn:hover { background: #fee2e2; }
-.sg-hint { font-size: .72rem; color: #aaa; margin-bottom: .5rem; }
+.sg-sig-area { background:#f8fafc; border:1.5px dashed #e2e8f0; border-radius:10px; padding:.9rem; min-height:78px; display:flex; flex-direction:column; align-items:center; justify-content:center; margin-bottom:.8rem; }
+.sg-customize-btn { width:100%; display:flex; align-items:center; justify-content:center; gap:.45rem; background:#fff; border:1.5px solid #d97706; border-radius:10px; padding:.6rem; font-size:.82rem; font-weight:700; color:#d97706; cursor:pointer; transition:all .15s; }
+.sg-customize-btn:hover { background:#fffbeb; }
 
-.sg-field-label { font-size: .73rem; font-weight: 700; color: #555; margin: .7rem 0 .35rem; }
-.sg-coords-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: .35rem; }
-.sg-input { width: 100%; box-sizing: border-box; border: 1.5px solid #e8e8e8; border-radius: 9px; padding: .5rem .6rem; font-size: .78rem; color: #111; outline: none; transition: border-color .15s; text-align: center; }
-.sg-input:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+.sg-action-row { display:grid; grid-template-columns:1fr 1fr; gap:.5rem; }
+.sg-action-btn { display:flex; align-items:center; justify-content:center; gap:.4rem; padding:.55rem; background:#fff; border:1.5px solid #e8e8e8; border-radius:9px; font-size:.78rem; font-weight:600; color:#555; cursor:pointer; transition:all .15s; }
+.sg-action-btn:hover { background:#f8fafc; }
+.sg-action-btn.danger { border-color:#fca5a5; color:#dc2626; }
+.sg-action-btn.danger:hover { background:#fff1f2; }
 
-.sg-convert-btn { width: 100%; padding: .85rem; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: opacity .15s; }
-.sg-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
-.sg-spin { animation: spin 1s linear infinite; font-size: 1.3rem; color: #dc2626; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.sg-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1rem 1.2rem; }
-.sg-error-card.show { display: block; }
-.sg-error-msg { font-size: .82rem; color: #dc2626; }
-.sg-result-full { display: none; text-align: center; padding: 3rem 2rem; }
-.sg-result-full.show { display: block; }
-.sg-result-full-icon { font-size: 3.5rem; color: #16a34a; margin-bottom: 1rem; }
-.sg-result-full-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0 0 .4rem; }
-.sg-result-full-sub { color: #64748b; margin: 0 0 1.5rem; font-size: .95rem; }
-.sg-dl-full-btn { display: inline-flex; align-items: center; gap: .6rem; background: #16a34a; color: #fff; border: none; border-radius: 12px; padding: .9rem 2.5rem; font-size: 1.1rem; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: 0 4px 18px rgba(22,163,74,.35); transition: background .15s; }
-.sg-dl-full-btn:hover { background: #15803d; }
-.sg-new-file-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; margin: .9rem auto 0; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 10px; padding: .65rem 1.5rem; font-size: .9rem; font-weight: 600; color: #555; cursor: pointer; transition: border-color .15s; max-width: 280px; }
-.sg-new-file-btn:hover { border-color: #d97706; color: #d97706; }
+.sg-convert-btn { width:100%; padding:.85rem; background:linear-gradient(135deg,#d97706,#b45309); color:#fff; border:none; border-radius:12px; font-size:1rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:.5rem; transition:opacity .15s; }
+.sg-convert-btn:disabled { opacity:.6; cursor:not-allowed; }
+.sg-error-card { display:none; background:#fff1f2; border:1.5px solid #fca5a5; border-radius:14px; padding:1rem 1.2rem; }
+.sg-error-card.show { display:block; }
+.sg-error-msg { font-size:.82rem; color:#dc2626; }
 
-@media (max-width: 1050px) { .sg-split { grid-template-columns: 1fr; } .sg-right { position: static; max-height: none; } }
+.sg-result-full { display:none; text-align:center; padding:3rem 2rem; }
+.sg-result-full.show { display:block; }
+.sg-result-full-icon { font-size:3.5rem; color:#16a34a; margin-bottom:1rem; }
+.sg-result-full-title { font-size:1.5rem; font-weight:800; color:#0f172a; margin:0 0 .4rem; }
+.sg-result-full-sub { color:#64748b; margin:0 0 1.5rem; font-size:.95rem; }
+.sg-dl-full-btn { display:inline-flex; align-items:center; gap:.6rem; background:#16a34a; color:#fff; border:none; border-radius:12px; padding:.9rem 2.5rem; font-size:1.1rem; font-weight:700; cursor:pointer; text-decoration:none; box-shadow:0 4px 18px rgba(22,163,74,.35); transition:background .15s; }
+.sg-dl-full-btn:hover { background:#15803d; }
+.sg-new-file-btn { display:flex; align-items:center; justify-content:center; gap:.5rem; margin:.9rem auto 0; background:#fff; border:1.5px solid #e8e8e8; border-radius:10px; padding:.65rem 1.5rem; font-size:.9rem; font-weight:600; color:#555; cursor:pointer; transition:border-color .15s; max-width:280px; }
+.sg-new-file-btn:hover { border-color:#d97706; color:#d97706; }
+
+/* ── Modal ── */
+.sg-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:2000; align-items:center; justify-content:center; padding:1rem; overflow-y:auto; }
+.sg-modal-overlay.open { display:flex; }
+.sg-modal { background:#fff; border-radius:18px; width:100%; max-width:820px; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+.sg-modal-header { display:flex; align-items:flex-start; justify-content:space-between; padding:1.3rem 1.5rem 0; }
+.sg-modal-title { font-size:1.1rem; font-weight:800; color:#0f172a; }
+.sg-modal-sub { font-size:.78rem; color:#64748b; margin-top:.15rem; }
+.sg-modal-close { background:none; border:none; font-size:1.5rem; cursor:pointer; color:#94a3b8; line-height:1; padding:.1rem .3rem; }
+.sg-modal-close:hover { color:#0f172a; }
+.sg-modal-tabs { display:flex; gap:.4rem; padding:.9rem 1.5rem; border-bottom:1px solid #f1f5f9; }
+.sg-mtab { display:inline-flex; align-items:center; gap:.4rem; padding:.45rem 1rem; border:1.5px solid #e8e8e8; border-radius:9px; font-size:.82rem; font-weight:600; cursor:pointer; background:#fff; color:#555; transition:all .15s; }
+.sg-mtab.active { border-color:#dc2626; background:#fff8f8; color:#dc2626; }
+.sg-mtab:not(.active):hover { border-color:#fca5a5; color:#b91c1c; }
+.sg-modal-body { display:grid; grid-template-columns:1fr 290px; }
+.sg-modal-left { padding:1.1rem 1.2rem 1.1rem 1.5rem; display:flex; flex-direction:column; gap:.75rem; }
+.sg-modal-right { border-left:1px solid #f1f5f9; padding:1.1rem 1.5rem 1.1rem 1.2rem; display:flex; flex-direction:column; gap:.7rem; background:#fafbfc; border-radius:0 0 0 0; }
+.sg-draw-label { font-size:.73rem; font-weight:700; color:#555; margin-bottom:.3rem; }
+.sg-mode-panel { display:flex; flex-direction:column; gap:.5rem; }
+.sg-draw-canvas-wrap { border:1.5px solid #fca5a5; border-radius:10px; overflow:hidden; background:#fff; touch-action:none; }
+.sg-draw-canvas-wrap canvas { display:block; width:100%; height:130px; cursor:crosshair; }
+.sg-text-sig-input { width:100%; box-sizing:border-box; border:1.5px solid #fca5a5; border-radius:10px; padding:.75rem 1rem; font-size:2rem; color:#1e293b; outline:none; font-family:'Dancing Script',cursive; transition:border-color .15s; }
+.sg-text-sig-input:focus { border-color:#dc2626; }
+.sg-file-pick { width:100%; box-sizing:border-box; border:1.5px solid #e8e8e8; border-radius:8px; padding:.45rem .7rem; font-size:.8rem; }
+.sg-swatches { display:flex; gap:.45rem; flex-wrap:wrap; }
+.sg-swatch { width:27px; height:27px; border-radius:50%; border:3px solid transparent; cursor:pointer; transition:transform .12s,box-shadow .12s; }
+.sg-swatch:hover { transform:scale(1.12); }
+.sg-swatch.active { box-shadow:0 0 0 2px #fff,0 0 0 4px #dc2626; }
+.sg-check-row { display:flex; align-items:center; gap:.4rem; font-size:.8rem; color:#444; cursor:pointer; padding:.15rem 0; }
+.sg-check-row input { accent-color:#dc2626; width:14px; height:14px; cursor:pointer; }
+.sg-modal-preview-box { background:repeating-conic-gradient(#e2e8f0 0% 25%,#fff 0% 50%) 0 0 / 14px 14px; border:1.5px solid #e8e8e8; border-radius:10px; overflow:hidden; display:flex; align-items:center; justify-content:center; min-height:110px; }
+.sg-modal-preview-box canvas { display:block; max-width:100%; }
+.sg-detail-input { width:100%; box-sizing:border-box; border:1.5px solid #e8e8e8; border-radius:8px; padding:.42rem .65rem; font-size:.8rem; color:#111; outline:none; transition:border-color .15s; }
+.sg-detail-input:focus { border-color:#dc2626; }
+.sg-preset-inp { width:100%; box-sizing:border-box; border:1.5px solid #e8e8e8; border-radius:8px; padding:.42rem .65rem; font-size:.8rem; color:#111; outline:none; }
+.sg-clear-sm { display:inline-flex; align-items:center; gap:.3rem; background:#fff; border:1.5px solid #fca5a5; border-radius:7px; padding:.3rem .65rem; font-size:.73rem; font-weight:600; color:#dc2626; cursor:pointer; }
+.sg-clear-sm:hover { background:#fee2e2; }
+.sg-live-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.72rem; font-weight:600; color:#dc2626; }
+.sg-modal-footer { display:flex; align-items:center; justify-content:flex-end; gap:.7rem; padding:1rem 1.5rem; border-top:1px solid #f1f5f9; }
+.sg-modal-cancel-btn { background:#fff; border:1.5px solid #e8e8e8; border-radius:9px; padding:.55rem 1.3rem; font-size:.88rem; font-weight:600; color:#555; cursor:pointer; }
+.sg-modal-cancel-btn:hover { border-color:#fca5a5; color:#dc2626; }
+.sg-modal-save-btn { background:#dc2626; color:#fff; border:none; border-radius:9px; padding:.55rem 1.5rem; font-size:.88rem; font-weight:700; cursor:pointer; }
+.sg-modal-save-btn:hover { background:#b91c1c; }
+.sg-spin { animation:spin 1s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+@media (max-width:1050px) { .sg-split { grid-template-columns:1fr; } .sg-right { position:static; max-height:none; } }
+@media (max-width:700px) { .sg-modal-body { grid-template-columns:1fr; } .sg-modal-right { border-left:none; border-top:1px solid #f1f5f9; border-radius:0 0 18px 18px; } }
 </style>{% endblock %}
 
 {% block content %}
-<input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
+<input type="file" id="fileInput" accept=".pdf" style="display:none">
 
 <div class="sg-drop" id="sgDrop" onclick="document.getElementById('fileInput').click()">
   <div class="sg-drop-icon"><i class="fa-solid fa-signature" style="color:#d97706;"></i></div>
   <h3>Drop your PDF here</h3>
-  <p>Draw or upload your signature, then place it on any page</p>
-  <button type="button" class="sg-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+  <p>Draw or type your signature, then place it on any page</p>
+  <button type="button" class="sg-drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">
     <i class="fa-solid fa-plus"></i> Select PDF File
   </button>
 </div>
@@ -90,10 +137,15 @@
   </div>
 
   <div class="sg-right">
-    <h2 style="font-size:1.25rem;font-weight:800;color:#d97706;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;"><i class="fa-solid fa-signature"></i> Sign PDF</h2>
+    <h2 style="font-size:1.25rem;font-weight:800;color:#d97706;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;">
+      <i class="fa-solid fa-signature"></i> Sign PDF
+    </h2>
+
     <div class="sg-card">
       <div class="sg-file-row">
-        <div class="sg-file-icon" style="background:rgba(217,119,6,0.12);"><i class="fa-solid fa-signature" style="color:#d97706;"></i></div>
+        <div class="sg-file-icon" style="background:rgba(217,119,6,0.12);">
+          <i class="fa-solid fa-signature" style="color:#d97706;"></i>
+        </div>
         <div>
           <div class="sg-file-name" id="sgFileName">—</div>
           <div class="sg-file-size" id="sgFileSize">—</div>
@@ -104,74 +156,83 @@
       </div>
     </div>
 
-    <div class="sg-card">
-      <div class="sg-opts-title"><i class="fa-solid fa-signature"></i> Signature</div>
-      <div class="sg-type-tabs">
-        <label class="sg-type-tab"><input type="radio" name="sig_method" value="draw" checked><i class="fa-solid fa-pen"></i> Draw</label>
-        <label class="sg-type-tab"><input type="radio" name="sig_method" value="upload"><i class="fa-solid fa-image"></i> Upload Image</label>
+    <div class="sg-card" style="padding-top:.85rem">
+      <div class="sg-rp-tabs">
+        <button class="sg-rptab active">Signature</button>
+        <button class="sg-rptab" disabled title="Coming soon">Fields</button>
+        <button class="sg-rptab" disabled title="Coming soon">Stamps</button>
       </div>
-
-      <div id="sgDrawSection">
-        <div class="sg-hint">Draw your signature using mouse or touch:</div>
-        <div class="sg-canvas-wrap"><canvas id="signatureCanvas" width="600" height="150"></canvas></div>
-        <div style="display:flex;gap:.5rem;margin-top:.5rem">
-          <button type="button" id="clearCanvas" class="sg-clear-btn"><i class="fa-solid fa-trash"></i> Clear</button>
-          <button type="button" id="undoCanvas"  class="sg-clear-btn"><i class="fa-solid fa-rotate-left"></i> Undo</button>
+      <div class="sg-sig-area" id="sgSigArea">
+        <div id="sgNoSig">
+          <i class="fa-solid fa-signature" style="font-size:2rem;color:#e2e8f0;display:block;margin:0 auto .4rem;text-align:center"></i>
+          <div style="font-size:.78rem;color:#aaa;text-align:center">No signature yet</div>
         </div>
-        <input type="hidden" name="signature_data" id="signatureData">
-      </div>
-
-      <div id="sgUploadSection" style="display:none">
-        <div class="sg-field-label">Signature Image <span style="font-size:.7rem;color:#aaa;font-weight:400;">(PNG recommended)</span></div>
-        <input type="file" name="signature" id="sgUploadFile" class="sg-input" accept="image/*" style="text-align:left;padding:.5rem .8rem;">
-      </div>
-
-      <!-- Signature preview strip -->
-      <div id="sgPreviewWrap" style="display:none;margin-top:.8rem">
-        <div class="sg-opts-title" style="margin-bottom:.4rem"><i class="fa-solid fa-eye"></i> Signature Preview</div>
-        <div style="background: repeating-conic-gradient(#e5e7eb 0% 25%, #fff 0% 50%) 0 0 / 16px 16px; border-radius:8px; border:1.5px solid #e8e8e8; padding:.5rem; display:flex; align-items:center; justify-content:center; min-height:64px;">
-          <img id="sgPreviewImg" src="" alt="preview" style="max-width:100%;max-height:80px;object-fit:contain;display:block">
+        <div id="sgSavedSig" style="display:none;width:100%">
+          <div style="display:flex;align-items:center;gap:.7rem">
+            <div style="flex:1;background:repeating-conic-gradient(#e2e8f0 0% 25%,#fff 0% 50%) 0 0 / 12px 12px;border-radius:7px;padding:.4rem;display:flex;align-items:center;justify-content:center;min-height:52px">
+              <img id="sgSavedSigImg" src="" alt="signature" style="max-width:100%;max-height:56px;object-fit:contain">
+            </div>
+            <button type="button" class="sg-clear-sm" onclick="openSigModal()">
+              <i class="fa-solid fa-pen"></i> Edit
+            </button>
+          </div>
         </div>
       </div>
+      <button type="button" class="sg-customize-btn" onclick="openSigModal()">
+        <i class="fa-solid fa-pen-to-square"></i> Customize Signature
+      </button>
     </div>
 
-    <!-- Page & Size -->
     <div class="sg-card">
       <div class="sg-opts-title"><i class="fa-solid fa-ruler-combined"></i> Page & Size</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem;margin-bottom:.5rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem;margin-bottom:.6rem">
         <div><div class="sg-field-label" style="margin-top:0">Page</div><input type="number" name="page" id="sgPage" class="sg-input" value="1" min="1"></div>
         <div><div class="sg-field-label" style="margin-top:0">Width (pt)</div><input type="number" id="sgSigW" class="sg-input" value="200" min="20" max="500"></div>
         <div><div class="sg-field-label" style="margin-top:0">Height (pt)</div><input type="number" id="sgSigH" class="sg-input" value="60" min="10" max="300"></div>
       </div>
-      <label style="display:flex;align-items:center;gap:.45rem;font-size:.78rem;font-weight:600;color:#555;cursor:pointer">
-        <input type="checkbox" id="sgLockAR" checked style="accent-color:#dc2626;width:15px;height:15px"> Lock aspect ratio
-      </label>
-      <div style="font-size:.7rem;color:#94a3b8;margin-top:.4rem"><i class="fa-solid fa-hand-pointer"></i> Drag the signature box on the PDF preview to place it</div>
-      <input type="hidden" name="x1" id="sgX1" value="50">
-      <input type="hidden" name="y1" id="sgY1" value="700">
-      <input type="hidden" name="x2" id="sgX2" value="250">
-      <input type="hidden" name="y2" id="sgY2" value="760">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+        <label style="display:flex;align-items:center;gap:.4rem;font-size:.78rem;font-weight:600;color:#555;cursor:pointer;align-self:center">
+          <input type="checkbox" id="sgLockAR" checked style="accent-color:#d97706;width:14px;height:14px"> Lock aspect ratio
+        </label>
+        <div>
+          <div class="sg-field-label" style="margin-top:0">Rotation</div>
+          <select id="sgRotation" class="sg-input" style="text-align:left;padding:.48rem .6rem">
+            <option value="0">0°</option>
+            <option value="90">90°</option>
+            <option value="180">180°</option>
+            <option value="270">270°</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+        <div><div class="sg-field-label" style="margin-top:0">X (pt)</div><input type="number" id="sgPosX" class="sg-input" value="50" onchange="moveSigTo()"></div>
+        <div><div class="sg-field-label" style="margin-top:0">Y (pt)</div><input type="number" id="sgPosY" class="sg-input" value="700" onchange="moveSigTo()"></div>
+      </div>
+      <div style="font-size:.7rem;color:#94a3b8;margin-top:.5rem"><i class="fa-solid fa-hand-pointer"></i> Drag the signature box on the PDF preview to place it</div>
+      <input type="hidden" id="sgX1" value="50">
+      <input type="hidden" id="sgY1" value="700">
+      <input type="hidden" id="sgX2" value="250">
+      <input type="hidden" id="sgY2" value="760">
     </div>
 
-    <!-- Appearance -->
     <div class="sg-card">
       <div class="sg-opts-title"><i class="fa-solid fa-sliders"></i> Appearance</div>
       <div class="sg-field-label" style="margin-top:0">Opacity</div>
-      <div style="display:flex;align-items:center;gap:.7rem">
-        <input type="range" id="sgOpacity" min="10" max="100" value="100" style="flex:1;accent-color:#dc2626">
-        <span id="sgOpacityVal" style="font-size:.8rem;font-weight:700;color:#dc2626;min-width:38px;text-align:right">100%</span>
+      <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem">
+        <input type="range" id="sgOpacity" min="10" max="100" value="100" style="flex:1;accent-color:#d97706">
+        <span id="sgOpacityVal" style="font-size:.8rem;font-weight:700;color:#d97706;min-width:38px;text-align:right">100%</span>
       </div>
-    </div>
-
-    <!-- Output -->
-    <div class="sg-card">
-      <div class="sg-opts-title"><i class="fa-solid fa-gear"></i> Output</div>
-      <label style="display:flex;align-items:center;gap:.45rem;font-size:.78rem;font-weight:600;color:#555;cursor:pointer;margin-bottom:.5rem">
+      <label style="display:flex;align-items:center;gap:.45rem;font-size:.78rem;font-weight:600;color:#555;cursor:pointer;margin-bottom:.4rem">
         <input type="checkbox" id="sgTransparent" checked style="accent-color:#dc2626;width:15px;height:15px"> Transparent background (PNG)
       </label>
       <label style="display:flex;align-items:center;gap:.45rem;font-size:.78rem;font-weight:600;color:#555;cursor:pointer">
         <input type="checkbox" id="sgHiQuality" checked style="accent-color:#dc2626;width:15px;height:15px"> High quality rendering
       </label>
+    </div>
+
+    <div class="sg-action-row">
+      <button type="button" class="sg-action-btn" onclick="duplicateSig()"><i class="fa-solid fa-copy"></i> Duplicate</button>
+      <button type="button" class="sg-action-btn danger" onclick="deleteSig()"><i class="fa-solid fa-trash"></i> Delete</button>
     </div>
 
     <button type="button" class="sg-convert-btn" id="sgConvertBtn" onclick="doSign()">
@@ -195,352 +256,460 @@
     <i class="fa-solid fa-plus"></i> Sign Another File
   </button>
 </div>
+
+<!-- Signature Modal -->
+<div class="sg-modal-overlay" id="sgModal">
+  <div class="sg-modal">
+    <div class="sg-modal-header">
+      <div>
+        <div class="sg-modal-title">Customize Signature Appearance</div>
+        <div class="sg-modal-sub">Create and customize how your signature and information appears in the PDF.</div>
+      </div>
+      <button type="button" class="sg-modal-close" onclick="closeSigModal()">×</button>
+    </div>
+
+    <div class="sg-modal-tabs">
+      <button type="button" class="sg-mtab active" onclick="switchMode('text',this)">
+        <span style="font-weight:900;font-style:italic;font-size:1rem;line-height:1">T</span> Text
+      </button>
+      <button type="button" class="sg-mtab" onclick="switchMode('draw',this)">
+        <i class="fa-solid fa-pen"></i> Draw
+      </button>
+      <button type="button" class="sg-mtab" onclick="switchMode('image',this)">
+        <i class="fa-solid fa-image"></i> Image
+      </button>
+      <button type="button" class="sg-mtab" onclick="switchMode('none',this)">
+        <i class="fa-solid fa-ban"></i> None
+      </button>
+    </div>
+
+    <div class="sg-modal-body">
+      <div class="sg-modal-left">
+        <!-- Text -->
+        <div class="sg-mode-panel" id="panelText">
+          <div class="sg-draw-label">Type your signature</div>
+          <input type="text" id="sgTextInput" class="sg-text-sig-input" placeholder="Type your name…" oninput="updateModalPreview()">
+          <button type="button" class="sg-clear-sm" style="align-self:flex-start" onclick="document.getElementById('sgTextInput').value='';updateModalPreview()">
+            <i class="fa-solid fa-trash"></i> Clear
+          </button>
+        </div>
+        <!-- Draw -->
+        <div class="sg-mode-panel" id="panelDraw" style="display:none">
+          <div class="sg-draw-label">Draw your signature using mouse or touch:</div>
+          <div class="sg-draw-canvas-wrap">
+            <canvas id="sgDrawCv" width="500" height="130"></canvas>
+          </div>
+          <div style="display:flex;gap:.5rem">
+            <button type="button" class="sg-clear-sm" onclick="clearDraw()"><i class="fa-solid fa-trash"></i> Clear</button>
+            <button type="button" class="sg-clear-sm" onclick="undoDraw()"><i class="fa-solid fa-rotate-left"></i> Undo</button>
+          </div>
+        </div>
+        <!-- Image -->
+        <div class="sg-mode-panel" id="panelImage" style="display:none">
+          <div class="sg-draw-label">Upload signature image <span style="font-size:.7rem;color:#aaa;font-weight:400">(PNG recommended)</span></div>
+          <input type="file" id="sgImgInput" accept="image/*" class="sg-file-pick" onchange="loadImgSig(this)">
+          <div id="sgImgThumbWrap" style="display:none;margin-top:.5rem">
+            <img id="sgImgThumb" style="max-width:100%;max-height:90px;border-radius:6px;border:1px solid #e8e8e8;display:block">
+          </div>
+        </div>
+        <!-- None -->
+        <div class="sg-mode-panel" id="panelNone" style="display:none">
+          <p style="color:#64748b;font-size:.88rem;padding:.5rem 0">No signature will be placed on the PDF.</p>
+        </div>
+
+        <!-- Color swatches -->
+        <div id="sgColorSection">
+          <div class="sg-draw-label">Signature color</div>
+          <div class="sg-swatches">
+            <button type="button" class="sg-swatch active" style="background:#000000" onclick="setSigColor('#000000',this)" title="Black"></button>
+            <button type="button" class="sg-swatch" style="background:#1d4ed8" onclick="setSigColor('#1d4ed8',this)" title="Blue"></button>
+            <button type="button" class="sg-swatch" style="background:#dc2626" onclick="setSigColor('#dc2626',this)" title="Red"></button>
+            <button type="button" class="sg-swatch" style="background:#16a34a" onclick="setSigColor('#16a34a',this)" title="Green"></button>
+            <button type="button" class="sg-swatch" style="background:#7c3aed" onclick="setSigColor('#7c3aed',this)" title="Purple"></button>
+            <button type="button" class="sg-swatch" style="background:#d97706" onclick="setSigColor('#d97706',this)" title="Amber"></button>
+          </div>
+        </div>
+
+        <!-- Include info -->
+        <div>
+          <div class="sg-draw-label">Include information</div>
+          <label class="sg-check-row"><input type="checkbox" id="inclName" checked onchange="updateModalPreview()"> Name (Common name)</label>
+          <label class="sg-check-row"><input type="checkbox" id="inclDate" checked onchange="updateModalPreview()"> Date (Signing time)</label>
+          <label class="sg-check-row"><input type="checkbox" id="inclLocation" onchange="updateModalPreview()"> Location (City, Country)</label>
+          <label class="sg-check-row"><input type="checkbox" id="inclReason" onchange="updateModalPreview()"> Reason (e.g. Approved, Reviewed)</label>
+        </div>
+
+        <!-- Preset name -->
+        <div>
+          <div class="sg-draw-label">Preset name <span style="font-size:.7rem;color:#aaa;font-weight:400">(optional)</span></div>
+          <input type="text" id="sgPresetName" class="sg-preset-inp" placeholder="My Signature">
+          <div style="font-size:.7rem;color:#aaa;margin-top:.2rem">Save this signature style for future use.</div>
+        </div>
+      </div>
+
+      <div class="sg-modal-right">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="sg-draw-label" style="margin:0">Preview</div>
+          <span class="sg-live-badge"><i class="fa-solid fa-circle" style="font-size:.5rem"></i> Live preview</span>
+        </div>
+        <div class="sg-modal-preview-box">
+          <canvas id="sgPreviewCv" width="260" height="140"></canvas>
+        </div>
+
+        <div class="sg-draw-label">Signer details</div>
+        <div style="display:grid;gap:.45rem">
+          <div>
+            <div style="font-size:.7rem;color:#94a3b8;margin-bottom:.2rem">Name</div>
+            <input type="text" id="signerName" class="sg-detail-input" placeholder="Your name" oninput="updateModalPreview()">
+          </div>
+          <div>
+            <div style="font-size:.7rem;color:#94a3b8;margin-bottom:.2rem">Location</div>
+            <input type="text" id="signerLocation" class="sg-detail-input" placeholder="City, Country" oninput="updateModalPreview()">
+          </div>
+          <div>
+            <div style="font-size:.7rem;color:#94a3b8;margin-bottom:.2rem">Reason</div>
+            <select id="signerReason" class="sg-detail-input" onchange="updateModalPreview()">
+              <option value="">None</option>
+              <option value="Approved" selected>Approved</option>
+              <option value="Reviewed">Reviewed</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Signed">Signed</option>
+              <option value="Authorized">Authorized</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sg-modal-footer">
+      <button type="button" class="sg-modal-cancel-btn" onclick="closeSigModal()">Cancel</button>
+      <button type="button" class="sg-modal-save-btn" onclick="saveSigModal()">
+        <i class="fa-solid fa-check"></i> Save Signature
+      </button>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}<script>
-const fileInput     = document.getElementById('fileInput');
-const sgDrop        = document.getElementById('sgDrop');
-const sgSplit       = document.getElementById('sgSplit');
-const sgPagesEl     = document.getElementById('sgPages');
-const sgViewerLoad  = document.getElementById('sgViewerLoading');
-const sgConvertBtn  = document.getElementById('sgConvertBtn');
-const sgResultFull  = document.getElementById('sgResultFull');
-const sgErrorCard   = document.getElementById('sgErrorCard');
+const fileInput    = document.getElementById('fileInput');
+const sgDrop       = document.getElementById('sgDrop');
+const sgSplit      = document.getElementById('sgSplit');
+const sgPagesEl    = document.getElementById('sgPages');
+const sgViewerLoad = document.getElementById('sgViewerLoading');
+const sgConvertBtn = document.getElementById('sgConvertBtn');
+const sgResultFull = document.getElementById('sgResultFull');
+const sgErrorCard  = document.getElementById('sgErrorCard');
 
-let currentFile  = null;
-let pageDims     = [];
-let sigDataUrl   = null;
-let overlay      = null;
-let sigAspectRatio = null;   // w/h ratio, locked when checkbox on
+let currentFile = null, pageDims = [], sigDataUrl = null, overlay = null, sigAspectRatio = null;
+let sigMode = 'text', sigColor = '#000000', imgSigDataUrl = null;
+const drawUndoStack = [];
+let drawInited = false;
 
-// ── Canvas undo stack ─────────────────────────────────────────────────────
-const _undoStack = [];
-function _saveUndo() {
-  const cv = document.getElementById('signatureCanvas');
-  _undoStack.push(cv.getContext('2d').getImageData(0, 0, cv.width, cv.height));
-  if (_undoStack.length > 30) _undoStack.shift();
+document.fonts.load('700 40px "Dancing Script"').then(() => updateModalPreview());
+
+// ── Modal open/close ──────────────────────────────────────────────────────────
+function openSigModal() {
+  document.getElementById('sgModal').classList.add('open');
+  initDrawCv();
+  updateModalPreview();
+}
+function closeSigModal() { document.getElementById('sgModal').classList.remove('open'); }
+document.getElementById('sgModal').addEventListener('click', e => { if (e.target === document.getElementById('sgModal')) closeSigModal(); });
+
+// ── Mode switching ────────────────────────────────────────────────────────────
+function switchMode(mode, btn) {
+  sigMode = mode;
+  ['Text','Draw','Image','None'].forEach(m => {
+    document.getElementById('panel'+m).style.display = m.toLowerCase() === mode ? 'flex' : 'none';
+  });
+  document.querySelectorAll('.sg-mtab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('sgColorSection').style.display = (mode==='text'||mode==='draw') ? '' : 'none';
+  updateModalPreview();
 }
 
-// ── Init draw canvas ──────────────────────────────────────────────────────
-initSignatureCanvas('signatureCanvas');
-
-const _sigCv  = document.getElementById('signatureCanvas');
-const _sigCtx = _sigCv.getContext('2d');
-
-// Hook into mousedown/touchstart to save undo state before each stroke
-_sigCv.addEventListener('mousedown',  _saveUndo);
-_sigCv.addEventListener('touchstart', _saveUndo, {passive:true});
-
-// After stroke ends, refresh overlay & preview
-_sigCv.addEventListener('mouseup',  refreshSigOverlay);
-_sigCv.addEventListener('touchend', refreshSigOverlay);
-
-// Clear
-document.getElementById('clearCanvas').addEventListener('click', () => {
-  _undoStack.length = 0;
-  _sigCtx.clearRect(0, 0, _sigCv.width, _sigCv.height);
-  sigDataUrl = null; sigAspectRatio = null;
-  document.getElementById('sgPreviewWrap').style.display = 'none';
-  if (overlay) { overlay.remove(); overlay = null; }
-});
-
-// Undo
-document.getElementById('undoCanvas').addEventListener('click', () => {
-  if (!_undoStack.length) return;
-  _sigCtx.putImageData(_undoStack.pop(), 0, 0);
-  refreshSigOverlay();
-});
-
-// Upload mode
-document.getElementById('sgUploadFile').addEventListener('change', function() {
-  const f = this.files[0];
-  if (!f) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    sigDataUrl = e.target.result;
-    // compute natural aspect ratio
-    const tmp = new Image();
-    tmp.onload = () => { sigAspectRatio = tmp.naturalWidth / tmp.naturalHeight; showPreview(); placeOverlay(); };
-    tmp.src = sigDataUrl;
-  };
-  reader.readAsDataURL(f);
-});
-
-// Opacity slider
-document.getElementById('sgOpacity').addEventListener('input', function() {
-  document.getElementById('sgOpacityVal').textContent = this.value + '%';
-  if (overlay) overlay.style.opacity = this.value / 100;
-});
-
-function refreshSigOverlay() {
-  sigDataUrl = _sigCv.toDataURL('image/png');
-  // measure actual ink bounds for aspect ratio
-  const d = _sigCtx.getImageData(0, 0, _sigCv.width, _sigCv.height).data;
-  let minX = _sigCv.width, maxX = 0, minY = _sigCv.height, maxY = 0, hasInk = false;
-  for (let y = 0; y < _sigCv.height; y++) for (let x = 0; x < _sigCv.width; x++) {
-    if (d[(y * _sigCv.width + x) * 4 + 3] > 10) { minX=Math.min(minX,x); maxX=Math.max(maxX,x); minY=Math.min(minY,y); maxY=Math.max(maxY,y); hasInk=true; }
+// ── Draw canvas ───────────────────────────────────────────────────────────────
+function initDrawCv() {
+  if (drawInited) return; drawInited = true;
+  const cv = document.getElementById('sgDrawCv'), ctx = cv.getContext('2d');
+  let drawing = false, lastX = 0, lastY = 0;
+  function pos(e) {
+    const r = cv.getBoundingClientRect(), sx = cv.width/r.width, sy = cv.height/r.height;
+    if (e.touches) return [(e.touches[0].clientX-r.left)*sx,(e.touches[0].clientY-r.top)*sy];
+    return [(e.clientX-r.left)*sx,(e.clientY-r.top)*sy];
   }
-  sigAspectRatio = hasInk && (maxY > minY) ? (maxX - minX) / (maxY - minY) : null;
-  showPreview();
+  function applyStyle() { ctx.strokeStyle=sigColor; ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.lineJoin='round'; }
+  applyStyle();
+  cv.addEventListener('mousedown', e => { drawing=true; [lastX,lastY]=pos(e); drawUndoStack.push(ctx.getImageData(0,0,cv.width,cv.height)); if(drawUndoStack.length>30)drawUndoStack.shift(); });
+  cv.addEventListener('mousemove', e => { if(!drawing)return; const [x,y]=pos(e); applyStyle(); ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(x,y);ctx.stroke();[lastX,lastY]=[x,y]; });
+  cv.addEventListener('mouseup', ()=>{ drawing=false; updateModalPreview(); });
+  cv.addEventListener('mouseleave', ()=>drawing=false);
+  cv.addEventListener('touchstart', e=>{ e.preventDefault(); drawing=true;[lastX,lastY]=pos(e); drawUndoStack.push(ctx.getImageData(0,0,cv.width,cv.height)); },{passive:false});
+  cv.addEventListener('touchmove', e=>{ e.preventDefault(); if(!drawing)return; const[x,y]=pos(e); applyStyle();ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(x,y);ctx.stroke();[lastX,lastY]=[x,y]; },{passive:false});
+  cv.addEventListener('touchend', ()=>{ drawing=false; updateModalPreview(); });
+}
+function clearDraw() { const cv=document.getElementById('sgDrawCv'); cv.getContext('2d').clearRect(0,0,cv.width,cv.height); drawUndoStack.length=0; updateModalPreview(); }
+function undoDraw()  { if(!drawUndoStack.length)return; const cv=document.getElementById('sgDrawCv'); cv.getContext('2d').putImageData(drawUndoStack.pop(),0,0); updateModalPreview(); }
+
+// ── Image upload ──────────────────────────────────────────────────────────────
+function loadImgSig(input) {
+  const f=input.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{ imgSigDataUrl=e.target.result; document.getElementById('sgImgThumb').src=imgSigDataUrl; document.getElementById('sgImgThumbWrap').style.display=''; updateModalPreview(); };
+  r.readAsDataURL(f);
+}
+
+// ── Color ─────────────────────────────────────────────────────────────────────
+function setSigColor(color, btn) {
+  sigColor=color;
+  document.querySelectorAll('.sg-swatch').forEach(s=>s.classList.remove('active'));
+  btn.classList.add('active');
+  updateModalPreview();
+}
+
+// ── Get current sig image (sync for text/draw, null if empty) ─────────────────
+function getCurrentSigUrl() {
+  if (sigMode==='text') {
+    const t=document.getElementById('sgTextInput').value.trim(); if(!t)return null;
+    const c=document.createElement('canvas'); c.width=400;c.height=100;
+    const ctx=c.getContext('2d'); ctx.font='700 52px "Dancing Script",cursive';
+    ctx.fillStyle=sigColor; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(t,200,50); return c.toDataURL('image/png');
+  }
+  if (sigMode==='draw') {
+    const cv=document.getElementById('sgDrawCv'),ctx=cv.getContext('2d');
+    const d=ctx.getImageData(0,0,cv.width,cv.height).data;
+    return Array.from(d).some((v,i)=>i%4===3&&v>0) ? cv.toDataURL('image/png') : null;
+  }
+  if (sigMode==='image') return imgSigDataUrl||null;
+  return null;
+}
+
+// ── Info lines ────────────────────────────────────────────────────────────────
+function getInfoLines() {
+  const lines=[];
+  const inclName=document.getElementById('inclName').checked;
+  const inclDate=document.getElementById('inclDate').checked;
+  const inclLoc =document.getElementById('inclLocation').checked;
+  const inclRsn =document.getElementById('inclReason').checked;
+  const name=document.getElementById('signerName').value.trim();
+  const loc =document.getElementById('signerLocation').value.trim();
+  const rsn =document.getElementById('signerReason').value;
+  const now=new Date();
+  const ds=now.getFullYear()+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+  if(inclName&&name){lines.push({t:'Digitally signed by',b:false});lines.push({t:name,b:true});lines.push({t:'',b:false});}
+  if(inclDate)       lines.push({t:'Date: '+ds,b:false});
+  if(inclLoc&&loc)   lines.push({t:'Location: '+loc,b:false});
+  if(inclRsn&&rsn)   lines.push({t:'Reason: '+rsn,b:false});
+  return lines;
+}
+
+// ── Modal preview ─────────────────────────────────────────────────────────────
+function updateModalPreview() {
+  const pCv=document.getElementById('sgPreviewCv'), ctx=pCv.getContext('2d');
+  ctx.clearRect(0,0,pCv.width,pCv.height);
+  const sigUrl=getCurrentSigUrl(), lines=getInfoLines();
+  const W=pCv.width,H=pCv.height;
+  const hasInfo=lines.length>0;
+  const sigW=hasInfo?Math.round(W*0.5):W;
+
+  function drawInfo() {
+    if(!hasInfo)return;
+    const ix=sigW+6; ctx.textAlign='left';
+    let y=14; const lh=12;
+    lines.forEach(l=>{
+      if(!l.t){y+=4;return;}
+      ctx.font=(l.b?'bold ':'')+' 8px system-ui,sans-serif'; ctx.fillStyle='#334155';
+      const avail=W-ix-4; let txt=l.t;
+      while(ctx.measureText(txt).width>avail&&txt.length>3)txt=txt.slice(0,-1);
+      ctx.fillText(txt,ix,y); y+=lh;
+    });
+  }
+
+  if(sigUrl) {
+    const img=new Image(); img.onload=()=>{
+      const mxW=sigW-10,mxH=H-16,r=Math.min(mxW/img.naturalWidth,mxH/img.naturalHeight);
+      ctx.drawImage(img,(sigW-img.naturalWidth*r)/2,(H-img.naturalHeight*r)/2,img.naturalWidth*r,img.naturalHeight*r);
+      drawInfo();
+    }; img.src=sigUrl;
+  } else {
+    ctx.font='10px system-ui'; ctx.fillStyle='#cbd5e1'; ctx.textAlign='center';
+    ctx.fillText(sigMode==='text'?'Type your name above':sigMode==='draw'?'Draw above':sigMode==='image'?'Upload image':'None',W/2,H/2);
+    drawInfo();
+  }
+}
+
+// ── Save signature (build composite + store) ──────────────────────────────────
+function saveSigModal() {
+  if(sigMode==='none') { sigDataUrl=null;sigAspectRatio=null;updateSigPanel(null);closeSigModal();return; }
+  const sigUrl=getCurrentSigUrl();
+  if(!sigUrl){alert('Please draw, type, or upload a signature first.');return;}
+  const lines=getInfoLines(), hasInfo=lines.length>0;
+  const compW=hasInfo?700:350, compH=130;
+  const compCv=document.createElement('canvas'); compCv.width=compW;compCv.height=compH;
+  const ctx=compCv.getContext('2d');
+  const sigAreaW=hasInfo?300:compW;
+  const img=new Image(); img.onload=()=>{
+    const mxW=sigAreaW-16,mxH=compH-16,r=Math.min(mxW/img.naturalWidth,mxH/img.naturalHeight);
+    const sw=img.naturalWidth*r,sh=img.naturalHeight*r;
+    ctx.drawImage(img,(sigAreaW-sw)/2,(compH-sh)/2,sw,sh);
+    if(hasInfo){
+      const ix=sigAreaW+18; ctx.textAlign='left'; let y=24; const lh=20;
+      lines.forEach(l=>{
+        if(!l.t){y+=6;return;}
+        ctx.font=(l.b?'bold ':'')+' 16px system-ui,sans-serif'; ctx.fillStyle='#334155';
+        ctx.fillText(l.t,ix,y); y+=lh;
+      });
+    }
+    sigAspectRatio=compW/compH; sigDataUrl=compCv.toDataURL('image/png');
+    updateSigPanel(sigDataUrl);
+    if(pageDims.length)placeOverlay();
+    closeSigModal();
+  }; img.src=sigUrl;
+}
+
+function updateSigPanel(url) {
+  document.getElementById('sgNoSig').style.display=url?'none':'';
+  document.getElementById('sgSavedSig').style.display=url?'block':'none';
+  if(url)document.getElementById('sgSavedSigImg').src=url;
+}
+
+// ── Overlay (drag + resize) ───────────────────────────────────────────────────
+function placeOverlay() {
+  if(!sigDataUrl||!pageDims.length)return;
+  const pi=Math.min(parseInt(document.getElementById('sgPage').value,10)-1,pageDims.length-1);
+  const pw=sgPagesEl.querySelectorAll('.sg-page-wrap')[pi]; if(!pw)return;
+  sgPagesEl.querySelectorAll('.sg-sig-overlay').forEach(e=>e.remove());
+  const img=pw.querySelector('img'),dW=img.offsetWidth,dH=img.offsetHeight;
+  const pdfW=pageDims[pi].w,pdfH=pageDims[pi].h,sc=dW/pdfW;
+  let sigWPt=parseInt(document.getElementById('sgSigW').value)||200;
+  let sigHPt=parseInt(document.getElementById('sgSigH').value)||60;
+  const x1Pt=parseInt(document.getElementById('sgX1').value)||50;
+  const y1Pt=parseInt(document.getElementById('sgY1').value)||700;
+  const op=parseInt(document.getElementById('sgOpacity').value)/100;
+  let L=x1Pt*sc,T=y1Pt*sc,W=sigWPt*sc,H=sigHPt*sc;
+  overlay=document.createElement('div'); overlay.className='sg-sig-overlay';
+  overlay.style.cssText=`position:absolute;left:${L}px;top:${T}px;width:${W}px;height:${H}px;background-image:url('${sigDataUrl}');background-size:contain;background-repeat:no-repeat;background-position:center;border:2px dashed #d97706;border-radius:4px;cursor:grab;box-sizing:border-box;user-select:none;touch-action:none;opacity:${op};`;
+  const hdl=document.createElement('div');
+  hdl.style.cssText='position:absolute;right:-7px;bottom:-7px;width:16px;height:16px;background:#d97706;border-radius:50%;cursor:se-resize;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);';
+  overlay.appendChild(hdl);
+  const bdg=document.createElement('div'); bdg.textContent='Pg '+(pi+1);
+  bdg.style.cssText='position:absolute;top:-18px;left:0;font-size:10px;font-weight:700;color:#d97706;white-space:nowrap;pointer-events:none;';
+  overlay.appendChild(bdg); pw.appendChild(overlay);
+  overlay.addEventListener('mousedown',e=>{
+    if(e.target===hdl)return; e.preventDefault(); overlay.style.cursor='grabbing';
+    const ox=e.clientX-overlay.offsetLeft,oy=e.clientY-overlay.offsetTop;
+    const mv=ev=>{L=Math.max(0,Math.min(ev.clientX-ox,dW-overlay.offsetWidth));T=Math.max(0,Math.min(ev.clientY-oy,dH-overlay.offsetHeight));overlay.style.left=L+'px';overlay.style.top=T+'px';syncCoords(pi,L,T,L+overlay.offsetWidth,T+overlay.offsetHeight,pdfW,pdfH,dW,dH);};
+    const up=()=>{overlay.style.cursor='grab';document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);};
+    document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+  });
+  hdl.addEventListener('mousedown',e=>{
+    e.preventDefault();e.stopPropagation();document.body.style.cursor='se-resize';
+    const rX=e.clientX,rY=e.clientY,rW=overlay.offsetWidth,rH=overlay.offsetHeight;
+    const lock=document.getElementById('sgLockAR').checked,ar=sigAspectRatio||(rW/rH);
+    const mv=ev=>{let nw=Math.max(30,rW+ev.clientX-rX);let nh=lock?nw/ar:Math.max(15,rH+ev.clientY-rY);nw=Math.min(nw,dW-overlay.offsetLeft);nh=Math.min(nh,dH-overlay.offsetTop);overlay.style.width=nw+'px';overlay.style.height=nh+'px';document.getElementById('sgSigW').value=Math.round(nw/sc);document.getElementById('sgSigH').value=Math.round(nh/sc);syncCoords(pi,overlay.offsetLeft,overlay.offsetTop,overlay.offsetLeft+nw,overlay.offsetTop+nh,pdfW,pdfH,dW,dH);};
+    const up=()=>{document.body.style.cursor='';document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);};
+    document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+  });
+  syncCoords(pi,L,T,L+W,T+H,pdfW,pdfH,dW,dH);
+}
+
+function syncCoords(pi,px1,py1,px2,py2,pdfW,pdfH,dW,dH){
+  const sx=pdfW/dW,sy=pdfH/dH;
+  const x1=Math.round(px1*sx),y1=Math.round(py1*sy),x2=Math.round(px2*sx),y2=Math.round(py2*sy);
+  document.getElementById('sgX1').value=x1; document.getElementById('sgY1').value=y1;
+  document.getElementById('sgX2').value=x2; document.getElementById('sgY2').value=y2;
+  document.getElementById('sgPage').value=pi+1;
+  document.getElementById('sgPosX').value=x1; document.getElementById('sgPosY').value=y1;
+}
+
+function moveSigTo(){
+  document.getElementById('sgX1').value=document.getElementById('sgPosX').value;
+  document.getElementById('sgY1').value=document.getElementById('sgPosY').value;
+  if(sigDataUrl)placeOverlay();
+}
+function duplicateSig(){
+  if(!sigDataUrl||!overlay)return;
+  document.getElementById('sgX1').value=(parseInt(document.getElementById('sgX1').value)||50)+20;
+  document.getElementById('sgY1').value=(parseInt(document.getElementById('sgY1').value)||700)+20;
+  document.getElementById('sgX2').value=(parseInt(document.getElementById('sgX2').value)||250)+20;
+  document.getElementById('sgY2').value=(parseInt(document.getElementById('sgY2').value)||760)+20;
   placeOverlay();
 }
+function deleteSig(){if(overlay){overlay.remove();overlay=null;}sigDataUrl=null;sigAspectRatio=null;updateSigPanel(null);}
 
-function showPreview() {
-  if (!sigDataUrl) return;
-  document.getElementById('sgPreviewImg').src = sigDataUrl;
-  document.getElementById('sgPreviewWrap').style.display = '';
+// ── Reset / load / set ────────────────────────────────────────────────────────
+function resetTool(){
+  fileInput.value='';currentFile=null;pageDims=[];sigDataUrl=null;overlay=null;sigAspectRatio=null;
+  sgDrop.style.display='';sgSplit.classList.remove('show');sgResultFull.classList.remove('show');
+  sgPagesEl.innerHTML='';sgPagesEl.style.display='none';
+  sgViewerLoad.style.display='flex';sgConvertBtn.disabled=false;
+  sgErrorCard.classList.remove('show');updateSigPanel(null);
 }
 
-// ── Overlay: draggable + resizable signature box ──────────────────────────
-function placeOverlay() {
-  if (!sigDataUrl || !pageDims.length) return;
-
-  const pageIdx  = Math.min(parseInt(document.getElementById('sgPage').value, 10) - 1, pageDims.length - 1);
-  const pageWrap = sgPagesEl.querySelectorAll('.sg-page-wrap')[pageIdx];
-  if (!pageWrap) return;
-
-  sgPagesEl.querySelectorAll('.sg-sig-overlay').forEach(el => el.remove());
-
-  const img   = pageWrap.querySelector('img');
-  const dispW = img.offsetWidth;
-  const dispH = img.offsetHeight;
-  const pdfW  = pageDims[pageIdx].w;
-  const pdfH  = pageDims[pageIdx].h;
-  const scale = dispW / pdfW;
-
-  let sigWPt = parseInt(document.getElementById('sgSigW').value, 10) || 200;
-  let sigHPt = parseInt(document.getElementById('sgSigH').value, 10) || 60;
-  const x1Pt = parseInt(document.getElementById('sgX1').value, 10) || 50;
-  const y1Pt = parseInt(document.getElementById('sgY1').value, 10) || 700;
-  const opac = parseInt(document.getElementById('sgOpacity').value, 10) / 100;
-
-  let left = x1Pt  * scale;
-  let top  = y1Pt  * scale;
-  let w    = sigWPt * scale;
-  let h    = sigHPt * scale;
-
-  overlay = document.createElement('div');
-  overlay.className = 'sg-sig-overlay';
-  overlay.style.cssText = `
-    position:absolute;left:${left}px;top:${top}px;
-    width:${w}px;height:${h}px;
-    background-image:url('${sigDataUrl}');
-    background-size:contain;background-repeat:no-repeat;background-position:center;
-    border:2px dashed #dc2626;border-radius:4px;
-    cursor:grab;box-sizing:border-box;user-select:none;touch-action:none;
-    opacity:${opac};
-  `;
-
-  // Resize handle — bottom-right
-  const handle = document.createElement('div');
-  handle.title = 'Drag to resize';
-  handle.style.cssText = `
-    position:absolute;right:-7px;bottom:-7px;
-    width:16px;height:16px;background:#dc2626;border-radius:50%;
-    cursor:se-resize;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);
-  `;
-  overlay.appendChild(handle);
-
-  // Page label
-  const badge = document.createElement('div');
-  badge.textContent = 'Pg ' + (pageIdx + 1);
-  badge.style.cssText = 'position:absolute;top:-18px;left:0;font-size:10px;font-weight:700;color:#dc2626;white-space:nowrap;pointer-events:none;';
-  overlay.appendChild(badge);
-
-  pageWrap.appendChild(overlay);
-
-  // ── Move drag ──
-  overlay.addEventListener('mousedown', e => {
-    if (e.target === handle) return;
-    e.preventDefault();
-    overlay.style.cursor = 'grabbing';
-    const ox = e.clientX - overlay.offsetLeft, oy = e.clientY - overlay.offsetTop;
-    const onMove = ev => {
-      left = Math.max(0, Math.min(ev.clientX - ox, dispW - overlay.offsetWidth));
-      top  = Math.max(0, Math.min(ev.clientY - oy, dispH - overlay.offsetHeight));
-      overlay.style.left = left + 'px';
-      overlay.style.top  = top  + 'px';
-      updateCoords(pageIdx, left, top, left + overlay.offsetWidth, top + overlay.offsetHeight, pdfW, pdfH, dispW, dispH);
-    };
-    const onUp = () => {
-      overlay.style.cursor = 'grab';
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup',   onUp);
-    };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup',   onUp);
-  });
-
-  // Touch move
-  overlay.addEventListener('touchstart', e => {
-    if (e.target === handle) return;
-    const t  = e.touches[0];
-    const ox = t.clientX - overlay.offsetLeft, oy = t.clientY - overlay.offsetTop;
-    const onMove = ev => {
-      const tt = ev.touches[0];
-      left = Math.max(0, Math.min(tt.clientX - ox, dispW - overlay.offsetWidth));
-      top  = Math.max(0, Math.min(tt.clientY - oy, dispH - overlay.offsetHeight));
-      overlay.style.left = left + 'px';
-      overlay.style.top  = top  + 'px';
-      updateCoords(pageIdx, left, top, left + overlay.offsetWidth, top + overlay.offsetHeight, pdfW, pdfH, dispW, dispH);
-    };
-    const onUp = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); };
-    document.addEventListener('touchmove', onMove, {passive:true});
-    document.addEventListener('touchend',  onUp);
-  }, {passive:true});
-
-  // ── Resize handle ──
-  handle.addEventListener('mousedown', e => {
-    e.preventDefault(); e.stopPropagation();
-    document.body.style.cursor = 'se-resize';
-    const rStartX = e.clientX, rStartY = e.clientY;
-    const rStartW = overlay.offsetWidth, rStartH = overlay.offsetHeight;
-    const locked  = document.getElementById('sgLockAR').checked;
-    const ar      = sigAspectRatio || (rStartW / rStartH);
-    const onMove  = ev => {
-      let nw = Math.max(30, rStartW + ev.clientX - rStartX);
-      let nh = locked ? nw / ar : Math.max(15, rStartH + ev.clientY - rStartY);
-      nw = Math.min(nw, dispW - overlay.offsetLeft);
-      nh = Math.min(nh, dispH - overlay.offsetTop);
-      overlay.style.width  = nw + 'px';
-      overlay.style.height = nh + 'px';
-      document.getElementById('sgSigW').value = Math.round(nw / scale);
-      document.getElementById('sgSigH').value = Math.round(nh / scale);
-      updateCoords(pageIdx, overlay.offsetLeft, overlay.offsetTop, overlay.offsetLeft + nw, overlay.offsetTop + nh, pdfW, pdfH, dispW, dispH);
-    };
-    const onUp = () => {
-      document.body.style.cursor = '';
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup',   onUp);
-    };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup',   onUp);
-  });
-
-  updateCoords(pageIdx, left, top, left + w, top + h, pdfW, pdfH, dispW, dispH);
-}
-
-function updateCoords(pageIdx, px1, py1, px2, py2, pdfW, pdfH, dispW, dispH) {
-  const sx = pdfW / dispW, sy = pdfH / dispH;
-  document.getElementById('sgX1').value   = Math.round(px1 * sx);
-  document.getElementById('sgY1').value   = Math.round(py1 * sy);
-  document.getElementById('sgX2').value   = Math.round(px2 * sx);
-  document.getElementById('sgY2').value   = Math.round(py2 * sy);
-  document.getElementById('sgPage').value = pageIdx + 1;
-}
-
-['sgPage','sgSigW','sgSigH'].forEach(id =>
-  document.getElementById(id).addEventListener('change', () => { if (sigDataUrl) placeOverlay(); })
-);
-
-// ── Reset / load / set ────────────────────────────────────────────────────
-function resetTool() {
-  fileInput.value = ''; currentFile = null; pageDims = []; sigDataUrl = null; overlay = null; sigAspectRatio = null;
-  sgDrop.style.display = ''; sgSplit.classList.remove('show');
-  sgResultFull.classList.remove('show');
-  sgPagesEl.innerHTML = ''; sgPagesEl.style.display = 'none';
-  sgViewerLoad.style.display = 'flex'; sgConvertBtn.disabled = false;
-  sgErrorCard.classList.remove('show');
-  document.getElementById('sgPreviewWrap').style.display = 'none';
-}
-
-async function loadPreview(file) {
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-  try {
-    const res  = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    pageDims = data.page_dims || [];
-    sgPagesEl.innerHTML = '';
-    data.page_images.forEach((b64, i) => {
-      const wrap = document.createElement('div');
-      wrap.className = 'sg-page-wrap';
-      wrap.style.cssText = 'position:relative;width:100%;max-width:680px';
-      const img = document.createElement('img');
-      img.src   = 'data:image/jpeg;base64,' + b64;
-      img.alt   = 'Page ' + (i + 1);
-      img.style.cssText = 'width:100%;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,.5);display:block';
-      img.onload = () => { if (i === 0 && sigDataUrl) placeOverlay(); };
-      wrap.appendChild(img);
-      sgPagesEl.appendChild(wrap);
+async function loadPreview(file){
+  const fd=new FormData();fd.append('file',file);fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
+  try{
+    const res=await fetch('{% url "api_render_pdf_pages" %}',{method:'POST',body:fd});
+    const data=await res.json();if(data.error)throw new Error(data.error);
+    pageDims=data.page_dims||[];sgPagesEl.innerHTML='';
+    data.page_images.forEach((b64,i)=>{
+      const wrap=document.createElement('div');wrap.className='sg-page-wrap';wrap.style.cssText='position:relative;width:100%;max-width:680px';
+      const img=document.createElement('img');img.src='data:image/jpeg;base64,'+b64;img.alt='Page '+(i+1);
+      img.style.cssText='width:100%;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,.5);display:block';
+      img.onload=()=>{if(i===0&&sigDataUrl)placeOverlay();};wrap.appendChild(img);sgPagesEl.appendChild(wrap);
     });
-    document.getElementById('sgPage').max = data.page_count;
-    sgViewerLoad.style.display = 'none';
-    sgPagesEl.style.display    = 'flex';
-  } catch (e) {
-    sgViewerLoad.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>';
-  }
+    document.getElementById('sgPage').max=data.page_count;
+    sgViewerLoad.style.display='none';sgPagesEl.style.display='flex';
+  }catch(e){sgViewerLoad.innerHTML='<i class="fa-solid fa-eye-slash" style="font-size:2rem;color:#94a3b8"></i><span style="color:#94a3b8;font-size:.85rem">Preview unavailable</span>';}
 }
 
-function setFile(f) {
-  if (!f) return;
-  currentFile = f;
-  document.getElementById('sgFileName').textContent = f.name;
-  document.getElementById('sgFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
-  const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
-  sgDrop.style.display = 'none';
-  sgResultFull.classList.remove('show'); sgErrorCard.classList.remove('show');
-  sgSplit.classList.add('show');
-  loadPreview(f);
+function setFile(f){
+  if(!f)return;currentFile=f;
+  document.getElementById('sgFileName').textContent=f.name;
+  document.getElementById('sgFileSize').textContent=(f.size/1024).toFixed(1)+' KB';
+  const dt=new DataTransfer();dt.items.add(f);fileInput.files=dt.files;
+  sgDrop.style.display='none';sgResultFull.classList.remove('show');sgErrorCard.classList.remove('show');
+  sgSplit.classList.add('show');loadPreview(f);
 }
 
-// ── Sign (submit) ─────────────────────────────────────────────────────────
-async function doSign() {
-  if (!currentFile) return;
-  const method = document.querySelector('input[name="sig_method"]:checked').value;
-  if (method === 'draw')
-    document.getElementById('signatureData').value = _sigCv.toDataURL('image/png');
-
-  sgConvertBtn.disabled = true;
-  sgResultFull.classList.remove('show');
-  sgErrorCard.classList.remove('show');
-  if (typeof ZLoader !== 'undefined') ZLoader.show('Signing PDF…');
-
-  const fd = new FormData();
-  fd.append('file', currentFile);
-  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-  fd.append('sig_method',   method);
-  fd.append('signature_data', document.getElementById('signatureData').value);
-  fd.append('opacity',      document.getElementById('sgOpacity').value);
-  fd.append('transparent',  document.getElementById('sgTransparent').checked ? '1' : '0');
-  fd.append('hi_quality',   document.getElementById('sgHiQuality').checked   ? '1' : '0');
-  const sigFile = document.getElementById('sgUploadFile');
-  if (sigFile?.files[0]) fd.append('signature', sigFile.files[0]);
-  ['page','x1','y1','x2','y2'].forEach(n => {
-    const el = document.querySelector(`[name="${n}"]`); if (el) fd.append(n, el.value);
-  });
-  try {
-    const res  = await fetch('{% url "api_sign_pdf" %}', { method: 'POST', body: fd });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    if (typeof ZLoader !== 'undefined') ZLoader.hide();
-    document.getElementById('sgDlBtn').href = data.download_url;
-    const _d = new Date(); const _mo = _d.toLocaleString('en-US',{month:'short'}); const _dy = _d.getDate();
-    const _hh = _d.getHours() % 12 || 12; const _mm = String(_d.getMinutes()).padStart(2,'0'); const _ss = String(_d.getSeconds()).padStart(2,'0'); const _ap = _d.getHours() >= 12 ? 'PM' : 'AM';
-    document.getElementById('sgDlBtn').download = `ZayroDocX Sign PDF ${_mo} ${_dy}, ${_hh}_${_mm}_${_ss} ${_ap}.pdf`;
-    sgSplit.classList.remove('show');
-    sgResultFull.classList.add('show');
-  } catch (e) {
-    if (typeof ZLoader !== 'undefined') ZLoader.hide();
-    document.getElementById('sgErrorMsg').textContent = e.message || 'Failed.';
-    sgErrorCard.classList.add('show');
-  } finally {
-    sgConvertBtn.disabled = false;
-  }
+// ── Sign ──────────────────────────────────────────────────────────────────────
+async function doSign(){
+  if(!currentFile)return;
+  if(!sigDataUrl){alert('Please click "Customize Signature" and save a signature first.');return;}
+  sgConvertBtn.disabled=true;sgResultFull.classList.remove('show');sgErrorCard.classList.remove('show');
+  if(typeof ZLoader!=='undefined')ZLoader.show('Signing PDF…');
+  const fd=new FormData();
+  fd.append('file',currentFile);fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
+  fd.append('signature_data',sigDataUrl);
+  fd.append('opacity',document.getElementById('sgOpacity').value);
+  fd.append('transparent',document.getElementById('sgTransparent').checked?'1':'0');
+  fd.append('hi_quality',document.getElementById('sgHiQuality').checked?'1':'0');
+  fd.append('rotation',document.getElementById('sgRotation').value);
+  fd.append('page',document.getElementById('sgPage').value);
+  fd.append('x1',document.getElementById('sgX1').value);fd.append('y1',document.getElementById('sgY1').value);
+  fd.append('x2',document.getElementById('sgX2').value);fd.append('y2',document.getElementById('sgY2').value);
+  try{
+    const res=await fetch('{% url "api_sign_pdf" %}',{method:'POST',body:fd});
+    const data=await res.json();if(data.error)throw new Error(data.error);
+    if(typeof ZLoader!=='undefined')ZLoader.hide();
+    document.getElementById('sgDlBtn').href=data.download_url;
+    const _d=new Date(),_mo=_d.toLocaleString('en-US',{month:'short'}),_dy=_d.getDate();
+    const _hh=_d.getHours()%12||12,_mm=String(_d.getMinutes()).padStart(2,'0'),_ss=String(_d.getSeconds()).padStart(2,'0'),_ap=_d.getHours()>=12?'PM':'AM';
+    document.getElementById('sgDlBtn').download=`ZayroDocX Sign PDF ${_mo} ${_dy}, ${_hh}_${_mm}_${_ss} ${_ap}.pdf`;
+    sgSplit.classList.remove('show');sgResultFull.classList.add('show');
+  }catch(e){
+    if(typeof ZLoader!=='undefined')ZLoader.hide();
+    document.getElementById('sgErrorMsg').textContent=e.message||'Failed.';sgErrorCard.classList.add('show');
+  }finally{sgConvertBtn.disabled=false;}
 }
 
-fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
-sgDrop.addEventListener('dragover',  e => { e.preventDefault(); sgDrop.classList.add('drag-over'); });
-sgDrop.addEventListener('dragleave', () => sgDrop.classList.remove('drag-over'));
-sgDrop.addEventListener('drop', e => { e.preventDefault(); sgDrop.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
-
-document.querySelectorAll('input[name="sig_method"]').forEach(r => r.addEventListener('change', function() {
-  document.getElementById('sgDrawSection').style.display   = this.value === 'draw'   ? 'block' : 'none';
-  document.getElementById('sgUploadSection').style.display = this.value === 'upload' ? 'block' : 'none';
-  sigDataUrl = null; sigAspectRatio = null;
-  document.getElementById('sgPreviewWrap').style.display = 'none';
-  if (overlay) { overlay.remove(); overlay = null; }
-}));
+// ── Listeners ─────────────────────────────────────────────────────────────────
+fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));
+sgDrop.addEventListener('dragover',e=>{e.preventDefault();sgDrop.classList.add('drag-over');});
+sgDrop.addEventListener('dragleave',()=>sgDrop.classList.remove('drag-over'));
+sgDrop.addEventListener('drop',e=>{e.preventDefault();sgDrop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+document.getElementById('sgOpacity').addEventListener('input',function(){document.getElementById('sgOpacityVal').textContent=this.value+'%';if(overlay)overlay.style.opacity=this.value/100;});
+['sgPage','sgSigW','sgSigH'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{if(sigDataUrl)placeOverlay();}));
 </script>{% endblock %}
