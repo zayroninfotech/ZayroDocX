@@ -231,8 +231,18 @@
   border-radius: 0;
 }
 .pdf-thumb-loading {
-  display: flex; align-items: center; justify-content: center;
-  width: 100%; height: 100%; color: #ccc; font-size: .75rem; gap: .3rem;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: thumb-shimmer 1.4s ease infinite;
+}
+@keyframes thumb-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.thumb-progress-chip {
+  display: none; align-items: center; gap: .35rem;
+  font-size: .78rem; color: #dc2626; font-weight: 600;
 }
 </style>
 
@@ -265,6 +275,10 @@
         <div class="fp-topbar-info">
           <span><strong id="statCount">0</strong> files</span>
           <span><strong id="statSize">0 KB</strong> total</span>
+          <span class="thumb-progress-chip" id="thumbProgressChip">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size:.65rem;"></i>
+            Rendering <strong id="thumbLoadedCount">0</strong>/<strong id="thumbTotalCount">0</strong>
+          </span>
         </div>
         <button type="button" class="btn-add-more" id="addMoreBtn">
           <i class="fa-solid fa-plus"></i> Add more files
@@ -398,6 +412,20 @@ function render() {
   const totalBytes = fileArray.reduce((s, f) => s + f.size, 0);
   statSize.textContent = formatBytes(totalBytes);
 
+  /* thumb progress chip */
+  const loadedCount  = fileArray.filter(f => !!thumbCache.get(f)).length;
+  const pendingCount = fileArray.filter(f => thumbCache.has(f) && !thumbCache.get(f)).length;
+  const chip = document.getElementById('thumbProgressChip');
+  if (chip) {
+    if (pendingCount > 0) {
+      chip.style.display = 'flex';
+      document.getElementById('thumbLoadedCount').textContent = loadedCount;
+      document.getElementById('thumbTotalCount').textContent  = fileArray.length;
+    } else {
+      chip.style.display = 'none';
+    }
+  }
+
   fileListWrap.innerHTML = '';
   fileArray.forEach((f, i) => {
     const card = document.createElement('div');
@@ -408,7 +436,7 @@ function render() {
     const thumbContent = cached
       ? `<img class="pdf-thumb-img" src="${cached}">`
       : (thumbCache.has(f)
-          ? `<div class="pdf-thumb-loading"><i class="fa-solid fa-spinner fa-spin"></i></div>`
+          ? `<div class="pdf-thumb-loading"></div>`
           : `<div class="pdf-doc-icon"><span class="pdf-label">PDF</span></div>`);
     card.innerHTML = `
       <div class="file-card-thumb">
