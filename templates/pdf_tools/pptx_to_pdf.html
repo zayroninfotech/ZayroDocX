@@ -119,6 +119,7 @@
   </div>
 
   <div class="p2p-right">
+    <div style="font-size:1.25rem;font-weight:800;color:var(--text,#1e293b);letter-spacing:-.02em;padding-bottom:.25rem;">PowerPoint to PDF</div>
     <div class="p2p-card">
       <div class="p2p-file-row">
         <div class="p2p-file-icon"><i class="fa-solid fa-file-powerpoint"></i></div>
@@ -254,20 +255,25 @@ async function doConvert() {
     p2pDrop.style.display = 'none';
     p2pSplit.classList.remove('show');
     p2pResultFull.className = 'p2p-result-full show';
+    const now = new Date();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const month = months[now.getMonth()];
+    const day = now.getDate();
+    const hh = now.getHours();
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const ss = String(now.getSeconds()).padStart(2,'0');
+    const ampm = hh >= 12 ? 'PM' : 'AM';
+    const dlName = `ZayroDocX PowerPoint to PDF ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.pdf`;
     p2pResultFull.innerHTML = `
       <div class="result-success-wrap">
         <h2 class="result-success-title">PowerPoint converted to PDF!</h2>
         <div class="result-download-row">
-          <a href="${data.download_url}" class="btn-download-big" download="${data.filename || 'converted.pdf'}">
+          <a href="${data.download_url}" class="btn-download-big" download="${dlName}">
             <i class="fa-solid fa-download"></i> Download PDF
           </a>
           <button class="btn-again" onclick="resetTool()">
             <i class="fa-solid fa-rotate-left"></i> Convert Again
           </button>
-        </div>
-        <div class="continue-section">
-          <div class="continue-title">Continue to…</div>
-          <div class="continue-grid">${buildContinueGrid()}</div>
         </div>
       </div>`;
     window.scrollTo({top:0, behavior:'smooth'});
