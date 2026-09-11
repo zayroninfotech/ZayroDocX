@@ -575,9 +575,11 @@ function syncSelectedPages() {
   }
   parts.push(start === end ? `${start}` : `${start}-${end}`);
   input.value = parts.join(',');
-  /* auto-switch to Pages tab so the filled input is visible */
+  /* auto-switch to Pages tab + Select pages sub-tab */
   const pagesTab = document.querySelector('[data-panel="pagesPanel"]');
   if (pagesTab && !pagesTab.classList.contains('active')) pagesTab.click();
+  const selectTab = document.getElementById('tabSelectPages');
+  if (selectTab && !selectTab.classList.contains('active')) selectTab.click();
 }
 
 fileInput.addEventListener('change', function() {
