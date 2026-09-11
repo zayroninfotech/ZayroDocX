@@ -1772,9 +1772,13 @@ def scan_to_pdf(request):
                 pdf_bytes = pytesseract.image_to_pdf_or_hocr(img, lang=lang, extension='pdf')
                 tmp_doc = fitz.open('pdf', pdf_bytes)
             else:
+                # Faster: insert image directly via fitz instead of PIL PDF export
+                w, h = img.size
                 img_bytes = BytesIO()
-                img.save(img_bytes, format='PDF')
-                tmp_doc = fitz.open('pdf', img_bytes.getvalue())
+                img.save(img_bytes, format='JPEG', quality=92)
+                tmp_doc = fitz.open()
+                page = tmp_doc.new_page(width=w, height=h)
+                page.insert_image(page.rect, stream=img_bytes.getvalue())
 
             if page_size in PAGE_SIZES:
                 pw, ph = PAGE_SIZES[page_size]
@@ -1811,7 +1815,7 @@ def scan_to_pdf(request):
         new_doc.close()
 
         save_job('scan_to_pdf', [f.name for f in files], [out_name], meta={'ocr': do_ocr, 'page_size': page_size})
-        return JsonResponse({'download_url': media_url(out_name), 'filename': out_name})
+        return JsonResponse({'download_url': media_url(out_name), 'filename': out_name, 'download_name': out_name})
     except Exception as e:
         import logging, traceback
         logging.getLogger(__name__).error('scan_to_pdf error: %s\n%s', e, traceback.format_exc())
