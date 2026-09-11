@@ -2,6 +2,7 @@ import fitz
 import zipfile
 import os
 import logging
+from datetime import datetime
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.conf import settings
@@ -62,7 +63,10 @@ def split_pdf(request):
                 zf.write(pp, pn)
 
         save_job('split_pdf', [f.name], parts)
-        return JsonResponse({'download_url': media_url(zip_name), 'filename': zip_name, 'parts': len(parts)})
+        now = datetime.now()
+        ampm = 'PM' if now.hour >= 12 else 'AM'
+        download_name = now.strftime(f'ZayroDocX split pdf %b %-d, %H_%M_%S {ampm}.zip')
+        return JsonResponse({'download_url': media_url(zip_name), 'filename': zip_name, 'download_name': download_name, 'parts': len(parts)})
     except Exception as e:
         logger.exception('split_pdf: processing failed for file=%s', f.name)
         return JsonResponse({'error': 'Split failed. Ensure the file is a valid PDF.'}, status=500)

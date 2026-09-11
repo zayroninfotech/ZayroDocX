@@ -760,7 +760,7 @@ function showSuccess(data, f) {
     <div class="result-success-wrap">
       <h2 class="result-success-title">PDF has been split!</h2>
       <div class="result-download-row">
-        <a href="${data.download_url}" class="btn-download-big" download="${data.filename}">
+        <a href="${data.download_url}" class="btn-download-big" download="${data.download_name || data.filename}">
           <i class="fa-solid fa-download"></i> Download Split PDF
         </a>
         <button class="btn-again" onclick="resetSplit()">
