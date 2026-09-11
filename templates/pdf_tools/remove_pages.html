@@ -440,6 +440,14 @@ async function renderThumbnails(f) {
       grid.appendChild(thumb);
     });
 
+    /* Note if not all pages were previewed */
+    if (data.previewed && data.previewed < totalPages) {
+      const note = document.createElement('div');
+      note.style.cssText = 'width:100%;margin-top:.5rem;padding:.5rem .75rem;background:#fff8e1;border-radius:8px;font-size:.75rem;color:#92400e;display:flex;align-items:center;gap:.4rem;';
+      note.innerHTML = `<i class="fa-solid fa-circle-info"></i> Showing first ${data.previewed} of ${totalPages} pages. Type page numbers in the box to select pages beyond ${data.previewed}.`;
+      grid.after(note);
+    }
+
     /* File info bar at bottom */
     const infoBar = document.createElement('div');
     infoBar.style.cssText = 'width:100%;margin-top:.75rem;font-size:.75rem;color:#aaa;display:flex;align-items:center;gap:.4rem;';
@@ -594,13 +602,22 @@ document.getElementById('removeBtn').addEventListener('click', async () => {
 });
 
 function showSuccess(data) {
+  const now = new Date();
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const month = months[now.getMonth()];
+  const day = now.getDate();
+  const hh = now.getHours();
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  const ampm = hh >= 12 ? 'PM' : 'AM';
+  const removedName = `ZayroDocX removed PDF ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.pdf`;
   uploadZone.style.display='none'; filePanel.style.display='none';
   resultCard.className='result-card show';
   resultCard.innerHTML=`
     <div class="result-success-wrap">
       <h2 class="result-success-title">Pages removed successfully!</h2>
       <div class="result-download-row">
-        <a href="${data.download_url}" class="btn-download-big" download="${data.download_name || data.filename}">
+        <a href="${data.download_url}" class="btn-download-big" download="${removedName}">
           <i class="fa-solid fa-download"></i> Download PDF
         </a>
         <button class="btn-again" onclick="resetTool()">
