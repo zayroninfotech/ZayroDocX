@@ -308,7 +308,7 @@
 
 /* Engine tabs */
 .engine-tabs {
-  display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin-bottom:.55rem;
+  display:grid; grid-template-columns:repeat(2,1fr); gap:5px; margin-bottom:.55rem;
 }
 .engine-tab {
   display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -536,10 +536,6 @@
       <div class="ctrl-section">
         <div class="ctrl-label">OCR Engine</div>
         <div class="engine-tabs">
-          <div class="engine-tab" id="eng-standard" onclick="setEngine('standard')">
-            <div class="engine-tab-icon"><i class="fa-solid fa-font"></i></div>
-            <div class="engine-tab-name">Standard OCR</div>
-          </div>
           <div class="engine-tab active" id="eng-zayro" onclick="setEngine('zayro')">
             <div class="engine-tab-icon"><i class="fa-solid fa-gear"></i></div>
             <div class="engine-tab-name">ZayroEngine</div>
@@ -645,14 +641,13 @@ var _processing=false;
 
 /* ── Engine descriptions ── */
 var _engineDesc={
-  standard:'Fast OCR using standard character recognition. Best for clear, printed documents.',
   zayro:'Advanced OCR with better accuracy for complex documents, tables, and mixed layouts.',
   ai:'AI-powered extraction using ZayroAI for highest accuracy on any document type.'
 };
 
 function setEngine(e){
   _engine=e;
-  ['standard','zayro','ai'].forEach(function(k){
+  ['zayro','ai'].forEach(function(k){
     document.getElementById('eng-'+k).className='engine-tab'+(k===e?' active':'');
   });
   document.getElementById('engineDescText').textContent=_engineDesc[e];
@@ -797,8 +792,7 @@ function renderResult(idx){
     title.innerHTML='<i class="fa-solid fa-wand-magic-sparkles"></i> ZayroAI Extract';
   }else{
     title.className='sv-result-title clr-ocr';
-    title.innerHTML='<i class="fa-solid fa-font"></i> '
-      +(_engine==='standard'?'Standard OCR':'ZayroEngine OCR');
+    title.innerHTML='<i class="fa-solid fa-font"></i> ZayroEngine OCR';
   }
 
   var lv=document.getElementById('resultLiveView');
