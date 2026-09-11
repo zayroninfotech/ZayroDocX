@@ -31,6 +31,8 @@ def _locked_slugs_json():
 
 
 def landing(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
     return render(request, 'landing.html', {'locked_slugs_json': _locked_slugs_json()})
 
 
