@@ -145,6 +145,8 @@ def _superadmin_required(view_func):
 def admin_panel(request):
     tools = get_all_tool_privs()
     users = get_all_users()
+    for u in users:
+        u['id'] = str(u.get('_id', ''))
     categories = {}
     for t in tools:
         categories.setdefault(t['category'], []).append(t)

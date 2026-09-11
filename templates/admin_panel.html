@@ -573,7 +573,7 @@
               </td>
               <td style="text-align:right;">
                 {% if not user.is_superuser %}
-                <button class="ap-del-user-btn" onclick="confirmDeleteUser('{{ user._id }}','{{ user.username }}')" title="Delete user">
+                <button class="ap-del-user-btn" onclick="confirmDeleteUser('{{ user.id }}','{{ user.username }}')" title="Delete user">
                   <i class="fa-solid fa-trash-can"></i>
                 </button>
                 {% endif %}
