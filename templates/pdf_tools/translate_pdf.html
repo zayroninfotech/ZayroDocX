@@ -302,7 +302,6 @@
   <div class="tr-drop" id="dropArea">
     <div class="tr-drop-icon-wrap">
       <i class="fa-solid fa-language"></i>
-      <div class="tr-badge"><i class="fa-solid fa-bolt"></i></div>
     </div>
     <h2>Translate PDF</h2>
     <p>Upload any PDF — AI will translate the entire document content into your chosen language</p>
@@ -325,9 +324,9 @@
   <div class="tr-viewer" id="pdfViewer">
     <div class="tr-viewer-bar">
       <div class="tr-viewer-file">
-        <div class="tr-viewer-icon"><i class="fa-solid fa-file-pdf"></i></div>
-        <div>
-          <div class="tr-viewer-filename" id="viewerTitle">PDF Pages</div>
+        <div class="tr-viewer-icon"><i class="fa-solid fa-language"></i></div>
+        <div style="min-width:0">
+          <div class="tr-viewer-filename" id="viewerTitle" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">PDF Pages</div>
           <div class="tr-viewer-dpi">Rendered at 150 DPI</div>
         </div>
       </div>
@@ -362,9 +361,9 @@
     <!-- File info + translate controls -->
     <div class="tr-card">
       <div class="tr-card-head">
-        <div class="tr-card-icon" style="background:var(--tr)"><i class="fa-solid fa-file-pdf"></i></div>
-        <div>
-          <div class="tr-card-title" id="fileCardName">—</div>
+        <div class="tr-card-icon" style="background:var(--tr)"><i class="fa-solid fa-language"></i></div>
+        <div style="min-width:0;overflow:hidden">
+          <div class="tr-card-title" id="fileCardName" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</div>
           <div class="tr-card-sub"   id="fileCardMeta">—</div>
         </div>
       </div>
