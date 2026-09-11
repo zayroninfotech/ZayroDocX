@@ -487,7 +487,7 @@ def img_ocr(request):
                 )
 
             payload = json.dumps({
-                'model': 'gpt-5-mini',
+                'model': 'gpt-4o-mini',
                 'messages': [{
                     'role': 'user',
                     'content': [
@@ -510,8 +510,17 @@ def img_ocr(request):
                 },
                 method='POST',
             )
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                data = json.loads(resp.read().decode())
+            import urllib.error
+            try:
+                with urllib.request.urlopen(req, timeout=60) as resp:
+                    data = json.loads(resp.read().decode())
+            except urllib.error.HTTPError as e:
+                err_body = e.read().decode('utf-8', errors='replace')
+                try:
+                    err_msg = json.loads(err_body).get('error', {}).get('message', err_body)
+                except Exception:
+                    err_msg = err_body
+                raise ValueError(f'OpenAI error: {err_msg}')
             text = data['choices'][0]['message']['content'].strip()
 
             out_path, out_name = get_output_path('.txt', 'img_ai_ocr')
