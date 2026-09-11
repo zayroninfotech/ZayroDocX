@@ -433,29 +433,27 @@ document.getElementById('extractBtn').addEventListener('click', async () => {
 });
 
 function showSuccess(data) {
+  const now = new Date();
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const month = months[now.getMonth()];
+  const day = now.getDate();
+  const hh = now.getHours();
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  const ampm = hh >= 12 ? 'PM' : 'AM';
+  const extractName = `ZayroDocX extracted PDF ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.pdf`;
   uploadZone.style.display='none'; filePanel.style.display='none';
   resultCard.className='result-card show';
   resultCard.innerHTML=`
     <div class="result-success-wrap">
       <h2 class="result-success-title">Pages extracted successfully!</h2>
       <div class="result-download-row">
-        <a href="${data.download_url}" class="btn-download-big" download="${data.filename}">
+        <a href="${data.download_url}" class="btn-download-big" download="${extractName}">
           <i class="fa-solid fa-download"></i> Download PDF
         </a>
         <button class="btn-again" onclick="resetTool()">
           <i class="fa-solid fa-rotate-left"></i> Extract Again
         </button>
-      </div>
-      <div class="continue-section">
-        <div class="continue-title">Continue to…</div>
-        <div class="continue-grid">
-          <a href="/tools/merge-pdf/"     class="continue-item"><div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-object-group"></i></div> Merge PDF</div><i class="fa-solid fa-chevron-right arrow"></i></a>
-          <a href="/tools/split-pdf/"     class="continue-item"><div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-scissors"></i></div> Split PDF</div><i class="fa-solid fa-chevron-right arrow"></i></a>
-          <a href="/tools/remove-pages/"  class="continue-item"><div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-trash-can"></i></div> Remove Pages</div><i class="fa-solid fa-chevron-right arrow"></i></a>
-          <a href="/tools/compress-pdf/"  class="continue-item"><div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-compress"></i></div> Compress PDF</div><i class="fa-solid fa-chevron-right arrow"></i></a>
-          <a href="/tools/watermark-pdf/" class="continue-item"><div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-droplet"></i></div> Add Watermark</div><i class="fa-solid fa-chevron-right arrow"></i></a>
-          <a href="/tools/protect-pdf/"   class="continue-item"><div class="continue-item-left"><div class="continue-icon"><i class="fa-solid fa-lock"></i></div> Protect PDF</div><i class="fa-solid fa-chevron-right arrow"></i></a>
-        </div>
       </div>
     </div>`;
   window.scrollTo({top:0,behavior:'smooth'});
