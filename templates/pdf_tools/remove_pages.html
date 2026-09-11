@@ -386,7 +386,26 @@ function showFilePanel(f) {
 /* ── Render thumbnails via backend ── */
 async function renderThumbnails(f) {
   const grid = document.getElementById('pagesGrid');
-  grid.innerHTML = `<div class="rp-placeholder"><i class="fa-solid fa-spinner fa-spin"></i>&nbsp; Rendering pages…</div>`;
+  grid.innerHTML = `
+    <div class="rp-placeholder" style="flex-direction:column;gap:.9rem;width:100%;padding:2rem 1rem;">
+      <div style="display:flex;align-items:center;gap:.55rem;font-size:.88rem;color:#aaa;">
+        <i class="fa-solid fa-spinner fa-spin" style="color:#dc2626;"></i>
+        <span>Rendering pages…</span>
+        <span id="rpRenderPct" style="font-weight:700;color:#dc2626;margin-left:.2rem;">0%</span>
+      </div>
+      <div style="width:260px;height:7px;background:#f0f0f0;border-radius:4px;overflow:hidden;">
+        <div id="rpRenderBar" style="height:100%;width:0%;background:linear-gradient(90deg,#991b1b,#dc2626,#f87171);border-radius:4px;transition:width .25s ease;"></div>
+      </div>
+    </div>`;
+
+  let rPct = 0;
+  const rTicker = setInterval(() => {
+    rPct = Math.min(rPct + (rPct < 60 ? 3 : rPct < 80 ? 1 : 0.3), 88);
+    const bar = document.getElementById('rpRenderBar');
+    const lbl = document.getElementById('rpRenderPct');
+    if (bar) bar.style.width = rPct + '%';
+    if (lbl) lbl.textContent = Math.round(rPct) + '%';
+  }, 180);
 
   try {
     const fd = new FormData();
@@ -394,6 +413,12 @@ async function renderThumbnails(f) {
     fd.append('file', f);
 
     const resp = await fetch('{% url "api_pdf_thumbnails" %}', { method: 'POST', body: fd });
+    clearInterval(rTicker);
+    const bar = document.getElementById('rpRenderBar');
+    const lbl = document.getElementById('rpRenderPct');
+    if (bar) bar.style.width = '100%';
+    if (lbl) lbl.textContent = '100%';
+    await sleep(200);
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
 
@@ -424,6 +449,7 @@ async function renderThumbnails(f) {
     grid.after(infoBar);
 
   } catch(e) {
+    clearInterval(rTicker);
     grid.innerHTML = `<div class="rp-placeholder"><i class="fa-solid fa-triangle-exclamation" style="color:#f87171"></i>&nbsp; ${escHtml(e.message)}</div>`;
   }
 }
