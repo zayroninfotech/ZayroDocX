@@ -940,6 +940,15 @@
       });
     }
   </script>
+  <script>
+    (function(){
+      var p=window.location.pathname;
+      document.querySelectorAll('.mh-drop-item').forEach(function(a){
+        var h=a.getAttribute('href');
+        if(h&&(h===p||(p.length>1&&p.startsWith(h)&&h!=='/'))){a.classList.add('active');}
+      });
+    })();
+  </script>
 </body>
 
 </html>
