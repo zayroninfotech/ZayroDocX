@@ -69,15 +69,18 @@
 /* convert */
 .rz-convert-btn{width:100%;padding:.85rem;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:opacity .15s;}
 .rz-convert-btn:disabled{opacity:.6;cursor:not-allowed;}
-.rz-result-card{display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:1.1rem 1.2rem;}
-.rz-result-card.show{display:block;}
-.rz-result-title{font-size:.82rem;font-weight:700;color:#166534;display:flex;align-items:center;gap:.4rem;margin-bottom:.7rem;}
-.rz-dl-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.62rem;background:#16a34a;color:#fff;border:none;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;text-decoration:none;}
-.rz-dl-btn:hover{background:#15803d;}
 .rz-error-card{display:none;background:#fff1f2;border:1.5px solid #fca5a5;border-radius:14px;padding:1rem 1.2rem;}
 .rz-error-card.show{display:block;}
 .rz-error-msg{font-size:.82rem;color:#dc2626;}
 
+.rz-result-full{display:none;text-align:center;padding:3rem 2rem;}
+.rz-result-full.show{display:block;}
+.rz-dl-full-btn{display:inline-flex;align-items:center;gap:.6rem;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:.9rem 2.5rem;font-size:1.1rem;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(22,163,74,.35);transition:background .15s;}
+.rz-dl-full-btn:hover{background:#15803d;}
+.rz-new-file-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;margin:.9rem auto 0;background:#fff;border:1.5px solid #e8e8e8;border-radius:10px;padding:.65rem 1.5rem;font-size:.9rem;font-weight:600;color:#555;cursor:pointer;transition:border-color .15s;max-width:280px;}
+.rz-new-file-btn:hover{border-color:#dc2626;color:#dc2626;}
+
+@keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:1050px){.rz-split{grid-template-columns:1fr;}.rz-right{position:static;max-height:none;}}
 </style>{% endblock %}
 
@@ -105,10 +108,14 @@
 
   <!-- RIGHT PANEL -->
   <div class="rz-right">
+    <h2 style="font-size:1.25rem;font-weight:800;color:#dc2626;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;">
+      <i class="fa-solid fa-up-right-and-down-left-from-center"></i> Resize Image
+    </h2>
+
     <!-- file info -->
     <div class="rz-card">
       <div class="rz-file-row">
-        <div class="rz-file-icon"><i class="fa-solid fa-image"></i></div>
+        <div class="rz-file-icon"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></div>
         <div>
           <div class="rz-file-name" id="rzFileName">—</div>
           <div class="rz-file-size" id="rzFileSize">—</div>
@@ -182,64 +189,60 @@
       <i class="fa-solid fa-up-right-and-down-left-from-center"></i> Resize Image
     </button>
 
-    <div class="rz-result-card" id="rzResultCard">
-      <div class="rz-result-title"><i class="fa-solid fa-circle-check"></i> <span id="rzResultInfo">Resized!</span></div>
-      <a class="rz-dl-btn" id="rzDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a>
-    </div>
     <div class="rz-error-card" id="rzErrorCard">
       <div class="rz-error-msg" id="rzErrorMsg"></div>
     </div>
   </div>
 </div>
 
-<div class="cv-info-strip" id="rzInfoStrip">
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></div><div><div class="cv-info-title">Any Size</div><div class="cv-info-desc">Pixel-perfect resize</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-link"></i></div><div><div class="cv-info-title">Lock Ratio</div><div class="cv-info-desc">Proportional scaling</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
+<div class="rz-result-full" id="rzResultFull">
+  <div style="font-size:3.5rem;color:#16a34a;margin-bottom:1rem"><i class="fa-solid fa-circle-check"></i></div>
+  <p style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0 0 .4rem">Image Resized!</p>
+  <p style="color:#64748b;margin:0 0 1.5rem;font-size:.95rem" id="rzResultSub">Your resized image is ready to download.</p>
+  <a class="rz-dl-full-btn" id="rzDlBtn" href="#" download>
+    <i class="fa-solid fa-download"></i> Download Image
+  </a>
+  <button class="rz-new-file-btn" onclick="resetTool()">
+    <i class="fa-solid fa-plus"></i> Resize Another Image
+  </button>
 </div>
 {% endblock %}
 
 {% block extra_js %}<script>
 // ── state ──────────────────────────────────────────────────────────────────
 let currentFile = null;
-let srcImg      = null;     // Image object
+let srcImg      = null;
 let origW = 0, origH = 0;
 let targetW = 0, targetH = 0;
 let locked   = true;
-let unit     = 'px';        // 'px' | '%'
+let unit     = 'px';
 let fmt      = 'auto';
 let dragging = false;
 let dragStartX = 0, dragStartY = 0, dragStartW = 0, dragStartH = 0;
 
-const canvas = document.getElementById('rzCanvas');
-const ctx    = canvas.getContext('2d');
+const canvas    = document.getElementById('rzCanvas');
+const ctx       = canvas.getContext('2d');
 const fileInput = document.getElementById('fileInput');
+const rzSplit   = document.getElementById('rzSplit');
+const rzResultFull = document.getElementById('rzResultFull');
+const rzErrorCard  = document.getElementById('rzErrorCard');
 
 // ── Canvas draw ────────────────────────────────────────────────────────────
 function drawPreview() {
   if (!srcImg) return;
   const VW = canvas.width, VH = canvas.height;
   ctx.clearRect(0, 0, VW, VH);
-
-  // fill dark bg
   ctx.fillStyle = '#1e293b';
   ctx.fillRect(0, 0, VW, VH);
-
-  // draw image scaled to fit viewer
   const scale = Math.min(VW / targetW, VH / targetH, VW / origW * 0.95, VH / origH * 0.95);
   const dw = Math.round(targetW * scale);
   const dh = Math.round(targetH * scale);
   const dx = Math.round((VW - dw) / 2);
   const dy = Math.round((VH - dh) / 2);
-
-  // shadow
   ctx.shadowColor = 'rgba(0,0,0,0.5)';
   ctx.shadowBlur  = 18;
   ctx.drawImage(srcImg, dx, dy, dw, dh);
   ctx.shadowBlur  = 0;
-
-  // size badge — top centre
   const label = `${targetW} × ${targetH} px`;
   ctx.font = 'bold 13px system-ui,sans-serif';
   const tw = ctx.measureText(label).width;
@@ -248,12 +251,8 @@ function drawPreview() {
   ctx.beginPath(); ctx.roundRect(bx, by, tw + 20, 24, 12); ctx.fill();
   ctx.fillStyle = '#fff';
   ctx.fillText(label, VW / 2 - tw / 2, by + 16);
-
-  // drag handle — bottom-right of image rect
   const hx = dx + dw, hy = dy + dh;
   drawHandle(hx, hy);
-
-  // store handle pos for hit detection
   canvas._hx = hx; canvas._hy = hy;
   canvas._dx = dx; canvas._dy = dy;
   canvas._dw = dw; canvas._dh = dh;
@@ -264,7 +263,6 @@ function drawHandle(x, y) {
   ctx.strokeStyle = '#fff';
   ctx.lineWidth = 2;
   ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-  // arrow icon
   ctx.fillStyle = '#fff';
   ctx.font = 'bold 9px system-ui';
   ctx.fillText('↔', x - 6, y + 4);
@@ -279,7 +277,7 @@ function sizeCanvas() {
   document.getElementById('rzViewer').style.height = vh + 'px';
 }
 
-// ── Drag resize handle on canvas ───────────────────────────────────────────
+// ── Drag resize handle ─────────────────────────────────────────────────────
 function hitHandle(ex, ey) {
   const hx = canvas._hx || 0, hy = canvas._hy || 0;
   return Math.abs(ex - hx) < 14 && Math.abs(ey - hy) < 14;
@@ -302,17 +300,13 @@ canvas.addEventListener('mousedown', e => {
   dragStartX = e.clientX; dragStartY = e.clientY;
   dragStartW = targetW;   dragStartH = targetH;
   document.body.style.cursor = 'se-resize';
-
   const onMove = mv => {
     const dx = mv.clientX - dragStartX;
     const dy = mv.clientY - dragStartY;
     const scale = canvas.width / (canvas._dw || canvas.width);
     let nw = Math.max(1, Math.round(dragStartW + dx * scale));
     let nh = Math.max(1, Math.round(dragStartH + dy * scale));
-    if (locked) {
-      const ar = origH / origW;
-      nh = Math.round(nw * ar);
-    }
+    if (locked) { const ar = origH / origW; nh = Math.round(nw * ar); }
     targetW = nw; targetH = nh;
     syncInputsFromTarget();
     drawPreview();
@@ -327,7 +321,6 @@ canvas.addEventListener('mousedown', e => {
   document.addEventListener('mouseup',   onUp);
 });
 
-// touch drag
 canvas.addEventListener('touchstart', e => {
   if (!srcImg) return;
   const r  = canvas.getBoundingClientRect();
@@ -352,9 +345,6 @@ canvas.addEventListener('touchstart', e => {
 }, {passive:true});
 
 // ── Inputs → target ────────────────────────────────────────────────────────
-function pxVal(v) { return unit === '%' ? Math.round(origW * parseFloat(v) / 100) : parseInt(v); }
-function pctVal(px, ref) { return Math.round(px / ref * 100); }
-
 function onWChange() {
   const v = parseFloat(document.getElementById('rzW').value);
   if (!v || !origW) return;
@@ -371,15 +361,15 @@ function onHChange() {
 }
 function syncInputsFromTarget() {
   if (unit === '%') {
-    document.getElementById('rzW').value = pctVal(targetW, origW);
-    document.getElementById('rzH').value = pctVal(targetH, origH);
+    document.getElementById('rzW').value = Math.round(targetW / origW * 100);
+    document.getElementById('rzH').value = Math.round(targetH / origH * 100);
   } else {
     document.getElementById('rzW').value = targetW;
     document.getElementById('rzH').value = targetH;
   }
 }
-function syncWInput() { document.getElementById('rzW').value = unit==='%' ? pctVal(targetW,origW) : targetW; }
-function syncHInput() { document.getElementById('rzH').value = unit==='%' ? pctVal(targetH,origH) : targetH; }
+function syncWInput() { document.getElementById('rzW').value = unit==='%' ? Math.round(targetW/origW*100) : targetW; }
+function syncHInput() { document.getElementById('rzH').value = unit==='%' ? Math.round(targetH/origH*100) : targetH; }
 
 // ── Unit toggle ────────────────────────────────────────────────────────────
 function setUnit(u) {
@@ -425,9 +415,9 @@ function setFile(f) {
   document.getElementById('rzFileName').textContent = f.name;
   document.getElementById('rzFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   document.getElementById('rzDrop').style.display = 'none';
-  document.getElementById('rzInfoStrip').style.display = 'none';
-  ['rzResultCard','rzErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
-  document.getElementById('rzSplit').classList.add('show');
+  rzResultFull.classList.remove('show');
+  rzErrorCard.classList.remove('show');
+  rzSplit.classList.add('show');
 
   const img = new Image();
   img.onload = () => {
@@ -450,9 +440,9 @@ function resetTool() {
   currentFile = null; srcImg = null;
   fileInput.value = '';
   document.getElementById('rzDrop').style.display = '';
-  document.getElementById('rzSplit').classList.remove('show');
-  document.getElementById('rzInfoStrip').style.display = '';
-  ['rzResultCard','rzErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
+  rzSplit.classList.remove('show');
+  rzResultFull.classList.remove('show');
+  rzErrorCard.classList.remove('show');
   canvas.style.display = 'none';
   document.getElementById('rzViewerLoad').style.display = 'flex';
   document.getElementById('rzViewer').style.height = '';
@@ -463,7 +453,9 @@ function resetTool() {
 async function doResize() {
   if (!currentFile || !targetW || !targetH) return;
   document.getElementById('rzConvertBtn').disabled = true;
-  ['rzResultCard','rzErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
+  rzResultFull.classList.remove('show');
+  rzErrorCard.classList.remove('show');
+  if (typeof ZLoader !== 'undefined') ZLoader.show('Resizing image…');
 
   const fd = new FormData();
   fd.append('file', currentFile);
@@ -479,14 +471,20 @@ async function doResize() {
     let d;
     try { d = JSON.parse(text); } catch { throw new Error('Server error ' + res.status); }
     if (d.error) throw new Error(d.error);
-    const info = d.width && d.height ? `Resized to ${d.width} × ${d.height} px` : 'Resized!';
-    document.getElementById('rzResultInfo').textContent = info;
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
+    const _d=new Date(),_mo=_d.toLocaleString('en-US',{month:'short'}),_dy=_d.getDate();
+    const _hh=_d.getHours()%12||12,_mm=String(_d.getMinutes()).padStart(2,'0'),_ss=String(_d.getSeconds()).padStart(2,'0'),_ap=_d.getHours()>=12?'PM':'AM';
+    const ext=currentFile.name.split('.').pop()||'png';
+    const info = d.width && d.height ? `Resized to ${d.width} × ${d.height} px — ready to download.` : 'Your resized image is ready to download.';
+    document.getElementById('rzResultSub').textContent = info;
     document.getElementById('rzDlBtn').href     = d.download_url;
-    document.getElementById('rzDlBtn').download = d.filename || 'resized';
-    document.getElementById('rzResultCard').classList.add('show');
+    document.getElementById('rzDlBtn').download = `ZayroDocX Resize Image ${_mo} ${_dy}, ${_hh}_${_mm}_${_ss} ${_ap}.${ext}`;
+    rzSplit.classList.remove('show');
+    rzResultFull.classList.add('show');
   } catch (e) {
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
     document.getElementById('rzErrorMsg').textContent = e.message || 'Failed.';
-    document.getElementById('rzErrorCard').classList.add('show');
+    rzErrorCard.classList.add('show');
   } finally {
     document.getElementById('rzConvertBtn').disabled = false;
   }
