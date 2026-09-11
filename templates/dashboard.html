@@ -739,6 +739,7 @@
   background: var(--surface); border-color: var(--border);
 }
 [data-theme="dark"] .qa-card:hover { border-color: rgba(220,38,38,.4); }
+[data-theme="dark"] .qa-icon { background: rgba(255,255,255,.07) !important; }
 [data-theme="dark"] .qa-lbl { color: var(--text); }
 [data-theme="dark"] .qa-desc { color: var(--text-muted); }
 [data-theme="dark"] .qa-badge-free {
@@ -982,28 +983,28 @@
 
   {# ── Merge PDF ── #}
   <a href="{% url 'merge_pdf_page' %}" class="qa-card{% if tool_privs.merge_pdf and not request.user.is_authenticated %} locked{% endif %}">
-    <div class="qa-icon" style="background:#fee2e2;"><img src="{% static 'img/merge-pdf-icon.png' %}" alt="Merge PDF"></div>
+    <div class="qa-icon" style="background:#fee2e2;"><i class="fa-solid fa-layer-group" style="font-size:1.8rem;color:#dc2626;"></i></div>
     <div class="qa-lbl">Merge PDF</div>
     <div class="qa-desc">Combine multiple PDFs</div>
   </a>
 
   {# ── Split PDF ── #}
   <a href="{% url 'split_pdf_page' %}" class="qa-card{% if tool_privs.split_pdf and not request.user.is_authenticated %} locked{% endif %}">
-    <div class="qa-icon" style="background:#ede9fe;"><img src="{% static 'img/split-pdf-icon.png' %}" alt="Split PDF"></div>
+    <div class="qa-icon" style="background:#ede9fe;"><i class="fa-solid fa-scissors" style="font-size:1.8rem;color:#7c3aed;"></i></div>
     <div class="qa-lbl">Split PDF</div>
     <div class="qa-desc">Split PDF into multiple files</div>
   </a>
 
   {# ── Compress PDF ── #}
   <a href="{% url 'compress_pdf_page' %}" class="qa-card{% if tool_privs.compress_pdf and not request.user.is_authenticated %} locked{% endif %}">
-    <div class="qa-icon" style="background:#f0fdf4;"><img src="{% static 'img/compress-pdf-icon.png' %}" alt="Compress PDF"></div>
+    <div class="qa-icon" style="background:#f0fdf4;"><i class="fa-solid fa-file-zipper" style="font-size:1.8rem;color:#16a34a;"></i></div>
     <div class="qa-lbl">Compress PDF</div>
     <div class="qa-desc">Reduce file size</div>
   </a>
 
   {# ── PDF to Word ── #}
   <a href="{% url 'pdf_to_word_page' %}" class="qa-card{% if tool_privs.pdf_to_word and not request.user.is_authenticated %} locked{% endif %}">
-    <div class="qa-icon" style="background:#dbeafe;"><img src="{% static 'img/pdf-to-word-icon.png' %}" alt="PDF to Word"></div>
+    <div class="qa-icon" style="background:#dbeafe;"><i class="fa-solid fa-file-word" style="font-size:1.8rem;color:#2b579a;"></i></div>
     <div class="qa-lbl">PDF to Word</div>
     <div class="qa-desc">Convert PDF to editable Word</div>
   </a>
@@ -1024,21 +1025,21 @@
 
   {# ── Word to PDF ── #}
   <a href="{% url 'word_to_pdf_page' %}" class="qa-card{% if tool_privs.word_to_pdf and not request.user.is_authenticated %} locked{% endif %}">
-    <div class="qa-icon" style="background:#dbeafe;"><img src="{% static 'img/word-to-pdf-icon.png' %}" alt="Word to PDF"></div>
+    <div class="qa-icon" style="background:#fff7ed;"><i class="fa-solid fa-file-pdf" style="font-size:1.8rem;color:#dc2626;"></i></div>
     <div class="qa-lbl">Word to PDF</div>
     <div class="qa-desc">Convert Word to PDF</div>
   </a>
 
   {# ── Image to PDF ── #}
   <a href="{% url 'scan_pdf_page' %}" class="qa-card{% if tool_privs.jpg_to_pdf and not request.user.is_authenticated %} locked{% endif %}">
-    <div class="qa-icon" style="background:#fdf4ff;"><img src="{% static 'img/image-to-pdf-icon.png' %}" alt="Image to PDF"></div>
+    <div class="qa-icon" style="background:#fdf4ff;"><i class="fa-solid fa-images" style="font-size:1.8rem;color:#9333ea;"></i></div>
     <div class="qa-lbl">Image to PDF</div>
     <div class="qa-desc">Convert images to PDF</div>
   </a>
 
   {# ── OCR PDF ── #}
   <a href="{% url 'ocr_pdf_page' %}" class="qa-card{% if tool_privs.ocr_pdf and not request.user.is_authenticated %} locked{% endif %}">
-    <div class="qa-icon" style="background:#f3f0ff;"><img src="{% static 'img/ocr-pdf-icon.png' %}" alt="OCR PDF"></div>
+    <div class="qa-icon" style="background:#eef2ff;"><i class="fa-solid fa-font" style="font-size:1.8rem;color:#4f46e5;"></i></div>
     <div class="qa-lbl">OCR PDF</div>
     <div class="qa-desc">Extract text from scanned PDFs</div>
   </a>
@@ -1059,7 +1060,7 @@
 
   {# ── Sign PDF ── #}
   <a href="{% url 'sign_pdf_page' %}" class="qa-card{% if tool_privs.sign_pdf and not request.user.is_authenticated %} locked{% endif %}">
-    <div class="qa-icon" style="background:#fff0ec;"><img src="{% static 'img/sign-pdf-icon.png' %}" alt="Sign PDF"></div>
+    <div class="qa-icon" style="background:#fff0ec;"><i class="fa-solid fa-signature" style="font-size:1.8rem;color:#ea580c;"></i></div>
     <div class="qa-lbl">Sign PDF</div>
     <div class="qa-desc">Add signature to PDF</div>
   </a>
