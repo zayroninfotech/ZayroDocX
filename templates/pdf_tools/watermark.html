@@ -51,14 +51,18 @@
 .wm-loading-card.show { display: flex; }
 .wm-spin { animation: spin 1s linear infinite; font-size: 1.3rem; color: #dc2626; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.wm-result-card { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 1.1rem 1.2rem; }
-.wm-result-card.show { display: block; }
-.wm-result-title { font-size: .82rem; font-weight: 700; color: #166534; display: flex; align-items: center; gap: .4rem; margin-bottom: .7rem; }
-.wm-dl-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .65rem; background: #16a34a; color: #fff; border: none; border-radius: 9px; font-size: .88rem; font-weight: 700; cursor: pointer; text-decoration: none; }
-.wm-dl-btn:hover { background: #15803d; }
 .wm-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1rem 1.2rem; }
 .wm-error-card.show { display: block; }
 .wm-error-msg { font-size: .82rem; color: #dc2626; }
+.wm-result-full { display: none; text-align: center; padding: 3rem 2rem; }
+.wm-result-full.show { display: block; }
+.wm-result-full-icon { font-size: 3.5rem; color: #16a34a; margin-bottom: 1rem; }
+.wm-result-full-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0 0 .4rem; }
+.wm-result-full-sub { color: #64748b; margin: 0 0 1.5rem; font-size: .95rem; }
+.wm-dl-full-btn { display: inline-flex; align-items: center; gap: .6rem; background: #16a34a; color: #fff; border: none; border-radius: 12px; padding: .9rem 2.5rem; font-size: 1.1rem; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: 0 4px 18px rgba(22,163,74,.35); transition: background .15s; }
+.wm-dl-full-btn:hover { background: #15803d; }
+.wm-new-file-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; margin: .9rem auto 0; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 10px; padding: .65rem 1.5rem; font-size: .9rem; font-weight: 600; color: #555; cursor: pointer; transition: border-color .15s; max-width: 280px; }
+.wm-new-file-btn:hover { border-color: #0891b2; color: #0891b2; }
 
 .wm-presets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
 .wm-preset { cursor: pointer; border: 2px solid #e8e8e8; border-radius: 10px; overflow: hidden; transition: border-color .15s, box-shadow .15s; }
@@ -165,20 +169,22 @@
       <i class="fa-solid fa-droplet"></i> Add Watermark
     </button>
 
-    <div class="wm-loading-card" id="wmLoadingCard">
-      <i class="fa-solid fa-spinner wm-spin"></i>
-      <span style="font-size:.88rem;font-weight:600;color:#b91c1c">Adding watermark…</span>
-    </div>
-
-    <div class="wm-result-card" id="wmResultCard">
-      <div class="wm-result-title"><i class="fa-solid fa-circle-check"></i> PDF ready!</div>
-      <a class="wm-dl-btn" id="wmDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download PDF</a>
-    </div>
-
     <div class="wm-error-card" id="wmErrorCard">
       <div class="wm-error-msg" id="wmErrorMsg"></div>
     </div>
   </div>
+</div>
+
+<div class="wm-result-full" id="wmResultFull">
+  <div class="wm-result-full-icon"><i class="fa-solid fa-circle-check"></i></div>
+  <p class="wm-result-full-title">Watermark Added!</p>
+  <p class="wm-result-full-sub">Your PDF is ready to download.</p>
+  <a class="wm-dl-full-btn" id="wmDlBtn" href="#" download>
+    <i class="fa-solid fa-download"></i> Download PDF
+  </a>
+  <button class="wm-new-file-btn" onclick="resetTool()">
+    <i class="fa-solid fa-plus"></i> Add Watermark to Another File
+  </button>
 </div>
 {% endblock %}
 
@@ -189,8 +195,7 @@ const wmSplit       = document.getElementById('wmSplit');
 const wmPagesEl     = document.getElementById('wmPages');
 const wmViewerLoad  = document.getElementById('wmViewerLoading');
 const wmConvertBtn  = document.getElementById('wmConvertBtn');
-const wmLoadingCard = document.getElementById('wmLoadingCard');
-const wmResultCard  = document.getElementById('wmResultCard');
+const wmResultFull  = document.getElementById('wmResultFull');
 const wmErrorCard   = document.getElementById('wmErrorCard');
 let currentFile = null;
 
@@ -242,9 +247,9 @@ function drawOverlays() {
 function resetTool() {
   fileInput.value = ''; currentFile = null;
   wmDrop.style.display = ''; wmSplit.classList.remove('show');
+  wmResultFull.classList.remove('show');
   wmPagesEl.innerHTML = ''; wmPagesEl.style.display = 'none';
   wmViewerLoad.style.display = 'flex'; wmConvertBtn.disabled = false;
-  wmLoadingCard.classList.remove('show'); wmResultCard.classList.remove('show');
   wmErrorCard.classList.remove('show');
 }
 
@@ -291,9 +296,9 @@ function setFile(f) {
 async function doConvert() {
   if (!currentFile) return;
   wmConvertBtn.disabled = true;
-  wmLoadingCard.classList.add('show');
-  wmResultCard.classList.remove('show');
+  wmResultFull.classList.remove('show');
   wmErrorCard.classList.remove('show');
+  if (typeof ZLoader !== 'undefined') ZLoader.show('Adding watermark…');
   const fd   = new FormData();
   fd.append('file', currentFile);
   fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
@@ -312,16 +317,18 @@ async function doConvert() {
     const res  = await fetch('{% url "api_watermark" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
     document.getElementById('wmDlBtn').href = data.download_url;
     const _d = new Date(); const _mo = _d.toLocaleString('en-US',{month:'short'}); const _dy = _d.getDate();
     const _hh = _d.getHours() % 12 || 12; const _mm = String(_d.getMinutes()).padStart(2,'0'); const _ss = String(_d.getSeconds()).padStart(2,'0'); const _ap = _d.getHours() >= 12 ? 'PM' : 'AM';
     document.getElementById('wmDlBtn').download = `ZayroDocX Add Watermark ${_mo} ${_dy}, ${_hh}_${_mm}_${_ss} ${_ap}.pdf`;
-    wmResultCard.classList.add('show');
+    wmSplit.classList.remove('show');
+    wmResultFull.classList.add('show');
   } catch (e) {
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
     document.getElementById('wmErrorMsg').textContent = e.message || 'Failed.';
     wmErrorCard.classList.add('show');
   } finally {
-    wmLoadingCard.classList.remove('show');
     wmConvertBtn.disabled = false;
   }
 }
