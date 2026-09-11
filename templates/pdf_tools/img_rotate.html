@@ -36,14 +36,15 @@
 .ri-angle-badge b{color:#dc2626;}
 .ri-convert-btn{width:100%;padding:.85rem;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;}
 .ri-convert-btn:disabled{opacity:.5;cursor:not-allowed;}
-.ri-result-card{display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:1.1rem 1.2rem;}
-.ri-result-card.show{display:block;}
-.ri-result-title{font-size:.82rem;font-weight:700;color:#166534;display:flex;align-items:center;gap:.4rem;margin-bottom:.7rem;}
-.ri-dl-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.62rem;background:#16a34a;color:#fff;border:none;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;text-decoration:none;}
-.ri-dl-btn:hover{background:#15803d;}
 .ri-error-card{display:none;background:#fff1f2;border:1.5px solid #fca5a5;border-radius:14px;padding:1rem 1.2rem;}
 .ri-error-card.show{display:block;}
 .ri-error-msg{font-size:.82rem;color:#dc2626;}
+.ri-result-full{display:none;text-align:center;padding:3rem 2rem;}
+.ri-result-full.show{display:block;}
+.ri-dl-full-btn{display:inline-flex;align-items:center;gap:.6rem;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:.9rem 2.5rem;font-size:1.1rem;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(22,163,74,.35);transition:background .15s;}
+.ri-dl-full-btn:hover{background:#15803d;}
+.ri-new-file-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;margin:.9rem auto 0;background:#fff;border:1.5px solid #e8e8e8;border-radius:10px;padding:.65rem 1.5rem;font-size:.9rem;font-weight:600;color:#555;cursor:pointer;transition:border-color .15s;max-width:280px;}
+.ri-new-file-btn:hover{border-color:#dc2626;color:#dc2626;}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:1050px){.ri-split{grid-template-columns:1fr;}.ri-right{position:static;}}
 </style>{% endblock %}
@@ -65,9 +66,13 @@
   </div>
 
   <div class="ri-right">
+    <h2 style="font-size:1.25rem;font-weight:800;color:#dc2626;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;">
+      <i class="fa-solid fa-rotate-right"></i> Rotate Image
+    </h2>
+
     <div class="ri-card">
       <div class="ri-file-row">
-        <div class="ri-file-icon"><i class="fa-solid fa-image"></i></div>
+        <div class="ri-file-icon"><i class="fa-solid fa-rotate-right"></i></div>
         <div>
           <div class="ri-file-name" id="riFileName">—</div>
           <div class="ri-file-size" id="riFileSize">—</div>
@@ -107,15 +112,22 @@
       <i class="fa-solid fa-rotate-right"></i> Rotate Image
     </button>
 
-    <div class="ri-result-card" id="riResultCard">
-      <div class="ri-result-title"><i class="fa-solid fa-circle-check"></i> Image rotated!</div>
-      <a class="ri-dl-btn" id="riDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a>
-    </div>
-
     <div class="ri-error-card" id="riErrorCard">
       <div class="ri-error-msg" id="riErrorMsg"></div>
     </div>
   </div>
+</div>
+
+<div class="ri-result-full" id="riResultFull">
+  <div style="font-size:3.5rem;color:#16a34a;margin-bottom:1rem"><i class="fa-solid fa-circle-check"></i></div>
+  <p style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0 0 .4rem">Image Rotated!</p>
+  <p style="color:#64748b;margin:0 0 1.5rem;font-size:.95rem">Your rotated image is ready to download.</p>
+  <a class="ri-dl-full-btn" id="riDlBtn" href="#" download>
+    <i class="fa-solid fa-download"></i> Download Image
+  </a>
+  <button class="ri-new-file-btn" onclick="resetTool()">
+    <i class="fa-solid fa-plus"></i> Rotate Another Image
+  </button>
 </div>
 {% endblock %}
 
@@ -123,6 +135,9 @@
 let currentFile=null, imgEl=null, currentAngle=90, isCustom=false;
 const canvas=document.getElementById('riCanvas'), ctx=canvas.getContext('2d');
 const fileInput=document.getElementById('fileInput');
+const riSplit=document.getElementById('riSplit');
+const riResultFull=document.getElementById('riResultFull');
+const riErrorCard=document.getElementById('riErrorCard');
 
 function setAngle(deg, btn){
   currentAngle=deg;isCustom=false;
@@ -131,7 +146,6 @@ function setAngle(deg, btn){
   if(btn)btn.classList.add('active');
   updateBadge();
   if(imgEl)drawFrame();
-  document.getElementById('riResultCard').classList.remove('show');
 }
 
 function activateCustom(btn){
@@ -143,14 +157,12 @@ function activateCustom(btn){
   currentAngle=v;
   updateBadge();
   if(imgEl)drawFrame();
-  document.getElementById('riResultCard').classList.remove('show');
 }
 
 function onCustomInput(val){
   currentAngle=parseInt(val)||0;
   updateBadge();
   if(imgEl)drawFrame();
-  document.getElementById('riResultCard').classList.remove('show');
 }
 
 function updateBadge(){
@@ -167,7 +179,6 @@ function drawFrame(){
   const sin=Math.abs(Math.sin(rad)), cos=Math.abs(Math.cos(rad));
   const W=Math.round(imgEl.naturalWidth*cos+imgEl.naturalHeight*sin);
   const H=Math.round(imgEl.naturalWidth*sin+imgEl.naturalHeight*cos);
-  // fit to viewer width
   const viewer=document.getElementById('riViewer');
   const maxW=viewer.offsetWidth||600;
   const scale=Math.min(1,maxW/W,560/H);
@@ -188,8 +199,9 @@ function setFile(f){
   document.getElementById('riFileName').textContent=f.name;
   document.getElementById('riFileSize').textContent=(f.size/1024).toFixed(1)+' KB';
   document.getElementById('riDrop').style.display='none';
-  ['riResultCard','riErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
-  document.getElementById('riSplit').classList.add('show');
+  riResultFull.classList.remove('show');
+  riErrorCard.classList.remove('show');
+  riSplit.classList.add('show');
   const img=new Image();
   img.onload=()=>{imgEl=img;drawFrame();};
   img.src=URL.createObjectURL(f);
@@ -198,15 +210,18 @@ function setFile(f){
 function resetTool(){
   currentFile=null;imgEl=null;fileInput.value='';
   document.getElementById('riDrop').style.display='';
-  document.getElementById('riSplit').classList.remove('show');
-  ['riResultCard','riErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  riSplit.classList.remove('show');
+  riResultFull.classList.remove('show');
+  riErrorCard.classList.remove('show');
   document.getElementById('riConvertBtn').disabled=false;
 }
 
 async function doConvert(){
   if(!currentFile)return;
   document.getElementById('riConvertBtn').disabled=true;
-  ['riResultCard','riErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  riResultFull.classList.remove('show');
+  riErrorCard.classList.remove('show');
+  if(typeof ZLoader!=='undefined')ZLoader.show('Rotating image…');
   const fd=new FormData();
   fd.append('file',currentFile);
   fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
@@ -215,12 +230,18 @@ async function doConvert(){
     const res=await fetch('/tools/api/img/rotate/',{method:'POST',body:fd});
     const d=await res.json();
     if(d.error)throw new Error(d.error);
+    if(typeof ZLoader!=='undefined')ZLoader.hide();
+    const _d=new Date(),_mo=_d.toLocaleString('en-US',{month:'short'}),_dy=_d.getDate();
+    const _hh=_d.getHours()%12||12,_mm=String(_d.getMinutes()).padStart(2,'0'),_ss=String(_d.getSeconds()).padStart(2,'0'),_ap=_d.getHours()>=12?'PM':'AM';
+    const ext=currentFile.name.split('.').pop()||'png';
     document.getElementById('riDlBtn').href=d.download_url;
-    document.getElementById('riDlBtn').download=d.filename||'rotated';
-    document.getElementById('riResultCard').classList.add('show');
+    document.getElementById('riDlBtn').download=`ZayroDocX Rotate Image ${_mo} ${_dy}, ${_hh}_${_mm}_${_ss} ${_ap}.${ext}`;
+    riSplit.classList.remove('show');
+    riResultFull.classList.add('show');
   }catch(e){
+    if(typeof ZLoader!=='undefined')ZLoader.hide();
     document.getElementById('riErrorMsg').textContent=e.message||'Failed.';
-    document.getElementById('riErrorCard').classList.add('show');
+    riErrorCard.classList.add('show');
   }finally{document.getElementById('riConvertBtn').disabled=false;}
 }
 
