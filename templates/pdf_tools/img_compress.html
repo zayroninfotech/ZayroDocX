@@ -70,18 +70,17 @@
 
 .ic-convert-btn{width:100%;padding:.85rem;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:opacity .15s;}
 .ic-convert-btn:disabled{opacity:.6;cursor:not-allowed;}
-.ic-loading-card{display:none;background:#fff8f8;border:1.5px solid #fca5a5;border-radius:14px;padding:1.1rem 1.2rem;align-items:center;gap:.9rem;}
-.ic-loading-card.show{display:flex;}
 .ic-spin{animation:spin 1s linear infinite;font-size:1.3rem;color:#dc2626;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.ic-result-card{display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:1.1rem 1.2rem;}
-.ic-result-card.show{display:block;}
-.ic-result-title{font-size:.82rem;font-weight:700;color:#166534;display:flex;align-items:center;gap:.4rem;margin-bottom:.7rem;}
-.ic-dl-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.65rem;background:#16a34a;color:#fff;border:none;border-radius:9px;font-size:.88rem;font-weight:700;cursor:pointer;text-decoration:none;}
-.ic-dl-btn:hover{background:#15803d;}
 .ic-error-card{display:none;background:#fff1f2;border:1.5px solid #fca5a5;border-radius:14px;padding:1rem 1.2rem;}
 .ic-error-card.show{display:block;}
 .ic-error-msg{font-size:.82rem;color:#dc2626;}
+.ic-result-full{display:none;text-align:center;padding:3rem 2rem;}
+.ic-result-full.show{display:block;}
+.ic-dl-full-btn{display:inline-flex;align-items:center;gap:.6rem;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:.9rem 2.5rem;font-size:1.1rem;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(22,163,74,.35);transition:background .15s;}
+.ic-dl-full-btn:hover{background:#15803d;}
+.ic-new-file-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;margin:.9rem auto 0;background:#fff;border:1.5px solid #e8e8e8;border-radius:10px;padding:.65rem 1.5rem;font-size:.9rem;font-weight:600;color:#555;cursor:pointer;transition:border-color .15s;max-width:280px;}
+.ic-new-file-btn:hover{border-color:#dc2626;color:#dc2626;}
 
 @media(max-width:1050px){.ic-split{grid-template-columns:1fr;}.ic-right{position:static;max-height:none;}}
 </style>{% endblock %}
@@ -121,6 +120,10 @@
 
   <!-- right panel -->
   <div class="ic-right">
+    <h2 style="font-size:1.25rem;font-weight:800;color:#dc2626;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;">
+      <i class="fa-solid fa-compress-arrows-alt"></i> Compress Image
+    </h2>
+
     <div class="ic-card">
       <div class="ic-file-row">
         <div class="ic-file-icon"><i class="fa-solid fa-image"></i></div>
@@ -166,27 +169,22 @@
       <i class="fa-solid fa-compress-arrows-alt"></i> Compress Image
     </button>
 
-    <div class="ic-loading-card" id="icLoadingCard">
-      <i class="fa-solid fa-spinner ic-spin"></i>
-      <span style="font-size:.88rem;font-weight:600;color:#b91c1c">Compressing…</span>
-    </div>
-
-    <div class="ic-result-card" id="icResultCard">
-      <div class="ic-result-title"><i class="fa-solid fa-circle-check"></i> <span id="icResultInfo">Done!</span></div>
-      <a class="ic-dl-btn" id="icDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a>
-    </div>
-
     <div class="ic-error-card" id="icErrorCard">
       <div class="ic-error-msg" id="icErrorMsg"></div>
     </div>
   </div>
 </div>
 
-<div class="cv-info-strip" id="icInfoStrip">
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-image"></i></div><div><div class="cv-info-title">All Formats</div><div class="cv-info-desc">JPG, PNG, WebP, BMP</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-sliders"></i></div><div><div class="cv-info-title">Quality Slider</div><div class="cv-info-desc">10%–95% control</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
+<div class="ic-result-full" id="icResultFull">
+  <div style="font-size:3.5rem;color:#16a34a;margin-bottom:1rem"><i class="fa-solid fa-circle-check"></i></div>
+  <p style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0 0 .4rem">Image Compressed!</p>
+  <p style="color:#64748b;margin:0 0 1.5rem;font-size:.95rem" id="icResultSub">Your compressed image is ready to download.</p>
+  <a class="ic-dl-full-btn" id="icDlBtn" href="#" download>
+    <i class="fa-solid fa-download"></i> Download Image
+  </a>
+  <button class="ic-new-file-btn" onclick="resetTool()">
+    <i class="fa-solid fa-plus"></i> Compress Another Image
+  </button>
 </div>
 {% endblock %}
 
@@ -202,7 +200,7 @@ const icAfterWrap = document.getElementById('icAfterWrap');
 const icAfter     = document.getElementById('icAfter');
 const icDivider   = document.getElementById('icDivider');
 const icDivHandle = document.getElementById('icDivHandle');
-const icInfoStrip = document.getElementById('icInfoStrip');
+const icResultFull= document.getElementById('icResultFull');
 const icConvertBtn= document.getElementById('icConvertBtn');
 
 let origObjectUrl  = null;
@@ -299,9 +297,9 @@ function resetTool() {
   fileInput.value = '';
   icDrop.style.display = '';
   icSplit.classList.remove('show');
-  icInfoStrip.style.display = '';
+  icResultFull.classList.remove('show');
   document.getElementById('icSizeRow').style.display = 'none';
-  ['icLoadingCard','icResultCard','icErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
+  ['icErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
   icConvertBtn.disabled = false;
   // reset viewer
   icBefore.style.display = 'none';
@@ -321,8 +319,8 @@ function setFile(f) {
   document.getElementById('icFileName').textContent = f.name;
   document.getElementById('icFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   icDrop.style.display = 'none';
-  icInfoStrip.style.display = 'none';
-  ['icResultCard','icErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
+  icResultFull.classList.remove('show');
+  document.getElementById('icErrorCard').classList.remove('show');
   icSplit.classList.add('show');
 
   // load before image
@@ -353,8 +351,9 @@ function setFile(f) {
 async function doConvert() {
   if (!currentFile) return;
   icConvertBtn.disabled = true;
-  document.getElementById('icLoadingCard').classList.add('show');
-  ['icResultCard','icErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
+  icResultFull.classList.remove('show');
+  document.getElementById('icErrorCard').classList.remove('show');
+  if (typeof ZLoader !== 'undefined') ZLoader.show('Compressing image…');
 
   const fd = new FormData();
   fd.append('file',    currentFile);
@@ -368,18 +367,20 @@ async function doConvert() {
     const res  = await fetch('/tools/api/img/compress/', { method: 'POST', body: fd });
     const d    = await res.json();
     if (d.error) throw new Error(d.error);
-    document.getElementById('icResultInfo').textContent =
-      `${d.orig_kb} KB → ${d.new_kb} KB (saved ${Math.round((1 - d.new_kb / d.orig_kb) * 100)}%)`;
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
+    const _d=new Date(),_mo=_d.toLocaleString('en-US',{month:'short'}),_dy=_d.getDate();
+    const _hh=_d.getHours()%12||12,_mm=String(_d.getMinutes()).padStart(2,'0'),_ss=String(_d.getSeconds()).padStart(2,'0'),_ap=_d.getHours()>=12?'PM':'AM';
     document.getElementById('icDlBtn').href     = d.download_url;
-    document.getElementById('icDlBtn').download = d.filename || 'compressed';
-    document.getElementById('icResultCard').classList.add('show');
+    document.getElementById('icDlBtn').download = `ZayroDocX Compress Image ${_mo} ${_dy}, ${_hh}_${_mm}_${_ss} ${_ap}`;
+    const savings = Math.round((1 - d.new_kb / d.orig_kb) * 100);
+    document.getElementById('icResultSub').textContent = `${d.orig_kb} KB → ${d.new_kb} KB (${savings > 0 ? '−'+savings+'% saved' : '+'+(-savings)+'% larger'}) — ready to download.`;
+    icSplit.classList.remove('show');
+    icResultFull.classList.add('show');
   } catch (e) {
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
     document.getElementById('icErrorMsg').textContent = e.message || 'Failed.';
     document.getElementById('icErrorCard').classList.add('show');
-  } finally {
-    document.getElementById('icLoadingCard').classList.remove('show');
-    icConvertBtn.disabled = false;
-  }
+  } finally { icConvertBtn.disabled = false; }
 }
 
 fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
