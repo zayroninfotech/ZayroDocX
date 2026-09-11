@@ -136,8 +136,13 @@
 .ra-btn:hover{border-color:#7c3aed;color:#7c3aed}
 .ra-btn-primary{background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border-color:transparent}
 .ra-btn-primary:hover{opacity:.88;color:#fff}
-.ra-error{display:none;background:#fff;border:1.5px solid #fecaca;border-radius:14px;padding:1rem 1.3rem;color:#dc2626;font-size:.85rem;font-weight:600;max-width:640px;margin:1rem auto}
+.ra-error{display:none;background:#fff;border:1.5px solid #fecaca;border-radius:16px;padding:1.2rem 1.5rem;max-width:660px;margin:1.5rem auto;text-align:center}
 .ra-error.show{display:block}
+.ra-error-icon{font-size:2rem;color:#dc2626;margin-bottom:.5rem}
+.ra-error-title{font-size:.95rem;font-weight:800;color:#dc2626;margin-bottom:.35rem}
+.ra-error-msg{font-size:.82rem;color:#475569;line-height:1.55;margin-bottom:.9rem}
+.ra-error-retry{background:#dc2626;color:#fff;border:none;border-radius:10px;padding:.6rem 1.5rem;font-size:.82rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:opacity .15s}
+.ra-error-retry:hover{opacity:.88}
 
 @media(max-width:1100px){.ra-hero{grid-template-columns:1fr 360px;}.ra-preview{display:none;}}
 @media(max-width:860px){.ra-hero{grid-template-columns:1fr;}.ra-feats{grid-template-columns:repeat(2,1fr);}.ra-how-steps{grid-template-columns:1fr;}.ra-results-grid{grid-template-columns:1fr;}}
@@ -300,7 +305,12 @@
 </div>
 
 <!-- ── Error ── -->
-<div class="ra-error" id="raError"></div>
+<div class="ra-error" id="raError">
+  <div class="ra-error-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+  <div class="ra-error-title" id="raErrorTitle">Invalid File</div>
+  <div class="ra-error-msg" id="raErrorMsg"></div>
+  <button class="ra-error-retry" onclick="retryUpload()"><i class="fa-solid fa-upload"></i> Upload a Resume</button>
+</div>
 
 <!-- ── Results ── -->
 <div class="ra-results" id="raResults">
@@ -386,6 +396,13 @@ function resetTool(){
   document.getElementById('raError').classList.remove('show');
 }
 
+function retryUpload(){
+  document.getElementById('raFile').value='';
+  document.getElementById('raError').classList.remove('show');
+  showHero();
+  setTimeout(()=>document.getElementById('raFile').click(), 100);
+}
+
 async function startAnalysis(){
   const f=document.getElementById('raFile').files[0];
   if(!f)return;
@@ -406,10 +423,10 @@ async function startAnalysis(){
     if(d.error)throw new Error(d.error);
     renderResults(d);
   }catch(e){
-    const el=document.getElementById('raError');
-    el.textContent='⚠ '+(e.message||'Analysis failed.');
-    el.classList.add('show');
-    showHero();
+    const msg=e.message||'Analysis failed. Please try again.';
+    document.getElementById('raErrorMsg').textContent=msg;
+    document.getElementById('raErrorTitle').textContent=msg.includes('resume')||msg.includes('CV')?'Not a Resume':'Analysis Failed';
+    document.getElementById('raError').classList.add('show');
   }finally{
     document.getElementById('raLoading').classList.remove('show');
   }

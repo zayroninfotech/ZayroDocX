@@ -41,6 +41,20 @@ def _extract_docx_text(path):
         return ''
 
 
+_RESUME_SIGNALS = [
+    'experience', 'education', 'skills', 'resume', 'curriculum vitae', 'cv',
+    'employment', 'work history', 'objective', 'summary', 'profile',
+    'internship', 'university', 'college', 'degree', 'bachelor', 'master',
+    'certification', 'projects', 'achievements', 'references', 'languages',
+    'responsibilities', 'job title', 'position', 'company', 'organization',
+]
+
+def _is_resume(text):
+    lower = text.lower()
+    hits = sum(1 for word in _RESUME_SIGNALS if word in lower)
+    return hits >= 3
+
+
 def _call_mistral(resume_text):
     api_key = getattr(settings, 'MISTRAL_API_KEY', None)
     if not api_key:
@@ -100,6 +114,9 @@ def analyze_resume(request):
 
         if len(text.strip()) < 80:
             return JsonResponse({'error': 'Could not extract text from the file. Make sure it is not a scanned image.'}, status=422)
+
+        if not _is_resume(text):
+            return JsonResponse({'error': 'This does not appear to be a resume or CV. Please upload a proper resume (PDF or DOCX) that includes sections like Experience, Education, and Skills.'}, status=422)
 
         mode = request.POST.get('mode', 'pro')
         try:
