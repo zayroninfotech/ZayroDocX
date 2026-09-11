@@ -75,9 +75,17 @@
   font-size: .68rem; color: #aaa; font-weight: 600;
 }
 .sp-placeholder {
-  width: 100%; display: flex; align-items: center; justify-content: center;
-  padding: 2rem; color: #ccc; font-size: .85rem; gap: .5rem;
+  width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 2rem; color: #aaa; font-size: .85rem; gap: .75rem;
 }
+.sp-render-bar-wrap {
+  width: 220px; height: 6px; background: #efefef; border-radius: 3px; overflow: hidden;
+}
+.sp-render-bar {
+  height: 100%; background: linear-gradient(90deg, #dc2626, #f87171);
+  border-radius: 3px; width: 0%; transition: width .25s ease;
+}
+.sp-render-pct { font-size: .78rem; color: #dc2626; font-weight: 700; }
 
 /* ── Divider line between left and sidebar ── */
 .sp-divider { width: 1px; background: #ebebeb; align-self: stretch; flex-shrink: 0; }
@@ -422,7 +430,14 @@ async function renderPreview(f) {
     <div class="sp-range-group">
       <div class="sp-range-group-label">Range 1</div>
       <div class="sp-pages-grid" id="pagesGrid">
-        <div class="sp-placeholder"><i class="fa-solid fa-spinner fa-spin"></i>&nbsp; Rendering pages…</div>
+        <div class="sp-placeholder" id="renderPlaceholder">
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            <i class="fa-solid fa-spinner fa-spin" style="color:#dc2626"></i>
+            <span>Rendering pages…</span>
+            <span class="sp-render-pct" id="renderPct">0%</span>
+          </div>
+          <div class="sp-render-bar-wrap"><div class="sp-render-bar" id="renderBar"></div></div>
+        </div>
       </div>
     </div>
     <div style="margin-top:.6rem;font-size:.75rem;color:#aaa;display:flex;align-items:center;gap:.4rem;">
@@ -431,12 +446,27 @@ async function renderPreview(f) {
       &nbsp;<button type="button" onclick="document.getElementById('fileInput').click()" style="background:#f5f5f5;border:none;border-radius:6px;padding:.22rem .6rem;font-size:.72rem;font-weight:600;color:#888;cursor:pointer;margin-left:.3rem;">Change</button>
     </div>`;
 
+  /* animate progress bar while waiting for server */
+  let pct = 0;
+  const barEl  = () => document.getElementById('renderBar');
+  const pctEl  = () => document.getElementById('renderPct');
+  const ticker = setInterval(() => {
+    pct = Math.min(pct + (pct < 60 ? 3 : pct < 80 ? 1 : 0.3), 88);
+    if (barEl()) barEl().style.width = pct + '%';
+    if (pctEl()) pctEl().textContent  = Math.round(pct) + '%';
+  }, 180);
+
   try {
     const fd = new FormData();
     fd.append('csrfmiddlewaretoken', getCsrf());
     fd.append('file', f);
 
     const resp = await fetch('{% url "api_pdf_thumbnails" %}', { method: 'POST', body: fd });
+    clearInterval(ticker);
+    /* jump to 100% */
+    if (barEl()) { barEl().style.width = '100%'; }
+    if (pctEl()) { pctEl().textContent  = '100%'; }
+    await new Promise(r => setTimeout(r, 200));
     const data = await resp.json();
 
     if (data.error) throw new Error(data.error);
@@ -462,6 +492,7 @@ async function renderPreview(f) {
     });
 
   } catch(e) {
+    clearInterval(ticker);
     document.getElementById('pagesGrid').innerHTML =
       `<div class="sp-placeholder"><i class="fa-solid fa-triangle-exclamation" style="color:#f87171"></i>&nbsp; Could not preview: ${escHtml(e.message)}</div>`;
   }
