@@ -3,7 +3,15 @@
 {% block title %}Convert to JPG — ZayroDocX{% endblock %}
 {% block active_img_to_jpg %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Convert to JPG</span>{% endblock %}
-{% block extra_head %}<style>{% include "pdf_tools/_img_split_css.html" %}</style>{% endblock %}
+{% block extra_head %}<style>
+{% include "pdf_tools/_img_split_css.html" %}
+.it-result-full{display:none;text-align:center;padding:3rem 2rem;}
+.it-result-full.show{display:block;}
+.it-dl-full-btn{display:inline-flex;align-items:center;gap:.6rem;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:.9rem 2.5rem;font-size:1.1rem;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(22,163,74,.35);transition:background .15s;}
+.it-dl-full-btn:hover{background:#15803d;}
+.it-new-file-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;margin:.9rem auto 0;background:#fff;border:1.5px solid #e8e8e8;border-radius:10px;padding:.65rem 1.5rem;font-size:.9rem;font-weight:600;color:#555;cursor:pointer;transition:border-color .15s;max-width:280px;}
+.it-new-file-btn:hover{border-color:#dc2626;color:#dc2626;}
+</style>{% endblock %}
 {% block content %}
 <input type="file" id="fileInput" accept="image/*" style="display:none">
 <div class="it-drop" id="itDrop" onclick="document.getElementById('fileInput').click()">
@@ -14,23 +22,86 @@
 <div class="it-split" id="itSplit">
   <div class="it-viewer"><div class="it-viewer-loading" id="itViewerLoad"><i class="fa-solid fa-spinner it-spin"></i><span>Loading…</span></div><img id="itPreviewImg" style="display:none;max-width:100%;max-height:100%;border-radius:8px;object-fit:contain;" alt="preview"></div>
   <div class="it-right">
-    <div class="it-card"><div class="it-file-row"><div class="it-file-icon"><i class="fa-solid fa-image"></i></div><div><div class="it-file-name" id="itFileName">—</div><div class="it-file-size" id="itFileSize">—</div></div><button type="button" class="it-change-btn" onclick="resetTool()"><i class="fa-solid fa-rotate-left"></i> Change</button></div></div>
+    <h2 style="font-size:1.25rem;font-weight:800;color:#dc2626;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;"><i class="fa-solid fa-file-image"></i> Convert to JPG</h2>
+    <div class="it-card"><div class="it-file-row"><div class="it-file-icon"><i class="fa-solid fa-file-image"></i></div><div><div class="it-file-name" id="itFileName">—</div><div class="it-file-size" id="itFileSize">—</div></div><button type="button" class="it-change-btn" onclick="resetTool()"><i class="fa-solid fa-rotate-left"></i> Change</button></div></div>
     <div class="it-card">
       <div class="it-opts-title"><i class="fa-solid fa-sliders"></i> Options</div>
       <div class="it-field-label">Quality: <span id="qVal">90</span>%</div>
       <input type="range" id="qualityRange" class="it-range" min="10" max="95" value="90" oninput="document.getElementById('qVal').textContent=this.value">
     </div>
     <button type="button" class="it-convert-btn" id="itConvertBtn" onclick="doConvert()"><i class="fa-solid fa-file-image"></i> Convert to JPG</button>
-    <div class="it-loading-card" id="itLoadingCard"><i class="fa-solid fa-spinner it-spin"></i><span style="font-size:.88rem;font-weight:600;color:#b91c1c">Converting…</span></div>
-    <div class="it-result-card" id="itResultCard"><div class="it-result-title"><i class="fa-solid fa-circle-check"></i> Converted to JPG!</div><a class="it-dl-btn" id="itDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download JPG</a></div>
     <div class="it-error-card" id="itErrorCard"><div class="it-error-msg" id="itErrorMsg"></div></div>
   </div>
 </div>
+
+<div class="it-result-full" id="itResultFull">
+  <div style="font-size:3.5rem;color:#16a34a;margin-bottom:1rem"><i class="fa-solid fa-circle-check"></i></div>
+  <p style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0 0 .4rem">Converted to JPG!</p>
+  <p style="color:#64748b;margin:0 0 1.5rem;font-size:.95rem">Your JPG file is ready to download.</p>
+  <a class="it-dl-full-btn" id="itDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download JPG</a>
+  <button class="it-new-file-btn" onclick="resetTool()"><i class="fa-solid fa-plus"></i> Convert Another Image</button>
+</div>
 {% endblock %}
 {% block extra_js %}<script>
-let currentFile=null;const fileInput=document.getElementById('fileInput');
-function resetTool(){fileInput.value='';currentFile=null;document.getElementById('itDrop').style.display='';document.getElementById('itSplit').classList.remove('show');['itLoadingCard','itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itConvertBtn').disabled=false;}
-function setFile(f){if(!f)return;currentFile=f;document.getElementById('itFileName').textContent=f.name;document.getElementById('itFileSize').textContent=(f.size/1024).toFixed(1)+' KB';document.getElementById('itDrop').style.display='none';['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById('itSplit').classList.add('show');const img=document.getElementById('itPreviewImg');img.src=URL.createObjectURL(f);img.style.display='block';document.getElementById('itViewerLoad').style.display='none';}
-async function doConvert(){if(!currentFile)return;document.getElementById('itConvertBtn').disabled=true;document.getElementById('itLoadingCard').classList.add('show');['itResultCard','itErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));const fd=new FormData();fd.append('file',currentFile);fd.append('csrfmiddlewaretoken','{{ csrf_token }}');fd.append('quality',document.getElementById('qualityRange').value);try{const res=await fetch('/tools/api/img/to-jpg/',{method:'POST',body:fd});const d=await res.json();if(d.error)throw new Error(d.error);document.getElementById('itDlBtn').href=d.download_url;document.getElementById('itDlBtn').download=d.filename||'converted.jpg';document.getElementById('itResultCard').classList.add('show');}catch(e){document.getElementById('itErrorMsg').textContent=e.message||'Failed.';document.getElementById('itErrorCard').classList.add('show');}finally{document.getElementById('itLoadingCard').classList.remove('show');document.getElementById('itConvertBtn').disabled=false;}}
-fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));const drop=document.getElementById('itDrop');drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+let currentFile=null;
+const fileInput=document.getElementById('fileInput');
+const itSplit=document.getElementById('itSplit');
+const itResultFull=document.getElementById('itResultFull');
+const itErrorCard=document.getElementById('itErrorCard');
+
+function resetTool(){
+  fileInput.value='';currentFile=null;
+  document.getElementById('itDrop').style.display='';
+  itSplit.classList.remove('show');
+  itResultFull.classList.remove('show');
+  itErrorCard.classList.remove('show');
+  document.getElementById('itConvertBtn').disabled=false;
+}
+
+function setFile(f){
+  if(!f)return;currentFile=f;
+  document.getElementById('itFileName').textContent=f.name;
+  document.getElementById('itFileSize').textContent=(f.size/1024).toFixed(1)+' KB';
+  document.getElementById('itDrop').style.display='none';
+  itResultFull.classList.remove('show');
+  itErrorCard.classList.remove('show');
+  itSplit.classList.add('show');
+  const img=document.getElementById('itPreviewImg');
+  img.src=URL.createObjectURL(f);img.style.display='block';
+  document.getElementById('itViewerLoad').style.display='none';
+}
+
+async function doConvert(){
+  if(!currentFile)return;
+  document.getElementById('itConvertBtn').disabled=true;
+  itResultFull.classList.remove('show');
+  itErrorCard.classList.remove('show');
+  if(typeof ZLoader!=='undefined')ZLoader.show('Converting to JPG…');
+  const fd=new FormData();
+  fd.append('file',currentFile);
+  fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
+  fd.append('quality',document.getElementById('qualityRange').value);
+  try{
+    const res=await fetch('/tools/api/img/to-jpg/',{method:'POST',body:fd});
+    const d=await res.json();
+    if(d.error)throw new Error(d.error);
+    if(typeof ZLoader!=='undefined')ZLoader.hide();
+    const _d=new Date(),_mo=_d.toLocaleString('en-US',{month:'short'}),_dy=_d.getDate();
+    const _hh=_d.getHours()%12||12,_mm=String(_d.getMinutes()).padStart(2,'0'),_ss=String(_d.getSeconds()).padStart(2,'0'),_ap=_d.getHours()>=12?'PM':'AM';
+    document.getElementById('itDlBtn').href=d.download_url;
+    document.getElementById('itDlBtn').download=`ZayroDocX Convert to JPG ${_mo} ${_dy}, ${_hh}_${_mm}_${_ss} ${_ap}.jpg`;
+    itSplit.classList.remove('show');
+    itResultFull.classList.add('show');
+  }catch(e){
+    if(typeof ZLoader!=='undefined')ZLoader.hide();
+    document.getElementById('itErrorMsg').textContent=e.message||'Failed.';
+    itErrorCard.classList.add('show');
+  }finally{document.getElementById('itConvertBtn').disabled=false;}
+}
+
+fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));
+const drop=document.getElementById('itDrop');
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
 </script>{% endblock %}
