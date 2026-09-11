@@ -3,6 +3,7 @@
 {% block active_remove %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Remove Pages</span>{% endblock %}
 {% block content %}
+{% include 'pdf_tools/_organize_nav.html' %}
 
 <style>
 /* ══════════════════════════════════════

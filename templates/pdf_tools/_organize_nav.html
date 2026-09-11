@@ -1,0 +1,65 @@
+{% load static %}
+<!-- Organize PDF — in-page tool switcher -->
+<div class="org-nav-strip">
+  <a href="{% url 'merge_pdf_page' %}" class="org-nav-item{% if '/merge-pdf/' in request.path %} org-nav-active{% endif %}">
+    <span class="org-nav-icon" style="background:rgba(220,38,38,.14);color:#dc2626;">
+      <i class="fa-solid fa-layer-group"></i>
+    </span>
+    <span class="org-nav-label">Merge PDF</span>
+  </a>
+  <a href="{% url 'split_pdf_page' %}" class="org-nav-item{% if '/split-pdf/' in request.path %} org-nav-active{% endif %}">
+    <span class="org-nav-icon" style="background:rgba(124,58,237,.14);color:#7c3aed;">
+      <i class="fa-solid fa-scissors"></i>
+    </span>
+    <span class="org-nav-label">Split PDF</span>
+  </a>
+  <a href="{% url 'remove_pages_page' %}" class="org-nav-item{% if '/remove-pages/' in request.path %} org-nav-active{% endif %}">
+    <span class="org-nav-icon" style="background:rgba(220,38,38,.1);color:#dc2626;">
+      <i class="fa-solid fa-trash-can"></i>
+    </span>
+    <span class="org-nav-label">Remove Pages</span>
+  </a>
+  <a href="{% url 'extract_pages_page' %}" class="org-nav-item{% if '/extract-pages/' in request.path %} org-nav-active{% endif %}">
+    <span class="org-nav-icon" style="background:rgba(37,99,235,.14);color:#2563eb;">
+      <i class="fa-solid fa-file-export"></i>
+    </span>
+    <span class="org-nav-label">Extract Pages</span>
+  </a>
+  <a href="{% url 'scan_pdf_page' %}" class="org-nav-item{% if '/scan-to-pdf/' in request.path %} org-nav-active{% endif %}">
+    <span class="org-nav-icon" style="background:rgba(147,51,234,.14);color:#9333ea;">
+      <i class="fa-solid fa-images"></i>
+    </span>
+    <span class="org-nav-label">Image to PDF</span>
+  </a>
+</div>
+
+<style>
+.org-nav-strip {
+  display: flex; gap: .5rem; flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  padding: .65rem .75rem;
+  background: #fff; border: 1px solid #ebebeb; border-radius: 14px;
+}
+.org-nav-item {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .42rem .85rem .42rem .5rem;
+  border-radius: 10px; text-decoration: none;
+  font-size: .82rem; font-weight: 600; color: #555;
+  transition: background .15s, color .15s;
+  border: 1.5px solid transparent;
+}
+.org-nav-item:hover { background: #f7f7f7; color: #111; text-decoration: none; }
+.org-nav-active {
+  border-color: #e8e8e8; background: #f7f7f7; color: #111;
+  box-shadow: 0 1px 4px rgba(0,0,0,.07);
+}
+.org-nav-icon {
+  width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: .78rem;
+}
+@media (max-width: 600px) {
+  .org-nav-label { display: none; }
+  .org-nav-item { padding: .42rem .5rem; }
+}
+</style>

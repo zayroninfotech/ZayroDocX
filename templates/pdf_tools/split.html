@@ -4,6 +4,7 @@
 {% block active_split %}active{% endblock %}
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Split PDF</span>{% endblock %}
 {% block content %}
+{% include 'pdf_tools/_organize_nav.html' %}
 
 <style>
 /* ══════════════════════════════════════
