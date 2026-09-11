@@ -600,7 +600,7 @@ function showSuccess(data) {
     <div class="result-success-wrap">
       <h2 class="result-success-title">Pages removed successfully!</h2>
       <div class="result-download-row">
-        <a href="${data.download_url}" class="btn-download-big" download="${data.filename}">
+        <a href="${data.download_url}" class="btn-download-big" download="${data.download_name || data.filename}">
           <i class="fa-solid fa-download"></i> Download PDF
         </a>
         <button class="btn-again" onclick="resetTool()">

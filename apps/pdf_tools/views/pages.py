@@ -1,4 +1,5 @@
 import fitz
+from datetime import datetime
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from apps.pdf_tools.utils import save_uploaded_file, get_output_path, media_url, cleanup_file, validate_pdf
@@ -25,7 +26,9 @@ def remove_pages(request):
         doc.save(out_path)
         doc.close()
         save_job('remove_pages', [f.name], [out_name])
-        return JsonResponse({'download_url': media_url(out_name), 'filename': out_name})
+        dt = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        download_name = f'removed_{dt}.pdf'
+        return JsonResponse({'download_url': media_url(out_name), 'filename': out_name, 'download_name': download_name})
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
     except Exception:
