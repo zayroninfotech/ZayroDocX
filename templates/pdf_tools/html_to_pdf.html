@@ -215,10 +215,6 @@
       <i class="fa-solid fa-rotate-left"></i> Convert Again
     </button>
   </div>
-  <div class="continue-section">
-    <h4>Continue to…</h4>
-    <div class="continue-grid" id="h2pContinueGrid"></div>
-  </div>
 </div>
 
 <!-- Source panel (tabs + URL/Paste inputs, always visible) -->
@@ -290,6 +286,7 @@
 
   <!-- Right: controls -->
   <div class="h2p-right">
+    <div style="font-size:1.25rem;font-weight:800;color:var(--text,#1e293b);letter-spacing:-.02em;padding-bottom:.25rem;">HTML to PDF</div>
     <div class="h2p-card">
       <div class="h2p-file-row">
         <div class="h2p-file-icon"><i class="fa-brands fa-html5"></i></div>
@@ -348,9 +345,17 @@ function buildContinueGrid() {
 
 function showSuccess(downloadUrl, filename) {
   if (typeof ZLoader !== 'undefined') ZLoader.hide();
+  const now = new Date();
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const month = months[now.getMonth()];
+  const day = now.getDate();
+  const hh = now.getHours();
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  const ss = String(now.getSeconds()).padStart(2,'0');
+  const ampm = hh >= 12 ? 'PM' : 'AM';
+  const dlName = `ZayroDocX HTML to PDF ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.pdf`;
   document.getElementById('h2pDlBtn').href = downloadUrl;
-  document.getElementById('h2pDlBtn').download = filename || 'converted.pdf';
-  buildContinueGrid();
+  document.getElementById('h2pDlBtn').download = dlName;
   h2pSrcPanel.style.display = 'none';
   h2pSplit.classList.remove('show');
   h2pResultFull.classList.add('show');
