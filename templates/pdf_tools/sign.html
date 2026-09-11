@@ -50,18 +50,20 @@
 
 .sg-convert-btn { width: 100%; padding: .85rem; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: opacity .15s; }
 .sg-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
-.sg-loading-card { display: none; background: #fff8f8; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1.1rem 1.2rem; align-items: center; gap: .9rem; }
-.sg-loading-card.show { display: flex; }
 .sg-spin { animation: spin 1s linear infinite; font-size: 1.3rem; color: #dc2626; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.sg-result-card { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 1.1rem 1.2rem; }
-.sg-result-card.show { display: block; }
-.sg-result-title { font-size: .82rem; font-weight: 700; color: #166534; display: flex; align-items: center; gap: .4rem; margin-bottom: .7rem; }
-.sg-dl-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .65rem; background: #16a34a; color: #fff; border: none; border-radius: 9px; font-size: .88rem; font-weight: 700; cursor: pointer; text-decoration: none; }
-.sg-dl-btn:hover { background: #15803d; }
 .sg-error-card { display: none; background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 14px; padding: 1rem 1.2rem; }
 .sg-error-card.show { display: block; }
 .sg-error-msg { font-size: .82rem; color: #dc2626; }
+.sg-result-full { display: none; text-align: center; padding: 3rem 2rem; }
+.sg-result-full.show { display: block; }
+.sg-result-full-icon { font-size: 3.5rem; color: #16a34a; margin-bottom: 1rem; }
+.sg-result-full-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0 0 .4rem; }
+.sg-result-full-sub { color: #64748b; margin: 0 0 1.5rem; font-size: .95rem; }
+.sg-dl-full-btn { display: inline-flex; align-items: center; gap: .6rem; background: #16a34a; color: #fff; border: none; border-radius: 12px; padding: .9rem 2.5rem; font-size: 1.1rem; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: 0 4px 18px rgba(22,163,74,.35); transition: background .15s; }
+.sg-dl-full-btn:hover { background: #15803d; }
+.sg-new-file-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; margin: .9rem auto 0; background: #fff; border: 1.5px solid #e8e8e8; border-radius: 10px; padding: .65rem 1.5rem; font-size: .9rem; font-weight: 600; color: #555; cursor: pointer; transition: border-color .15s; max-width: 280px; }
+.sg-new-file-btn:hover { border-color: #d97706; color: #d97706; }
 
 @media (max-width: 1050px) { .sg-split { grid-template-columns: 1fr; } .sg-right { position: static; max-height: none; } }
 </style>{% endblock %}
@@ -70,7 +72,7 @@
 <input type="file" id="fileInput" name="file" accept=".pdf" style="display:none">
 
 <div class="sg-drop" id="sgDrop" onclick="document.getElementById('fileInput').click()">
-  <div class="sg-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+  <div class="sg-drop-icon"><i class="fa-solid fa-signature" style="color:#d97706;"></i></div>
   <h3>Drop your PDF here</h3>
   <p>Draw or upload your signature, then place it on any page</p>
   <button type="button" class="sg-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
@@ -88,9 +90,10 @@
   </div>
 
   <div class="sg-right">
+    <h2 style="font-size:1.25rem;font-weight:800;color:#d97706;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;"><i class="fa-solid fa-signature"></i> Sign PDF</h2>
     <div class="sg-card">
       <div class="sg-file-row">
-        <div class="sg-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+        <div class="sg-file-icon" style="background:rgba(217,119,6,0.12);"><i class="fa-solid fa-signature" style="color:#d97706;"></i></div>
         <div>
           <div class="sg-file-name" id="sgFileName">—</div>
           <div class="sg-file-size" id="sgFileSize">—</div>
@@ -175,27 +178,22 @@
       <i class="fa-solid fa-signature"></i> Sign PDF
     </button>
 
-    <div class="sg-loading-card" id="sgLoadingCard">
-      <i class="fa-solid fa-spinner sg-spin"></i>
-      <span style="font-size:.88rem;font-weight:600;color:#b91c1c">Signing PDF…</span>
-    </div>
-
-    <div class="sg-result-card" id="sgResultCard">
-      <div class="sg-result-title"><i class="fa-solid fa-circle-check"></i> PDF signed!</div>
-      <a class="sg-dl-btn" id="sgDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download PDF</a>
-    </div>
-
     <div class="sg-error-card" id="sgErrorCard">
       <div class="sg-error-msg" id="sgErrorMsg"></div>
     </div>
   </div>
 </div>
 
-<div class="cv-info-strip" id="sgInfoStrip">
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-pen"></i></div><div><div class="cv-info-title">Draw or Upload</div><div class="cv-info-desc">Two signature modes</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-crosshairs"></i></div><div><div class="cv-info-title">Precise Placement</div><div class="cv-info-desc">X/Y coordinates</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
+<div class="sg-result-full" id="sgResultFull">
+  <div class="sg-result-full-icon"><i class="fa-solid fa-circle-check"></i></div>
+  <p class="sg-result-full-title">PDF Signed!</p>
+  <p class="sg-result-full-sub">Your signed PDF is ready to download.</p>
+  <a class="sg-dl-full-btn" id="sgDlBtn" href="#" download>
+    <i class="fa-solid fa-download"></i> Download PDF
+  </a>
+  <button class="sg-new-file-btn" onclick="resetTool()">
+    <i class="fa-solid fa-plus"></i> Sign Another File
+  </button>
 </div>
 {% endblock %}
 
@@ -206,10 +204,8 @@ const sgSplit       = document.getElementById('sgSplit');
 const sgPagesEl     = document.getElementById('sgPages');
 const sgViewerLoad  = document.getElementById('sgViewerLoading');
 const sgConvertBtn  = document.getElementById('sgConvertBtn');
-const sgLoadingCard = document.getElementById('sgLoadingCard');
-const sgResultCard  = document.getElementById('sgResultCard');
+const sgResultFull  = document.getElementById('sgResultFull');
 const sgErrorCard   = document.getElementById('sgErrorCard');
-const sgInfoStrip   = document.getElementById('sgInfoStrip');
 
 let currentFile  = null;
 let pageDims     = [];
@@ -441,10 +437,10 @@ function updateCoords(pageIdx, px1, py1, px2, py2, pdfW, pdfH, dispW, dispH) {
 function resetTool() {
   fileInput.value = ''; currentFile = null; pageDims = []; sigDataUrl = null; overlay = null; sigAspectRatio = null;
   sgDrop.style.display = ''; sgSplit.classList.remove('show');
+  sgResultFull.classList.remove('show');
   sgPagesEl.innerHTML = ''; sgPagesEl.style.display = 'none';
   sgViewerLoad.style.display = 'flex'; sgConvertBtn.disabled = false;
-  sgLoadingCard.classList.remove('show'); sgResultCard.classList.remove('show');
-  sgErrorCard.classList.remove('show'); sgInfoStrip.style.display = '';
+  sgErrorCard.classList.remove('show');
   document.getElementById('sgPreviewWrap').style.display = 'none';
 }
 
@@ -484,8 +480,8 @@ function setFile(f) {
   document.getElementById('sgFileName').textContent = f.name;
   document.getElementById('sgFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
   const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
-  sgDrop.style.display = 'none'; sgInfoStrip.style.display = 'none';
-  sgResultCard.classList.remove('show'); sgErrorCard.classList.remove('show');
+  sgDrop.style.display = 'none';
+  sgResultFull.classList.remove('show'); sgErrorCard.classList.remove('show');
   sgSplit.classList.add('show');
   loadPreview(f);
 }
@@ -498,9 +494,9 @@ async function doSign() {
     document.getElementById('signatureData').value = _sigCv.toDataURL('image/png');
 
   sgConvertBtn.disabled = true;
-  sgLoadingCard.classList.add('show');
-  sgResultCard.classList.remove('show');
+  sgResultFull.classList.remove('show');
   sgErrorCard.classList.remove('show');
+  if (typeof ZLoader !== 'undefined') ZLoader.show('Signing PDF…');
 
   const fd = new FormData();
   fd.append('file', currentFile);
@@ -519,14 +515,18 @@ async function doSign() {
     const res  = await fetch('{% url "api_sign_pdf" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    document.getElementById('sgDlBtn').href     = data.download_url;
-    document.getElementById('sgDlBtn').download = data.filename || 'signed.pdf';
-    sgResultCard.classList.add('show');
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
+    document.getElementById('sgDlBtn').href = data.download_url;
+    const _d = new Date(); const _mo = _d.toLocaleString('en-US',{month:'short'}); const _dy = _d.getDate();
+    const _hh = _d.getHours() % 12 || 12; const _mm = String(_d.getMinutes()).padStart(2,'0'); const _ss = String(_d.getSeconds()).padStart(2,'0'); const _ap = _d.getHours() >= 12 ? 'PM' : 'AM';
+    document.getElementById('sgDlBtn').download = `ZayroDocX Sign PDF ${_mo} ${_dy}, ${_hh}_${_mm}_${_ss} ${_ap}.pdf`;
+    sgSplit.classList.remove('show');
+    sgResultFull.classList.add('show');
   } catch (e) {
+    if (typeof ZLoader !== 'undefined') ZLoader.hide();
     document.getElementById('sgErrorMsg').textContent = e.message || 'Failed.';
     sgErrorCard.classList.add('show');
   } finally {
-    sgLoadingCard.classList.remove('show');
     sgConvertBtn.disabled = false;
   }
 }
