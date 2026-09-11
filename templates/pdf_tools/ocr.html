@@ -6,325 +6,425 @@
 
 {% block extra_head %}
 <style>
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin { to { transform:rotate(360deg); } }
 
 /* ── Drop zone ── */
 .ocr-drop {
-  border: 2px dashed #e0e0e0; border-radius: 18px;
-  padding: 3rem 2rem; text-align: center; position: relative;
-  cursor: pointer; transition: border-color .2s, background .2s;
-  background: #fafafa; margin-bottom: 1.2rem;
+  border:2px dashed #e0e0e0; border-radius:18px;
+  padding:3.5rem 2rem; text-align:center; position:relative;
+  cursor:pointer; transition:border-color .2s,background .2s;
+  background:#fafafa; margin-bottom:1.2rem;
 }
-.ocr-drop.dragging { border-color: #2563eb; background: #eff6ff; }
-.ocr-drop.processing { pointer-events: none; opacity: .55; }
+.ocr-drop.dragging { border-color:#2563eb; background:#eff6ff; }
+.ocr-drop.processing { pointer-events:none; opacity:.55; }
 .ocr-drop input[type=file] { position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer; }
 .ocr-drop-icon {
-  width: 72px; height: 72px; border-radius: 18px;
-  background: #eff6ff; color: #2563eb;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2rem; margin: 0 auto 1rem;
-  box-shadow: 0 4px 20px rgba(37,99,235,.15);
+  width:80px; height:80px; border-radius:20px;
+  background:#eff6ff; color:#2563eb;
+  display:flex; align-items:center; justify-content:center;
+  font-size:2.2rem; margin:0 auto 1.2rem;
+  box-shadow:0 4px 20px rgba(37,99,235,.15);
 }
-.ocr-drop h2  { font-size: 2rem; font-weight: 900; color: #111; margin: 0 0 .25rem; letter-spacing: -.03em; }
-.ocr-drop h3  { font-size: 1.1rem; font-weight: 700; margin: 0 0 .35rem; color: #333; }
-.ocr-drop p   { font-size: .84rem; color: var(--text-muted); margin: 0 0 1.2rem; }
+.ocr-drop h2  { font-size:2rem; font-weight:900; color:#111; margin:0 0 .25rem; letter-spacing:-.03em; }
+.ocr-drop h3  { font-size:1rem; font-weight:600; margin:0 0 .3rem; color:#444; }
+.ocr-drop p   { font-size:.84rem; color:var(--text-muted); margin:0 0 1.2rem; }
 .ocr-drop-btn {
-  display: inline-flex; align-items: center; gap: .55rem;
-  background: #2563eb; color: #fff; border: none; border-radius: 12px;
-  padding: .9rem 2.5rem; font-size: 1.1rem; font-weight: 700;
-  cursor: pointer; position: relative; z-index: 1;
-  transition: background .15s, transform .1s;
-  box-shadow: 0 4px 18px rgba(37,99,235,.35);
+  display:inline-flex; align-items:center; gap:.55rem;
+  background:#2563eb; color:#fff; border:none; border-radius:12px;
+  padding:.85rem 2.2rem; font-size:1rem; font-weight:700;
+  cursor:pointer; position:relative; z-index:1;
+  transition:background .15s; box-shadow:0 4px 18px rgba(37,99,235,.35);
 }
-.ocr-drop-btn:hover { background: #1d4ed8; transform: translateY(-1px); }
-.ocr-drop-hint { display: block; margin-top: .7rem; font-size: .74rem; color: var(--text-muted); }
+.ocr-drop-btn:hover { background:#1d4ed8; }
+.ocr-drop-hint { display:block; margin-top:.7rem; font-size:.74rem; color:var(--text-muted); }
 
 /* ── Loader overlay ── */
 .ocr-loader {
-  display: none; position: fixed; inset: 0; z-index: 9000;
-  background: rgba(255,255,255,.88); backdrop-filter: blur(4px);
-  align-items: center; justify-content: center; flex-direction: column; gap: 1rem;
+  display:none; position:fixed; inset:0; z-index:9000;
+  background:rgba(255,255,255,.88); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center; flex-direction:column; gap:1rem;
 }
-.ocr-loader.show { display: flex; }
+.ocr-loader.show { display:flex; }
 .ocr-loader-ring {
-  width: 64px; height: 64px;
-  border: 5px solid #dbeafe; border-top-color: #2563eb;
-  border-radius: 50%; animation: spin .75s linear infinite;
+  width:64px; height:64px;
+  border:5px solid #dbeafe; border-top-color:#dc2626;
+  border-radius:50%; animation:spin .75s linear infinite;
 }
-.ocr-loader-text { font-size: .95rem; font-weight: 700; color: #2563eb; }
-.ocr-loader-sub  { font-size: .78rem; color: #888; margin-top: -.4rem; }
+.ocr-loader-text { font-size:.95rem; font-weight:700; color:#dc2626; }
+.ocr-loader-sub  { font-size:.78rem; color:#888; margin-top:-.4rem; }
 
 /* ── Error banner ── */
 #ocrErr {
-  display: none; background: #fee2e2; border: 1px solid #fca5a5;
-  border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1rem;
-  align-items: center; gap: .8rem; color: #991b1b; font-size: .875rem;
+  display:none; background:#fee2e2; border:1px solid #fca5a5;
+  border-radius:12px; padding:.85rem 1.1rem; margin-bottom:1rem;
+  align-items:center; gap:.75rem; color:#991b1b; font-size:.85rem;
 }
 
-/* ══ SPLIT VIEWER ══ */
-.sv-header {
-  display: flex; align-items: center; justify-content: space-between;
-  flex-wrap: wrap; gap: 10px;
-  padding: .75rem 1rem; margin-bottom: .75rem;
-  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-}
-.sv-file-info { display: flex; align-items: center; gap: .6rem; }
-.sv-filename  { font-weight: 700; font-size: .9rem; color: var(--text); }
-.sv-pages-badge {
-  font-size: .7rem; font-weight: 700; background: #eff6ff; color: #2563eb;
-  border: 1px solid #bfdbfe; border-radius: 20px; padding: 2px 10px;
-}
-.sv-actions { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
-.sv-new-btn {
-  display: inline-flex; align-items: center; gap: .4rem;
-  border: 1.5px solid #e0e0e0; border-radius: 8px; background: none;
-  padding: .38rem .9rem; font-size: .78rem; font-weight: 700; color: #666; cursor: pointer;
-  transition: border-color .15s, color .15s;
-}
-.sv-new-btn:hover { border-color: #2563eb; color: #2563eb; }
-.sv-all-btn {
-  display: inline-flex; align-items: center; gap: .4rem; border: none;
-  border-radius: 8px; padding: .38rem .9rem; font-size: .78rem; font-weight: 600;
-  cursor: pointer; transition: opacity .2s; white-space: nowrap;
-}
-.sv-all-btn:hover { opacity: .85; }
-.sv-all-ocr { background: #1e40af; color: #fff; }
-.sv-all-ai  { background: #059669; color: #fff; }
+/* ══ SPLIT VIEWER ══════════════════════════════════════════ */
 
-/* ── Split body ── */
+/* Top bar */
+.sv-topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; flex-wrap:wrap;
+  padding:.6rem 0; margin-bottom:.75rem;
+  border-bottom:1px solid var(--border);
+}
+.sv-topbar-left { display:flex; align-items:center; gap:.75rem; }
+.sv-tool-icon {
+  width:40px; height:40px; border-radius:10px;
+  background:#dc2626; color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1rem; flex-shrink:0;
+}
+.sv-tool-name  { font-size:.95rem; font-weight:800; color:var(--text); line-height:1.2; }
+.sv-tool-sub   { font-size:.72rem; color:var(--text-muted); }
+.sv-topbar-right { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+.sv-btn-new {
+  display:inline-flex; align-items:center; gap:.4rem;
+  border:1.5px solid var(--border); border-radius:8px; background:var(--surface);
+  padding:.4rem .9rem; font-size:.78rem; font-weight:700; color:var(--text); cursor:pointer;
+  transition:border-color .15s,color .15s;
+}
+.sv-btn-new:hover { border-color:#dc2626; color:#dc2626; }
+.sv-btn-process {
+  display:inline-flex; align-items:center; gap:.45rem;
+  border:none; border-radius:8px;
+  background:#dc2626; color:#fff;
+  padding:.45rem 1.1rem; font-size:.82rem; font-weight:700; cursor:pointer;
+  transition:opacity .15s; box-shadow:0 3px 12px rgba(220,38,38,.3);
+}
+.sv-btn-process:hover { opacity:.88; }
+.sv-btn-process:disabled { opacity:.5; cursor:not-allowed; }
+
+/* 3-column body */
 .sv-body {
-  display: grid; grid-template-columns: 260px 1fr;
-  gap: 10px; align-items: start;
+  display:grid;
+  grid-template-columns:240px 1fr 280px;
+  gap:12px; align-items:start;
 }
-@media(max-width: 768px) { .sv-body { grid-template-columns: 1fr; } }
+@media(max-width:900px){
+  .sv-body { grid-template-columns:200px 1fr; }
+  .sv-controls { display:none; }
+}
+@media(max-width:640px){
+  .sv-body { grid-template-columns:1fr; }
+  .sv-pages { display:none; }
+}
 
-/* ── Left: page list ── */
-.sv-left {
-  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-  overflow: hidden; position: sticky; top: 70px;
+/* ── Col 1: Pages sidebar ── */
+.sv-pages {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; overflow:hidden;
+  position:sticky; top:70px; max-height:calc(100vh - 140px);
+  display:flex; flex-direction:column;
 }
-.sv-left-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: .65rem 1rem; border-bottom: 1px solid var(--border);
-  background: var(--bg);
+.sv-pages-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.6rem .85rem; border-bottom:1px solid var(--border);
+  background:var(--bg); flex-shrink:0;
 }
-.sv-left-head-title {
-  font-size: .72rem; font-weight: 700; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: .06em;
+.sv-pages-title {
+  font-size:.72rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.06em; color:var(--text-muted);
+  display:flex; align-items:center; gap:.4rem;
+}
+.sv-count-badge {
+  font-size:.65rem; font-weight:700;
+  background:#fee2e2; color:#dc2626;
+  border-radius:20px; padding:1px 8px;
 }
 .sv-page-scroll {
-  overflow-y: auto; max-height: calc(100vh - 200px);
-  padding: 8px; display: flex; flex-direction: column; gap: 6px;
+  overflow-y:auto; flex:1;
+  padding:8px; display:flex; flex-direction:column; gap:6px;
 }
-.sv-page-scroll::-webkit-scrollbar { width: 4px; }
-.sv-page-scroll::-webkit-scrollbar-thumb { background: #bfdbfe; border-radius: 2px; }
+.sv-page-scroll::-webkit-scrollbar { width:4px; }
+.sv-page-scroll::-webkit-scrollbar-thumb { background:#fecaca; border-radius:2px; }
 .sv-page-thumb {
-  border-radius: 8px; overflow: hidden; cursor: pointer;
-  border: 2px solid var(--border); transition: border-color .15s, box-shadow .15s;
-  background: var(--bg); position: relative;
+  border-radius:8px; overflow:hidden; cursor:pointer;
+  border:2px solid var(--border); transition:border-color .15s,box-shadow .15s;
+  background:var(--bg); position:relative;
 }
-.sv-page-thumb:hover { border-color: #93c5fd; box-shadow: 0 2px 8px rgba(37,99,235,.15); }
-.sv-page-thumb.active { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.2); }
-.sv-page-thumb img { width: 100%; display: block; object-fit: contain; }
+.sv-page-thumb:hover { border-color:#fca5a5; box-shadow:0 2px 8px rgba(220,38,38,.15); }
+.sv-page-thumb.active { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.18); }
+.sv-page-thumb img { width:100%; display:block; object-fit:contain; }
 .sv-page-thumb-label {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  background: rgba(0,0,0,.55); color: #fff;
-  font-size: .62rem; font-weight: 700; text-align: center;
-  padding: 3px 0; letter-spacing: .04em;
+  position:absolute; bottom:0; left:0; right:0;
+  background:rgba(0,0,0,.5); color:#fff;
+  font-size:.6rem; font-weight:700; text-align:center;
+  padding:3px 0; letter-spacing:.04em;
 }
-.sv-page-thumb.ocr-done .sv-page-thumb-label { background: rgba(37,99,235,.85); }
-.sv-page-thumb.ai-done  .sv-page-thumb-label { background: rgba(5,150,105,.85); }
+.sv-page-thumb.ocr-done .sv-page-thumb-label { background:rgba(37,99,235,.85); }
+.sv-page-thumb.ai-done  .sv-page-thumb-label { background:rgba(5,150,105,.85); }
 
-/* ── Right: extraction card ── */
-.sv-right { display: flex; flex-direction: column; gap: 10px; }
-.extract-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px; overflow: hidden;
-}
+/* ── Col 2: Center viewer ── */
+.sv-center { display:flex; flex-direction:column; gap:10px; min-width:0; }
 
-/* Row 1: page label + OCR/AI toggles */
-.extract-card-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: .65rem 1rem; border-bottom: 1px solid var(--border);
-  background: var(--bg); flex-wrap: wrap; gap: .5rem;
+.sv-page-nav {
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  padding:.5rem .75rem;
+  background:var(--surface); border:1px solid var(--border); border-radius:10px;
 }
-.active-page-label {
-  font-weight: 700; font-size: .9rem; color: var(--text);
-  display: flex; align-items: center; gap: .4rem;
+.sv-page-nav-info {
+  font-size:.8rem; font-weight:700; color:var(--text);
+  display:flex; align-items:center; gap:.35rem;
 }
-.active-page-label i { color: #2563eb; }
+.sv-page-nav-info i { color:#dc2626; font-size:.75rem; }
+.pn-input {
+  width:38px; text-align:center;
+  border:1.5px solid var(--border); border-radius:6px;
+  background:var(--bg); color:var(--text);
+  padding:2px 4px; font-size:.78rem; font-weight:700;
+}
+.pn-sep { font-size:.75rem; color:var(--text-muted); }
+.pn-btn {
+  width:28px; height:28px; border:1.5px solid var(--border); border-radius:6px;
+  background:var(--bg); color:var(--text-muted); cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:.75rem; transition:border-color .15s,color .15s;
+}
+.pn-btn:hover { border-color:#dc2626; color:#dc2626; }
+.pn-zoom { font-size:.72rem; font-weight:600; color:var(--text-muted); margin:0 2px; }
 
-.toggle-row { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; }
-.toggle-item {
-  display: flex; align-items: center; gap: .5rem; cursor: pointer; user-select: none;
+.sv-preview-wrap {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; overflow:hidden;
+  min-height:340px; display:flex; align-items:center; justify-content:center;
+  padding:.75rem;
 }
-.toggle-item-label { font-size: .78rem; font-weight: 600; color: var(--text-muted); transition: color .2s; }
-.toggle-item.on .toggle-item-label { color: var(--text); }
-.toggle-track {
-  width: 40px; height: 22px; border-radius: 11px;
-  background: #e0e0e0; position: relative; transition: background .2s; flex-shrink: 0;
+.sv-preview-img { max-width:100%; max-height:70vh; object-fit:contain; border-radius:4px; display:none; }
+.sv-preview-empty {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:1rem; padding:3rem 2rem; text-align:center; color:var(--text-muted);
 }
-.toggle-track.on-ocr   { background: #2563eb; }
-.toggle-track.on-ai    { background: #059669; }
-.toggle-track.on-txt   { background: #475569; }
-.toggle-track.on-excel { background: #059669; }
-.toggle-track.on-json  { background: #d97706; }
-.toggle-knob {
-  position: absolute; top: 3px; left: 3px;
-  width: 16px; height: 16px; border-radius: 50%;
-  background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); transition: left .2s;
+.sv-preview-empty-icon {
+  width:80px; height:80px; border-radius:20px;
+  background:#fff0f0; display:flex; align-items:center; justify-content:center;
+  position:relative;
 }
-.toggle-track.on-ocr   .toggle-knob,
-.toggle-track.on-ai    .toggle-knob,
-.toggle-track.on-txt   .toggle-knob,
-.toggle-track.on-excel .toggle-knob,
-.toggle-track.on-json  .toggle-knob { left: 21px; }
-.toggle-badge {
-  font-size: .62rem; font-weight: 700; padding: 2px 7px; border-radius: 20px;
-  text-transform: uppercase; letter-spacing: .05em;
+.sv-preview-empty-icon i.main { font-size:1.8rem; color:#dc2626; }
+.sv-preview-empty-icon .sparkle {
+  position:absolute; top:-4px; right:-4px;
+  font-size:.65rem; color:#dc2626; opacity:.6;
 }
-.badge-ocr       { background: #dbeafe; color: #1d4ed8; }
-.badge-ai        { background: #d1fae5; color: #065f46; }
-.badge-fmt-txt   { background: #f1f5f9; color: #475569; }
-.badge-fmt-excel { background: #d1fae5; color: #065f46; }
-.badge-fmt-json  { background: #fef3c7; color: #92400e; }
+.sv-preview-empty h3 { font-size:1rem; font-weight:700; color:var(--text); margin:0 0 .25rem; }
+.sv-preview-empty p  { font-size:.82rem; margin:0; line-height:1.6; }
 
-/* Row 2: format toggles */
-.format-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: .5rem 1rem; border-bottom: 1px solid var(--border);
-  background: var(--bg); flex-wrap: wrap; gap: .5rem;
+/* Result area (below preview) */
+.sv-result-area {
+  display:none; background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; overflow:hidden;
 }
-.format-label { font-size: .72rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: .3rem; }
-
-/* ── Extraction body ── */
-.extract-body {
-  padding: .85rem; display: flex; flex-direction: column; gap: .85rem;
-  min-height: 280px;
+.sv-result-area.show { display:block; }
+.sv-result-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.6rem .9rem; border-bottom:1px solid var(--border); background:var(--bg);
 }
-.extract-empty {
-  flex: 1; display: flex; flex-direction: column; align-items: center;
-  justify-content: center; gap: .75rem; padding: 3rem 1rem;
-  color: var(--text-muted); text-align: center;
+.sv-result-title {
+  font-size:.72rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.06em; display:flex; align-items:center; gap:.4rem;
 }
-.extract-empty i { font-size: 2rem; opacity: .3; }
-.extract-empty p { font-size: .84rem; margin: 0; line-height: 1.6; }
-
-/* ── Result block ── */
-.result-block { display: flex; flex-direction: column; gap: .5rem; }
-.result-block-head {
-  display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+.sv-result-title.clr-ocr { color:#2563eb; }
+.sv-result-title.clr-ai  { color:#059669; }
+.sv-result-actions { display:flex; gap:.4rem; }
+.sv-result-copy {
+  display:inline-flex; align-items:center; gap:.3rem;
+  border:1px solid var(--border); border-radius:6px; background:var(--bg);
+  color:var(--text-muted); cursor:pointer; padding:3px 8px; font-size:.72rem;
+  transition:background .15s,color .15s;
 }
-.result-block-title {
-  font-size: .72rem; font-weight: 700; letter-spacing: .06em;
-  text-transform: uppercase; display: flex; align-items: center; gap: .4rem;
-}
-.result-block-title.ocr-color { color: #2563eb; }
-.result-block-title.ai-color  { color: #059669; }
-.result-actions { display: flex; align-items: center; gap: .4rem; }
-.result-copy-btn {
-  display: inline-flex; align-items: center; gap: .3rem;
-  border: 1px solid var(--border); border-radius: 6px; background: var(--bg);
-  color: var(--text-muted); cursor: pointer; padding: 3px 8px; font-size: .72rem;
-  transition: background .15s, color .15s;
-}
-.result-copy-btn:hover { background: #2563eb; color: #fff; border-color: #2563eb; }
-
-/* ── Editable textarea ── */
+.sv-result-copy:hover { background:#dc2626; color:#fff; border-color:#dc2626; }
+.sv-result-body { padding:.75rem; }
 .editable-area {
-  width: 100%; box-sizing: border-box;
-  font-family: 'Courier New', monospace; font-size: .76rem; line-height: 1.75;
-  color: var(--text); background: var(--bg);
-  border: 1.5px solid var(--border); border-radius: 8px;
-  padding: 12px; min-height: 120px; max-height: 360px;
-  overflow-y: auto; resize: vertical;
-  outline: none; transition: border-color .15s, box-shadow .15s;
+  width:100%; box-sizing:border-box;
+  font-family:'Courier New',monospace; font-size:.76rem; line-height:1.75;
+  color:var(--text); background:var(--bg);
+  border:1.5px solid var(--border); border-radius:8px;
+  padding:10px; min-height:100px; max-height:280px;
+  overflow-y:auto; resize:vertical; outline:none;
+  transition:border-color .15s;
 }
-.editable-area:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+.editable-area:focus { border-color:#dc2626; }
 .editable-hint {
-  display: flex; align-items: center; gap: .35rem;
-  font-size: .68rem; color: var(--text-muted); font-style: italic;
+  display:flex; align-items:center; gap:.35rem;
+  font-size:.68rem; color:var(--text-muted); font-style:italic; margin-top:.4rem;
 }
-
-/* loading state */
-.result-loading {
-  display: flex; align-items: center; gap: .5rem;
-  font-size: .82rem; color: var(--text-muted); padding: .5rem 0;
-}
-.spin-ring {
-  width: 14px; height: 14px; border: 2px solid currentColor;
-  border-top-color: transparent; border-radius: 50%;
-  animation: spin .65s linear infinite; flex-shrink: 0;
-}
-
-/* ── Live data table ── */
-.live-data-wrap {
-  border: 1px solid var(--border); border-radius: 8px;
-  overflow: hidden; max-height: 420px; overflow-y: auto;
-}
-.live-data-wrap::-webkit-scrollbar { width: 4px; }
-.live-data-wrap::-webkit-scrollbar-thumb { background: #d1fae5; border-radius: 2px; }
-.live-section-title {
-  display: flex; align-items: center; gap: .4rem;
-  padding: 6px 12px; font-size: .68rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .06em;
-}
-.live-section-title.title-header  { background: #1e3a5f; color: #fff; }
-.live-section-title.title-items   { background: #dc2626; color: #fff; }
-.live-section-title.title-summary { background: #059669; color: #fff; }
-.kv-grid { display: grid; grid-template-columns: auto 1fr; border-bottom: 1px solid var(--border); }
-.kv-key {
-  background: #eff6ff; color: #1e3a5f; font-size: .75rem; font-weight: 700;
-  padding: 6px 12px; border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border); white-space: nowrap;
-}
-.kv-val {
-  background: var(--bg); color: var(--text); font-size: .78rem;
-  padding: 6px 12px; border-bottom: 1px solid var(--border);
-  word-break: break-word; outline: none;
-}
-.kv-key.sk { background: #d1fae5; color: #065f46; }
-.kv-val.sv { background: var(--bg); font-weight: 600; }
-.kv-val[contenteditable]:hover { background: rgba(37,99,235,.05) !important; cursor: text; }
-.kv-val[contenteditable]:focus { background: #eff6ff !important; box-shadow: inset 0 0 0 1.5px #2563eb; }
-.live-table { width: 100%; border-collapse: collapse; font-size: .75rem; }
-.live-table th {
-  background: #dc2626; color: #fff; font-weight: 700;
-  padding: 7px 10px; text-align: left; white-space: nowrap;
-  border-right: 1px solid rgba(255,255,255,.15);
-  position: sticky; top: 0; z-index: 1;
-}
-.live-table td {
-  padding: 6px 10px; border-bottom: 1px solid var(--border);
-  border-right: 1px solid var(--border); vertical-align: top; color: var(--text); outline: none;
-}
-.live-table tr:nth-child(even) td { background: #fef2f2; }
-.live-table tr:nth-child(odd)  td { background: var(--bg); }
-.live-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
-.live-table td[contenteditable]:hover { background: rgba(37,99,235,.05) !important; cursor: text; }
-.live-table td[contenteditable]:focus { background: #eff6ff !important; box-shadow: inset 0 0 0 1.5px #2563eb; }
-
-/* Download buttons */
-.dl-row { display: flex; gap: .5rem; flex-wrap: wrap; padding-top: .25rem; align-items: center; }
+.dl-row { display:flex; gap:.5rem; flex-wrap:wrap; padding-top:.5rem; }
 .dl-btn {
-  display: inline-flex; align-items: center; gap: .4rem; border: none;
-  border-radius: 8px; padding: .42rem 1rem; font-size: .78rem; font-weight: 700;
-  cursor: pointer; text-decoration: none; transition: opacity .2s;
+  display:inline-flex; align-items:center; gap:.4rem; border:none;
+  border-radius:8px; padding:.4rem 1rem; font-size:.76rem; font-weight:700;
+  cursor:pointer; text-decoration:none; transition:opacity .2s;
 }
-.dl-btn:hover { opacity: .85; }
-.dl-excel { background: #16a34a; color: #fff; }
-.dl-json  { background: #d97706; color: #fff; }
-.dl-txt   { background: #475569; color: #fff; }
+.dl-btn:hover { opacity:.85; }
+.dl-excel { background:#16a34a; color:#fff; }
+.dl-json  { background:#d97706; color:#fff; }
+.dl-txt   { background:#475569; color:#fff; }
+
+/* Live table */
+.live-data-wrap { border:1px solid var(--border); border-radius:8px; overflow:hidden; max-height:360px; overflow-y:auto; }
+.live-data-wrap::-webkit-scrollbar { width:4px; }
+.live-data-wrap::-webkit-scrollbar-thumb { background:#d1fae5; border-radius:2px; }
+.live-section-title { display:flex; align-items:center; gap:.4rem; padding:5px 10px; font-size:.67rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
+.live-section-title.title-header  { background:#1e3a5f; color:#fff; }
+.live-section-title.title-items   { background:#dc2626; color:#fff; }
+.live-section-title.title-summary { background:#059669; color:#fff; }
+.kv-grid { display:grid; grid-template-columns:auto 1fr; border-bottom:1px solid var(--border); }
+.kv-key { background:#eff6ff; color:#1e3a5f; font-size:.73rem; font-weight:700; padding:5px 10px; border-right:1px solid var(--border); border-bottom:1px solid var(--border); white-space:nowrap; }
+.kv-val { background:var(--bg); color:var(--text); font-size:.76rem; padding:5px 10px; border-bottom:1px solid var(--border); word-break:break-word; outline:none; }
+.kv-key.sk { background:#d1fae5; color:#065f46; }
+.kv-val.sv { font-weight:600; }
+.kv-val[contenteditable]:hover { background:rgba(37,99,235,.04)!important; cursor:text; }
+.kv-val[contenteditable]:focus { background:#eff6ff!important; box-shadow:inset 0 0 0 1.5px #2563eb; }
+.live-table { width:100%; border-collapse:collapse; font-size:.73rem; }
+.live-table th { background:#dc2626; color:#fff; font-weight:700; padding:6px 8px; text-align:left; white-space:nowrap; border-right:1px solid rgba(255,255,255,.15); position:sticky; top:0; z-index:1; }
+.live-table td { padding:5px 8px; border-bottom:1px solid var(--border); border-right:1px solid var(--border); vertical-align:top; color:var(--text); outline:none; }
+.live-table tr:nth-child(even) td { background:#fef2f2; }
+.live-table tr:nth-child(odd)  td { background:var(--bg); }
+.live-table td.num { text-align:right; font-variant-numeric:tabular-nums; }
+.live-table td[contenteditable]:hover { background:rgba(37,99,235,.04)!important; cursor:text; }
+.live-table td[contenteditable]:focus { background:#eff6ff!important; box-shadow:inset 0 0 0 1.5px #2563eb; }
+
+/* Spin ring (inline loading) */
+.spin-ring { width:13px; height:13px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation:spin .65s linear infinite; flex-shrink:0; }
+
+/* ── Col 3: Controls panel ── */
+.sv-controls {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; overflow:hidden;
+  position:sticky; top:70px; max-height:calc(100vh - 140px);
+  overflow-y:auto; display:flex; flex-direction:column;
+}
+.sv-controls::-webkit-scrollbar { width:4px; }
+.sv-controls::-webkit-scrollbar-thumb { background:#fecaca; border-radius:2px; }
+
+.ctrl-section {
+  padding:.85rem .95rem;
+  border-bottom:1px solid var(--border);
+}
+.ctrl-section:last-child { border-bottom:none; }
+.ctrl-label {
+  font-size:.68rem; font-weight:800; text-transform:uppercase;
+  letter-spacing:.07em; color:var(--text-muted); margin-bottom:.6rem;
+}
+
+/* Engine tabs */
+.engine-tabs {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin-bottom:.55rem;
+}
+.engine-tab {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:.25rem; padding:.55rem .3rem; border-radius:8px; cursor:pointer;
+  border:1.5px solid var(--border); background:var(--bg);
+  transition:border-color .15s,background .15s;
+  text-align:center;
+}
+.engine-tab:hover { border-color:#fca5a5; }
+.engine-tab.active { border-color:#dc2626; background:#fff0f0; }
+.engine-tab-icon {
+  width:30px; height:30px; border-radius:7px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.85rem; background:#f1f5f9; color:#64748b;
+  transition:background .15s,color .15s;
+}
+.engine-tab.active .engine-tab-icon { background:#dc2626; color:#fff; }
+.engine-tab-name { font-size:.65rem; font-weight:700; color:var(--text-muted); line-height:1.2; }
+.engine-tab.active .engine-tab-name { color:#dc2626; }
+.engine-desc {
+  display:flex; align-items:flex-start; gap:.4rem;
+  background:#fff8f8; border:1px solid #fecaca;
+  border-radius:7px; padding:.45rem .6rem;
+  font-size:.69rem; color:#991b1b; line-height:1.45;
+}
+.engine-desc i { flex-shrink:0; margin-top:.1rem; }
+
+/* Format pills */
+.fmt-pills { display:flex; gap:5px; }
+.fmt-pill {
+  flex:1; display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
+  padding:.45rem .4rem; border-radius:7px; cursor:pointer;
+  border:1.5px solid var(--border); background:var(--bg);
+  font-size:.72rem; font-weight:700; color:var(--text-muted);
+  transition:border-color .15s,background .15s,color .15s;
+}
+.fmt-pill:hover { border-color:#dc2626; color:#dc2626; }
+.fmt-pill.active { border-color:#dc2626; background:#dc2626; color:#fff; }
+
+/* Page range */
+.range-opts { display:flex; flex-direction:column; gap:.5rem; }
+.range-opt {
+  display:flex; align-items:center; gap:.55rem;
+  font-size:.78rem; font-weight:600; color:var(--text); cursor:pointer;
+}
+.range-opt input[type=radio] { accent-color:#dc2626; width:14px; height:14px; flex-shrink:0; }
+.range-input {
+  margin-top:.4rem; width:100%; box-sizing:border-box;
+  border:1.5px solid var(--border); border-radius:7px;
+  background:var(--bg); color:var(--text);
+  padding:.38rem .6rem; font-size:.75rem;
+  display:none;
+}
+.range-input:focus { outline:none; border-color:#dc2626; }
+.range-input.show { display:block; }
+
+/* Options toggles */
+.opt-rows { display:flex; flex-direction:column; gap:.55rem; }
+.opt-row {
+  display:flex; align-items:center; justify-content:space-between;
+  font-size:.76rem; font-weight:600; color:var(--text);
+}
+.opt-row span { color:var(--text-muted); font-size:.7rem; font-weight:500; }
+.opt-toggle {
+  width:36px; height:20px; border-radius:10px;
+  background:#e0e0e0; position:relative; cursor:pointer;
+  transition:background .2s; flex-shrink:0;
+}
+.opt-toggle.on { background:#dc2626; }
+.opt-toggle::after {
+  content:''; position:absolute; top:3px; left:3px;
+  width:14px; height:14px; border-radius:50%;
+  background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25);
+  transition:left .2s;
+}
+.opt-toggle.on::after { left:19px; }
+
+/* Process OCR button */
+.ctrl-process {
+  margin:.85rem .95rem;
+  width:calc(100% - 1.9rem);
+  display:flex; align-items:center; justify-content:center; gap:.5rem;
+  padding:.8rem 1rem; border:none; border-radius:10px;
+  background:#dc2626; color:#fff; font-size:.9rem; font-weight:800;
+  cursor:pointer; transition:opacity .15s;
+  box-shadow:0 4px 16px rgba(220,38,38,.3);
+}
+.ctrl-process:hover:not(:disabled) { opacity:.88; }
+.ctrl-process:disabled { opacity:.45; cursor:not-allowed; }
+
+/* Progress bar */
+.sv-progress {
+  display:none; margin:0 .95rem .85rem;
+  background:#f1f5f9; border-radius:6px; height:6px; overflow:hidden;
+}
+.sv-progress.show { display:block; }
+.sv-progress-bar {
+  height:100%; background:#dc2626; border-radius:6px;
+  transition:width .3s; width:0%;
+}
+.sv-progress-label {
+  display:none; font-size:.68rem; color:var(--text-muted);
+  text-align:center; margin-bottom:.5rem;
+}
+.sv-progress-label.show { display:block; }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<div id="ocrErr" style="display:none;background:#fee2e2;border:1px solid #fca5a5;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;align-items:center;gap:.8rem;color:#991b1b;font-size:.875rem">
+<div id="ocrErr" style="display:none;background:#fee2e2;border:1px solid #fca5a5;border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1rem;align-items:center;gap:.75rem;color:#991b1b;font-size:.84rem">
   <i class="fa-solid fa-circle-exclamation" style="font-size:1.1rem;flex-shrink:0"></i>
   <span id="ocrErrMsg"></span>
 </div>
 
+<!-- Drop zone -->
 <div class="ocr-drop" id="uploadZone">
   <input type="file" id="fileInput" accept=".pdf">
   <div class="ocr-drop-icon"><i class="fa-solid fa-eye"></i></div>
@@ -337,154 +437,195 @@
   <span class="ocr-drop-hint">Supports multi-page PDFs · Bank statements · Invoices · Scanned docs</span>
 </div>
 
+<!-- Loader -->
 <div class="ocr-loader" id="pdfLoader">
   <div class="ocr-loader-ring"></div>
   <div class="ocr-loader-text">Processing PDF…</div>
   <div class="ocr-loader-sub" id="loaderSub">Starting…</div>
 </div>
 
+<!-- Main viewer -->
 <div id="splitViewer" style="display:none">
 
-  <div class="sv-header">
-    <div class="sv-file-info">
-      <i class="fa-solid fa-file-pdf" style="color:#dc2626;font-size:1.1rem"></i>
-      <span class="sv-filename" id="svFilename">Document</span>
-      <span class="sv-pages-badge" id="svPagesCount">0 pages</span>
+  <!-- Top bar -->
+  <div class="sv-topbar">
+    <div class="sv-topbar-left">
+      <div class="sv-tool-icon"><i class="fa-solid fa-eye"></i></div>
+      <div>
+        <div class="sv-tool-name">OCR PDF</div>
+        <div class="sv-tool-sub">Extract text from scanned PDFs with AI</div>
+      </div>
     </div>
-    <div class="sv-actions">
-      <button class="sv-new-btn" onclick="resetOcr()"><i class="fa-solid fa-arrow-left"></i> New PDF</button>
-      <button class="sv-all-btn sv-all-ocr" onclick="extractAllPages('ocr')" id="allOcrBtn">
-        <i class="fa-solid fa-file-excel"></i> All Pages OCR
-      </button>
-      <button class="sv-all-btn sv-all-ai" onclick="extractAllPages('ai')" id="allAiBtn">
-        <i class="fa-solid fa-wand-magic-sparkles"></i> All Pages AI
+    <div class="sv-topbar-right">
+      <button class="sv-btn-new" onclick="resetOcr()"><i class="fa-solid fa-plus"></i> New PDF</button>
+      <button class="sv-btn-process" id="topProcessBtn" onclick="processOcr()">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Process OCR
       </button>
     </div>
   </div>
 
+  <!-- 3-column body -->
   <div class="sv-body">
 
-    <div class="sv-left">
-      <div class="sv-left-head">
-        <span class="sv-left-head-title"><i class="fa-solid fa-images" style="color:#2563eb"></i> Pages</span>
-        <span class="sv-pages-badge" id="svThumbCount" style="font-size:.65rem">0</span>
+    <!-- Col 1: Pages -->
+    <div class="sv-pages">
+      <div class="sv-pages-head">
+        <span class="sv-pages-title"><i class="fa-solid fa-images"></i> Pages</span>
+        <span class="sv-count-badge" id="svThumbCount">0</span>
       </div>
       <div class="sv-page-scroll" id="pageThumbList"></div>
     </div>
 
-    <div class="sv-right">
-      <div class="extract-card">
+    <!-- Col 2: Center viewer -->
+    <div class="sv-center">
+      <!-- Page nav -->
+      <div class="sv-page-nav">
+        <div class="sv-page-nav-info">
+          <i class="fa-solid fa-file-lines"></i>
+          <span id="activePageLabel">—</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;margin-left:auto">
+          <button class="pn-btn" onclick="navPage(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+          <input class="pn-input" id="pnInput" type="number" min="1" value="1" onchange="navToPage(this.value)">
+          <span class="pn-sep">/ <span id="pnTotal">0</span></span>
+          <button class="pn-btn" onclick="navPage(1)"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
 
-        <!-- Row 1: page + OCR/AI toggles -->
-        <div class="extract-card-head">
-          <div class="active-page-label">
-            <i class="fa-solid fa-file-lines"></i>
-            <span id="activePageLabel">Select a page</span>
+      <!-- Page preview -->
+      <div class="sv-preview-wrap" id="previewWrap">
+        <div class="sv-preview-empty" id="previewEmpty">
+          <div class="sv-preview-empty-icon">
+            <i class="fa-solid fa-file-lines main"></i>
+            <i class="fa-solid fa-sparkles sparkle"></i>
           </div>
-          <div class="toggle-row">
-            <div class="toggle-item" id="ocrToggleItem" onclick="toggleMode('ocr')">
-              <span class="toggle-badge badge-ocr">OCR</span>
-              <div class="toggle-track" id="ocrTrack"><div class="toggle-knob"></div></div>
-              <span class="toggle-item-label">ZayroEngine</span>
-            </div>
-            <div class="toggle-item" id="aiToggleItem" onclick="toggleMode('ai')">
-              <span class="toggle-badge badge-ai">AI</span>
-              <div class="toggle-track" id="aiTrack"><div class="toggle-knob"></div></div>
-              <span class="toggle-item-label">ZayroAI</span>
-            </div>
+          <h3>Select a page from the left panel</h3>
+          <p>Then click <strong>Process OCR</strong> to extract text<br>from your PDF using ZayroEngine or ZayroAI.</p>
+        </div>
+        <img id="previewImg" class="sv-preview-img" alt="Page preview">
+      </div>
+
+      <!-- Result area -->
+      <div class="sv-result-area" id="resultArea">
+        <div class="sv-result-head">
+          <div class="sv-result-title clr-ocr" id="resultTitle">
+            <i class="fa-solid fa-font"></i> ZayroEngine OCR
+          </div>
+          <div class="sv-result-actions">
+            <button class="sv-result-copy" id="copyBtn" onclick="copyResult(this)">
+              <i class="fa-solid fa-copy"></i> Copy
+            </button>
           </div>
         </div>
-
-        <!-- Row 2: output format toggles -->
-        <div class="format-bar">
-          <span class="format-label"><i class="fa-solid fa-sliders"></i> Output Format</span>
-          <div class="toggle-row">
-            <div class="toggle-item" id="fmtToggleTxt" onclick="setFormat('txt')">
-              <span class="toggle-badge badge-fmt-txt">TXT</span>
-              <div class="toggle-track" id="fmtTrackTxt"><div class="toggle-knob"></div></div>
-            </div>
-            <div class="toggle-item" id="fmtToggleExcel" onclick="setFormat('excel')">
-              <span class="toggle-badge badge-fmt-excel">Excel</span>
-              <div class="toggle-track on-excel" id="fmtTrackExcel"><div class="toggle-knob"></div></div>
-            </div>
-            <div class="toggle-item" id="fmtToggleJson" onclick="setFormat('json')">
-              <span class="toggle-badge badge-fmt-json">JSON</span>
-              <div class="toggle-track" id="fmtTrackJson"><div class="toggle-knob"></div></div>
-            </div>
+        <div class="sv-result-body">
+          <div id="resultLiveView" style="display:none"></div>
+          <textarea class="editable-area" id="resultTextarea" style="display:none"
+            placeholder="Extracted text will appear here…"></textarea>
+          <div class="editable-hint" id="resultHint">
+            <i class="fa-solid fa-pen-to-square" style="font-size:.65rem"></i> Editable — fix any errors before downloading
           </div>
-        </div>
-
-        <!-- Extraction body -->
-        <div class="extract-body" id="extractBody">
-
-          <div class="extract-empty" id="extractEmpty">
-            <i class="fa-solid fa-hand-pointer"></i>
-            <p>Click a page on the left, then enable<br><strong>ZayroEngine</strong> or <strong>ZayroAI</strong> to extract.</p>
-          </div>
-
-          <!-- OCR block -->
-          <div class="result-block" id="ocrBlock" style="display:none">
-            <div class="result-block-head">
-              <div class="result-block-title ocr-color"><i class="fa-solid fa-font"></i> ZayroEngine OCR</div>
-              <div class="result-actions">
-                <button class="result-copy-btn" onclick="copyArea('ocrTextarea',this)">
-                  <i class="fa-solid fa-copy"></i> Copy
-                </button>
-              </div>
-            </div>
-            <textarea class="editable-area" id="ocrTextarea"
-              placeholder="OCR text will appear here — click to edit before downloading."></textarea>
-            <div class="editable-hint"><i class="fa-solid fa-pen-to-square" style="font-size:.65rem"></i> Editable — fix any OCR errors before downloading</div>
-            <div class="dl-row" id="ocrDlRow" style="display:none">
-              <button class="dl-btn dl-txt" onclick="dlTxt('ocrTextarea','page_ocr.txt')">
-                <i class="fa-solid fa-file-alt"></i> Download TXT
-              </button>
-              <a class="dl-btn dl-excel" id="ocrExcelBtn" href="#" style="display:none">
-                <i class="fa-solid fa-file-excel"></i> Download Excel
-              </a>
-            </div>
-          </div>
-
-          <!-- AI block -->
-          <div class="result-block" id="aiBlock" style="display:none">
-            <div class="result-block-head">
-              <div class="result-block-title ai-color">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Extract
-                <span id="aiProviderLabel" style="font-weight:400;text-transform:none;font-size:.72rem;color:var(--text-muted)">· ZayroAI</span>
-              </div>
-              <div class="result-actions">
-                <button class="result-copy-btn" id="aiCopyBtn" onclick="copyAi(this)">
-                  <i class="fa-solid fa-copy"></i> Copy
-                </button>
-              </div>
-            </div>
-            <!-- Excel mode: contenteditable live table -->
-            <div id="aiLiveView" style="display:none"></div>
-            <!-- TXT / JSON mode: editable textarea -->
-            <textarea class="editable-area" id="aiTextarea" style="display:none"
-              placeholder="AI extracted text — click to edit."></textarea>
-            <div class="editable-hint" id="aiEditHint">
-              <i class="fa-solid fa-pen-to-square" style="font-size:.65rem"></i> Editable — click any cell or text to edit
-            </div>
-            <div class="dl-row" id="aiDlRow" style="display:none">
-              <a class="dl-btn dl-excel" id="aiExcelBtn" href="#" style="display:none">
-                <i class="fa-solid fa-file-excel"></i> Download Excel
-              </a>
-              <button class="dl-btn dl-json" id="aiJsonBtn" onclick="dlAiJson()" style="display:none">
-                <i class="fa-solid fa-code"></i> Download JSON
-              </button>
-              <button class="dl-btn dl-txt" id="aiTxtBtn" onclick="dlAiTxt()" style="display:none">
-                <i class="fa-solid fa-file-alt"></i> Download TXT
-              </button>
-            </div>
-          </div>
-
+          <div class="dl-row" id="resultDlRow"></div>
         </div>
       </div>
     </div>
 
-  </div>
-</div>
+    <!-- Col 3: Controls -->
+    <div class="sv-controls">
+
+      <!-- OCR Engine -->
+      <div class="ctrl-section">
+        <div class="ctrl-label">OCR Engine</div>
+        <div class="engine-tabs">
+          <div class="engine-tab" id="eng-standard" onclick="setEngine('standard')">
+            <div class="engine-tab-icon"><i class="fa-solid fa-font"></i></div>
+            <div class="engine-tab-name">Standard OCR</div>
+          </div>
+          <div class="engine-tab active" id="eng-zayro" onclick="setEngine('zayro')">
+            <div class="engine-tab-icon"><i class="fa-solid fa-gear"></i></div>
+            <div class="engine-tab-name">ZayroEngine</div>
+          </div>
+          <div class="engine-tab" id="eng-ai" onclick="setEngine('ai')">
+            <div class="engine-tab-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+            <div class="engine-tab-name">ZayroAI</div>
+          </div>
+        </div>
+        <div class="engine-desc" id="engineDesc">
+          <i class="fa-solid fa-circle-info"></i>
+          <span id="engineDescText">Advanced OCR with better accuracy for complex documents.</span>
+        </div>
+      </div>
+
+      <!-- Output Format -->
+      <div class="ctrl-section">
+        <div class="ctrl-label">Output Format</div>
+        <div class="fmt-pills">
+          <button class="fmt-pill" id="fmt-txt" onclick="setFormat('txt')">
+            <i class="fa-solid fa-file-lines"></i> TXT
+          </button>
+          <button class="fmt-pill active" id="fmt-excel" onclick="setFormat('excel')">
+            <i class="fa-solid fa-table"></i> EXCEL
+          </button>
+          <button class="fmt-pill" id="fmt-json" onclick="setFormat('json')">
+            <i class="fa-solid fa-code"></i> JSON
+          </button>
+        </div>
+      </div>
+
+      <!-- Page Range -->
+      <div class="ctrl-section">
+        <div class="ctrl-label">Page Range</div>
+        <div class="range-opts">
+          <label class="range-opt">
+            <input type="radio" name="pageRange" value="all" checked>
+            All Pages <span id="rangeAllLabel" style="color:var(--text-muted);font-size:.7rem;font-weight:500">(1 – 0)</span>
+          </label>
+          <label class="range-opt">
+            <input type="radio" name="pageRange" value="current">
+            Current Page <span id="rangeCurrentLabel" style="color:var(--text-muted);font-size:.7rem;font-weight:500">(1)</span>
+          </label>
+          <label class="range-opt">
+            <input type="radio" name="pageRange" value="custom">
+            Custom Range
+          </label>
+          <input type="text" class="range-input" id="customRange" placeholder="e.g. 1-5, 8, 11-13">
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div class="ctrl-section">
+        <div class="ctrl-label">Options</div>
+        <div class="opt-rows">
+          <div class="opt-row">
+            <div>Preserve text formatting<br><span>Maintain original layout</span></div>
+            <div class="opt-toggle on" id="optPreserve" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="opt-row">
+            <div>Detect tables<br><span>Extract table structure</span></div>
+            <div class="opt-toggle on" id="optTables" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="opt-row">
+            <div>Include images<br><span>As separate files</span></div>
+            <div class="opt-toggle" id="optImages" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="opt-row">
+            <div>Language detection<br><span>Auto-detect language</span></div>
+            <div class="opt-toggle" id="optLang" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="sv-progress-label" id="progressLabel"></div>
+      <div class="sv-progress" id="progressBar"><div class="sv-progress-bar" id="progressBarFill"></div></div>
+
+      <!-- Process button -->
+      <button class="ctrl-process" id="processBtn" onclick="processOcr()">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Process OCR <i class="fa-solid fa-arrow-right" style="font-size:.75rem"></i>
+      </button>
+
+    </div><!-- /sv-controls -->
+  </div><!-- /sv-body -->
+</div><!-- /splitViewer -->
 
 {% endblock %}
 
@@ -497,44 +638,102 @@ function showError(msg){
 }
 
 /* ── State ── */
-var _imgs=[],_stem='',_activeIdx=-1,_ocrOn=false,_aiOn=false;
-var _ocrCache={},_aiCache={};
-var _fmt='excel'; // 'txt'|'excel'|'json'
+var _imgs=[],_stem='',_activeIdx=-1,_ocrCache={},_aiCache={};
+var _engine='zayro'; // 'standard'|'zayro'|'ai'
+var _fmt='excel';    // 'txt'|'excel'|'json'
+var _processing=false;
 
-var _fmtColor={txt:'on-txt',excel:'on-excel',json:'on-json'};
+/* ── Engine descriptions ── */
+var _engineDesc={
+  standard:'Fast OCR using standard character recognition. Best for clear, printed documents.',
+  zayro:'Advanced OCR with better accuracy for complex documents, tables, and mixed layouts.',
+  ai:'AI-powered extraction using ZayroAI for highest accuracy on any document type.'
+};
 
-/* ── Format toggle (radio-style, one active) ── */
-function setFormat(fmt){
-  _fmt=fmt;
-  ['txt','excel','json'].forEach(function(f){
-    var cap=f.charAt(0).toUpperCase()+f.slice(1);
-    var tr=document.getElementById('fmtTrack'+cap);
-    tr.className='toggle-track'+(f===fmt?' '+_fmtColor[f]:'');
+function setEngine(e){
+  _engine=e;
+  ['standard','zayro','ai'].forEach(function(k){
+    document.getElementById('eng-'+k).className='engine-tab'+(k===e?' active':'');
   });
-  if(_activeIdx>=0){
-    if(_ocrOn) renderOcr(_activeIdx);
-    if(_aiOn && _aiCache[_activeIdx]) renderAi(_activeIdx);
+  document.getElementById('engineDescText').textContent=_engineDesc[e];
+}
+
+function setFormat(f){
+  _fmt=f;
+  ['txt','excel','json'].forEach(function(k){
+    document.getElementById('fmt-'+k).className='fmt-pill'+(k===f?' active':'');
+  });
+  if(_activeIdx>=0) renderResult(_activeIdx);
+}
+
+/* ── Page range ── */
+document.querySelectorAll('[name=pageRange]').forEach(function(r){
+  r.addEventListener('change',function(){
+    var ci=document.getElementById('customRange');
+    ci.className='range-input'+(this.value==='custom'?' show':'');
+  });
+});
+
+function parsePageRange(){
+  var mode=document.querySelector('[name=pageRange]:checked').value;
+  if(mode==='all') return Array.from({length:_imgs.length},function(_,i){return i;});
+  if(mode==='current') return _activeIdx>=0?[_activeIdx]:[0];
+  var str=document.getElementById('customRange').value;
+  var idxs=[];
+  str.split(',').forEach(function(part){
+    part=part.trim();
+    if(!part)return;
+    var m=part.match(/^(\d+)-(\d+)$/);
+    if(m){
+      var a=parseInt(m[1]),b=parseInt(m[2]);
+      for(var i=a;i<=b&&i<=_imgs.length;i++)idxs.push(i-1);
+    }else{
+      var n=parseInt(part);
+      if(!isNaN(n)&&n>=1&&n<=_imgs.length)idxs.push(n-1);
+    }
+  });
+  return idxs.filter(function(v,i,a){return v>=0&&a.indexOf(v)===i;});
+}
+
+/* ── Reset ── */
+function resetOcr(){
+  _imgs=[];_stem='';_activeIdx=-1;_ocrCache={};_aiCache={};
+  document.getElementById('splitViewer').style.display='none';
+  document.getElementById('pageThumbList').innerHTML='';
+  document.getElementById('uploadZone').style.display='';
+  document.getElementById('resultArea').classList.remove('show');
+  document.getElementById('previewEmpty').style.display='';
+  document.getElementById('previewImg').style.display='none';
+  document.getElementById('activePageLabel').textContent='—';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── Progress helpers ── */
+function setProgress(pct,page,total){
+  var s=document.getElementById('loaderSub');
+  if(s)s.textContent=(page&&total)?'Page '+page+' of '+total+' — '+pct+'%':'Starting…';
+}
+function showCtrlProgress(done,total){
+  var lbl=document.getElementById('progressLabel');
+  var bar=document.getElementById('progressBar');
+  var fill=document.getElementById('progressBarFill');
+  if(total>0){
+    lbl.textContent='Processing '+done+' / '+total+' pages…';
+    lbl.className='sv-progress-label show';
+    bar.className='sv-progress show';
+    fill.style.width=Math.round(done/total*100)+'%';
+  }else{
+    lbl.className='sv-progress-label';
+    bar.className='sv-progress';
+    fill.style.width='0%';
   }
 }
 
+/* ── Build thumbnails ── */
 function imgSrc(s){
   if(!s)return'';
   if(s.startsWith('data:')||s.startsWith('http')||s.startsWith('/media/'))return s;
   return'data:image/jpeg;base64,'+s;
-}
-
-function resetOcr(){
-  _imgs=[];_stem='';_activeIdx=-1;_ocrOn=false;_aiOn=false;_ocrCache={};_aiCache={};
-  document.getElementById('splitViewer').style.display='none';
-  document.getElementById('pageThumbList').innerHTML='';
-  document.getElementById('uploadZone').style.display='';
-  clearBody();
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-function setProgress(pct,page,total){
-  var s=document.getElementById('loaderSub');
-  if(s)s.textContent=(page&&total)?'Page '+page+' of '+total+' — '+pct+'%':'Starting…';
 }
 
 function buildThumbs(){
@@ -553,125 +752,193 @@ function buildThumbs(){
   });
 }
 
-async function selectPage(idx){
+function selectPage(idx){
   _activeIdx=idx;
   document.querySelectorAll('.sv-page-thumb').forEach(function(t){t.classList.remove('active');});
   var th=document.getElementById('thumb-'+idx);
   if(th){th.classList.add('active');th.scrollIntoView({behavior:'smooth',block:'nearest'});}
+
+  /* Update nav */
   document.getElementById('activePageLabel').textContent='Page '+(idx+1)+' of '+_imgs.length;
-  renderBody();
-  var tasks=[];
-  if(_ocrOn&&!_ocrCache[idx])tasks.push(runOCR(idx));
-  if(_aiOn&&!_aiCache[idx])tasks.push(runAI(idx));
-  await Promise.all(tasks);
+  document.getElementById('pnInput').value=idx+1;
+  document.getElementById('rangeCurrentLabel').textContent='('+(idx+1)+')';
+
+  /* Show preview image */
+  var img=document.getElementById('previewImg');
+  img.src=imgSrc(_imgs[idx]);
+  img.style.display='block';
+  document.getElementById('previewEmpty').style.display='none';
+
+  /* Show result if cached */
+  renderResult(idx);
 }
 
-function toggleMode(mode){
-  if(mode==='ocr'){
-    _ocrOn=!_ocrOn;
-    document.getElementById('ocrTrack').className='toggle-track'+(_ocrOn?' on-ocr':'');
-    document.getElementById('ocrToggleItem').className='toggle-item'+(_ocrOn?' on':'');
+function navPage(delta){
+  var next=_activeIdx+delta;
+  if(next>=0&&next<_imgs.length)selectPage(next);
+}
+function navToPage(val){
+  var n=parseInt(val);
+  if(!isNaN(n)&&n>=1&&n<=_imgs.length)selectPage(n-1);
+}
+
+/* ── Render result for current page ── */
+function renderResult(idx){
+  var cache=_engine==='ai'?_aiCache[idx]:_ocrCache[idx];
+  var area=document.getElementById('resultArea');
+  if(!cache){area.classList.remove('show');return;}
+
+  area.classList.add('show');
+
+  /* Update title */
+  var title=document.getElementById('resultTitle');
+  if(_engine==='ai'){
+    title.className='sv-result-title clr-ai';
+    title.innerHTML='<i class="fa-solid fa-wand-magic-sparkles"></i> ZayroAI Extract';
   }else{
-    _aiOn=!_aiOn;
-    document.getElementById('aiTrack').className='toggle-track'+(_aiOn?' on-ai':'');
-    document.getElementById('aiToggleItem').className='toggle-item'+(_aiOn?' on':'');
-  }
-  renderBody();
-  if(_activeIdx<0)return;
-  if(mode==='ocr'&&_ocrOn&&!_ocrCache[_activeIdx])runOCR(_activeIdx);
-  if(mode==='ai'&&_aiOn&&!_aiCache[_activeIdx])runAI(_activeIdx);
-}
-
-function clearBody(){
-  document.getElementById('ocrBlock').style.display='none';
-  document.getElementById('aiBlock').style.display='none';
-  document.getElementById('extractEmpty').style.display='';
-}
-
-function renderBody(){
-  var noPage=_activeIdx<0, noToggle=!_ocrOn&&!_aiOn;
-  document.getElementById('extractEmpty').style.display=(noPage||noToggle)?'':'none';
-
-  if(_ocrOn&&!noPage){
-    document.getElementById('ocrBlock').style.display='';
-    renderOcr(_activeIdx);
-  }else{
-    document.getElementById('ocrBlock').style.display='none';
+    title.className='sv-result-title clr-ocr';
+    title.innerHTML='<i class="fa-solid fa-font"></i> '
+      +(_engine==='standard'?'Standard OCR':'ZayroEngine OCR');
   }
 
-  if(_aiOn&&!noPage){
-    document.getElementById('aiBlock').style.display='';
-    var prov='gpt';
-    var plbl={gpt:'ZayroAI'};
-    document.getElementById('aiProviderLabel').textContent='· '+(plbl[prov]||prov);
-    if(_aiCache[_activeIdx]){
-      renderAi(_activeIdx);
-    }else{
-      document.getElementById('aiLiveView').style.display='none';
-      var ta=document.getElementById('aiTextarea');
-      ta.style.display='';ta.value='';ta.placeholder='AI extracting…';ta.disabled=true;
-      document.getElementById('aiDlRow').style.display='none';
-    }
-  }else{
-    document.getElementById('aiBlock').style.display='none';
-  }
-}
+  var lv=document.getElementById('resultLiveView');
+  var ta=document.getElementById('resultTextarea');
+  var dlRow=document.getElementById('resultDlRow');
+  dlRow.innerHTML='';
 
-/* ── Render OCR in current format ── */
-function renderOcr(idx){
-  var cached=_ocrCache[idx];
-  var ta=document.getElementById('ocrTextarea');
-  var dlRow=document.getElementById('ocrDlRow');
-  if(!cached){
-    ta.value='';ta.placeholder='Extracting with ZayroEngine…';ta.disabled=true;
-    dlRow.style.display='none';return;
-  }
-  ta.disabled=false;
-  if(_fmt==='json'){
-    ta.value=JSON.stringify({page:idx+1,text:cached.text||''},null,2);
-  }else{
-    ta.value=cached.text||'(No text found)';
-  }
-  dlRow.style.display='';
-  var exBtn=document.getElementById('ocrExcelBtn');
-  if(cached.excel_url){
-    exBtn.href=cached.excel_url;exBtn.download=cached.excel_name||'page_ocr.xlsx';
-    exBtn.style.display='';
-  }else{exBtn.style.display='none';}
-}
-
-/* ── Render AI in current format ── */
-function renderAi(idx){
-  var cached=_aiCache[idx];
-  var lv=document.getElementById('aiLiveView');
-  var ta=document.getElementById('aiTextarea');
-  var dlRow=document.getElementById('aiDlRow');
-  var hint=document.getElementById('aiEditHint');
-  ta.disabled=false;
-
-  if(_fmt==='excel'){
-    ta.style.display='none';lv.style.display='';
-    lv.innerHTML=buildTable(cached.fields);
+  if(_engine==='ai'&&_fmt==='excel'&&cache.fields){
+    lv.style.display='';ta.style.display='none';
+    lv.innerHTML=buildTable(cache.fields);
   }else if(_fmt==='json'){
     lv.style.display='none';ta.style.display='';
-    try{ta.value=JSON.stringify(cached.fields||{},null,2);}catch(e){ta.value=cached.text||'';}
+    try{ta.value=JSON.stringify(_engine==='ai'?(cache.fields||{}):({page:idx+1,text:cache.text||''}),null,2);}
+    catch(e){ta.value=cache.text||'';}
+    ta.disabled=false;
   }else{
     lv.style.display='none';ta.style.display='';
-    ta.value=cached.text||'';
+    ta.value=cache.text||'(No text found)';
+    ta.disabled=false;
   }
-  hint.style.display='';
-  dlRow.style.display='';
 
-  var exBtn=document.getElementById('aiExcelBtn');
-  if(cached.excel_url){
-    exBtn.href=cached.excel_url;exBtn.download=cached.excel_name||'ai_page.xlsx';
-    exBtn.style.display='';
-  }else{exBtn.style.display='none';}
-  document.getElementById('aiJsonBtn').style.display='';
-  document.getElementById('aiTxtBtn').style.display='';
+  /* Download buttons */
+  if(_engine==='ai'){
+    if(cache.excel_url){
+      dlRow.innerHTML+='<a class="dl-btn dl-excel" href="'+cache.excel_url+'" download="'+(cache.excel_name||'ai_page.xlsx')+'"><i class="fa-solid fa-file-excel"></i> Download Excel</a>';
+    }
+    dlRow.innerHTML+='<button class="dl-btn dl-json" onclick="dlAiJson()"><i class="fa-solid fa-code"></i> Download JSON</button>';
+    dlRow.innerHTML+='<button class="dl-btn dl-txt" onclick="dlAiTxt()"><i class="fa-solid fa-file-alt"></i> Download TXT</button>';
+  }else{
+    dlRow.innerHTML+='<button class="dl-btn dl-txt" onclick="dlOcrTxt()"><i class="fa-solid fa-file-alt"></i> Download TXT</button>';
+    if(cache.excel_url){
+      dlRow.innerHTML+='<a class="dl-btn dl-excel" href="'+cache.excel_url+'" download="'+(cache.excel_name||'page_ocr.xlsx')+'"><i class="fa-solid fa-file-excel"></i> Download Excel</a>';
+    }
+  }
 }
 
-/* ── Build editable live table ── */
+/* ── Process OCR (batch) ── */
+async function processOcr(){
+  if(_processing||!_imgs.length)return;
+  _processing=true;
+  var pages=parsePageRange();
+  if(!pages.length){showError('No pages selected.');_processing=false;return;}
+
+  document.getElementById('processBtn').disabled=true;
+  document.getElementById('topProcessBtn').disabled=true;
+  showCtrlProgress(0,pages.length);
+
+  var done=0;
+  for(var i=0;i<pages.length;i++){
+    var idx=pages[i];
+    if(_engine==='ai'){
+      if(!_aiCache[idx])await runAI(idx);
+    }else{
+      if(!_ocrCache[idx])await runOCR(idx,_engine);
+    }
+    done++;
+    showCtrlProgress(done,pages.length);
+  }
+
+  /* Show result for active or first processed page */
+  var showIdx=pages.includes(_activeIdx)?_activeIdx:pages[0];
+  selectPage(showIdx);
+
+  showCtrlProgress(0,0);
+  document.getElementById('processBtn').disabled=false;
+  document.getElementById('topProcessBtn').disabled=false;
+  _processing=false;
+}
+
+/* ── Run OCR (Tesseract) ── */
+async function runOCR(idx,engineMode){
+  var fd=new FormData();
+  fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
+  fd.append('img_url',_imgs[idx]);fd.append('page',idx+1);fd.append('stem',_stem);
+  fd.append('engine',engineMode||'zayro');
+  fd.append('preserve_layout',document.getElementById('optPreserve').classList.contains('on')?'1':'0');
+  try{
+    var r=await fetch('{% url "api_extract_page" %}',{method:'POST',body:fd});
+    var d=await r.json();
+    _ocrCache[idx]=d.error?{text:'Error: '+d.error,excel_url:null}:{text:d.text||'',excel_url:d.excel_url||null,excel_name:d.excel_name||'page.xlsx'};
+    var th=document.getElementById('thumb-'+idx);
+    if(th&&!d.error)th.classList.add('ocr-done');
+  }catch(e){_ocrCache[idx]={text:'Failed: '+e.message,excel_url:null};}
+  if(_activeIdx===idx)renderResult(idx);
+}
+
+/* ── Run AI (OpenAI) ── */
+async function runAI(idx){
+  var fd=new FormData();
+  fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
+  fd.append('img_url',_imgs[idx]);fd.append('page',idx+1);fd.append('stem',_stem);fd.append('provider','gpt');
+  try{
+    var r=await fetch('{% url "api_extract_page_ai" %}',{method:'POST',body:fd});
+    var d=await r.json();
+    if(d.error){
+      _aiCache[idx]={text:'Error: '+d.error,fields:null,excel_url:null};
+    }else{
+      _aiCache[idx]={text:d.text||'',fields:d.fields||null,excel_url:d.excel_url||null,excel_name:d.excel_name||'ai_page.xlsx'};
+      var th=document.getElementById('thumb-'+idx);
+      if(th)th.classList.add('ai-done');
+    }
+  }catch(e){_aiCache[idx]={text:'Failed: '+e.message,fields:null,excel_url:null};}
+  if(_activeIdx===idx)renderResult(idx);
+}
+
+/* ── Copy ── */
+function copyResult(btn){
+  var lv=document.getElementById('resultLiveView');
+  var ta=document.getElementById('resultTextarea');
+  var text=(lv.style.display!=='none'?lv.innerText:ta.value)||'';
+  navigator.clipboard.writeText(text).then(function(){
+    var o=btn.innerHTML;btn.innerHTML='<i class="fa-solid fa-check"></i> Copied!';
+    setTimeout(function(){btn.innerHTML=o;},1500);
+  });
+}
+
+/* ── Downloads ── */
+function dlOcrTxt(){
+  var text=document.getElementById('resultTextarea').value||'';
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));
+  a.download='page_'+(_activeIdx+1)+'_ocr.txt';a.click();URL.revokeObjectURL(a.href);
+}
+function dlAiJson(){
+  var payload=(_aiCache[_activeIdx]||{}).fields||{};
+  if(_fmt==='json'){try{payload=JSON.parse(document.getElementById('resultTextarea').value||'{}');}catch(e){}}
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));
+  a.download='page_'+(_activeIdx+1)+'_ai.json';a.click();URL.revokeObjectURL(a.href);
+}
+function dlAiTxt(){
+  var lv=document.getElementById('resultLiveView');
+  var ta=document.getElementById('resultTextarea');
+  var text=(lv.style.display!=='none'?lv.innerText:ta.value)||'';
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));
+  a.download='page_'+(_activeIdx+1)+'_ai.txt';a.click();URL.revokeObjectURL(a.href);
+}
+
+/* ── Live table builder ── */
 function buildTable(fields){
   if(!fields||typeof fields!=='object')
     return'<div style="padding:1rem;color:var(--text-muted);font-size:.82rem">No structured data.</div>';
@@ -690,7 +957,7 @@ function buildTable(fields){
   }
   var txns=fields.transactions||[];
   if(txns.length){
-    var keys=Object.keys(txns[0]).filter(function(k){return k!=='extra'||txns.some(function(t){return t.extra;});});
+    var keys=Object.keys(txns[0]);
     var numK=new Set(['debit','credit','balance','amount','qty','rate','tax','subtotal','total']);
     h+='<div class="live-section-title title-items"><i class="fa-solid fa-table-list"></i> Line Items ('+txns.length+')</div>';
     h+='<div style="overflow-x:auto"><table class="live-table"><thead><tr>';
@@ -720,111 +987,10 @@ function buildTable(fields){
   if(!Object.keys(hf).length&&!txns.length&&!Object.keys(sf).length){
     h+='<div style="padding:12px;font-size:.78rem;white-space:pre-wrap;word-break:break-word;color:var(--text)" contenteditable="true" spellcheck="false">'+esc(fields.raw_text||'')+'</div>';
   }
-  h+='</div>';
-  return h;
+  h+='</div>';return h;
 }
-
 function esc(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ── OCR extraction ── */
-async function runOCR(idx){
-  var fd=new FormData();
-  fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
-  fd.append('img_url',_imgs[idx]);fd.append('page',idx+1);fd.append('stem',_stem);
-  try{
-    var r=await fetch('{% url "api_extract_page" %}',{method:'POST',body:fd});
-    var d=await r.json();
-    _ocrCache[idx]=d.error?{text:'Error: '+d.error,excel_url:null}:{text:d.text||'',excel_url:d.excel_url||null,excel_name:d.excel_name||'page.xlsx'};
-    var th=document.getElementById('thumb-'+idx);
-    if(th&&!d.error)th.classList.add('ocr-done');
-  }catch(e){_ocrCache[idx]={text:'Failed: '+e.message,excel_url:null};}
-  if(_activeIdx===idx)renderOcr(idx);
-}
-
-/* ── AI extraction ── */
-async function runAI(idx){
-  var prov='gpt';
-  var fd=new FormData();
-  fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
-  fd.append('img_url',_imgs[idx]);fd.append('page',idx+1);fd.append('stem',_stem);fd.append('provider',prov);
-  try{
-    var r=await fetch('{% url "api_extract_page_ai" %}',{method:'POST',body:fd});
-    var d=await r.json();
-    if(d.error){
-      _aiCache[idx]={text:'Error: '+d.error,fields:null,excel_url:null};
-    }else{
-      _aiCache[idx]={text:d.text||'',fields:d.fields||null,excel_url:d.excel_url||null,excel_name:d.excel_name||'ai_page.xlsx'};
-      var th=document.getElementById('thumb-'+idx);
-      if(th)th.classList.add('ai-done');
-    }
-  }catch(e){_aiCache[idx]={text:'Failed: '+e.message,fields:null,excel_url:null};}
-  if(_activeIdx===idx)renderAi(idx);
-}
-
-/* ── Copy ── */
-function copyArea(id,btn){
-  var el=document.getElementById(id);
-  navigator.clipboard.writeText(el?el.value:'').then(function(){
-    var o=btn.innerHTML;btn.innerHTML='<i class="fa-solid fa-check"></i> Copied!';
-    setTimeout(function(){btn.innerHTML=o;},1500);
-  });
-}
-function copyAi(btn){
-  var text=_fmt==='excel'
-    ?(document.getElementById('aiLiveView').innerText||'')
-    :(document.getElementById('aiTextarea').value||'');
-  navigator.clipboard.writeText(text).then(function(){
-    var o=btn.innerHTML;btn.innerHTML='<i class="fa-solid fa-check"></i> Copied!';
-    setTimeout(function(){btn.innerHTML=o;},1500);
-  });
-}
-
-/* ── Downloads ── */
-function dlTxt(id,name){
-  var text=document.getElementById(id).value||'';
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));
-  a.download=name;a.click();URL.revokeObjectURL(a.href);
-}
-function dlAiJson(){
-  var payload;
-  if(_fmt==='json'){
-    try{payload=JSON.parse(document.getElementById('aiTextarea').value||'{}');}
-    catch(e){payload={raw:document.getElementById('aiTextarea').value};}
-  }else{
-    payload=(_aiCache[_activeIdx]||{}).fields||{};
-  }
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));
-  a.download='page_'+(_activeIdx+1)+'_ai.json';a.click();URL.revokeObjectURL(a.href);
-}
-function dlAiTxt(){
-  var text=_fmt==='excel'
-    ?(document.getElementById('aiLiveView').innerText||'')
-    :(document.getElementById('aiTextarea').value||'');
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));
-  a.download='page_'+(_activeIdx+1)+'_ai.txt';a.click();URL.revokeObjectURL(a.href);
-}
-
-/* ── Extract all pages ── */
-async function extractAllPages(mode){
-  if(!_stem||!_imgs.length)return;
-  var btnId=mode==='ai'?'allAiBtn':'allOcrBtn';
-  var btn=document.getElementById(btnId),orig=btn.innerHTML;
-  btn.disabled=true;btn.innerHTML='<span class="spin-ring"></span> Processing…';
-  var fd=new FormData();
-  var prov=mode==='ai'?'gpt':mode;
-  fd.append('csrfmiddlewaretoken','{{ csrf_token }}');fd.append('stem',_stem);fd.append('provider',prov);
-  try{
-    var r=await fetch('{% url "api_all_pages_excel" %}',{method:'POST',body:fd});
-    var d=await r.json();
-    if(d.error){showError(d.error);return;}
-    var a=document.createElement('a');a.href=d.excel_url;a.download=d.excel_name||'all_pages.xlsx';a.click();
-  }catch(e){showError('Error: '+e.message);}
-  finally{btn.disabled=false;btn.innerHTML=orig;}
 }
 
 /* ── Drag & drop ── */
@@ -867,10 +1033,11 @@ document.getElementById('fileInput').addEventListener('change',async function(){
         if(data.done){
           clearInterval(pollTimer);
           setTimeout(function(){
-            document.getElementById('svFilename').textContent=file.name;
-            document.getElementById('svPagesCount').textContent=_imgs.length+' page'+(_imgs.length===1?'':'s');
-            document.getElementById('svThumbCount').textContent=_imgs.length;
-            buildThumbs();clearBody();stopLoader();
+            var n=_imgs.length;
+            document.getElementById('svThumbCount').textContent=n;
+            document.getElementById('pnTotal').textContent=n;
+            document.getElementById('rangeAllLabel').textContent='(1 – '+n+')';
+            buildThumbs();stopLoader();
             document.getElementById('uploadZone').style.display='none';
             document.getElementById('splitViewer').style.display='';
             window.scrollTo({top:0,behavior:'smooth'});
@@ -881,7 +1048,4 @@ document.getElementById('fileInput').addEventListener('change',async function(){
     },1000);
   }catch(err){showError(err.message);stopLoader();}
 });
-
-/* Init default format */
-setFormat('excel');
 </script>{% endblock %}
