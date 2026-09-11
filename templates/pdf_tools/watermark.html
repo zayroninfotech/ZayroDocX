@@ -60,6 +60,13 @@
 .wm-error-card.show { display: block; }
 .wm-error-msg { font-size: .82rem; color: #dc2626; }
 
+.wm-presets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.wm-preset { cursor: pointer; border: 2px solid #e8e8e8; border-radius: 10px; overflow: hidden; transition: border-color .15s, box-shadow .15s; }
+.wm-preset:hover { border-color: #dc2626; box-shadow: 0 2px 8px rgba(220,38,38,.15); }
+.wm-preset.active { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.15); }
+.wm-preset-thumb { background: #fff; height: 76px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.wm-preset-thumb span { font-weight: 900; letter-spacing: .04em; white-space: nowrap; pointer-events: none; }
+.wm-preset-label { font-size: .64rem; font-weight: 700; text-align: center; padding: .22rem .3rem; background: #f8fafc; color: #334155; border-top: 1px solid #e8e8e8; }
 @media (max-width: 1050px) { .wm-split { grid-template-columns: 1fr; } .wm-right { position: static; max-height: none; } }
 </style>{% endblock %}
 
@@ -96,6 +103,28 @@
         <button type="button" class="wm-change-btn" onclick="resetTool()">
           <i class="fa-solid fa-rotate-left"></i> Change
         </button>
+      </div>
+    </div>
+
+    <div class="wm-card">
+      <div class="wm-opts-title"><i class="fa-solid fa-layer-group"></i> Quick Presets</div>
+      <div class="wm-presets-grid">
+        <div class="wm-preset active" onclick="applyPreset('CONFIDENTIAL','CONFIDENTIAL 1',60,45,0.3,'C0C0C0',this)">
+          <div class="wm-preset-thumb"><span style="transform:rotate(-45deg);font-size:9px;color:#C0C0C0;opacity:0.7;">CONFIDENTIAL</span></div>
+          <div class="wm-preset-label">CONFIDENTIAL 1</div>
+        </div>
+        <div class="wm-preset" onclick="applyPreset('CONFIDENTIAL','CONFIDENTIAL 2',42,0,0.2,'C0C0C0',this)">
+          <div class="wm-preset-thumb"><span style="font-size:7px;color:#C0C0C0;opacity:0.55;">CONFIDENTIAL</span></div>
+          <div class="wm-preset-label">CONFIDENTIAL 2</div>
+        </div>
+        <div class="wm-preset" onclick="applyPreset('DO NOT COPY','DO NOT COPY 1',60,45,0.3,'C0C0C0',this)">
+          <div class="wm-preset-thumb"><span style="transform:rotate(-45deg);font-size:8px;color:#C0C0C0;opacity:0.7;">DO NOT COPY</span></div>
+          <div class="wm-preset-label">DO NOT COPY 1</div>
+        </div>
+        <div class="wm-preset" onclick="applyPreset('DO NOT COPY','DO NOT COPY 2',42,0,0.2,'C0C0C0',this)">
+          <div class="wm-preset-thumb"><span style="font-size:7px;color:#C0C0C0;opacity:0.55;">DO NOT COPY</span></div>
+          <div class="wm-preset-label">DO NOT COPY 2</div>
+        </div>
       </div>
     </div>
 
@@ -283,8 +312,10 @@ async function doConvert() {
     const res  = await fetch('{% url "api_watermark" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    document.getElementById('wmDlBtn').href     = data.download_url;
-    document.getElementById('wmDlBtn').download = data.filename || 'watermarked.pdf';
+    document.getElementById('wmDlBtn').href = data.download_url;
+    const _d = new Date(); const _mo = _d.toLocaleString('en-US',{month:'short'}); const _dy = _d.getDate();
+    const _hh = _d.getHours() % 12 || 12; const _mm = String(_d.getMinutes()).padStart(2,'0'); const _ss = String(_d.getSeconds()).padStart(2,'0'); const _ap = _d.getHours() >= 12 ? 'PM' : 'AM';
+    document.getElementById('wmDlBtn').download = `ZayroDocX Add Watermark ${_mo} ${_dy}, ${_hh}_${_mm}_${_ss} ${_ap}.pdf`;
     wmResultCard.classList.add('show');
   } catch (e) {
     document.getElementById('wmErrorMsg').textContent = e.message || 'Failed.';
@@ -295,9 +326,29 @@ async function doConvert() {
   }
 }
 
-// live preview on any option change
+function applyPreset(text, label, size, angle, opacity, colorHex, el) {
+  document.querySelector('input[name="type"][value="text"]').checked = true;
+  document.getElementById('textOpts').style.display = 'block';
+  document.getElementById('imgOpts').style.display  = 'none';
+  document.querySelector('[name="text"]').value      = text;
+  document.querySelector('[name="font_size"]').value = size;
+  document.querySelector('[name="angle"]').value     = angle;
+  document.querySelector('[name="opacity"]').value   = opacity;
+  const fullColor = '#' + colorHex;
+  document.getElementById('colorPicker').value       = fullColor;
+  document.getElementById('colorHex').value          = colorHex;
+  document.getElementById('colorLabel').textContent  = fullColor.toUpperCase();
+  document.querySelectorAll('.wm-preset').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  drawOverlays();
+}
+
+// live preview on any option change; clear preset highlight on manual edit
 document.querySelectorAll('[name="text"],[name="font_size"],[name="angle"],[name="opacity"]')
-  .forEach(el => el.addEventListener('input', drawOverlays));
+  .forEach(el => el.addEventListener('input', () => {
+    document.querySelectorAll('.wm-preset').forEach(p => p.classList.remove('active'));
+    drawOverlays();
+  }));
 
 fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
 wmDrop.addEventListener('dragover',  e => { e.preventDefault(); wmDrop.classList.add('drag-over'); });
