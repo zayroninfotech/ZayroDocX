@@ -240,8 +240,8 @@
 <div class="drop-zone" id="uploadZone">
   <input type="file" id="fileInput" name="files" multiple accept=".pdf">
   <div style="margin-bottom:1.4rem;">
-    <div style="display:inline-flex;align-items:center;justify-content:center;background:#fff0f0;border-radius:20px;padding:16px;">
-      <img src="{% static 'img/merge-pdf-icon.png' %}" alt="Merge PDF" style="width:90px;height:90px;object-fit:contain;">
+    <div style="display:inline-flex;align-items:center;justify-content:center;background:#fee2e2;border-radius:20px;padding:16px;width:90px;height:90px;">
+      <i class="fa-solid fa-layer-group" style="font-size:2.8rem;color:#dc2626;"></i>
     </div>
   </div>
   <h2 class="drop-zone-title">Merge <span style="color:#dc2626">PDF</span> Files</h2>
@@ -518,13 +518,13 @@ mergeBtn.addEventListener('click', async () => {
 });
 
 const CONTINUE_POOL = [
-  {url:'/tools/compress-pdf/',      name:'Compress PDF',       bg:'#fff3e0',              icon:'<img src="{% static "img/compress-pdf-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
-  {url:'/tools/split-pdf/',         name:'Split PDF',           bg:'#e8f5e9',              icon:'<img src="{% static "img/split-pdf-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
-  {url:'/tools/pdf-to-word/',       name:'PDF to Word',         bg:'#e3f2fd',              icon:'<img src="{% static "img/pdf-to-word-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
-  {url:'/tools/word-to-pdf/',       name:'Word to PDF',         bg:'rgba(42,85,189,.1)',   icon:'<img src="{% static "img/word-to-pdf-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
-  {url:'/tools/sign-pdf/',          name:'Sign PDF',            bg:'rgba(245,158,11,.1)',  icon:'<img src="{% static "img/sign-pdf-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
-  {url:'/tools/ocr-pdf/',           name:'OCR PDF',             bg:'rgba(99,102,241,.1)',  icon:'<img src="{% static "img/ocr-pdf-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
-  {url:'/tools/extract-pages/',     name:'Extract Pages',       bg:'rgba(20,184,166,.1)',  icon:'<img src="{% static "img/extract-pages-icon.png" %}" style="width:32px;height:32px;object-fit:contain;">'},
+  {url:'/tools/compress-pdf/',      name:'Compress PDF',       bg:'rgba(217,119,6,.12)',  icon:'<i class="fa-solid fa-file-zipper" style="font-size:1rem;color:#d97706;"></i>'},
+  {url:'/tools/split-pdf/',         name:'Split PDF',           bg:'rgba(124,58,237,.14)', icon:'<i class="fa-solid fa-scissors" style="font-size:1rem;color:#7c3aed;"></i>'},
+  {url:'/tools/pdf-to-word/',       name:'PDF to Word',         bg:'rgba(43,87,154,.12)',  icon:'<i class="fa-solid fa-file-word" style="font-size:1rem;color:#2b579a;"></i>'},
+  {url:'/tools/word-to-pdf/',       name:'Word to PDF',         bg:'rgba(220,38,38,.1)',   icon:'<i class="fa-solid fa-file-pdf" style="font-size:1rem;color:#dc2626;"></i>'},
+  {url:'/tools/sign-pdf/',          name:'Sign PDF',            bg:'rgba(234,88,12,.12)',  icon:'<i class="fa-solid fa-signature" style="font-size:1rem;color:#ea580c;"></i>'},
+  {url:'/tools/ocr-pdf/',           name:'OCR PDF',             bg:'#eef2ff',              icon:'<i class="fa-solid fa-font" style="font-size:1rem;color:#4f46e5;"></i>'},
+  {url:'/tools/extract-pages/',     name:'Extract Pages',       bg:'rgba(37,99,235,.12)',  icon:'<i class="fa-solid fa-file-export" style="font-size:1rem;color:#2563eb;"></i>'},
   {url:'/tools/rotate-pdf/',        name:'Rotate PDF',          bg:'rgba(251,146,60,.15)', icon:'<i class="fa-solid fa-rotate-right" style="font-size:1rem;color:#f97316;"></i>'},
   {url:'/tools/add-page-numbers/',  name:'Add Page Numbers',    bg:'rgba(59,130,246,.12)', icon:'<i class="fa-solid fa-list-ol" style="font-size:1rem;color:#3b82f6;"></i>'},
   {url:'/tools/watermark-pdf/',     name:'Watermark PDF',       bg:'rgba(99,102,241,.12)', icon:'<i class="fa-solid fa-stamp" style="font-size:1rem;color:#6366f1;"></i>'},
