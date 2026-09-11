@@ -110,15 +110,11 @@
       <i class="fa-solid fa-rotate-left"></i> Convert Again
     </button>
   </div>
-  <div class="continue-section">
-    <h4>Continue to…</h4>
-    <div class="continue-grid" id="p2jContinueGrid"></div>
-  </div>
 </div>
 
 <!-- Step 1: Drop zone -->
 <div class="p2j-drop" id="p2jDrop" onclick="document.getElementById('fileInput').click()">
-  <div class="p2j-drop-icon"><i class="fa-solid fa-file-pdf"></i></div>
+  <div class="p2j-drop-icon"><i class="fa-solid fa-file-image"></i></div>
   <h3>Drop your PDF here</h3>
   <p>Each page will be exported as a JPG image</p>
   <button type="button" class="p2j-drop-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
@@ -137,6 +133,7 @@
   </div>
 
   <div class="p2j-right">
+    <div style="font-size:1.25rem;font-weight:800;color:var(--text,#1e293b);letter-spacing:-.02em;padding-bottom:.25rem;">PDF to JPG</div>
     <div class="p2j-card">
       <div class="p2j-file-row">
         <div class="p2j-file-icon"><i class="fa-solid fa-file-pdf"></i></div>
@@ -255,9 +252,17 @@ async function doConvert() {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     if (typeof ZLoader !== 'undefined') ZLoader.hide();
+    const now = new Date();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const month = months[now.getMonth()];
+    const day = now.getDate();
+    const hh = now.getHours();
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const ss = String(now.getSeconds()).padStart(2,'0');
+    const ampm = hh >= 12 ? 'PM' : 'AM';
+    const dlName = `ZayroDocX PDF to JPG ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.zip`;
     document.getElementById('p2jDlBtn').href = data.download_url;
-    document.getElementById('p2jDlBtn').download = data.filename || 'images.zip';
-    buildContinueGrid();
+    document.getElementById('p2jDlBtn').download = dlName;
     p2jSplit.classList.remove('show');
     p2jResultFull.classList.add('show');
   } catch (e) {
