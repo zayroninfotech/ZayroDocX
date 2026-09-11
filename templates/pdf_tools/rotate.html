@@ -16,10 +16,19 @@
 .rot-split.show { display: grid; }
 
 .rot-viewer { background: #0f172a; border-radius: 16px; padding: 16px; min-height: 400px; display: flex; align-items: flex-start; justify-content: center; overflow: auto; scroll-behavior: smooth; }
-.rot-viewer-pages { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
-.rot-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; transition: transform .4s cubic-bezier(.4,0,.2,1); transform-origin: center center; }
+.rot-viewer-pages { display: flex; flex-direction: column; gap: 24px; align-items: center; width: 100%; }
 .rot-viewer-loading { color: #94a3b8; font-size: .9rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
 .rot-viewer-loading i { font-size: 2rem; }
+
+/* per-page wrapper */
+.rot-pg-wrap { display: flex; flex-direction: column; align-items: center; gap: 7px; width: 100%; max-width: 680px; }
+.rot-pg-ctrl-bar { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: .2rem .3rem; }
+.rot-pg-btn { background: rgba(255,255,255,.13); border: none; color: #e2e8f0; border-radius: 7px; width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: .9rem; transition: background .15s, color .15s; }
+.rot-pg-btn:hover { background: #fff; color: #1e293b; }
+.rot-pg-num { color: #94a3b8; font-size: .75rem; font-weight: 700; letter-spacing: .04em; }
+.rot-pg-deg { font-size: .7rem; color: #64748b; background: rgba(255,255,255,.07); border-radius: 6px; padding: .1rem .45rem; font-weight: 700; transition: all .2s; }
+.rot-pg-deg.rotated { color: #60a5fa; background: rgba(59,130,246,.18); }
+.rot-viewer-pages img { width: 100%; max-width: 680px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,.5); display: block; transition: transform .4s cubic-bezier(.4,0,.2,1); transform-origin: center center; }
 
 .rot-right { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
 .rot-card { background: #fff; border: 1.5px solid #e8e8e8; border-radius: 14px; padding: 1.1rem 1.3rem; }
@@ -35,7 +44,7 @@
 .rot-angle-grid { display: flex; gap: .5rem; flex-wrap: wrap; }
 .rot-angle-opt { position: relative; }
 .rot-angle-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
-.rot-angle-opt label { display: flex; flex-direction: column; align-items: center; gap: .35rem; padding: .7rem .9rem; border: 1.5px solid #e8e8e8; border-radius: 10px; cursor: pointer; color: #555; background: #fff; transition: all .15s; min-width: 72px; font-size: .78rem; font-weight: 700; }
+.rot-angle-opt label { display: flex; flex-direction: column; align-items: center; gap: .35rem; padding: .7rem .9rem; border: 1.5px solid #e8e8e8; border-radius: 10px; cursor: pointer; color: #555; background: #fff; transition: all .15s; min-width: 66px; font-size: .78rem; font-weight: 700; }
 .rot-angle-opt label i { font-size: 1.1rem; color: #aaa; transition: color .15s; }
 .rot-angle-opt input:checked + label { border-color: #dc2626; background: #fff8f8; color: #dc2626; box-shadow: 0 0 0 2px rgba(220,38,38,.12); }
 .rot-angle-opt input:checked + label i { color: #dc2626; }
@@ -44,6 +53,9 @@
 .rot-field-label { font-size: .75rem; font-weight: 700; color: #555; margin: .9rem 0 .4rem; }
 .rot-input { width: 100%; box-sizing: border-box; border: 1.5px solid #e8e8e8; border-radius: 10px; padding: .6rem .9rem; font-size: .85rem; color: #111; outline: none; transition: border-color .15s; }
 .rot-input:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+
+.rot-apply-btn { width: 100%; padding: .6rem; background: #3b82f6; color: #fff; border: none; border-radius: 10px; font-size: .84rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .4rem; margin-top: .5rem; transition: background .15s; }
+.rot-apply-btn:hover { background: #2563eb; }
 
 .rot-convert-btn { width: 100%; padding: .85rem; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; transition: opacity .15s; }
 .rot-convert-btn:disabled { opacity: .6; cursor: not-allowed; }
@@ -108,12 +120,16 @@
     <div class="rot-card">
       <div class="rot-opts-title"><i class="fa-solid fa-sliders"></i> Rotation Options</div>
       <div class="rot-angle-grid">
+        <div class="rot-angle-opt"><input type="radio" name="angle" id="a0" value="0"><label for="a0"><i class="fa-solid fa-circle-check"></i>Normal</label></div>
         <div class="rot-angle-opt"><input type="radio" name="angle" id="a90" value="90" checked><label for="a90"><i class="fa-solid fa-rotate-right"></i>90° Right</label></div>
         <div class="rot-angle-opt"><input type="radio" name="angle" id="a180" value="180"><label for="a180"><i class="fa-solid fa-arrows-rotate"></i>180°</label></div>
         <div class="rot-angle-opt"><input type="radio" name="angle" id="a270" value="270"><label for="a270"><i class="fa-solid fa-rotate-left"></i>90° Left</label></div>
       </div>
-      <div class="rot-field-label">Pages <span style="font-size:.7rem;color:#aaa;font-weight:400;">(blank = all pages)</span></div>
+      <div class="rot-field-label">Apply to pages <span style="font-size:.7rem;color:#aaa;font-weight:400;">(blank = all)</span></div>
       <input type="text" id="rotPages_input" class="rot-input" placeholder="e.g. 1, 3, 5-8 — blank = all">
+      <button type="button" class="rot-apply-btn" onclick="applyToPages()">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Apply to Preview
+      </button>
     </div>
 
     <button type="button" class="rot-convert-btn" id="rotConvertBtn" onclick="doConvert()">
@@ -151,9 +167,54 @@ const rotResultCard  = document.getElementById('rotResultCard');
 const rotErrorCard   = document.getElementById('rotErrorCard');
 
 let currentFile = null;
+let pageRotations = {}; // pageIndex (0-based) -> degrees
+
+function setPageRot(idx, deg) {
+  pageRotations[idx] = deg;
+  const img   = document.getElementById('rot-img-' + idx);
+  const badge = document.getElementById('rot-deg-' + idx);
+  if (img)   img.style.transform = 'rotate(' + deg + 'deg)';
+  if (badge) {
+    badge.textContent  = deg === 0 ? 'Original' : deg + '°';
+    badge.className    = 'rot-pg-deg' + (deg !== 0 ? ' rotated' : '');
+  }
+}
+
+function rotatePage(idx, delta) {
+  setPageRot(idx, ((pageRotations[idx] || 0) + delta + 360) % 360);
+}
+
+function parsePageList(str, total) {
+  const pages = new Set();
+  str.split(',').forEach(part => {
+    part = part.trim();
+    if (part.includes('-')) {
+      const [a, b] = part.split('-').map(n => parseInt(n.trim()) - 1);
+      for (let i = Math.max(0, a); i <= Math.min(total - 1, b); i++) pages.add(i);
+    } else {
+      const n = parseInt(part) - 1;
+      if (n >= 0 && n < total) pages.add(n);
+    }
+  });
+  return [...pages];
+}
+
+function applyToPages() {
+  const angle = parseInt(document.querySelector('input[name="angle"]:checked')?.value ?? '90');
+  const pagesInput = document.getElementById('rotPages_input').value.trim();
+  const total = rotPagesEl.querySelectorAll('.rot-pg-wrap').length;
+  const targets = pagesInput ? parsePageList(pagesInput, total) : Array.from({length: total}, (_, i) => i);
+  targets.forEach(idx => setPageRot(idx, angle));
+}
+
+function applyPreviewRotation() {
+  const angle = parseInt(document.querySelector('input[name="angle"]:checked')?.value ?? '90');
+  const total = rotPagesEl.querySelectorAll('.rot-pg-wrap').length;
+  Array.from({length: total}, (_, i) => i).forEach(idx => setPageRot(idx, angle));
+}
 
 function resetTool() {
-  fileInput.value = ''; currentFile = null;
+  fileInput.value = ''; currentFile = null; pageRotations = {};
   rotDrop.style.display = ''; rotSplit.classList.remove('show');
   rotPagesEl.innerHTML = ''; rotPagesEl.style.display = 'none';
   document.getElementById('a90').checked = true;
@@ -167,15 +228,23 @@ async function loadPreview(file) {
   fd.append('file', file);
   fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
   try {
-    const res = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
+    const res  = await fetch('{% url "api_render_pdf_pages" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     rotPagesEl.innerHTML = '';
+    pageRotations = {};
     data.page_images.forEach((b64, i) => {
-      const img = document.createElement('img');
-      img.src = 'data:image/jpeg;base64,' + b64;
-      img.alt = 'Page ' + (i + 1);
-      rotPagesEl.appendChild(img);
+      const wrap = document.createElement('div');
+      wrap.className = 'rot-pg-wrap';
+      wrap.innerHTML =
+        `<div class="rot-pg-ctrl-bar">
+           <button class="rot-pg-btn" onclick="rotatePage(${i},-90)" title="Rotate 90° Left"><i class="fa-solid fa-rotate-left"></i></button>
+           <span class="rot-pg-num">Page ${i + 1}</span>
+           <button class="rot-pg-btn" onclick="rotatePage(${i},90)" title="Rotate 90° Right"><i class="fa-solid fa-rotate-right"></i></button>
+         </div>
+         <img src="data:image/jpeg;base64,${b64}" alt="Page ${i + 1}" id="rot-img-${i}">
+         <div class="rot-pg-deg" id="rot-deg-${i}">Original</div>`;
+      rotPagesEl.appendChild(wrap);
     });
     rotViewerLoad.style.display = 'none';
     rotPagesEl.style.display = 'flex';
@@ -196,6 +265,7 @@ function setFile(f) {
   rotSplit.classList.add('show');
   loadPreview(f);
 }
+
 async function doConvert() {
   if (!currentFile) return;
   rotConvertBtn.disabled = true;
@@ -206,24 +276,39 @@ async function doConvert() {
   const fd = new FormData();
   fd.append('file', currentFile);
   fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-  const angle = document.querySelector('input[name="angle"]:checked');
-  if (angle) fd.append('angle', angle.value);
-  fd.append('pages', document.getElementById('rotPages_input').value);
+
+  // Build per-page rotation map (only pages with non-zero rotation)
+  const rotData = {};
+  let hasPerPage = false;
+  Object.entries(pageRotations).forEach(([idx, deg]) => {
+    if (deg !== 0) {
+      rotData[parseInt(idx) + 1] = deg; // 1-indexed for backend
+      hasPerPage = true;
+    }
+  });
+
+  if (hasPerPage) {
+    fd.append('page_rotations', JSON.stringify(rotData));
+  } else {
+    const angle = document.querySelector('input[name="angle"]:checked');
+    if (angle) fd.append('angle', angle.value);
+    fd.append('pages', document.getElementById('rotPages_input').value);
+  }
 
   try {
-    const res = await fetch('{% url "api_rotate_pdf" %}', { method: 'POST', body: fd });
+    const res  = await fetch('{% url "api_rotate_pdf" %}', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     const now = new Date();
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const month = months[now.getMonth()];
-    const day = now.getDate();
-    const hh = now.getHours();
-    const mm = String(now.getMinutes()).padStart(2,'0');
-    const ss = String(now.getSeconds()).padStart(2,'0');
-    const ampm = hh >= 12 ? 'PM' : 'AM';
+    const day   = now.getDate();
+    const hh    = now.getHours();
+    const mm    = String(now.getMinutes()).padStart(2,'0');
+    const ss    = String(now.getSeconds()).padStart(2,'0');
+    const ampm  = hh >= 12 ? 'PM' : 'AM';
     const dlName = `ZayroDocX Rotate PDF ${month} ${day}, ${hh}_${mm}_${ss} ${ampm}.pdf`;
-    document.getElementById('rotDlBtn').href = data.download_url;
+    document.getElementById('rotDlBtn').href     = data.download_url;
     document.getElementById('rotDlBtn').download = dlName;
     rotResultCard.classList.add('show');
   } catch (e) {
@@ -233,14 +318,6 @@ async function doConvert() {
     rotLoadingCard.classList.remove('show');
     rotConvertBtn.disabled = false;
   }
-}
-
-function applyPreviewRotation() {
-  const angle = document.querySelector('input[name="angle"]:checked');
-  const deg = angle ? angle.value : '0';
-  rotPagesEl.querySelectorAll('img').forEach(img => {
-    img.style.transform = `rotate(${deg}deg)`;
-  });
 }
 
 document.querySelectorAll('input[name="angle"]').forEach(r => r.addEventListener('change', applyPreviewRotation));

@@ -1,3 +1,4 @@
+import json as _json
 import fitz
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -8,13 +9,12 @@ from apps.pdf_tools.mongo_db import save_job
 @require_POST
 def rotate_pdf(request):
     f = request.FILES.get('file')
+    page_rotations_str = request.POST.get('page_rotations')  # JSON {"1":90,"4":180}
     angle = safe_int(request.POST.get('angle', 90), default=90)
     pages_str = request.POST.get('pages', 'all')
 
     if not f:
         return JsonResponse({'error': 'No file uploaded.'}, status=400)
-    if angle not in (90, 180, 270):
-        return JsonResponse({'error': 'Angle must be 90, 180 or 270.'}, status=400)
 
     saved_path, _ = save_uploaded_file(f)
     try:
@@ -22,21 +22,37 @@ def rotate_pdf(request):
         doc = fitz.open(saved_path)
         total = doc.page_count
 
-        if pages_str == 'all':
-            target_pages = list(range(total))
+        if page_rotations_str:
+            # Per-page rotation mode: values are additive deltas (90, 180, 270)
+            page_rotations = _json.loads(page_rotations_str)
+            for pg_str, delta in page_rotations.items():
+                idx = int(pg_str) - 1  # 1-indexed → 0-indexed
+                delta = int(delta) % 360
+                if 0 <= idx < total and delta != 0:
+                    new_rot = (doc[idx].rotation + delta) % 360
+                    doc[idx].set_rotation(new_rot)
+            meta_angle = 'per-page'
         else:
-            target_pages = _parse_page_list(pages_str, total)
-
-        for i in target_pages:
-            if 0 <= i < total:
-                doc[i].set_rotation(angle)
+            if angle not in (0, 90, 180, 270):
+                return JsonResponse({'error': 'Angle must be 0, 90, 180 or 270.'}, status=400)
+            if pages_str == 'all':
+                target_pages = list(range(total))
+            else:
+                target_pages = _parse_page_list(pages_str, total)
+            for i in target_pages:
+                if 0 <= i < total:
+                    if angle == 0:
+                        doc[i].set_rotation(0)
+                    else:
+                        doc[i].set_rotation((doc[i].rotation + angle) % 360)
+            meta_angle = angle
 
         out_path, out_name = get_output_path('.pdf', 'rotated')
         doc.save(out_path)
         doc.close()
-        save_job('rotate_pdf', [f.name], [out_name], meta={'angle': angle})
+        save_job('rotate_pdf', [f.name], [out_name], meta={'angle': meta_angle})
         return JsonResponse({'download_url': media_url(out_name), 'filename': out_name})
-    except ValueError as e:
+    except (ValueError, _json.JSONDecodeError) as e:
         return JsonResponse({'error': str(e)}, status=400)
     except Exception:
         return JsonResponse({'error': 'Rotation failed. Ensure the file is a valid PDF.'}, status=500)
