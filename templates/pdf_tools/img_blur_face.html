@@ -37,14 +37,15 @@
 .bf-slider-val{font-size:.8rem;font-weight:700;color:#dc2626;min-width:30px;text-align:right;}
 .bf-convert-btn{width:100%;padding:.85rem;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:opacity .15s;}
 .bf-convert-btn:disabled{opacity:.6;cursor:not-allowed;}
-.bf-result-card{display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:1.1rem 1.2rem;}
-.bf-result-card.show{display:block;}
-.bf-result-title{font-size:.82rem;font-weight:700;color:#166534;display:flex;align-items:center;gap:.4rem;margin-bottom:.7rem;}
-.bf-dl-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.62rem;background:#16a34a;color:#fff;border:none;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;text-decoration:none;}
-.bf-dl-btn:hover{background:#15803d;}
 .bf-error-card{display:none;background:#fff1f2;border:1.5px solid #fca5a5;border-radius:14px;padding:1rem 1.2rem;}
 .bf-error-card.show{display:block;}
 .bf-error-msg{font-size:.82rem;color:#dc2626;}
+.bf-result-full{display:none;text-align:center;padding:3rem 2rem;}
+.bf-result-full.show{display:block;}
+.bf-dl-full-btn{display:inline-flex;align-items:center;gap:.6rem;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:.9rem 2.5rem;font-size:1.1rem;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(22,163,74,.35);transition:background .15s;}
+.bf-dl-full-btn:hover{background:#15803d;}
+.bf-new-file-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;margin:.9rem auto 0;background:#fff;border:1.5px solid #e8e8e8;border-radius:10px;padding:.65rem 1.5rem;font-size:.9rem;font-weight:600;color:#555;cursor:pointer;transition:border-color .15s;max-width:280px;}
+.bf-new-file-btn:hover{border-color:#dc2626;color:#dc2626;}
 @media(max-width:1050px){.bf-split{grid-template-columns:1fr;}.bf-right{position:static;}}
 </style>{% endblock %}
 {% block content %}
@@ -75,9 +76,13 @@
   </div>
 
   <div class="bf-right">
+    <h2 style="font-size:1.25rem;font-weight:800;color:#dc2626;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;">
+      <i class="fa-solid fa-user-secret"></i> Blur Face
+    </h2>
+
     <div class="bf-card">
       <div class="bf-file-row">
-        <div class="bf-file-icon"><i class="fa-solid fa-image"></i></div>
+        <div class="bf-file-icon"><i class="fa-solid fa-user-secret"></i></div>
         <div>
           <div class="bf-file-name" id="bfFileName">—</div>
           <div class="bf-file-size" id="bfFileSize">—</div>
@@ -104,15 +109,18 @@
       <i class="fa-solid fa-user-secret"></i> Blur Faces
     </button>
 
-    <div class="bf-result-card" id="bfResultCard">
-      <div class="bf-result-title"><i class="fa-solid fa-circle-check"></i> <span id="bfResultInfo">Done!</span></div>
-      <a class="bf-dl-btn" id="bfDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download</a>
-    </div>
-
     <div class="bf-error-card" id="bfErrorCard">
       <div class="bf-error-msg" id="bfErrorMsg"></div>
     </div>
   </div>
+</div>
+
+<div class="bf-result-full" id="bfResultFull">
+  <div style="font-size:3.5rem;color:#16a34a;margin-bottom:1rem"><i class="fa-solid fa-circle-check"></i></div>
+  <p style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0 0 .4rem">Faces Blurred!</p>
+  <p style="color:#64748b;margin:0 0 1.5rem;font-size:.95rem" id="bfResultSub">Your image is ready to download.</p>
+  <a class="bf-dl-full-btn" id="bfDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download Image</a>
+  <button class="bf-new-file-btn" onclick="resetTool()"><i class="fa-solid fa-plus"></i> Blur Another Image</button>
 </div>
 {% endblock %}
 
@@ -120,6 +128,8 @@
 let currentFile=null, beforeImg=null, afterImg=null, dividerPct=50, hasResult=false;
 const canvas=document.getElementById('bfCanvas'), ctx=canvas.getContext('2d');
 const handle=document.getElementById('bfHandle'), fileInput=document.getElementById('fileInput');
+const bfSplit=document.getElementById('bfSplit');
+const bfResultFull=document.getElementById('bfResultFull');
 
 function updateSlider(el){
   const v=el.value;
@@ -195,8 +205,9 @@ function setFile(f){
   document.getElementById('bfFileName').textContent=f.name;
   document.getElementById('bfFileSize').textContent=(f.size/1024).toFixed(1)+' KB';
   document.getElementById('bfDrop').style.display='none';
-  ['bfResultCard','bfErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
-  document.getElementById('bfSplit').classList.add('show');
+  document.getElementById('bfErrorCard').classList.remove('show');
+  bfResultFull.classList.remove('show');
+  bfSplit.classList.add('show');
   document.getElementById('bfConvertBtn').disabled=false;
   const img=new Image();
   img.onload=()=>{
@@ -212,8 +223,9 @@ function resetTool(){
   currentFile=null;beforeImg=null;afterImg=null;hasResult=false;
   fileInput.value='';
   document.getElementById('bfDrop').style.display='';
-  document.getElementById('bfSplit').classList.remove('show');
-  ['bfResultCard','bfErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  bfSplit.classList.remove('show');
+  bfResultFull.classList.remove('show');
+  document.getElementById('bfErrorCard').classList.remove('show');
   handle.style.display='none';canvas.style.display='none';
   document.getElementById('bfViewerLoad').style.display='flex';
   document.getElementById('bfViewer').style.height='';
@@ -223,7 +235,8 @@ async function doBlur(){
   if(!currentFile)return;
   document.getElementById('bfConvertBtn').disabled=true;
   document.getElementById('bfProcessing').style.display='flex';
-  ['bfResultCard','bfErrorCard'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  document.getElementById('bfErrorCard').classList.remove('show');
+  bfResultFull.classList.remove('show');
   const sliderVal=parseInt(document.getElementById('bfSlider').value);
   const fd=new FormData();
   fd.append('file',currentFile);
@@ -234,20 +247,21 @@ async function doBlur(){
     const d=await res.json();
     if(d.error)throw new Error(d.error);
     if(d.faces_found===0)throw new Error('No faces detected in this image.');
-    const img=new Image();
-    img.onload=()=>{
-      afterImg=img;hasResult=true;handle.style.display='flex';dividerPct=50;drawFrame();
-      document.getElementById('bfDlBtn').href=d.download_url;
-      document.getElementById('bfDlBtn').download=d.filename||'blurred.jpg';
-      document.getElementById('bfResultInfo').textContent=`${d.faces_found} face(s) blurred!`;
-      document.getElementById('bfResultCard').classList.add('show');
-    };
-    img.src=d.download_url+'?t='+Date.now();
+    document.getElementById('bfProcessing').style.display='none';
+    const _d=new Date(),_mo=_d.toLocaleString('en-US',{month:'short'}),_dy=_d.getDate();
+    const _hh=_d.getHours()%12||12,_mm=String(_d.getMinutes()).padStart(2,'0'),_ss=String(_d.getSeconds()).padStart(2,'0'),_ap=_d.getHours()>=12?'PM':'AM';
+    const ext=currentFile.name.split('.').pop()||'jpg';
+    const n=d.faces_found;
+    document.getElementById('bfResultSub').textContent=`${n} face${n===1?'':'s'} blurred — your image is ready to download.`;
+    document.getElementById('bfDlBtn').href=d.download_url;
+    document.getElementById('bfDlBtn').download=`ZayroDocX Blur Face ${_mo} ${_dy}, ${_hh}_${_mm}_${_ss} ${_ap}.${ext}`;
+    bfSplit.classList.remove('show');
+    bfResultFull.classList.add('show');
   }catch(e){
+    document.getElementById('bfProcessing').style.display='none';
     document.getElementById('bfErrorMsg').textContent=e.message||'Failed.';
     document.getElementById('bfErrorCard').classList.add('show');
   }finally{
-    document.getElementById('bfProcessing').style.display='none';
     document.getElementById('bfConvertBtn').disabled=false;
   }
 }
