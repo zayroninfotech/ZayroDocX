@@ -207,8 +207,8 @@
         <button class="ito-engine-btn" id="engMistral" onclick="setMode('mistral')">
           <div class="ito-eng-icon ito-eng-icon-gray"><i class="fa-solid fa-star"></i></div>
           <div class="ito-eng-text">
-            <div class="ito-eng-name">OpenAI</div>
-            <div class="ito-eng-desc">High accuracy · GPT-4o Mini</div>
+            <div class="ito-eng-name">ZayroAI</div>
+            <div class="ito-eng-desc">High accuracy · AI-powered</div>
           </div>
           <i class="fa-solid fa-circle-check ito-eng-check"></i>
         </button>
@@ -473,7 +473,7 @@ async function doConvert(){
   document.getElementById('itoExtractBtn').disabled=true;
   document.getElementById('itoErrorCard').classList.remove('show');
   itoResultFull.classList.remove('show');
-  if(typeof ZLoader!=='undefined')ZLoader.show(currentMode==='mistral'?'Running OpenAI…':'Extracting text…');
+  if(typeof ZLoader!=='undefined')ZLoader.show(currentMode==='mistral'?'Running ZayroAI…':'Extracting text…');
   const fileToSend=await getCroppedFile();
   const fd=new FormData();
   fd.append('file',fileToSend);

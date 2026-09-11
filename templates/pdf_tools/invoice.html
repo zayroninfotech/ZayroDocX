@@ -367,7 +367,7 @@
             <div class="toggle-item" id="aiToggleItem" onclick="invToggleMode('ai')">
               <span class="toggle-badge badge-ai">AI</span>
               <div class="toggle-track" id="aiTrack"><div class="toggle-knob"></div></div>
-              <span class="toggle-item-label">GPT-4o</span>
+              <span class="toggle-item-label">ZayroAI</span>
             </div>
           </div>
         </div>
@@ -690,7 +690,7 @@ async function aiExtract(){
   document.getElementById('invDlRow').style.display='none';
   var lv=document.getElementById('invLiveView');
   lv.style.display='';
-  lv.innerHTML='<div style="display:flex;align-items:center;gap:.5rem;padding:1rem;font-size:.82rem;color:var(--text-muted)"><span class="spin-ring"></span> AI extracting with GPT-4o…</div>';
+  lv.innerHTML='<div style="display:flex;align-items:center;gap:.5rem;padding:1rem;font-size:.82rem;color:var(--text-muted)"><span class="spin-ring"></span> AI extracting with ZayroAI…</div>';
   document.getElementById('extractEmpty').style.display='none';
   try{
     var fd=new FormData();
