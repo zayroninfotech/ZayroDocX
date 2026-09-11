@@ -36,17 +36,13 @@
 .pr-textarea:focus { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.08); }
 .pr-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem; }
 
-/* AI Engine cards */
-.pr-engine-grid { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-top:.3rem; }
-.pr-eng-card { border:1.5px solid #e8e8e8; border-radius:14px; padding:.85rem 1rem; cursor:pointer; transition:all .18s; background:#fff; display:flex; align-items:center; gap:.75rem; position:relative; }
-.pr-eng-card:hover { border-color:#dc2626; }
-.pr-eng-card.active { border-color:#dc2626; background:#fff5f5; }
+/* AI Engine badge */
+.pr-eng-badge { border:1.5px solid #dc2626; border-radius:14px; padding:.85rem 1rem; background:#fff5f5; display:flex; align-items:center; gap:.75rem; }
 .pr-eng-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:.95rem; flex-shrink:0; }
 .pr-eng-name { font-size:.82rem; font-weight:800; color:#1e293b; }
 .pr-eng-desc { font-size:.67rem; color:#64748b; margin-top:.1rem; }
-.pr-eng-radio { width:18px; height:18px; border-radius:99px; border:2px solid #d1d5db; margin-left:auto; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .15s; }
-.pr-eng-card.active .pr-eng-radio { border-color:#dc2626; background:#dc2626; }
-.pr-eng-card.active .pr-eng-radio::after { content:''; width:7px; height:7px; border-radius:99px; background:#fff; display:block; }
+.pr-eng-check { width:18px; height:18px; border-radius:99px; border:2px solid #dc2626; background:#dc2626; margin-left:auto; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.pr-eng-check::after { content:''; width:7px; height:7px; border-radius:99px; background:#fff; display:block; }
 
 .pr-submit { width:100%; padding:.78rem; background:#dc2626; color:#fff; border:none; border-radius:12px; font-size:.95rem; font-weight:800; cursor:pointer; margin-top:1.1rem; transition:opacity .15s; display:flex; align-items:center; justify-content:center; gap:.5rem; }
 .pr-submit:hover { opacity:.88; }
@@ -158,23 +154,13 @@
     </div>
     <div class="pr-field">
       <label class="pr-label">AI Engine</label>
-      <div class="pr-engine-grid">
-        <div class="pr-eng-card active" id="engMistral" onclick="setEngine('mistral')">
-          <div class="pr-eng-icon" style="background:#fff5f5;color:#dc2626"><i class="fa-solid fa-bolt"></i></div>
-          <div>
-            <div class="pr-eng-name">ZayroLLM</div>
-            <div class="pr-eng-desc">Fast &amp; balanced results</div>
-          </div>
-          <div class="pr-eng-radio"></div>
+      <div class="pr-eng-badge">
+        <div class="pr-eng-icon" style="background:#faf5ff;color:#7c3aed"><i class="fa-solid fa-star"></i></div>
+        <div>
+          <div class="pr-eng-name">ZayroAI</div>
+          <div class="pr-eng-desc">More detailed &amp; advanced insights</div>
         </div>
-        <div class="pr-eng-card" id="engOpenai" onclick="setEngine('openai')">
-          <div class="pr-eng-icon" style="background:#faf5ff;color:#7c3aed"><i class="fa-solid fa-star"></i></div>
-          <div>
-            <div class="pr-eng-name">ZayroAI</div>
-            <div class="pr-eng-desc">More detailed &amp; advanced insights</div>
-          </div>
-          <div class="pr-eng-radio"></div>
-        </div>
+        <div class="pr-eng-check"></div>
       </div>
     </div>
     <div class="pr-err" id="prErr"></div>
@@ -224,13 +210,7 @@
 {% endblock %}
 {% block extra_js %}<script>
 const CSRF='{{ csrf_token }}';
-let engine='mistral';
-
-function setEngine(e){
-  engine=e;
-  document.getElementById('engMistral').classList.toggle('active',e==='mistral');
-  document.getElementById('engOpenai').classList.toggle('active',e==='openai');
-}
+const engine='openai';
 
 document.getElementById('prQuery').addEventListener('input',function(){
   document.getElementById('prCharCount').textContent=this.value.length+'/500';
