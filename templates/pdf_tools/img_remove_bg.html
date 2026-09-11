@@ -5,7 +5,6 @@
 {% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a><span class="sep"><i class="fa-solid fa-chevron-right"></i></span><span class="current">Remove Background</span>{% endblock %}
 
 {% block extra_head %}<style>
-/* ── drop ── */
 .rb-drop{border:2.5px dashed #cbd5e1;border-radius:20px;padding:3rem 2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:#f8fafc;}
 .rb-drop:hover,.rb-drop.drag-over{border-color:#dc2626;background:#fff8f8;}
 .rb-drop-icon{font-size:3rem;color:#dc2626;margin-bottom:.8rem;}
@@ -13,33 +12,18 @@
 .rb-drop p{color:#64748b;margin:0 0 1.2rem;}
 .rb-drop-btn{ display:inline-flex; align-items:center; gap:.55rem; background:#2563eb; color:#fff; border:none; border-radius:12px; padding:.9rem 2.5rem; font-size:1.1rem; font-weight:700; cursor:pointer; transition:background .15s,transform .1s; box-shadow:0 4px 18px rgba(37,99,235,.35); }
 .rb-drop-btn:hover{background:#b91c1c;}
-
-/* ── layout ── */
 .rb-split{display:none;grid-template-columns:1fr 340px;gap:20px;align-items:start;}
 .rb-split.show{display:grid;}
-
-/* ── canvas viewer ── */
 .rb-viewer{border-radius:16px;overflow:hidden;position:relative;background:#1e293b;display:flex;align-items:center;justify-content:center;user-select:none;}
 .rb-viewer-loading{color:#94a3b8;padding:3rem;display:flex;flex-direction:column;align-items:center;gap:.8rem;}
 #rbCanvas{display:block;border-radius:12px;cursor:col-resize;}
-
-/* divider handle overlay */
 #rbDivHandle{position:absolute;top:50%;width:36px;height:36px;background:#fff;border-radius:50%;display:none;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.4);cursor:col-resize;transform:translate(-50%,-50%);pointer-events:none;}
 #rbDivHandle i{color:#dc2626;font-size:.8rem;}
-
-/* badges */
-.rb-badge{position:absolute;bottom:12px;font-size:.7rem;font-weight:700;padding:.25rem .65rem;border-radius:20px;z-index:5;display:none;}
-.rb-badge.left{left:12px;background:rgba(0,0,0,.55);color:#e2e8f0;}
-.rb-badge.right{right:12px;background:rgba(255,255,255,.9);color:#dc2626;}
-
-/* processing overlay */
 #rbProcessing{position:absolute;inset:0;background:rgba(15,23,42,.75);display:none;flex-direction:column;align-items:center;justify-content:center;gap:1rem;z-index:20;border-radius:16px;}
 #rbProcessing .rb-proc-text{color:#fff;font-size:.95rem;font-weight:600;}
 .rb-proc-bar{width:180px;height:6px;background:#334155;border-radius:3px;overflow:hidden;}
 .rb-proc-fill{height:100%;background:#dc2626;border-radius:3px;animation:rbfill 2s ease-in-out infinite;}
 @keyframes rbfill{0%{width:5%}60%{width:85%}100%{width:95%}}
-
-/* right panel */
 .rb-right{display:flex;flex-direction:column;gap:14px;position:sticky;top:16px;max-height:calc(100vh - 100px);overflow-y:auto;padding-right:4px;scrollbar-width:thin;}
 .rb-card{background:#fff;border:1.5px solid #e8e8e8;border-radius:14px;padding:1.1rem 1.3rem;}
 .rb-file-row{display:flex;align-items:center;gap:.9rem;}
@@ -48,31 +32,18 @@
 .rb-file-size{font-size:.75rem;color:#aaa;margin-top:.1rem;}
 .rb-change-btn{margin-left:auto;background:#fff;border:1.5px solid #e8e8e8;border-radius:8px;padding:.35rem .75rem;font-size:.75rem;font-weight:600;color:#666;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .rb-change-btn:hover{border-color:#fca5a5;color:#dc2626;}
-
 .rb-opts-title{font-size:.72rem;font-weight:800;color:#b91c1c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.65rem;}
-.rb-field-label{font-size:.73rem;font-weight:700;color:#555;margin:.7rem 0 .35rem;}
-
-.rb-bg-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem;}
-.rb-swatch{width:28px;height:28px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;transition:border-color .15s,transform .12s;}
-.rb-swatch:hover,.rb-swatch.active{border-color:#dc2626;transform:scale(1.12);}
-.rb-swatch.transparent{background:repeating-conic-gradient(#ccc 0% 25%,#fff 0% 50%) 0 0/10px 10px;border-color:#e8e8e8;}
-.rb-swatch.transparent.active{border-color:#dc2626;}
-
 .rb-convert-btn{width:100%;padding:.85rem;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:opacity .15s;}
 .rb-convert-btn:disabled{opacity:.6;cursor:not-allowed;}
-.rb-result-card{display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:1.1rem 1.2rem;}
-.rb-result-card.show{display:block;}
-.rb-result-title{font-size:.82rem;font-weight:700;color:#166534;display:flex;align-items:center;gap:.4rem;margin-bottom:.7rem;}
-.rb-dl-btns{display:flex;flex-direction:column;gap:.5rem;}
-.rb-dl-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.62rem;border:none;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;text-decoration:none;}
-.rb-dl-btn.png{background:#16a34a;color:#fff;}
-.rb-dl-btn.png:hover{background:#15803d;}
-.rb-dl-btn.jpg{background:#0284c7;color:#fff;}
-.rb-dl-btn.jpg:hover{background:#0369a1;}
 .rb-error-card{display:none;background:#fff1f2;border:1.5px solid #fca5a5;border-radius:14px;padding:1rem 1.2rem;}
 .rb-error-card.show{display:block;}
 .rb-error-msg{font-size:.82rem;color:#dc2626;}
-
+.rb-result-full{display:none;text-align:center;padding:3rem 2rem;}
+.rb-result-full.show{display:block;}
+.rb-dl-full-btn{display:inline-flex;align-items:center;gap:.6rem;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:.9rem 2.5rem;font-size:1.1rem;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(22,163,74,.35);transition:background .15s;}
+.rb-dl-full-btn:hover{background:#15803d;}
+.rb-new-file-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;margin:.9rem auto 0;background:#fff;border:1.5px solid #e8e8e8;border-radius:10px;padding:.65rem 1.5rem;font-size:.9rem;font-weight:600;color:#555;cursor:pointer;transition:border-color .15s;max-width:280px;}
+.rb-new-file-btn:hover{border-color:#dc2626;color:#dc2626;}
 @media(max-width:1050px){.rb-split{grid-template-columns:1fr;}.rb-right{position:static;max-height:none;}}
 </style>{% endblock %}
 
@@ -89,23 +60,13 @@
 </div>
 
 <div class="rb-split" id="rbSplit">
-  <!-- CANVAS VIEWER -->
   <div class="rb-viewer" id="rbViewer">
     <div class="rb-viewer-loading" id="rbViewerLoad">
       <i class="fa-solid fa-spinner" style="animation:spin 1s linear infinite;font-size:2rem;color:#dc2626"></i>
       <span style="color:#94a3b8">Loading…</span>
     </div>
-
     <canvas id="rbCanvas" style="display:none"></canvas>
-
-    <!-- draggable handle overlaid on canvas -->
     <div id="rbDivHandle" style="display:none"><i class="fa-solid fa-left-right"></i></div>
-
-    <!-- badges -->
-    <span class="rb-badge left"  id="rbBadgeOrig">Original</span>
-    <span class="rb-badge right" id="rbBadgeNew">No Background</span>
-
-    <!-- processing overlay -->
     <div id="rbProcessing">
       <i class="fa-solid fa-wand-magic-sparkles" style="font-size:2rem;color:#dc2626"></i>
       <div class="rb-proc-text">Removing background…</div>
@@ -113,11 +74,14 @@
     </div>
   </div>
 
-  <!-- RIGHT PANEL -->
   <div class="rb-right">
+    <h2 style="font-size:1.25rem;font-weight:800;color:#dc2626;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;">
+      <i class="fa-solid fa-wand-magic-sparkles"></i> Remove Background
+    </h2>
+
     <div class="rb-card">
       <div class="rb-file-row">
-        <div class="rb-file-icon"><i class="fa-solid fa-image"></i></div>
+        <div class="rb-file-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
         <div>
           <div class="rb-file-name" id="rbFileName">—</div>
           <div class="rb-file-size" id="rbFileSize">—</div>
@@ -137,265 +101,170 @@
       <i class="fa-solid fa-wand-magic-sparkles"></i> Remove Background
     </button>
 
-    <div class="rb-result-card" id="rbResultCard">
-      <div class="rb-result-title"><i class="fa-solid fa-circle-check"></i> Background removed!</div>
-      <div class="rb-dl-btns">
-        <a class="rb-dl-btn png" id="rbDlPng" href="#" download><i class="fa-solid fa-download"></i> Download PNG (transparent)</a>
-        <a class="rb-dl-btn jpg" id="rbDlJpg" href="#" download style="display:none"><i class="fa-solid fa-download"></i> Download JPG (with background)</a>
-      </div>
-    </div>
-
     <div class="rb-error-card" id="rbErrorCard">
       <div class="rb-error-msg" id="rbErrorMsg"></div>
     </div>
   </div>
 </div>
 
-<div class="cv-info-strip" id="rbInfoStrip">
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div><div class="cv-info-title">AI Powered</div><div class="cv-info-desc">Smart edge detection</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-file-image"></i></div><div><div class="cv-info-title">PNG Output</div><div class="cv-info-desc">Transparent background</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="cv-info-title">Private</div><div class="cv-info-desc">Files never stored</div></div></div>
-  <div class="cv-info-card"><div class="cv-info-icon"><i class="fa-solid fa-bolt"></i></div><div><div class="cv-info-title">Instant</div><div class="cv-info-desc">Fast processing</div></div></div>
+<div class="rb-result-full" id="rbResultFull">
+  <div style="font-size:3.5rem;color:#16a34a;margin-bottom:1rem"><i class="fa-solid fa-circle-check"></i></div>
+  <p style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0 0 .4rem">Background Removed!</p>
+  <p style="color:#64748b;margin:0 0 1.5rem;font-size:.95rem">Your transparent PNG is ready to download.</p>
+  <a class="rb-dl-full-btn" id="rbDlBtn" href="#" download><i class="fa-solid fa-download"></i> Download PNG</a>
+  <button class="rb-new-file-btn" onclick="resetTool()"><i class="fa-solid fa-plus"></i> Remove BG from Another Image</button>
 </div>
 {% endblock %}
 
 {% block extra_js %}<script>
-// ── state ──────────────────────────────────────────────────────────────────
-let currentFile   = null;
-let beforeImg     = null;   // Image object — original
-let afterImg      = null;   // Image object — result (transparent PNG)
-let dividerPct    = 50;
-let bgColor       = 'transparent';
-let hasResult     = false;
-let checkerPat    = null;   // OffscreenCanvas pattern
+let currentFile=null, beforeImg=null, afterImg=null, dividerPct=50, hasResult=false, checkerPat=null;
+const canvas=document.getElementById('rbCanvas'), ctx=canvas.getContext('2d');
+const handle=document.getElementById('rbDivHandle'), fileInput=document.getElementById('fileInput');
+const rbSplit=document.getElementById('rbSplit');
+const rbResultFull=document.getElementById('rbResultFull');
 
-const canvas  = document.getElementById('rbCanvas');
-const ctx     = canvas.getContext('2d');
-const handle  = document.getElementById('rbDivHandle');
-const fileInput = document.getElementById('fileInput');
-
-// ── Checker pattern ────────────────────────────────────────────────────────
-function makeChecker() {
-  const sz = 16;
-  const oc = document.createElement('canvas');
-  oc.width = oc.height = sz * 2;
-  const ox = oc.getContext('2d');
-  ox.fillStyle = '#cccccc';
-  ox.fillRect(0,   0,   sz, sz);
-  ox.fillRect(sz,  sz,  sz, sz);
-  ox.fillStyle = '#ffffff';
-  ox.fillRect(sz,  0,   sz, sz);
-  ox.fillRect(0,   sz,  sz, sz);
-  checkerPat = ctx.createPattern(oc, 'repeat');
+function makeChecker(){
+  const sz=16, oc=document.createElement('canvas');
+  oc.width=oc.height=sz*2;
+  const ox=oc.getContext('2d');
+  ox.fillStyle='#cccccc';ox.fillRect(0,0,sz,sz);ox.fillRect(sz,sz,sz,sz);
+  ox.fillStyle='#ffffff';ox.fillRect(sz,0,sz,sz);ox.fillRect(0,sz,sz,sz);
+  checkerPat=ctx.createPattern(oc,'repeat');
 }
 
-// ── Draw ───────────────────────────────────────────────────────────────────
-function drawFrame() {
-  if (!beforeImg) return;
-  const W = canvas.width, H = canvas.height;
-  const divX = Math.round(W * dividerPct / 100);
-
-  // compute contain-fit rect (same for both images, they have same natural size ideally)
-  // Use beforeImg natural size as reference
-  const bw = beforeImg.naturalWidth, bh = beforeImg.naturalHeight;
-  const scale = Math.min(W / bw, H / bh);
-  const dw = Math.round(bw * scale), dh = Math.round(bh * scale);
-  const dx = Math.round((W - dw) / 2), dy = Math.round((H - dh) / 2);
-
-  ctx.clearRect(0, 0, W, H);
-
-  if (!hasResult) {
-    // just draw original filling viewer
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(0, 0, W, H);
-    ctx.drawImage(beforeImg, dx, dy, dw, dh);
-    return;
+function drawFrame(){
+  if(!beforeImg)return;
+  const W=canvas.width,H=canvas.height;
+  const divX=Math.round(W*dividerPct/100);
+  const bw=beforeImg.naturalWidth,bh=beforeImg.naturalHeight;
+  const scale=Math.min(W/bw,H/bh);
+  const dw=Math.round(bw*scale),dh=Math.round(bh*scale);
+  const dx=Math.round((W-dw)/2),dy=Math.round((H-dh)/2);
+  ctx.clearRect(0,0,W,H);
+  if(!hasResult){
+    ctx.fillStyle='#1e293b';ctx.fillRect(0,0,W,H);
+    ctx.drawImage(beforeImg,dx,dy,dw,dh);return;
   }
-
-  // LEFT side — original
-  ctx.save();
-  ctx.beginPath(); ctx.rect(0, 0, divX, H); ctx.clip();
-  ctx.fillStyle = '#1e293b'; ctx.fillRect(0, 0, W, H);
-  ctx.drawImage(beforeImg, dx, dy, dw, dh);
+  ctx.save();ctx.beginPath();ctx.rect(0,0,divX,H);ctx.clip();
+  ctx.fillStyle='#1e293b';ctx.fillRect(0,0,W,H);
+  ctx.drawImage(beforeImg,dx,dy,dw,dh);ctx.restore();
+  ctx.save();ctx.beginPath();ctx.rect(divX,0,W-divX,H);ctx.clip();
+  if(!checkerPat)makeChecker();
+  ctx.fillStyle=checkerPat;ctx.fillRect(0,0,W,H);
+  if(afterImg)ctx.drawImage(afterImg,dx,dy,dw,dh);
   ctx.restore();
-
-  // RIGHT side — result on checker or solid bg
-  ctx.save();
-  ctx.beginPath(); ctx.rect(divX, 0, W - divX, H); ctx.clip();
-  if (bgColor === 'transparent') {
-    if (!checkerPat) makeChecker();
-    ctx.fillStyle = checkerPat;
-    ctx.fillRect(0, 0, W, H);
-  } else {
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, W, H);
-  }
-  if (afterImg) ctx.drawImage(afterImg, dx, dy, dw, dh);
-  ctx.restore();
-
-  // divider line
-  ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  ctx.fillRect(divX - 1, 0, 2, H);
-
-  // badges
-  ctx.font = 'bold 11px system-ui,sans-serif';
-  // original badge
-  ctx.fillStyle = 'rgba(0,0,0,0.55)';
-  const ob = ctx.measureText('Original');
-  ctx.beginPath(); ctx.roundRect(12, H - 34, ob.width + 16, 22, 11); ctx.fill();
-  ctx.fillStyle = '#e2e8f0'; ctx.fillText('Original', 20, H - 18);
-  // result badge
-  ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  const rb = ctx.measureText('No Background');
-  ctx.beginPath(); ctx.roundRect(W - rb.width - 28, H - 34, rb.width + 16, 22, 11); ctx.fill();
-  ctx.fillStyle = '#dc2626'; ctx.fillText('No Background', W - rb.width - 20, H - 18);
-
-  // update handle position
-  handle.style.left = divX + 'px';
+  ctx.fillStyle='rgba(255,255,255,0.9)';ctx.fillRect(divX-1,0,2,H);
+  ctx.font='bold 11px system-ui,sans-serif';
+  ctx.fillStyle='rgba(0,0,0,0.55)';
+  const ob=ctx.measureText('Original');
+  ctx.beginPath();ctx.roundRect(12,H-34,ob.width+16,22,11);ctx.fill();
+  ctx.fillStyle='#e2e8f0';ctx.fillText('Original',20,H-18);
+  ctx.fillStyle='rgba(255,255,255,0.9)';
+  const rb=ctx.measureText('No Background');
+  ctx.beginPath();ctx.roundRect(W-rb.width-28,H-34,rb.width+16,22,11);ctx.fill();
+  ctx.fillStyle='#dc2626';ctx.fillText('No Background',W-rb.width-20,H-18);
+  handle.style.left=divX+'px';
 }
 
-// ── Canvas sizing ──────────────────────────────────────────────────────────
-function sizeCanvas(img) {
-  const viewer = document.getElementById('rbViewer');
-  const vw = viewer.offsetWidth;
-  const ar = img.naturalHeight / img.naturalWidth;
-  const vh = Math.min(Math.round(vw * ar), 560);
-  canvas.width  = vw;
-  canvas.height = vh;
-  viewer.style.height = vh + 'px';
+function sizeCanvas(img){
+  const viewer=document.getElementById('rbViewer');
+  const vw=viewer.offsetWidth;
+  const ar=img.naturalHeight/img.naturalWidth;
+  const vh=Math.min(Math.round(vw*ar),560);
+  canvas.width=vw;canvas.height=vh;
+  viewer.style.height=vh+'px';
   makeChecker();
 }
 
-// ── Divider drag on canvas ─────────────────────────────────────────────────
-function pctFromEvent(ev) {
-  const rect = canvas.getBoundingClientRect();
-  const x = (ev.touches ? ev.touches[0].clientX : ev.clientX) - rect.left;
-  return Math.max(5, Math.min(95, x / rect.width * 100));
+function pctFromEvent(ev){
+  const rect=canvas.getBoundingClientRect();
+  const x=(ev.touches?ev.touches[0].clientX:ev.clientX)-rect.left;
+  return Math.max(5,Math.min(95,x/rect.width*100));
 }
-
-canvas.addEventListener('mousedown', e => {
-  if (!hasResult) return;
-  document.body.style.cursor = 'col-resize';
-  const move = ev => { dividerPct = pctFromEvent(ev); drawFrame(); };
-  const up   = () => { document.body.style.cursor = ''; document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
-  document.addEventListener('mousemove', move);
-  document.addEventListener('mouseup',   up);
+canvas.addEventListener('mousedown',e=>{
+  if(!hasResult)return;
+  document.body.style.cursor='col-resize';
+  const move=ev=>{dividerPct=pctFromEvent(ev);drawFrame();};
+  const up=()=>{document.body.style.cursor='';document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);};
+  document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
 });
-canvas.addEventListener('touchstart', e => {
-  if (!hasResult) return;
-  const move = ev => { dividerPct = pctFromEvent(ev); drawFrame(); };
-  const up   = () => { document.removeEventListener('touchmove', move); document.removeEventListener('touchend', up); };
-  document.addEventListener('touchmove', move, {passive:true});
-  document.addEventListener('touchend',  up);
-}, {passive:true});
+canvas.addEventListener('touchstart',e=>{
+  if(!hasResult)return;
+  const move=ev=>{dividerPct=pctFromEvent(ev);drawFrame();};
+  const up=()=>{document.removeEventListener('touchmove',move);document.removeEventListener('touchend',up);};
+  document.addEventListener('touchmove',move,{passive:true});document.addEventListener('touchend',up);
+},{passive:true});
 
-// ── Background colour ──────────────────────────────────────────────────────
-function setBg(el) {
-  document.querySelectorAll('.rb-swatch').forEach(s => s.classList.remove('active'));
-  el.classList.add('active');
-  bgColor = el.dataset.color;
-  drawFrame();
-  updateJpgBtn();
-}
-function setBgColor(hex) {
-  bgColor = hex;
-  drawFrame();
-  updateJpgBtn();
-}
-function updateJpgBtn() {
-  const jpgBtn = document.getElementById('rbDlJpg');
-  jpgBtn.style.display = (hasResult && bgColor !== 'transparent') ? '' : 'none';
-}
-
-// ── Load file ──────────────────────────────────────────────────────────────
-function setFile(f) {
-  if (!f) return;
-  currentFile = f;
-  hasResult   = false;
-  afterImg    = null;
-  document.getElementById('rbFileName').textContent = f.name;
-  document.getElementById('rbFileSize').textContent = (f.size / 1024).toFixed(1) + ' KB';
-  document.getElementById('rbDrop').style.display = 'none';
-  document.getElementById('rbInfoStrip').style.display = 'none';
-  ['rbResultCard','rbErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
-  document.getElementById('rbSplit').classList.add('show');
-  document.getElementById('rbConvertBtn').disabled = false;
-
-  const img = new Image();
-  img.onload = () => {
-    beforeImg = img;
-    sizeCanvas(img);
-    canvas.style.display = 'block';
-    document.getElementById('rbViewerLoad').style.display = 'none';
+function setFile(f){
+  if(!f)return;currentFile=f;hasResult=false;afterImg=null;
+  document.getElementById('rbFileName').textContent=f.name;
+  document.getElementById('rbFileSize').textContent=(f.size/1024).toFixed(1)+' KB';
+  document.getElementById('rbDrop').style.display='none';
+  document.getElementById('rbErrorCard').classList.remove('show');
+  rbResultFull.classList.remove('show');
+  rbSplit.classList.add('show');
+  document.getElementById('rbConvertBtn').disabled=false;
+  const img=new Image();
+  img.onload=()=>{
+    beforeImg=img;sizeCanvas(img);
+    canvas.style.display='block';
+    document.getElementById('rbViewerLoad').style.display='none';
     drawFrame();
   };
-  img.src = URL.createObjectURL(f);
+  img.src=URL.createObjectURL(f);
 }
 
-// ── Reset ──────────────────────────────────────────────────────────────────
-function resetTool() {
-  currentFile = null; beforeImg = null; afterImg = null; hasResult = false;
-  fileInput.value = '';
-  document.getElementById('rbDrop').style.display = '';
-  document.getElementById('rbSplit').classList.remove('show');
-  document.getElementById('rbInfoStrip').style.display = '';
-  ['rbResultCard','rbErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
-  handle.style.display = 'none';
-  canvas.style.display = 'none';
-  document.getElementById('rbViewerLoad').style.display = 'flex';
-  document.getElementById('rbViewer').style.height = '';
+function resetTool(){
+  currentFile=null;beforeImg=null;afterImg=null;hasResult=false;
+  fileInput.value='';
+  document.getElementById('rbDrop').style.display='';
+  rbSplit.classList.remove('show');
+  rbResultFull.classList.remove('show');
+  document.getElementById('rbErrorCard').classList.remove('show');
+  handle.style.display='none';canvas.style.display='none';
+  document.getElementById('rbViewerLoad').style.display='flex';
+  document.getElementById('rbViewer').style.height='';
 }
 
-// ── API call ───────────────────────────────────────────────────────────────
-async function doRemove() {
-  if (!currentFile) return;
-  document.getElementById('rbConvertBtn').disabled = true;
-  document.getElementById('rbProcessing').style.display = 'flex';
-  ['rbResultCard','rbErrorCard'].forEach(id => document.getElementById(id).classList.remove('show'));
-
-  const fd = new FormData();
-  fd.append('file', currentFile);
-  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-  try {
-    const res  = await fetch('/tools/api/img/remove-bg/', { method: 'POST', body: fd });
-    const text = await res.text();
+async function doRemove(){
+  if(!currentFile)return;
+  document.getElementById('rbConvertBtn').disabled=true;
+  document.getElementById('rbProcessing').style.display='flex';
+  document.getElementById('rbErrorCard').classList.remove('show');
+  rbResultFull.classList.remove('show');
+  const fd=new FormData();
+  fd.append('file',currentFile);
+  fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
+  try{
+    const res=await fetch('/tools/api/img/remove-bg/',{method:'POST',body:fd});
+    const text=await res.text();
     let d;
-    try { d = JSON.parse(text); } catch { throw new Error('Server error (status ' + res.status + '). rembg may not be installed.'); }
-    if (d.error) throw new Error(d.error);
-
-    // load result image
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      afterImg   = img;
-      hasResult  = true;
-      handle.style.display = 'flex';
-      dividerPct = 50;
-      drawFrame();
-    };
-    img.src = d.download_url + '?t=' + Date.now();
-
-    document.getElementById('rbDlPng').href     = d.download_url;
-    document.getElementById('rbDlPng').download = d.filename || 'no_bg.png';
-    document.getElementById('rbResultCard').classList.add('show');
-    updateJpgBtn();
-
-  } catch (e) {
-    document.getElementById('rbErrorMsg').textContent = e.message || 'Failed.';
+    try{d=JSON.parse(text);}catch{throw new Error('Server error (status '+res.status+'). rembg may not be installed.');}
+    if(d.error)throw new Error(d.error);
+    document.getElementById('rbProcessing').style.display='none';
+    const img=new Image();
+    img.crossOrigin='anonymous';
+    img.onload=()=>{afterImg=img;hasResult=true;handle.style.display='flex';dividerPct=50;drawFrame();};
+    img.src=d.download_url+'?t='+Date.now();
+    const _d=new Date(),_mo=_d.toLocaleString('en-US',{month:'short'}),_dy=_d.getDate();
+    const _hh=_d.getHours()%12||12,_mm=String(_d.getMinutes()).padStart(2,'0'),_ss=String(_d.getSeconds()).padStart(2,'0'),_ap=_d.getHours()>=12?'PM':'AM';
+    document.getElementById('rbDlBtn').href=d.download_url;
+    document.getElementById('rbDlBtn').download=`ZayroDocX Remove BG ${_mo} ${_dy}, ${_hh}_${_mm}_${_ss} ${_ap}.png`;
+    rbSplit.classList.remove('show');
+    rbResultFull.classList.add('show');
+  }catch(e){
+    document.getElementById('rbProcessing').style.display='none';
+    document.getElementById('rbErrorMsg').textContent=e.message||'Failed.';
     document.getElementById('rbErrorCard').classList.add('show');
-  } finally {
-    document.getElementById('rbProcessing').style.display = 'none';
-    document.getElementById('rbConvertBtn').disabled = false;
+  }finally{
+    document.getElementById('rbConvertBtn').disabled=false;
   }
 }
 
-// ── File input / drop ──────────────────────────────────────────────────────
-fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
-const rbDrop = document.getElementById('rbDrop');
-rbDrop.addEventListener('dragover',  e => { e.preventDefault(); rbDrop.classList.add('drag-over'); });
-rbDrop.addEventListener('dragleave', () => rbDrop.classList.remove('drag-over'));
-rbDrop.addEventListener('drop', e => { e.preventDefault(); rbDrop.classList.remove('drag-over'); setFile(e.dataTransfer.files[0]); });
-
-// redraw on resize
-window.addEventListener('resize', () => { if (beforeImg) { sizeCanvas(beforeImg); drawFrame(); } });
+fileInput.addEventListener('change',()=>setFile(fileInput.files[0]));
+const rbDrop=document.getElementById('rbDrop');
+rbDrop.addEventListener('dragover',e=>{e.preventDefault();rbDrop.classList.add('drag-over');});
+rbDrop.addEventListener('dragleave',()=>rbDrop.classList.remove('drag-over'));
+rbDrop.addEventListener('drop',e=>{e.preventDefault();rbDrop.classList.remove('drag-over');setFile(e.dataTransfer.files[0]);});
+window.addEventListener('resize',()=>{if(beforeImg){sizeCanvas(beforeImg);drawFrame();}});
 </script>{% endblock %}
