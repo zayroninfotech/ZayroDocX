@@ -31,6 +31,7 @@ class SecurityHeadersMiddleware:
             "https://cdnjs.cloudflare.com; "
         "img-src 'self' data: blob: https://www.gstatic.com https://fonts.gstatic.com; "
         "connect-src 'self' https://translate.googleapis.com; "
+        "worker-src 'self' blob: https://cdnjs.cloudflare.com; "
         "object-src 'none'; "
         "base-uri 'self'; "
         "frame-ancestors 'none';"

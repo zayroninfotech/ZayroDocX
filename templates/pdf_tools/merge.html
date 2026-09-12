@@ -348,7 +348,10 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
 /* ── state ── */
 let fileArray = [];        // ordered array of File objects
 let thumbCache = new Map(); // File → base64 data URL of first page
@@ -401,22 +404,22 @@ function addFiles(files) {
   newFiles.forEach(f => loadThumb(f));
 }
 
-/* ── render first-page thumbnail via server-side thumbnail API ── */
+/* ── render first-page thumbnail via PDF.js (client-side, instant) ── */
 async function loadThumb(f) {
   if (thumbCache.has(f)) return;
   thumbCache.set(f, null); /* mark as loading → shows spinner */
-  render(); /* re-render immediately so spinner appears */
+  render();
   try {
-    const fd = new FormData();
-    fd.append('csrfmiddlewaretoken', getCsrf());
-    fd.append('file', f);
-    const resp = await fetch('{% url "api_pdf_thumbnails" %}', { method: 'POST', body: fd });
-    const data = await resp.json();
-    if (data.pages && data.pages.length > 0) {
-      thumbCache.set(f, data.pages[0]);
-      render(); /* re-render with actual thumbnail */
-    }
-  } catch(e) { /* keep spinner/icon on error */ }
+    const buf = await f.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    const page = await pdf.getPage(1);
+    const vp = page.getViewport({ scale: 0.4 });
+    const canvas = document.createElement('canvas');
+    canvas.width = vp.width; canvas.height = vp.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+    thumbCache.set(f, canvas.toDataURL('image/jpeg', 0.75));
+    render();
+  } catch(e) { /* keep icon on error */ }
 }
 
 /* ── render ── */
