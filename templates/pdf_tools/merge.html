@@ -215,6 +215,26 @@
 @media(max-width:900px){ .continue-grid{ grid-template-columns:repeat(3,1fr); } }
 @media(max-width:500px){ .continue-grid{ grid-template-columns:1fr 1fr; } }
 
+/* ── Mobile responsive ── */
+@media(max-width:768px){
+  .fp-layout { flex-direction:column; }
+  .fp-sidebar {
+    width:100%; position:static;
+    flex-direction:row; flex-wrap:wrap; gap:.6rem;
+  }
+  .sidebar-title { display:none; }
+  .sidebar-hint { width:100%; order:-1; }
+  .btn-merge { flex:1; min-width:0; padding:.85rem .5rem; font-size:.95rem; }
+  .btn-clear-all { flex-shrink:0; padding:.65rem 1rem; }
+  .file-card { width:calc(50% - .5rem); }
+  .file-card-grid { gap:.6rem; }
+  .file-card-remove { opacity:1 !important; background:rgba(0,0,0,.55); }
+  .fp-topbar { gap:.5rem; }
+  .btn-add-more { font-size:.82rem; padding:.5rem .85rem; }
+  .result-download-row { flex-direction:column; align-items:stretch; }
+  .btn-download-big { min-width:0; width:100%; font-size:1rem; padding:.95rem 1rem; }
+}
+
 /* Error card */
 .result-error-wrap {
   background:#fff8f8; border:1.5px solid #fca5a5; border-radius:16px;
@@ -513,9 +533,13 @@ mergeBtn.addEventListener('click', async () => {
   fd.append('csrfmiddlewaretoken', getCsrf());
   fileArray.forEach(f => fd.append('files', f));
 
+  const controller = new AbortController();
+  const tid = setTimeout(() => controller.abort(), 120000);
   try {
-    const resp = await fetch('{% url "api_merge_pdf" %}', { method: 'POST', body: fd });
-    const data = await resp.json();
+    const resp = await fetch('{% url "api_merge_pdf" %}', { method:'POST', body:fd, signal:controller.signal });
+    clearTimeout(tid);
+    let data;
+    try { data = await resp.json(); } catch(_) { data = {error:'Server error. Please try again.'}; }
     progressFill.style.width = '100%'; progressPct.textContent = '100%';
     steps.forEach(s => document.getElementById(s).className = 'progress-step-item done');
     await sleep(300);
@@ -524,9 +548,13 @@ mergeBtn.addEventListener('click', async () => {
     if (data.error) { ZLoader.btnDone(mergeBtn, 400); showMergeError(data.error); }
     else { ZLoader.btnDone(mergeBtn, 200); showMergeSuccess(data); }
   } catch(err) {
+    clearTimeout(tid);
     ZLoader.hide(); ZLoader.btnDone(mergeBtn, 400);
     progressWrap.classList.remove('show');
-    showMergeError(err.message);
+    const msg = err.name === 'AbortError'
+      ? 'Request timed out. Please try again or use smaller files.'
+      : 'Network error. Please check your connection and try again.';
+    showMergeError(msg);
   } finally {
     mergeBtn.disabled = fileArray.length < 2;
   }
