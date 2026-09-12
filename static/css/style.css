@@ -1050,6 +1050,11 @@ tr:hover td { background: var(--brand-pale); }
 @media (max-width: 768px) {
   .content-full { padding: 1rem; }
   .mh-local-badge { display: none; }
+  /* hide admin badge on mobile — accessible via user dropdown */
+  .mh-admin-btn { display: none !important; }
+  /* tighten header actions so hamburger fits */
+  .mh-actions { gap: .35rem; }
+  .mh-user-name { padding: 0 .45rem; font-size: .78rem; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .tool-hero { flex-direction: column; gap: .75rem; }
   .dash-hero { padding: 1.5rem; }
