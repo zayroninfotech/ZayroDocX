@@ -536,31 +536,46 @@ mergeBtn.addEventListener('click', async () => {
   fd.append('csrfmiddlewaretoken', getCsrf());
   fileArray.forEach(f => fd.append('files', f));
 
-  const controller = new AbortController();
-  const tid = setTimeout(() => controller.abort(), 120000);
-  try {
-    const resp = await fetch('{% url "api_merge_pdf" %}', { method:'POST', body:fd, signal:controller.signal });
-    clearTimeout(tid);
-    let data;
-    try { data = await resp.json(); } catch(_) { data = {error:'Server error. Please try again.'}; }
-    progressFill.style.width = '100%'; progressPct.textContent = '100%';
-    steps.forEach(s => document.getElementById(s).className = 'progress-step-item done');
-    await sleep(300);
-    progressWrap.classList.remove('show');
-    ZLoader.hide();
-    if (data.error) { ZLoader.btnDone(mergeBtn, 400); showMergeError(data.error); }
-    else { ZLoader.btnDone(mergeBtn, 200); showMergeSuccess(data); }
-  } catch(err) {
-    clearTimeout(tid);
-    ZLoader.hide(); ZLoader.btnDone(mergeBtn, 400);
-    progressWrap.classList.remove('show');
-    const msg = err.name === 'AbortError'
-      ? 'Request timed out. Please try again or use smaller files.'
-      : 'Network error. Please check your connection and try again.';
-    showMergeError(msg);
-  } finally {
-    mergeBtn.disabled = fileArray.length < 2;
-  }
+  /* Use XHR so we can track real upload progress */
+  const data = await new Promise((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.timeout = 120000;
+
+    xhr.upload.addEventListener('progress', e => {
+      if (!e.lengthComputable) return;
+      const pct = Math.round((e.loaded / e.total) * 75);
+      progressFill.style.width = pct + '%';
+      progressPct.textContent = pct + '%';
+      if (pct < 40) {
+        document.getElementById('ps1').className = 'progress-step-item active';
+        document.getElementById('ps2').className = 'progress-step-item';
+        progressLabel.textContent = 'Uploading files… ' + formatBytes(e.loaded) + ' / ' + formatBytes(e.total);
+      } else {
+        document.getElementById('ps1').className = 'progress-step-item done';
+        document.getElementById('ps2').className = 'progress-step-item active';
+        progressLabel.textContent = 'Upload complete — merging pages…';
+      }
+    });
+
+    xhr.addEventListener('load', () => {
+      try { resolve(JSON.parse(xhr.responseText)); }
+      catch(_) { resolve({error:'Server error. Please try again.'}); }
+    });
+    xhr.addEventListener('error',   () => resolve({error:'Network error. Please check your connection and try again.'}));
+    xhr.addEventListener('timeout', () => resolve({error:'Request timed out. Please try again or use smaller files.'}));
+
+    xhr.open('POST', '{% url "api_merge_pdf" %}');
+    xhr.send(fd);
+  });
+
+  await animateTo(100, 400);
+  steps.forEach(s => document.getElementById(s).className = 'progress-step-item done');
+  await sleep(300);
+  progressWrap.classList.remove('show');
+  ZLoader.hide();
+  if (data.error) { ZLoader.btnDone(mergeBtn, 400); showMergeError(data.error); }
+  else { ZLoader.btnDone(mergeBtn, 200); showMergeSuccess(data); }
+  mergeBtn.disabled = fileArray.length < 2;
 });
 
 const CONTINUE_POOL = [
