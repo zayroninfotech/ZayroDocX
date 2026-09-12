@@ -80,7 +80,7 @@ def recommend_products(request):
     if result is None and engine in ('openai', 'auto'):
         try:
             from openai import OpenAI
-            client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY', ''))
+            client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY', ''), timeout=25.0)
             resp = client.chat.completions.create(
                 model='gpt-4o-mini',
                 messages=[

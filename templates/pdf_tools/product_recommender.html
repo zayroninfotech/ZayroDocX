@@ -249,18 +249,28 @@ async function getRecommendations(){
   document.getElementById('prResults').classList.remove('show');
   document.getElementById('prBody').style.display='none';
   document.getElementById('prLoading').classList.add('show');
+  const controller=new AbortController();
+  const tid=setTimeout(()=>controller.abort(),30000);
   try{
     const res=await fetch('/tools/api/product-recommender/',{
       method:'POST',
       headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
       body:JSON.stringify({query,category:document.getElementById('prCategory').value,budget:document.getElementById('prBudget').value.trim(),engine}),
+      signal:controller.signal,
     });
-    const d=await res.json();
+    clearTimeout(tid);
+    let d;
+    try{ d=await res.json(); }
+    catch(_){ document.getElementById('prBody').style.display=''; showErr('Server error. Please try again.'); return; }
     if(d.error){document.getElementById('prBody').style.display='';showErr(d.error);return;}
     renderResults(d);
   }catch(e){
+    clearTimeout(tid);
     document.getElementById('prBody').style.display='';
-    showErr('Something went wrong: '+e.message);
+    const msg=e.name==='AbortError'
+      ?'Request timed out. AI is busy — please try again in a moment.'
+      :'Network error. Please check your connection and try again.';
+    showErr(msg);
   }finally{
     document.getElementById('prLoading').classList.remove('show');
     btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-magnifying-glass"></i> Get Recommendations &rarr;';
