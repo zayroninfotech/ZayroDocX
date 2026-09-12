@@ -16,7 +16,11 @@ class SecurityHeadersMiddleware:
     # unsafe-inline is required because templates use {% block extra_js %} inline scripts.
     _CSP = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' https://translate.google.com https://translate.googleapis.com https://cdnjs.cloudflare.com; "
+        "script-src 'self' 'unsafe-inline' "
+            "https://translate.google.com "
+            "https://translate.googleapis.com "
+            "https://translate-pa.googleapis.com "
+            "https://cdnjs.cloudflare.com; "
         "style-src 'self' 'unsafe-inline' "
             "https://fonts.googleapis.com "
             "https://cdnjs.cloudflare.com "
@@ -25,8 +29,8 @@ class SecurityHeadersMiddleware:
             "https://fonts.gstatic.com "
             "https://www.gstatic.com "
             "https://cdnjs.cloudflare.com; "
-        "img-src 'self' data: blob:; "
-        "connect-src 'self'; "
+        "img-src 'self' data: blob: https://www.gstatic.com https://fonts.gstatic.com; "
+        "connect-src 'self' https://translate.googleapis.com; "
         "object-src 'none'; "
         "base-uri 'self'; "
         "frame-ancestors 'none';"
