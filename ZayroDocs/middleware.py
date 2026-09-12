@@ -16,7 +16,7 @@ class SecurityHeadersMiddleware:
     # unsafe-inline is required because templates use {% block extra_js %} inline scripts.
     _CSP = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline'; "
+        "script-src 'self' 'unsafe-inline' https://translate.google.com https://cdnjs.cloudflare.com; "
         "style-src 'self' 'unsafe-inline' "
             "https://fonts.googleapis.com "
             "https://cdnjs.cloudflare.com; "
