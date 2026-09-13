@@ -447,7 +447,10 @@
 <div class="result-card" id="resultCard"></div>
 
 {% endblock %}
-{% block extra_js %}<script>
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 const fileInput    = document.getElementById('fileInput');
 const uploadZone   = document.getElementById('uploadZone');
@@ -476,7 +479,7 @@ function showFilePanel(f) {
   if (document.getElementById('rangeList').children.length === 0) addRangePanel();
 }
 
-/* ── Render real PDF thumbnails via backend API ── */
+/* ── Render PDF thumbnails client-side via PDF.js ── */
 async function renderPreview(f) {
   const area = document.getElementById('previewArea');
 
@@ -500,61 +503,52 @@ async function renderPreview(f) {
       &nbsp;<button type="button" onclick="document.getElementById('fileInput').click()" style="background:#f5f5f5;border:none;border-radius:6px;padding:.22rem .6rem;font-size:.72rem;font-weight:600;color:#888;cursor:pointer;margin-left:.3rem;">Change</button>
     </div>`;
 
-  /* animate progress bar while waiting for server */
-  let pct = 0;
-  const barEl  = () => document.getElementById('renderBar');
-  const pctEl  = () => document.getElementById('renderPct');
-  const ticker = setInterval(() => {
-    pct = Math.min(pct + (pct < 60 ? 3 : pct < 80 ? 1 : 0.3), 88);
-    if (barEl()) barEl().style.width = pct + '%';
-    if (pctEl()) pctEl().textContent  = Math.round(pct) + '%';
-  }, 180);
-
   try {
-    const fd = new FormData();
-    fd.append('csrfmiddlewaretoken', getCsrf());
-    fd.append('file', f);
+    const buf = await f.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    totalPages = pdf.numPages;
 
-    const resp = await fetch('{% url "api_pdf_thumbnails" %}', { method: 'POST', body: fd });
-    clearInterval(ticker);
-    /* jump to 100% */
-    if (barEl()) { barEl().style.width = '100%'; }
-    if (pctEl()) { pctEl().textContent  = '100%'; }
-    await new Promise(r => setTimeout(r, 200));
-    const data = await resp.json();
-
-    if (data.error) throw new Error(data.error);
-
-    totalPages = data.count;
-
-    /* Update "to" field of first range panel */
     const toInputs = document.querySelectorAll('.to-page');
     if (toInputs.length) toInputs[0].value = totalPages;
 
     const grid = document.getElementById('pagesGrid');
-    grid.innerHTML = '';
 
-    data.pages.forEach((src, idx) => {
-      const pageNum = idx + 1;
+    for (let i = 1; i <= totalPages; i++) {
+      const page = await pdf.getPage(i);
+      const vp = page.getViewport({ scale: 0.25 });
+      const canvas = document.createElement('canvas');
+      canvas.width = vp.width; canvas.height = vp.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+      const src = canvas.toDataURL('image/jpeg', 0.7);
+
+      const pct = Math.round((i / totalPages) * 100);
+      const barEl = document.getElementById('renderBar');
+      const pctEl = document.getElementById('renderPct');
+      if (barEl) barEl.style.width = pct + '%';
+      if (pctEl) pctEl.textContent = pct + '%';
+
       const thumb = document.createElement('div');
       thumb.className = 'sp-page-thumb';
-      thumb.dataset.page = pageNum;
+      thumb.dataset.page = i;
       thumb.innerHTML = `
         <div class="sp-page-card" style="width:90px;height:116px;padding:0;overflow:hidden;border-radius:4px 10px 4px 4px;">
           <span class="sp-sel-badge">✓</span>
-          <img src="${src}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy">
+          <img src="${src}" style="width:100%;height:100%;object-fit:cover;display:block;">
         </div>
-        <div class="sp-page-label">${pageNum}</div>`;
+        <div class="sp-page-label">${i}</div>`;
       thumb.addEventListener('click', () => {
         thumb.classList.toggle('sp-selected');
         syncSelectedPages();
       });
       grid.appendChild(thumb);
-    });
+    }
+
+    const ph = document.getElementById('renderPlaceholder');
+    if (ph) ph.remove();
 
   } catch(e) {
-    clearInterval(ticker);
-    document.getElementById('pagesGrid').innerHTML =
+    const g = document.getElementById('pagesGrid');
+    if (g) g.innerHTML =
       `<div class="sp-placeholder"><i class="fa-solid fa-triangle-exclamation" style="color:#f87171"></i>&nbsp; Could not preview: ${escHtml(e.message)}</div>`;
   }
 }
