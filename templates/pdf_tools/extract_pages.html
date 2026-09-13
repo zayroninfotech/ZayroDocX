@@ -269,7 +269,11 @@
 <div class="result-card" id="resultCard"></div>
 
 {% endblock %}
-{% block extra_js %}<script>
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
 const fileInput    = document.getElementById('fileInput');
 const uploadZone   = document.getElementById('uploadZone');
 const filePanel    = document.getElementById('filePanel');
@@ -300,16 +304,17 @@ async function renderThumbnails(f) {
   const grid = document.getElementById('pagesGrid');
   grid.innerHTML = `<div class="ep-placeholder"><i class="fa-solid fa-spinner fa-spin"></i>&nbsp; Rendering pages…</div>`;
   try {
-    const fd = new FormData();
-    fd.append('csrfmiddlewaretoken', getCsrf());
-    fd.append('file', f);
-    const resp = await fetch('{% url "api_pdf_thumbnails" %}', { method:'POST', body:fd });
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error);
-    totalPages = data.count;
+    const buf = await f.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    totalPages = pdf.numPages;
     grid.innerHTML = '';
-    data.pages.forEach((src, idx) => {
-      const pageNum = idx + 1;
+    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      const vp = page.getViewport({ scale: 0.4 });
+      const canvas = document.createElement('canvas');
+      canvas.width = vp.width; canvas.height = vp.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+      const src = canvas.toDataURL('image/jpeg', 0.75);
       const thumb = document.createElement('div');
       thumb.className = 'ep-page-thumb';
       thumb.dataset.page = pageNum;
@@ -321,7 +326,7 @@ async function renderThumbnails(f) {
         <div class="ep-page-num">${pageNum}</div>`;
       thumb.addEventListener('click', () => togglePage(pageNum, thumb));
       grid.appendChild(thumb);
-    });
+    }
     const infoBar = document.createElement('div');
     infoBar.style.cssText = 'width:100%;margin-top:.75rem;font-size:.75rem;color:#aaa;display:flex;align-items:center;gap:.4rem;';
     infoBar.innerHTML = `<i class="fa-solid fa-file-pdf" style="color:#dc2626"></i>
