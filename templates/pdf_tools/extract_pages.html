@@ -187,6 +187,25 @@
 .result-err-icon { width: 44px; height: 44px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
 .result-err-title { font-size: .95rem; font-weight: 700; color: #111; }
 .result-err-msg   { font-size: .8rem; color: #888; margin-top: .2rem; }
+
+/* ── Mobile ── */
+@media(max-width:768px){
+  .ep-layout { flex-direction: column; }
+  .ep-divider { display: none; }
+  .ep-sidebar { width: 100%; order: -1; padding: 1rem; }
+  .ep-preview-area { padding: 1rem 0 0; width: 100%; }
+  .ep-sidebar-title { font-size: 1.3rem; }
+  .ep-pages-grid { gap: .55rem; }
+  .ep-page-thumb { width: calc(33.333% - .4rem); }
+  .ep-page-card { width: 100%; height: auto; aspect-ratio: 100/130; }
+  .ep-page-card img { border-radius: 4px 10px 4px 4px; }
+  .ep-page-check { display: none; }
+  .ep-page-thumb.selected .ep-page-check { display: flex; }
+  .ep-presets { gap: .3rem; }
+  .btn-extract { padding: .9rem .5rem; font-size: .95rem; }
+  .result-download-row { flex-direction: column; align-items: stretch; }
+  .btn-download-big { min-width: 0; width: 100%; font-size: 1rem; padding: .95rem 1rem; justify-content: center; }
+}
 </style>
 
 <!-- Upload zone -->
