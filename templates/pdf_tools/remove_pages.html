@@ -213,6 +213,17 @@
 .result-err-title { font-size: .95rem; font-weight: 700; color: #111; }
 .result-err-msg   { font-size: .8rem; color: #888; margin-top: .2rem; }
 
+/* ── Mobile ── */
+@media(max-width:768px){
+  .rp-layout { flex-direction: column; }
+  .rp-divider { display: none; }
+  .rp-sidebar { width: 100%; order: -1; padding: 1rem; }
+  .rp-preview-area { padding: 1rem 0 0; width: 100%; }
+  .rp-page-card { width: 80px; height: 104px; }
+  .result-download-row { flex-direction: column; align-items: stretch; }
+  .btn-download-big { min-width: 0; width: 100%; font-size: 1rem; padding: .95rem 1rem; justify-content: center; }
+}
+
 /* ── Dark mode ── */
 [data-theme="dark"] .drop-zone { background: var(--surface2); border-color: var(--border); }
 [data-theme="dark"] .drop-zone.dragging { background: rgba(220,38,38,.08); border-color: #dc2626; }
@@ -355,7 +366,12 @@
 <div class="result-card" id="resultCard"></div>
 
 {% endblock %}
-{% block extra_js %}<script>
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
 const fileInput    = document.getElementById('fileInput');
 const uploadZone   = document.getElementById('uploadZone');
 const filePanel    = document.getElementById('filePanel');
@@ -383,11 +399,11 @@ function showFilePanel(f) {
   renderThumbnails(f);
 }
 
-/* ── Render thumbnails via backend ── */
+/* ── Render thumbnails client-side via PDF.js ── */
 async function renderThumbnails(f) {
   const grid = document.getElementById('pagesGrid');
   grid.innerHTML = `
-    <div class="rp-placeholder" style="flex-direction:column;gap:.9rem;width:100%;padding:2rem 1rem;">
+    <div class="rp-placeholder" style="flex-direction:column;gap:.9rem;width:100%;padding:2rem 1rem;" id="rpRenderPlaceholder">
       <div style="display:flex;align-items:center;gap:.55rem;font-size:.88rem;color:#aaa;">
         <i class="fa-solid fa-spinner fa-spin" style="color:#dc2626;"></i>
         <span>Rendering pages…</span>
@@ -398,57 +414,41 @@ async function renderThumbnails(f) {
       </div>
     </div>`;
 
-  let rPct = 0;
-  const rTicker = setInterval(() => {
-    rPct = Math.min(rPct + (rPct < 60 ? 3 : rPct < 80 ? 1 : 0.3), 88);
-    const bar = document.getElementById('rpRenderBar');
-    const lbl = document.getElementById('rpRenderPct');
-    if (bar) bar.style.width = rPct + '%';
-    if (lbl) lbl.textContent = Math.round(rPct) + '%';
-  }, 180);
-
   try {
-    const fd = new FormData();
-    fd.append('csrfmiddlewaretoken', getCsrf());
-    fd.append('file', f);
+    const buf = await f.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    totalPages = pdf.numPages;
 
-    const resp = await fetch('{% url "api_pdf_thumbnails" %}', { method: 'POST', body: fd });
-    clearInterval(rTicker);
-    const bar = document.getElementById('rpRenderBar');
-    const lbl = document.getElementById('rpRenderPct');
-    if (bar) bar.style.width = '100%';
-    if (lbl) lbl.textContent = '100%';
-    await sleep(200);
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error);
+    for (let i = 1; i <= totalPages; i++) {
+      const page = await pdf.getPage(i);
+      const vp = page.getViewport({ scale: 0.22 });
+      const canvas = document.createElement('canvas');
+      canvas.width = vp.width; canvas.height = vp.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+      const src = canvas.toDataURL('image/jpeg', 0.7);
 
-    totalPages = data.count;
-    grid.innerHTML = '';
+      const pct = Math.round((i / totalPages) * 100);
+      const bar = document.getElementById('rpRenderBar');
+      const lbl = document.getElementById('rpRenderPct');
+      if (bar) bar.style.width = pct + '%';
+      if (lbl) lbl.textContent = pct + '%';
 
-    data.pages.forEach((src, idx) => {
-      const pageNum = idx + 1;
       const thumb = document.createElement('div');
       thumb.className = 'rp-page-thumb';
-      thumb.dataset.page = pageNum;
+      thumb.dataset.page = i;
       thumb.innerHTML = `
         <div class="rp-page-card">
-          <img src="${src}" loading="lazy">
+          <img src="${src}">
           <div class="rp-page-x"><i class="fa-solid fa-xmark"></i></div>
         </div>
-        <div class="rp-page-num">${pageNum}</div>`;
-      thumb.addEventListener('click', () => togglePage(pageNum, thumb));
+        <div class="rp-page-num">${i}</div>`;
+      thumb.addEventListener('click', () => togglePage(i, thumb));
       grid.appendChild(thumb);
-    });
-
-    /* Note if not all pages were previewed */
-    if (data.previewed && data.previewed < totalPages) {
-      const note = document.createElement('div');
-      note.style.cssText = 'width:100%;margin-top:.5rem;padding:.5rem .75rem;background:#fff8e1;border-radius:8px;font-size:.75rem;color:#92400e;display:flex;align-items:center;gap:.4rem;';
-      note.innerHTML = `<i class="fa-solid fa-circle-info"></i> Showing first ${data.previewed} of ${totalPages} pages. Type page numbers in the box to select pages beyond ${data.previewed}.`;
-      grid.after(note);
     }
 
-    /* File info bar at bottom */
+    const ph = document.getElementById('rpRenderPlaceholder');
+    if (ph) ph.remove();
+
     const infoBar = document.createElement('div');
     infoBar.style.cssText = 'width:100%;margin-top:.75rem;font-size:.75rem;color:#aaa;display:flex;align-items:center;gap:.4rem;';
     infoBar.innerHTML = `<i class="fa-solid fa-file-pdf" style="color:#dc2626"></i>
@@ -457,7 +457,6 @@ async function renderThumbnails(f) {
     grid.after(infoBar);
 
   } catch(e) {
-    clearInterval(rTicker);
     grid.innerHTML = `<div class="rp-placeholder"><i class="fa-solid fa-triangle-exclamation" style="color:#f87171"></i>&nbsp; ${escHtml(e.message)}</div>`;
   }
 }
@@ -482,6 +481,20 @@ function syncInputFromSelection() {
 
 function updateCount() {
   document.getElementById('selectedCount').textContent = selectedPages.size;
+}
+
+function parsePageNums(str) {
+  const set = new Set();
+  str.split(',').forEach(part => {
+    part = part.trim();
+    if (part.includes('-')) {
+      const [s, e] = part.split('-').map(n => parseInt(n) || 0);
+      for (let i = s; i <= Math.min(e, totalPages || 9999); i++) if (i >= 1) set.add(i);
+    } else if (/^\d+$/.test(part)) {
+      const n = parseInt(part); if (n >= 1) set.add(n);
+    }
+  });
+  return set;
 }
 
 /* ── Preset quick-select ── */
@@ -569,33 +582,42 @@ document.getElementById('removeBtn').addEventListener('click', async () => {
   sidebarProg.style.display = 'block';
   sidebarBar.style.width = '0%'; sidebarPct.textContent = '0%';
 
-  let pct = 0;
-  const ticker = setInterval(() => {
-    pct = Math.min(pct + (pct < 60 ? 3 : pct < 80 ? 1 : 0.3), 88);
-    sidebarBar.style.width = pct + '%';
-    sidebarPct.textContent = Math.round(pct) + '%';
-  }, 180);
-
-  const fd = new FormData();
-  fd.append('csrfmiddlewaretoken', getCsrf());
-  fd.append('file', f);
-  fd.append('pages', pages);
-
   function hideSidebarProgress() {
-    clearInterval(ticker);
     sidebarProg.style.display = 'none';
     removeBtn.style.display = '';
     clearBtn.style.display  = '';
   }
 
   try {
-    const resp = await fetch('{% url "api_remove_pages" %}', {method:'POST',body:fd});
-    const data = await resp.json();
-    clearInterval(ticker);
+    const pagesToRemove = parsePageNums(pages);
+    sidebarBar.style.width = '20%'; sidebarPct.textContent = '20%';
+
+    const buf = await f.arrayBuffer();
+    const srcDoc = await PDFLib.PDFDocument.load(buf, { ignoreEncryption: true });
+    const total = srcDoc.getPageCount();
+
+    const keepIndices = [];
+    for (let i = 0; i < total; i++) {
+      if (!pagesToRemove.has(i + 1)) keepIndices.push(i);
+    }
+    if (keepIndices.length === 0) throw new Error('Cannot remove all pages from a PDF.');
+
+    sidebarBar.style.width = '60%'; sidebarPct.textContent = '60%';
+
+    const newDoc = await PDFLib.PDFDocument.create();
+    const copiedPages = await newDoc.copyPages(srcDoc, keepIndices);
+    copiedPages.forEach(p => newDoc.addPage(p));
+
+    sidebarBar.style.width = '90%'; sidebarPct.textContent = '90%';
+
+    const bytes = await newDoc.save();
+    const blob = new Blob([bytes], { type: 'application/pdf' });
+    const downloadUrl = URL.createObjectURL(blob);
+
     sidebarBar.style.width = '100%'; sidebarPct.textContent = '100%';
     await sleep(300);
     sidebarProg.style.display = 'none';
-    if (data.error) { hideSidebarProgress(); showError(data.error); } else { showSuccess(data); }
+    showSuccess({ download_url: downloadUrl, client_side: true });
   } catch(err) {
     hideSidebarProgress(); showError(err.message);
   }
